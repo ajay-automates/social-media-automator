@@ -17,6 +17,10 @@ const {
 } = require('./services/database');
 
 const { generateCaption } = require('./services/ai');
+const { 
+  getAllAccountsWithStatus, 
+  getAllCredentials 
+} = require('./services/accounts');
 
 const app = express();
 
@@ -60,13 +64,35 @@ app.get('/api/health', async (req, res) => {
 });
 
 /**
+ * GET /api/accounts
+ * Get all accounts with their platform availability
+ */
+app.get('/api/accounts', (req, res) => {
+  try {
+    const accounts = getAllAccountsWithStatus();
+    res.json({ 
+      success: true,
+      accounts,
+      count: accounts.length
+    });
+  } catch (error) {
+    console.error('Error in /api/accounts:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
  * POST /api/post/now
- * Post immediately to LinkedIn
+ * Post immediately to selected platforms from selected account
  */
 app.post('/api/post/now', async (req, res) => {
   try {
-    const { text, imageUrl, platforms } = req.body;
+    const { text, imageUrl, platforms, accountId = 1 } = req.body;
     console.log('Received platforms:', platforms, typeof platforms);
+    console.log('Using account ID:', accountId);
     
     if (!text) {
       return res.status(400).json({ 
@@ -75,23 +101,8 @@ app.post('/api/post/now', async (req, res) => {
       });
     }
     
-    const credentials = {
-      linkedin: {
-        accessToken: process.env.LINKEDIN_TOKEN,
-        urn: process.env.LINKEDIN_URN,
-        type: process.env.LINKEDIN_TYPE
-      },
-      twitter: {
-        apiKey: process.env.TWITTER_API_KEY,
-        apiSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessSecret: process.env.TWITTER_ACCESS_SECRET
-      },
-      instagram: {
-        accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
-        igUserId: process.env.INSTAGRAM_USER_ID
-      }
-    };
+    // Get credentials for the selected account
+    const credentials = getAllCredentials(accountId);
     
     // Validate credentials
     if (!credentials.linkedin.accessToken) {
@@ -115,11 +126,12 @@ app.post('/api/post/now', async (req, res) => {
 
 /**
  * POST /api/post/schedule
- * Schedule a post for later
+ * Schedule a post for later from selected account
  */
 app.post('/api/post/schedule', (req, res) => {
   try {
-    const { text, imageUrl, platforms, scheduleTime } = req.body;
+    const { text, imageUrl, platforms, scheduleTime, accountId = 1 } = req.body;
+    console.log('Scheduling post for account ID:', accountId);
     
     if (!text || !scheduleTime) {
       return res.status(400).json({ 
@@ -128,23 +140,8 @@ app.post('/api/post/schedule', (req, res) => {
       });
     }
     
-    const credentials = {
-      linkedin: {
-        accessToken: process.env.LINKEDIN_TOKEN,
-        urn: process.env.LINKEDIN_URN,
-        type: process.env.LINKEDIN_TYPE
-      },
-      twitter: {
-        apiKey: process.env.TWITTER_API_KEY,
-        apiSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessSecret: process.env.TWITTER_ACCESS_SECRET
-      },
-      instagram: {
-        accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
-        igUserId: process.env.INSTAGRAM_USER_ID
-      }
-    };
+    // Get credentials for the selected account
+    const credentials = getAllCredentials(accountId);
     
     // Validate credentials
     if (!credentials.linkedin.accessToken) {
@@ -181,7 +178,7 @@ app.post('/api/post/schedule', (req, res) => {
 
 /**
  * POST /api/post/bulk
- * Schedule multiple posts at once
+ * Schedule multiple posts at once (supports different accounts per post)
  */
 app.post('/api/post/bulk', (req, res) => {
   try {
@@ -194,28 +191,14 @@ app.post('/api/post/bulk', (req, res) => {
       });
     }
     
-    const credentials = {
-      linkedin: {
-        accessToken: process.env.LINKEDIN_TOKEN,
-        urn: process.env.LINKEDIN_URN,
-        type: process.env.LINKEDIN_TYPE
-      },
-      twitter: {
-        apiKey: process.env.TWITTER_API_KEY,
-        apiSecret: process.env.TWITTER_API_SECRET,
-        accessToken: process.env.TWITTER_ACCESS_TOKEN,
-        accessSecret: process.env.TWITTER_ACCESS_SECRET
-      },
-      instagram: {
-        accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
-        igUserId: process.env.INSTAGRAM_USER_ID
-      }
-    };
-    
     const scheduled = [];
     
     posts.forEach(post => {
       if (post.text && post.scheduleTime) {
+        // Each post can have its own accountId (defaults to 1)
+        const accountId = post.accountId || 1;
+        const credentials = getAllCredentials(accountId);
+        
         const queueItem = schedulePost(
           post.text,
           post.imageUrl || null,
@@ -398,6 +381,7 @@ app.listen(PORT, async () => {
   
   console.log(`\n📋 API Endpoints:`);
   console.log(`   GET  /api/health - Health check`);
+  console.log(`   GET  /api/accounts - List all accounts`);
   console.log(`   POST /api/post/now - Post immediately`);
   console.log(`   POST /api/post/schedule - Schedule a post`);
   console.log(`   POST /api/post/bulk - Schedule multiple posts`);

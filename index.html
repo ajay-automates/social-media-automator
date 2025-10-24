@@ -14,6 +14,14 @@
       <p class="text-gray-400">Post to LinkedIn & Twitter with smart scheduling</p>
     </div>
 
+    <!-- Account Selector -->
+    <div class="bg-gray-800 p-4 rounded-lg mb-4">
+      <label class="text-gray-400 text-sm mb-2 block">📂 Posting as:</label>
+      <select id="accountSelect" class="w-full p-3 bg-gray-700 rounded-lg text-white font-medium text-lg cursor-pointer hover:bg-gray-600 transition">
+        <option value="1">Loading accounts...</option>
+      </select>
+    </div>
+
     <!-- Status -->
     <div class="bg-gray-800 p-4 rounded-lg mb-8">
       <div class="flex items-center justify-between">
@@ -184,10 +192,45 @@
 
   <script>
     const API_URL = window.location.origin;
+    let accountsData = []; // Store accounts globally
 
     function getSelectedPlatforms() {
       return Array.from(document.querySelectorAll('.platform-checkbox:checked'))
         .map(cb => cb.value);
+    }
+
+    function getSelectedAccount() {
+      return parseInt(document.getElementById('accountSelect').value);
+    }
+
+    // Load accounts from API
+    async function loadAccounts() {
+      try {
+        const response = await fetch(`${API_URL}/api/accounts`);
+        const data = await response.json();
+
+        if (data.success && data.accounts) {
+          accountsData = data.accounts;
+          populateAccountDropdown(data.accounts);
+        }
+      } catch (error) {
+        console.error('Error loading accounts:', error);
+      }
+    }
+
+    // Populate account dropdown with emoji and name
+    function populateAccountDropdown(accounts) {
+      const select = document.getElementById('accountSelect');
+      select.innerHTML = accounts.map(account => {
+        const platforms = [];
+        if (account.platforms.linkedin) platforms.push('🔗');
+        if (account.platforms.twitter) platforms.push('🐦');
+        if (account.platforms.instagram) platforms.push('📸');
+        
+        const platformBadge = platforms.length > 0 ? ` [${platforms.join('')}]` : ' [No credentials]';
+        
+        return `<option value="${account.id}">${account.emoji} ${account.name}${platformBadge}</option>`;
+      }).join('');
     }
 
     // Post immediately
@@ -195,6 +238,7 @@
       const text = document.getElementById('postText').value;
       const imageUrl = document.getElementById('imageUrl').value;
       const platforms = getSelectedPlatforms();
+      const accountId = getSelectedAccount();
 
       if (!text) {
         alert('Please enter post text');
@@ -213,7 +257,8 @@
           body: JSON.stringify({ 
             text, 
             imageUrl: imageUrl || null,
-            platforms 
+            platforms,
+            accountId
           })
         });
 
@@ -251,6 +296,7 @@
       const imageUrl = document.getElementById('imageUrl').value;
       const scheduleDateTime = document.getElementById('scheduleDateTime').value;
       const platforms = getSelectedPlatforms();
+      const accountId = getSelectedAccount();
 
       if (!text || !scheduleDateTime) {
         alert('Please enter post text and schedule time');
@@ -270,7 +316,8 @@
             text, 
             imageUrl: imageUrl || null,
             platforms,
-            scheduleTime: new Date(scheduleDateTime).toISOString()
+            scheduleTime: new Date(scheduleDateTime).toISOString(),
+            accountId
           })
         });
 
@@ -382,8 +429,11 @@
       }
     }
 
-    // Load queue on page load and refresh every 10 seconds
+    // Load accounts and queue on page load
+    loadAccounts();
     loadQueue();
+    
+    // Refresh queue every 10 seconds
     setInterval(loadQueue, 10000);
 
     // ============================================
