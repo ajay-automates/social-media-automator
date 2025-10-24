@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
+const { postToInstagram } = require('./instagram');
 
 let queue = [];
 let postIdCounter = 1;
@@ -70,6 +71,15 @@ async function postNow(text, imageUrl, platforms, credentials) {
           
         case 'twitter':
           result = await postToTwitter(text, credentials.twitter);
+          break;
+          
+        case 'instagram':
+          result = await postToInstagram(
+            text,
+            imageUrl,
+            credentials.instagram.accessToken,
+            credentials.instagram.igUserId
+          );
           break;
       }
       

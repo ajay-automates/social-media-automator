@@ -67,6 +67,10 @@ app.post('/api/post/now', async (req, res) => {
         apiSecret: process.env.TWITTER_API_SECRET,
         accessToken: process.env.TWITTER_ACCESS_TOKEN,
         accessSecret: process.env.TWITTER_ACCESS_SECRET
+      },
+      instagram: {
+        accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
+        igUserId: process.env.INSTAGRAM_USER_ID
       }
     };
     
@@ -116,6 +120,10 @@ app.post('/api/post/schedule', (req, res) => {
         apiSecret: process.env.TWITTER_API_SECRET,
         accessToken: process.env.TWITTER_ACCESS_TOKEN,
         accessSecret: process.env.TWITTER_ACCESS_SECRET
+      },
+      instagram: {
+        accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
+        igUserId: process.env.INSTAGRAM_USER_ID
       }
     };
     
@@ -129,7 +137,8 @@ app.post('/api/post/schedule', (req, res) => {
     
     const queueItem = schedulePost(
       text, 
-      imageUrl || null, 
+      imageUrl || null,
+      platforms || ['linkedin'],
       scheduleTime, 
       credentials
     );
@@ -177,6 +186,10 @@ app.post('/api/post/bulk', (req, res) => {
         apiSecret: process.env.TWITTER_API_SECRET,
         accessToken: process.env.TWITTER_ACCESS_TOKEN,
         accessSecret: process.env.TWITTER_ACCESS_SECRET
+      },
+      instagram: {
+        accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
+        igUserId: process.env.INSTAGRAM_USER_ID
       }
     };
     
@@ -187,6 +200,7 @@ app.post('/api/post/bulk', (req, res) => {
         const queueItem = schedulePost(
           post.text,
           post.imageUrl || null,
+          post.platforms || ['linkedin'],
           post.scheduleTime,
           credentials
         );

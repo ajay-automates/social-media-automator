@@ -25,6 +25,7 @@
           <div class="flex gap-2">
             <span class="bg-blue-600 px-3 py-1 rounded-full text-sm">LinkedIn ✓</span>
             <span class="bg-sky-500 px-3 py-1 rounded-full text-sm">Twitter ✓</span>
+            <span class="bg-pink-600 px-3 py-1 rounded-full text-sm">Instagram ✓</span>
           </div>
         </div>
         <div class="text-gray-400" id="queueCount">Queue: 0 posts</div>
@@ -45,7 +46,7 @@
       <input 
         id="imageUrl" 
         type="text" 
-        placeholder="Image URL (optional - LinkedIn only for now)" 
+        placeholder="Media URL (optional - Image for LinkedIn, Image/Video for Instagram)" 
         class="w-full p-4 bg-gray-700 rounded-lg mb-4 text-white"
       >
       
@@ -60,6 +61,10 @@
           <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
             <input type="checkbox" value="twitter" class="platform-checkbox" checked>
             <span>🐦 Twitter/X</span>
+          </label>
+          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
+            <input type="checkbox" value="instagram" class="platform-checkbox" checked>
+            <span>📸 Instagram</span>
           </label>
         </div>
       </div>
@@ -260,7 +265,8 @@
           const platformBadges = post.platforms.map(p => {
             const badges = {
               'linkedin': '<span class="bg-blue-600 px-2 py-1 rounded text-xs">🔗 LinkedIn</span>',
-              'twitter': '<span class="bg-sky-500 px-2 py-1 rounded text-xs">🐦 Twitter</span>'
+              'twitter': '<span class="bg-sky-500 px-2 py-1 rounded text-xs">🐦 Twitter</span>',
+              'instagram': '<span class="bg-pink-600 px-2 py-1 rounded text-xs">📸 Instagram</span>'
             };
             return badges[p] || '';
           }).join(' ');
