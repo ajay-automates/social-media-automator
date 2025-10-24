@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
+const { postToTwitter } = require('./twitter');
 
 let queue = [];
 let postIdCounter = 1;
@@ -15,15 +16,17 @@ function addToQueue(post) {
   queue.push(queueItem);
   console.log(`\n✅ Added to queue (ID: ${queueItem.id})`);
   console.log(`   Caption: ${post.text.slice(0, 50)}...`);
+  console.log(`   Platforms: ${post.platforms.join(', ')}`);
   console.log(`   Scheduled for: ${new Date(post.scheduleTime).toLocaleString()}\n`);
   
   return queueItem;
 }
 
-function schedulePost(text, imageUrl, scheduleTime, credentials) {
+function schedulePost(text, imageUrl, platforms, scheduleTime, credentials) {
   const post = {
     text,
     imageUrl,
+    platforms,
     scheduleTime: new Date(scheduleTime),
     credentials
   };
@@ -31,39 +34,53 @@ function schedulePost(text, imageUrl, scheduleTime, credentials) {
   return addToQueue(post);
 }
 
-async function postNow(text, imageUrl, credentials) {
-  console.log('\n🚀 Posting immediately to LinkedIn...');
-  console.log('Credentials:', {
-    hasToken: !!credentials.linkedin.accessToken,
-    urn: credentials.linkedin.urn,
-    type: credentials.linkedin.type
-  });
-  
-  try {
-    let result;
-    
-    if (imageUrl) {
-      result = await postImageToLinkedIn(
-        text,
-        imageUrl,
-        credentials.linkedin.accessToken,
-        credentials.linkedin.urn,
-        credentials.linkedin.type
-      );
-    } else {
-      result = await postTextToLinkedIn(
-        text,
-        credentials.linkedin.accessToken,
-        credentials.linkedin.urn,
-        credentials.linkedin.type
-      );
-    }
-    
-    return result;
-  } catch (error) {
-    console.error('❌ Error posting now:', error.message);
-    return { success: false, error: error.message };
+async function postNow(text, imageUrl, platforms, credentials) {
+  // Ensure platforms is always an array
+  if (!Array.isArray(platforms)) {
+    platforms = platforms ? [platforms] : ['linkedin'];
   }
+  
+  console.log(`\n🚀 Posting to: ${platforms.join(', ')}...\n`);
+  
+  const results = {};
+  
+  for (const platform of platforms) {
+    try {
+      let result;
+      
+      switch(platform) {
+        case 'linkedin':
+          if (imageUrl) {
+            result = await postImageToLinkedIn(
+              text,
+              imageUrl,
+              credentials.linkedin.accessToken,
+              credentials.linkedin.urn,
+              credentials.linkedin.type
+            );
+          } else {
+            result = await postTextToLinkedIn(
+              text,
+              credentials.linkedin.accessToken,
+              credentials.linkedin.urn,
+              credentials.linkedin.type
+            );
+          }
+          break;
+          
+        case 'twitter':
+          result = await postToTwitter(text, credentials.twitter);
+          break;
+      }
+      
+      results[platform] = result;
+    } catch (error) {
+      console.error(`❌ Error posting to ${platform}:`, error.message);
+      results[platform] = { success: false, error: error.message };
+    }
+  }
+  
+  return results;
 }
 
 function startQueueProcessor() {
@@ -83,56 +100,34 @@ function startQueueProcessor() {
     console.log(`\n⏰ [${now.toLocaleTimeString()}] Found ${duePosts.length} post(s) to publish...\n`);
     
     for (const post of duePosts) {
-      console.log(`🚀 Publishing post ID ${post.id}...`);
+      console.log(`🚀 Publishing post ID ${post.id} to: ${post.platforms.join(', ')}`);
       console.log(`   Text: ${post.text.slice(0, 60)}...`);
       
-      try {
-        let result;
-        
-        if (post.imageUrl) {
-          result = await postImageToLinkedIn(
-            post.text,
-            post.imageUrl,
-            post.credentials.linkedin.accessToken,
-            post.credentials.linkedin.urn,
-            post.credentials.linkedin.type
-          );
-        } else {
-          result = await postTextToLinkedIn(
-            post.text,
-            post.credentials.linkedin.accessToken,
-            post.credentials.linkedin.urn,
-            post.credentials.linkedin.type
-          );
-        }
-        
+      const results = await postNow(
+        post.text,
+        post.imageUrl,
+        post.platforms,
+        post.credentials
+      );
+      
+      let allSucceeded = true;
+      for (const [platform, result] of Object.entries(results)) {
         if (result.success) {
-          const queueItem = queue.find(p => p.id === post.id);
-          if (queueItem) {
-            queueItem.status = 'posted';
-            queueItem.postedAt = new Date();
-            queueItem.platformPostId = result.id;
-          }
-          
-          console.log(`✅ Post ID ${post.id} published successfully!\n`);
+          console.log(`   ✅ ${platform}: SUCCESS`);
         } else {
-          const queueItem = queue.find(p => p.id === post.id);
-          if (queueItem) {
-            queueItem.status = 'failed';
-            queueItem.error = result.error;
-          }
-          
-          console.log(`❌ Post ID ${post.id} failed: ${result.error}\n`);
-        }
-      } catch (error) {
-        console.error(`❌ Error publishing post ID ${post.id}:`, error.message);
-        
-        const queueItem = queue.find(p => p.id === post.id);
-        if (queueItem) {
-          queueItem.status = 'failed';
-          queueItem.error = error.message;
+          console.log(`   ❌ ${platform}: ${result.error}`);
+          allSucceeded = false;
         }
       }
+      
+      const queueItem = queue.find(p => p.id === post.id);
+      if (queueItem) {
+        queueItem.status = allSucceeded ? 'posted' : 'partial';
+        queueItem.postedAt = new Date();
+        queueItem.results = results;
+      }
+      
+      console.log(`${allSucceeded ? '✅' : '⚠️'} Post ID ${post.id} completed\n`);
     }
   });
 }
@@ -141,6 +136,7 @@ function getQueue() {
   return queue.map(post => ({
     id: post.id,
     text: post.text.slice(0, 100) + (post.text.length > 100 ? '...' : ''),
+    platforms: post.platforms,
     hasImage: !!post.imageUrl,
     scheduleTime: post.scheduleTime,
     status: post.status,

@@ -46,7 +46,8 @@ app.get('/api/health', (req, res) => {
  */
 app.post('/api/post/now', async (req, res) => {
   try {
-    const { text, imageUrl } = req.body;
+    const { text, imageUrl, platforms } = req.body;
+    console.log('Received platforms:', platforms, typeof platforms);
     
     if (!text) {
       return res.status(400).json({ 
@@ -60,6 +61,12 @@ app.post('/api/post/now', async (req, res) => {
         accessToken: process.env.LINKEDIN_TOKEN,
         urn: process.env.LINKEDIN_URN,
         type: process.env.LINKEDIN_TYPE
+      },
+      twitter: {
+        apiKey: process.env.TWITTER_API_KEY,
+        apiSecret: process.env.TWITTER_API_SECRET,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN,
+        accessSecret: process.env.TWITTER_ACCESS_SECRET
       }
     };
     
@@ -71,7 +78,7 @@ app.post('/api/post/now', async (req, res) => {
       });
     }
     
-    const result = await postNow(text, imageUrl || null, credentials);
+    const result = await postNow(text, imageUrl || null, platforms, credentials);
     
     res.json(result);
   } catch (error) {
@@ -89,7 +96,7 @@ app.post('/api/post/now', async (req, res) => {
  */
 app.post('/api/post/schedule', (req, res) => {
   try {
-    const { text, imageUrl, scheduleTime } = req.body;
+    const { text, imageUrl, platforms, scheduleTime } = req.body;
     
     if (!text || !scheduleTime) {
       return res.status(400).json({ 
@@ -103,6 +110,12 @@ app.post('/api/post/schedule', (req, res) => {
         accessToken: process.env.LINKEDIN_TOKEN,
         urn: process.env.LINKEDIN_URN,
         type: process.env.LINKEDIN_TYPE
+      },
+      twitter: {
+        apiKey: process.env.TWITTER_API_KEY,
+        apiSecret: process.env.TWITTER_API_SECRET,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN,
+        accessSecret: process.env.TWITTER_ACCESS_SECRET
       }
     };
     
@@ -158,6 +171,12 @@ app.post('/api/post/bulk', (req, res) => {
         accessToken: process.env.LINKEDIN_TOKEN,
         urn: process.env.LINKEDIN_URN,
         type: process.env.LINKEDIN_TYPE
+      },
+      twitter: {
+        apiKey: process.env.TWITTER_API_KEY,
+        apiSecret: process.env.TWITTER_API_SECRET,
+        accessToken: process.env.TWITTER_ACCESS_TOKEN,
+        accessSecret: process.env.TWITTER_ACCESS_SECRET
       }
     };
     
