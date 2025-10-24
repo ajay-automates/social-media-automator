@@ -16,6 +16,8 @@ const {
   healthCheck
 } = require('./services/database');
 
+const { generateCaption } = require('./services/ai');
+
 const app = express();
 
 // Middleware
@@ -329,6 +331,54 @@ app.get('/api/analytics/platforms', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/ai/generate
+ * Generate AI captions using Claude
+ */
+app.post('/api/ai/generate', async (req, res) => {
+  try {
+    const { topic, niche, platform } = req.body;
+    
+    // Validate inputs
+    if (!topic || topic.trim() === '') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Topic is required' 
+      });
+    }
+    
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+      });
+    }
+    
+    console.log(`🤖 AI caption request: topic="${topic}", niche="${niche}", platform="${platform}"`);
+    
+    // Generate captions
+    const variations = await generateCaption(
+      topic,
+      niche || 'General',
+      platform || 'linkedin'
+    );
+    
+    res.json({ 
+      success: true,
+      variations,
+      count: variations.length
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/ai/generate:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to generate captions'
+    });
+  }
+});
+
 // ============================================
 // START SERVER
 // ============================================
@@ -355,5 +405,6 @@ app.listen(PORT, async () => {
   console.log(`   DELETE /api/queue/:id - Remove from queue`);
   console.log(`   GET  /api/history - View post history`);
   console.log(`   GET  /api/analytics/platforms - Platform statistics`);
+  console.log(`   POST /api/ai/generate - Generate AI captions`);
   console.log('\n' + '='.repeat(50) + '\n');
 });

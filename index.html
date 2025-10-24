@@ -39,9 +39,19 @@
       <textarea 
         id="postText" 
         placeholder="What's on your mind?" 
-        class="w-full p-4 bg-gray-700 rounded-lg mb-4 h-32 text-white"
+        class="w-full p-4 bg-gray-700 rounded-lg mb-2 h-32 text-white"
         rows="5"
       ></textarea>
+      
+      <!-- AI Generate Button -->
+      <div class="mb-4">
+        <button 
+          onclick="openAIModal()" 
+          class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-bold transition text-sm"
+        >
+          ✨ AI Generate Caption
+        </button>
+      </div>
       
       <input 
         id="imageUrl" 
@@ -98,6 +108,76 @@
       <h2 class="text-2xl font-bold mb-4">📋 Scheduled Posts</h2>
       <div id="queue" class="space-y-3">
         <p class="text-gray-400">No posts scheduled yet</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Modal -->
+  <div id="aiModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 p-8 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">✨ AI Caption Generator</h2>
+        <button onclick="closeAIModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      
+      <!-- Input Form -->
+      <div id="aiForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">What's your topic?</label>
+          <input 
+            id="aiTopic" 
+            type="text" 
+            placeholder="E.g., 'Benefits of using automation tools'"
+            class="w-full p-4 bg-gray-700 rounded-lg text-white"
+          >
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Select your niche:</label>
+          <select id="aiNiche" class="w-full p-4 bg-gray-700 rounded-lg text-white">
+            <option value="Restaurant Tools">Restaurant Tools</option>
+            <option value="E-commerce">E-commerce</option>
+            <option value="Content Creation">Content Creation</option>
+            <option value="Cost-Saving">Cost-Saving</option>
+            <option value="Real Estate">Real Estate</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Target platform:</label>
+          <select id="aiPlatform" class="w-full p-4 bg-gray-700 rounded-lg text-white">
+            <option value="linkedin">🔗 LinkedIn (Professional)</option>
+            <option value="twitter">🐦 Twitter/X (Casual)</option>
+            <option value="instagram">📸 Instagram (Trendy)</option>
+          </select>
+        </div>
+        
+        <button 
+          onclick="generateAICaptions()" 
+          id="generateBtn"
+          class="w-full bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          🚀 Generate Captions
+        </button>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="aiLoading" class="hidden text-center py-8">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto"></div>
+        <p class="text-gray-400 mt-4">Claude is writing your captions...</p>
+      </div>
+      
+      <!-- Results -->
+      <div id="aiResults" class="hidden space-y-4">
+        <h3 class="text-xl font-bold mb-4">Choose a caption:</h3>
+        <div id="aiVariations" class="space-y-4"></div>
+        <button 
+          onclick="showAIForm()" 
+          class="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition"
+        >
+          ← Generate New Captions
+        </button>
       </div>
     </div>
   </div>
@@ -305,6 +385,113 @@
     // Load queue on page load and refresh every 10 seconds
     loadQueue();
     setInterval(loadQueue, 10000);
+
+    // ============================================
+    // AI CAPTION GENERATION
+    // ============================================
+
+    function openAIModal() {
+      document.getElementById('aiModal').classList.remove('hidden');
+      showAIForm();
+      
+      // Auto-detect platform from checkboxes
+      const selectedPlatforms = getSelectedPlatforms();
+      if (selectedPlatforms.length > 0) {
+        document.getElementById('aiPlatform').value = selectedPlatforms[0];
+      }
+    }
+
+    function closeAIModal() {
+      document.getElementById('aiModal').classList.add('hidden');
+      // Reset form
+      document.getElementById('aiTopic').value = '';
+    }
+
+    function showAIForm() {
+      document.getElementById('aiForm').classList.remove('hidden');
+      document.getElementById('aiLoading').classList.add('hidden');
+      document.getElementById('aiResults').classList.add('hidden');
+    }
+
+    function showAILoading() {
+      document.getElementById('aiForm').classList.add('hidden');
+      document.getElementById('aiLoading').classList.remove('hidden');
+      document.getElementById('aiResults').classList.add('hidden');
+    }
+
+    function showAIResults() {
+      document.getElementById('aiForm').classList.add('hidden');
+      document.getElementById('aiLoading').classList.add('hidden');
+      document.getElementById('aiResults').classList.remove('hidden');
+    }
+
+    async function generateAICaptions() {
+      const topic = document.getElementById('aiTopic').value;
+      const niche = document.getElementById('aiNiche').value;
+      const platform = document.getElementById('aiPlatform').value;
+
+      if (!topic) {
+        alert('Please enter a topic');
+        return;
+      }
+
+      showAILoading();
+
+      try {
+        const response = await fetch(`${API_URL}/api/ai/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, niche, platform })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.variations) {
+          displayAIVariations(data.variations);
+          showAIResults();
+        } else {
+          alert('❌ Error: ' + (data.error || 'Failed to generate captions'));
+          showAIForm();
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+        showAIForm();
+      }
+    }
+
+    function displayAIVariations(variations) {
+      const container = document.getElementById('aiVariations');
+      
+      container.innerHTML = variations.map((caption, index) => `
+        <div class="bg-gray-700 p-4 rounded-lg hover:bg-gray-600 transition cursor-pointer" 
+             onclick="useCaption(${index})">
+          <div class="flex justify-between items-start mb-2">
+            <span class="font-bold text-purple-400">Variation ${index + 1}</span>
+            <span class="text-xs text-gray-400">${caption.length} characters</span>
+          </div>
+          <p class="text-white whitespace-pre-wrap">${caption}</p>
+          <button class="mt-3 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-sm font-bold transition w-full">
+            Use This Caption ✓
+          </button>
+        </div>
+      `).join('');
+      
+      // Store variations globally for use
+      window.aiVariations = variations;
+    }
+
+    function useCaption(index) {
+      const caption = window.aiVariations[index];
+      document.getElementById('postText').value = caption;
+      closeAIModal();
+      
+      // Show success message
+      const postText = document.getElementById('postText');
+      postText.classList.add('ring-2', 'ring-purple-500');
+      setTimeout(() => {
+        postText.classList.remove('ring-2', 'ring-purple-500');
+      }, 1000);
+    }
   </script>
 </body>
 </html>
