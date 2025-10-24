@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Automator - LinkedIn</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <div class="max-w-6xl mx-auto p-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-5xl font-bold mb-2">🚀 Social Media Automator</h1>
+      <p class="text-gray-400">Automate your LinkedIn posts with scheduling</p>
+    </div>
+
+    <!-- Status -->
+    <div class="bg-gray-800 p-4 rounded-lg mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-green-400 text-2xl">●</span>
+          <span class="ml-2 text-lg">System Online</span>
+        </div>
+        <div class="text-gray-400" id="queueCount">Queue: 0 posts</div>
+      </div>
+    </div>
+
+    <!-- Post Form -->
+    <div class="bg-gray-800 p-6 rounded-lg mb-8">
+      <h2 class="text-2xl font-bold mb-4">📝 Create Post</h2>
+      
+      <textarea 
+        id="postText" 
+        placeholder="What's on your mind?" 
+        class="w-full p-4 bg-gray-700 rounded-lg mb-4 h-32 text-white"
+        rows="5"
+      ></textarea>
+      
+      <input 
+        id="imageUrl" 
+        type="text" 
+        placeholder="Image URL (optional)" 
+        class="w-full p-4 bg-gray-700 rounded-lg mb-4 text-white"
+      >
+      
+      <div class="flex gap-4 mb-4">
+        <input 
+          id="scheduleDateTime" 
+          type="datetime-local" 
+          class="flex-1 p-4 bg-gray-700 rounded-lg text-white"
+        >
+      </div>
+      
+      <div class="flex gap-4">
+        <button 
+          onclick="postNow()" 
+          class="flex-1 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          📤 Post Now
+        </button>
+        <button 
+          onclick="schedulePost()" 
+          class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          ⏰ Schedule Post
+        </button>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div class="bg-gray-800 p-6 rounded-lg">
+      <h2 class="text-2xl font-bold mb-4">📋 Scheduled Posts</h2>
+      <div id="queue" class="space-y-3">
+        <p class="text-gray-400">No posts scheduled yet</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+
+    // Post immediately
+    async function postNow() {
+      const text = document.getElementById('postText').value;
+      const imageUrl = document.getElementById('imageUrl').value;
+
+      if (!text) {
+        alert('Please enter post text');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/api/post/now`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, imageUrl: imageUrl || null })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('✅ Posted successfully!');
+          document.getElementById('postText').value = '';
+          document.getElementById('imageUrl').value = '';
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Schedule post
+    async function schedulePost() {
+      const text = document.getElementById('postText').value;
+      const imageUrl = document.getElementById('imageUrl').value;
+      const scheduleDateTime = document.getElementById('scheduleDateTime').value;
+
+      if (!text || !scheduleDateTime) {
+        alert('Please enter post text and schedule time');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/api/post/schedule`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            text, 
+            imageUrl: imageUrl || null,
+            scheduleTime: new Date(scheduleDateTime).toISOString()
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert('✅ Post scheduled!');
+          document.getElementById('postText').value = '';
+          document.getElementById('imageUrl').value = '';
+          document.getElementById('scheduleDateTime').value = '';
+          loadQueue();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Delete post from queue
+    async function deletePost(id) {
+      if (!confirm('Delete this post from queue?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/api/queue/${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          loadQueue();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Load queue
+    async function loadQueue() {
+      try {
+        const response = await fetch(`${API_URL}/api/queue`);
+        const data = await response.json();
+
+        const queueDiv = document.getElementById('queue');
+        const queueCountDiv = document.getElementById('queueCount');
+        
+        queueCountDiv.textContent = `Queue: ${data.queue.length} post(s)`;
+
+        if (data.queue.length === 0) {
+          queueDiv.innerHTML = '<p class="text-gray-400">No posts scheduled yet</p>';
+          return;
+        }
+
+        queueDiv.innerHTML = data.queue.map(post => {
+          const statusColor = {
+            'queued': 'bg-yellow-600',
+            'posted': 'bg-green-600',
+            'failed': 'bg-red-600'
+          }[post.status] || 'bg-gray-600';
+
+          const statusEmoji = {
+            'queued': '⏳',
+            'posted': '✅',
+            'failed': '❌'
+          }[post.status] || '❓';
+
+          return `
+            <div class="bg-gray-700 p-4 rounded-lg flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="${statusColor} px-3 py-1 rounded-full text-sm font-bold">
+                    ${statusEmoji} ${post.status.toUpperCase()}
+                  </span>
+                  ${post.hasImage ? '<span class="bg-blue-600 px-3 py-1 rounded-full text-sm">📷 Image</span>' : ''}
+                </div>
+                <p class="text-gray-300 mb-2">${post.text}</p>
+                <p class="text-sm text-gray-400">
+                  📅 ${new Date(post.scheduleTime).toLocaleString()}
+                </p>
+              </div>
+              ${post.status === 'queued' ? `
+                <button 
+                  onclick="deletePost(${post.id})" 
+                  class="ml-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition"
+                >
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Error loading queue:', error);
+      }
+    }
+
+    // Load queue on page load and refresh every 10 seconds
+    loadQueue();
+    setInterval(loadQueue, 10000);
+  </script>
+</body>
+</html>
