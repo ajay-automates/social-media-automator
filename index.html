@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Social Media Automator - Multi-Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white">
   <div class="max-w-6xl mx-auto p-8">
@@ -108,6 +109,69 @@
         >
           ⏰ Schedule Post
         </button>
+      </div>
+    </div>
+
+    <!-- Bulk CSV Upload -->
+    <div class="bg-gray-800 p-6 rounded-lg mb-8">
+      <h2 class="text-2xl font-bold mb-4">📂 Bulk CSV Upload</h2>
+      <p class="text-gray-400 text-sm mb-4">Upload a CSV file to schedule multiple posts at once</p>
+      
+      <input 
+        type="file" 
+        id="csvFile" 
+        accept=".csv"
+        class="hidden"
+      >
+      
+      <div class="flex gap-4">
+        <button 
+          onclick="document.getElementById('csvFile').click()" 
+          class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          📂 Choose CSV File
+        </button>
+        
+        <a 
+          href="/template.csv" 
+          download 
+          class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition inline-flex items-center"
+        >
+          📥 Download Template
+        </a>
+      </div>
+      
+      <!-- Preview Table (hidden initially) -->
+      <div id="csvPreview" class="hidden mt-6">
+        <h3 class="text-xl font-bold mb-3">📋 Preview (first 10 rows)</h3>
+        <div class="overflow-x-auto bg-gray-700 rounded-lg">
+          <table id="previewTable" class="w-full">
+            <thead>
+              <tr class="bg-gray-600 text-left">
+                <th class="p-3">Account</th>
+                <th class="p-3">Text</th>
+                <th class="p-3">Platforms</th>
+                <th class="p-3">Schedule Time</th>
+              </tr>
+            </thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+        
+        <div class="mt-4 flex gap-4">
+          <button 
+            onclick="scheduleBulkPosts()" 
+            class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-bold transition"
+          >
+            ⏰ Schedule All <span id="postCount">0</span> Posts
+          </button>
+          <button 
+            onclick="cancelBulkUpload()" 
+            class="bg-gray-600 hover:bg-gray-500 px-6 py-3 rounded-lg font-bold transition"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
 
@@ -541,6 +605,164 @@
       setTimeout(() => {
         postText.classList.remove('ring-2', 'ring-purple-500');
       }, 1000);
+    }
+
+    // ============================================
+    // BULK CSV UPLOAD
+    // ============================================
+
+    let bulkPostsData = [];
+
+    // Handle CSV file selection
+    document.getElementById('csvFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Check file type
+      if (!file.name.endsWith('.csv')) {
+        alert('❌ Please select a CSV file');
+        return;
+      }
+
+      console.log('📂 Parsing CSV file:', file.name);
+
+      // Parse CSV using Papa Parse
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          console.log('✅ CSV parsed:', results.data.length, 'rows');
+          handleCSVParsed(results.data);
+        },
+        error: function(error) {
+          console.error('❌ CSV parse error:', error);
+          alert('❌ Error parsing CSV: ' + error.message);
+        }
+      });
+    });
+
+    function handleCSVParsed(data) {
+      if (data.length === 0) {
+        alert('❌ CSV file is empty');
+        return;
+      }
+
+      // Validate columns
+      const firstRow = data[0];
+      const requiredColumns = ['account_id', 'text', 'platforms', 'schedule_time'];
+      const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+
+      if (missingColumns.length > 0) {
+        alert(`❌ Missing required columns: ${missingColumns.join(', ')}\n\nPlease download the template and use the correct format.`);
+        return;
+      }
+
+      bulkPostsData = data;
+      showCSVPreview(data);
+    }
+
+    function showCSVPreview(data) {
+      const preview = document.getElementById('csvPreview');
+      const tbody = document.getElementById('previewBody');
+      const postCount = document.getElementById('postCount');
+
+      postCount.textContent = data.length;
+
+      // Show first 10 rows
+      const previewData = data.slice(0, 10);
+
+      let html = '';
+      previewData.forEach((row, index) => {
+        const account = accountsData.find(a => a.id == row.account_id);
+        const accountName = account ? `${account.emoji} ${account.name}` : `⚠️ Unknown (${row.account_id})`;
+        const textPreview = row.text.length > 60 ? row.text.substring(0, 60) + '...' : row.text;
+
+        html += `
+          <tr class="border-t border-gray-600 hover:bg-gray-600">
+            <td class="p-3">${accountName}</td>
+            <td class="p-3 text-gray-300">${textPreview}</td>
+            <td class="p-3 text-sm">${row.platforms}</td>
+            <td class="p-3 text-sm text-gray-400">${row.schedule_time}</td>
+          </tr>
+        `;
+      });
+
+      if (data.length > 10) {
+        html += `
+          <tr class="border-t border-gray-600">
+            <td colspan="4" class="p-3 text-center text-gray-400 text-sm">
+              ... and ${data.length - 10} more row(s)
+            </td>
+          </tr>
+        `;
+      }
+
+      tbody.innerHTML = html;
+      preview.classList.remove('hidden');
+    }
+
+    async function scheduleBulkPosts() {
+      if (bulkPostsData.length === 0) {
+        alert('❌ No data to schedule');
+        return;
+      }
+
+      // Show loading state
+      const button = event.target;
+      const originalText = button.innerHTML;
+      button.innerHTML = '<span class="animate-pulse">⏳ Scheduling...</span>';
+      button.disabled = true;
+
+      try {
+        const response = await fetch(`${API_URL}/api/post/bulk-csv`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ posts: bulkPostsData })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          let message = `✅ Successfully scheduled ${data.scheduled} post(s)!`;
+          
+          if (data.failed > 0) {
+            message += `\n\n⚠️ ${data.failed} post(s) failed to schedule.`;
+            
+            if (data.errors && data.errors.length > 0) {
+              message += '\n\nErrors:';
+              data.errors.slice(0, 5).forEach(err => {
+                message += `\n- Row ${err.row}: ${err.error}`;
+              });
+              
+              if (data.errors.length > 5) {
+                message += `\n... and ${data.errors.length - 5} more error(s)`;
+              }
+            }
+          }
+
+          alert(message);
+          
+          // Refresh queue and reset
+          loadQueue();
+          cancelBulkUpload();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error scheduling bulk posts:', error);
+        alert('❌ Error: ' + error.message);
+      } finally {
+        // Restore button
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+    }
+
+    function cancelBulkUpload() {
+      bulkPostsData = [];
+      document.getElementById('csvPreview').classList.add('hidden');
+      document.getElementById('csvFile').value = '';
+      console.log('🗑️ CSV upload cancelled');
     }
   </script>
 </body>

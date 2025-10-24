@@ -225,6 +225,126 @@ app.post('/api/post/bulk', (req, res) => {
 });
 
 /**
+ * POST /api/post/bulk-csv
+ * Upload CSV and schedule multiple posts at once
+ */
+app.post('/api/post/bulk-csv', async (req, res) => {
+  try {
+    const { posts } = req.body;
+    
+    if (!posts || !Array.isArray(posts)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'posts array is required' 
+      });
+    }
+    
+    console.log(`\n📂 Processing bulk CSV upload: ${posts.length} posts`);
+    
+    const scheduled = [];
+    const failed = [];
+    
+    for (let i = 0; i < posts.length; i++) {
+      const post = posts[i];
+      const rowNum = i + 1;
+      
+      try {
+        // Validate required fields
+        if (!post.account_id || !post.text || !post.platforms || !post.schedule_time) {
+          failed.push({ 
+            row: rowNum, 
+            error: 'Missing required fields (account_id, text, platforms, or schedule_time)' 
+          });
+          continue;
+        }
+        
+        // Parse and validate account ID
+        const accountId = parseInt(post.account_id);
+        if (isNaN(accountId) || accountId < 1 || accountId > 5) {
+          failed.push({ 
+            row: rowNum, 
+            error: 'Invalid account_id (must be 1-5)' 
+          });
+          continue;
+        }
+        
+        // Get credentials for the account
+        const credentials = getAllCredentials(accountId);
+        
+        // Parse platforms (comma-separated string to array)
+        const platformsRaw = post.platforms.toString().split(',').map(p => p.trim());
+        const validPlatforms = ['linkedin', 'twitter', 'instagram'];
+        const platforms = platformsRaw.filter(p => validPlatforms.includes(p));
+        
+        if (platforms.length === 0) {
+          failed.push({ 
+            row: rowNum, 
+            error: 'No valid platforms specified (must be linkedin, twitter, or instagram)' 
+          });
+          continue;
+        }
+        
+        // Parse schedule time
+        const scheduleTime = new Date(post.schedule_time);
+        if (isNaN(scheduleTime.getTime())) {
+          failed.push({ 
+            row: rowNum, 
+            error: 'Invalid schedule_time format (use YYYY-MM-DD HH:MM)' 
+          });
+          continue;
+        }
+        
+        // Schedule the post
+        const queueItem = schedulePost(
+          post.text.toString(),
+          post.image_url || null,
+          platforms,
+          scheduleTime,
+          credentials
+        );
+        
+        scheduled.push(queueItem.id);
+        console.log(`   ✅ Row ${rowNum}: Scheduled post ID ${queueItem.id}`);
+        
+      } catch (error) {
+        console.error(`   ❌ Row ${rowNum}: ${error.message}`);
+        failed.push({ 
+          row: rowNum, 
+          error: error.message 
+        });
+      }
+    }
+    
+    console.log(`\n📊 CSV Upload Complete:`);
+    console.log(`   ✅ Scheduled: ${scheduled.length}`);
+    console.log(`   ❌ Failed: ${failed.length}\n`);
+    
+    res.json({ 
+      success: true, 
+      scheduled: scheduled.length,
+      failed: failed.length,
+      scheduledIds: scheduled,
+      errors: failed.length > 0 ? failed : undefined
+    });
+    
+  } catch (error) {
+    console.error('❌ Error in /api/post/bulk-csv:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /template.csv
+ * Download CSV template for bulk upload
+ */
+app.get('/template.csv', (req, res) => {
+  res.sendFile(path.join(__dirname, 'template.csv'));
+});
+
+/**
  * GET /api/queue
  * Get all queued posts
  */
@@ -385,6 +505,8 @@ app.listen(PORT, async () => {
   console.log(`   POST /api/post/now - Post immediately`);
   console.log(`   POST /api/post/schedule - Schedule a post`);
   console.log(`   POST /api/post/bulk - Schedule multiple posts`);
+  console.log(`   POST /api/post/bulk-csv - Bulk CSV upload`);
+  console.log(`   GET  /template.csv - Download CSV template`);
   console.log(`   GET  /api/queue - View queue`);
   console.log(`   DELETE /api/queue/:id - Remove from queue`);
   console.log(`   GET  /api/history - View post history`);
