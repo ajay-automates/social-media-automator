@@ -10,6 +10,12 @@ const {
   deleteFromQueue 
 } = require('./services/scheduler');
 
+const { 
+  getPostHistory, 
+  getPlatformStats,
+  healthCheck
+} = require('./services/database');
+
 const app = express();
 
 // Middleware
@@ -31,13 +37,24 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'running',
-    uptime: process.uptime(),
-    queueSize: getQueue().length,
-    message: '🚀 Social Media Automator is live!'
-  });
+app.get('/api/health', async (req, res) => {
+  try {
+    const dbHealthy = await healthCheck();
+    const queue = await getQueue();
+    
+    res.json({ 
+      status: 'running',
+      uptime: process.uptime(),
+      database: dbHealthy ? 'connected' : 'disconnected',
+      queueSize: queue.length,
+      message: '🚀 Social Media Automator is live!'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error.message
+    });
+  }
 });
 
 /**
@@ -226,29 +243,88 @@ app.post('/api/post/bulk', (req, res) => {
  * GET /api/queue
  * Get all queued posts
  */
-app.get('/api/queue', (req, res) => {
-  res.json({ 
-    queue: getQueue() 
-  });
+app.get('/api/queue', async (req, res) => {
+  try {
+    const queue = await getQueue();
+    res.json({ queue });
+  } catch (error) {
+    console.error('Error in /api/queue:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
 });
 
 /**
  * DELETE /api/queue/:id
  * Delete a post from queue
  */
-app.delete('/api/queue/:id', (req, res) => {
-  const postId = parseInt(req.params.id);
-  const deleted = deleteFromQueue(postId);
-  
-  if (deleted) {
-    res.json({ 
-      success: true, 
-      message: 'Post removed from queue' 
-    });
-  } else {
-    res.status(404).json({ 
+app.delete('/api/queue/:id', async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    const deleted = await deleteFromQueue(postId);
+    
+    if (deleted) {
+      res.json({ 
+        success: true, 
+        message: 'Post removed from queue' 
+      });
+    } else {
+      res.status(404).json({ 
+        success: false, 
+        error: 'Post not found' 
+      });
+    }
+  } catch (error) {
+    console.error('Error in /api/queue/:id:', error);
+    res.status(500).json({ 
       success: false, 
-      error: 'Post not found' 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/history
+ * Get post history
+ */
+app.get('/api/history', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const history = await getPostHistory(limit);
+    
+    res.json({ 
+      success: true,
+      history,
+      count: history.length
+    });
+  } catch (error) {
+    console.error('Error in /api/history:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/analytics/platforms
+ * Get platform statistics
+ */
+app.get('/api/analytics/platforms', async (req, res) => {
+  try {
+    const stats = await getPlatformStats();
+    
+    res.json({ 
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('Error in /api/analytics/platforms:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
     });
   }
 });
@@ -259,12 +335,17 @@ app.delete('/api/queue/:id', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log('\n' + '='.repeat(50));
   console.log('🚀 SOCIAL MEDIA AUTOMATOR');
   console.log('='.repeat(50));
   console.log(`\n✅ Server running on http://localhost:${PORT}`);
   console.log(`✅ Queue processor active`);
+  
+  // Check database connection
+  const dbHealthy = await healthCheck();
+  console.log(`${dbHealthy ? '✅' : '❌'} Database: ${dbHealthy ? 'Connected to Supabase' : 'Disconnected'}`);
+  
   console.log(`\n📋 API Endpoints:`);
   console.log(`   GET  /api/health - Health check`);
   console.log(`   POST /api/post/now - Post immediately`);
@@ -272,5 +353,7 @@ app.listen(PORT, () => {
   console.log(`   POST /api/post/bulk - Schedule multiple posts`);
   console.log(`   GET  /api/queue - View queue`);
   console.log(`   DELETE /api/queue/:id - Remove from queue`);
+  console.log(`   GET  /api/history - View post history`);
+  console.log(`   GET  /api/analytics/platforms - Platform statistics`);
   console.log('\n' + '='.repeat(50) + '\n');
 });
