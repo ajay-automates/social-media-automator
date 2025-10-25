@@ -42,6 +42,14 @@ INSTAGRAM_ACCOUNT_ID=your_instagram_account_id
 ANTHROPIC_API_KEY=your_anthropic_api_key
 
 # ====================================================================================
+# CLOUDINARY (Image Storage & CDN)
+# ====================================================================================
+# Get these from: Cloudinary Dashboard > Settings > Access Keys
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# ====================================================================================
 # STRIPE BILLING (for SaaS subscriptions)
 # ====================================================================================
 # Get these from: Stripe Dashboard > Developers > API keys

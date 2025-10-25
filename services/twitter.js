@@ -55,18 +55,76 @@ function generateOAuthHeader(method, url, credentials, additionalParams = {}) {
 }
 
 /**
- * Post text to Twitter/X
+ * Upload media to Twitter
  */
-async function postToTwitter(text, credentials) {
+async function uploadMediaToTwitter(imageUrl, credentials) {
   try {
-    const url = 'https://api.twitter.com/2/tweets';
+    // Download image from URL
+    const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+    const imageBuffer = Buffer.from(imageResponse.data);
+    const base64Image = imageBuffer.toString('base64');
+    
+    const url = 'https://upload.twitter.com/1.1/media/upload.json';
     const method = 'POST';
     
     const authHeader = generateOAuthHeader(method, url, credentials);
     
     const response = await axios.post(
       url,
-      { text },
+      `media_data=${encodeURIComponent(base64Image)}`,
+      {
+        headers: {
+          'Authorization': authHeader,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    );
+    
+    console.log('✅ Twitter: Media uploaded successfully');
+    console.log('   Media ID:', response.data.media_id_string);
+    
+    return {
+      success: true,
+      mediaId: response.data.media_id_string
+    };
+  } catch (error) {
+    console.error('❌ Twitter media upload error:', error.response?.data || error.message);
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message
+    };
+  }
+}
+
+/**
+ * Post text to Twitter/X with optional image
+ */
+async function postToTwitter(text, credentials, imageUrl = null) {
+  try {
+    const url = 'https://api.twitter.com/2/tweets';
+    const method = 'POST';
+    
+    const payload = { text };
+    
+    // Upload media if image URL provided
+    if (imageUrl) {
+      console.log('📸 Uploading image to Twitter...');
+      const mediaResult = await uploadMediaToTwitter(imageUrl, credentials);
+      
+      if (mediaResult.success) {
+        payload.media = {
+          media_ids: [mediaResult.mediaId]
+        };
+      } else {
+        console.warn('⚠️  Failed to upload image, posting text only');
+      }
+    }
+    
+    const authHeader = generateOAuthHeader(method, url, credentials);
+    
+    const response = await axios.post(
+      url,
+      payload,
       {
         headers: {
           'Authorization': authHeader,
@@ -94,5 +152,6 @@ async function postToTwitter(text, credentials) {
 }
 
 module.exports = {
-  postToTwitter
+  postToTwitter,
+  uploadMediaToTwitter
 };

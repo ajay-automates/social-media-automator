@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
+const multer = require('multer');
+const fs = require('fs').promises;
 const { createClient } = require('@supabase/supabase-js');
 const { 
   schedulePost, 
@@ -23,6 +25,9 @@ const {
   getAllAccountsWithStatus, 
   getAllCredentials 
 } = require('./services/accounts');
+const { 
+  uploadImage 
+} = require('./services/cloudinary');
 const {
   initiateLinkedInOAuth,
   handleLinkedInCallback,
@@ -116,6 +121,28 @@ app.use(session({
   }
 }));
 app.use(express.static('.')); // Serve static files
+
+// Configure Multer for file uploads
+const upload = multer({
+  dest: 'uploads/',
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB max
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = './uploads';
+if (!require('fs').existsSync(uploadsDir)) {
+  require('fs').mkdirSync(uploadsDir);
+  console.log('📁 Created uploads directory');
+}
 
 // Start the queue processor
 startQueueProcessor();
@@ -598,6 +625,67 @@ app.get('/api/analytics/platforms', verifyAuth, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: error.message 
+    });
+  }
+});
+
+/**
+ * POST /api/upload/image
+ * Upload image file to Cloudinary (protected)
+ */
+app.post('/api/upload/image', verifyAuth, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No image file provided'
+      });
+    }
+
+    const userId = req.user.id;
+    console.log(`📤 Uploading image for user ${userId}...`);
+
+    // Upload to Cloudinary
+    const result = await uploadImage(req.file.path, userId);
+
+    // Delete temporary file
+    await fs.unlink(req.file.path).catch(err => {
+      console.error('Error deleting temp file:', err);
+    });
+
+    if (result.success) {
+      console.log('✅ Image uploaded:', result.url);
+      
+      // Track usage (for billing limits later)
+      await incrementUsage(userId, 'image_upload');
+      
+      return res.json({
+        success: true,
+        imageUrl: result.url,
+        publicId: result.publicId,
+        width: result.width,
+        height: result.height,
+        source: 'upload'
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to upload image'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Image upload error:', error);
+    
+    // Clean up temp file on error
+    if (req.file && req.file.path) {
+      await fs.unlink(req.file.path).catch(err => {
+        console.error('Error deleting temp file:', err);
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to upload image'
     });
   }
 });

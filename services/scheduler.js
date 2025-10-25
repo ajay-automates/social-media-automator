@@ -73,7 +73,7 @@ async function postNow(text, imageUrl, platforms, credentials) {
           break;
           
         case 'twitter':
-          result = await postToTwitter(text, credentials.twitter);
+          result = await postToTwitter(text, credentials.twitter, imageUrl);
           break;
           
         case 'instagram':
