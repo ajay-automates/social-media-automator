@@ -759,7 +759,7 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
 // ============================================
 
 // GET available AI image styles
-app.get('/api/ai/image/styles', verifyAuth, (req, res) => {
+app.get('/api/ai/image/styles', (req, res) => {
   try {
     res.json({
       success: true,
@@ -775,7 +775,7 @@ app.get('/api/ai/image/styles', verifyAuth, (req, res) => {
 });
 
 // GET platform options
-app.get('/api/ai/image/platforms', verifyAuth, (req, res) => {
+app.get('/api/ai/image/platforms', (req, res) => {
   try {
     res.json({
       success: true,
@@ -791,7 +791,7 @@ app.get('/api/ai/image/platforms', verifyAuth, (req, res) => {
 });
 
 // GET example prompts
-app.get('/api/ai/image/examples', verifyAuth, (req, res) => {
+app.get('/api/ai/image/examples', (req, res) => {
   try {
     res.json({
       success: true,

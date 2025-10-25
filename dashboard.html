@@ -742,6 +742,9 @@
         loadConnectedAccounts();
         loadAccounts();
         loadQueue();
+        
+        // Initialize AI Image system after authentication
+        initializeAIImageSystem();
       }
     });
 
@@ -1678,14 +1681,13 @@
       setupAIEventListeners();
     }
 
-    // Call on page load
-    initializeAIImageSystem();
+    // Call after authentication (moved to auth success callback)
 
     // Load styles
     async function loadAIStyles() {
       try {
         const response = await fetch('/api/ai/image/styles', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${authToken}` }
         });
         const data = await response.json();
         
@@ -1708,7 +1710,7 @@
     async function loadAIPlatforms() {
       try {
         const response = await fetch('/api/ai/image/platforms', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${authToken}` }
         });
         const data = await response.json();
         
@@ -1731,7 +1733,7 @@
     async function loadAIExamples() {
       try {
         const response = await fetch('/api/ai/image/examples', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${authToken}` }
         });
         const data = await response.json();
         
@@ -1811,7 +1813,7 @@
         const response = await fetch('/api/ai/image/generate', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ prompt, style, platform })

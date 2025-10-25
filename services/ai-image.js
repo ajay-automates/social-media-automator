@@ -120,26 +120,34 @@ async function generateImage(prompt, style = 'photographic', platform = 'univers
 
     console.log(`📐 Resized to ${platformSize.width}x${platformSize.height} for ${platform}`);
 
-    // Upload to Cloudinary
-    const cloudinaryResult = await cloudinaryService.uploadBase64Image(
-      resizedBuffer.toString('base64'),
-      userId
-    );
+    // Upload to Cloudinary (if configured)
+    let imageUrl;
+    try {
+      const cloudinaryResult = await cloudinaryService.uploadBase64Image(
+        resizedBuffer.toString('base64'),
+        userId
+      );
 
-    if (cloudinaryResult.success) {
-      console.log('✅ Uploaded to Cloudinary:', cloudinaryResult.url);
-      
-      return {
-        success: true,
-        imageUrl: cloudinaryResult.url,
-        platform: platform,
-        style: style,
-        originalPrompt: prompt,
-        dimensions: platformSize
-      };
-    } else {
-      throw new Error('Failed to upload to Cloudinary');
+      if (cloudinaryResult.success) {
+        console.log('✅ Uploaded to Cloudinary:', cloudinaryResult.url);
+        imageUrl = cloudinaryResult.url;
+      } else {
+        throw new Error('Cloudinary upload failed');
+      }
+    } catch (cloudinaryError) {
+      console.warn('⚠️ Cloudinary not configured, using base64 data URL');
+      // Return base64 data URL if Cloudinary fails
+      imageUrl = `data:image/png;base64,${resizedBuffer.toString('base64')}`;
     }
+    
+    return {
+      success: true,
+      imageUrl: imageUrl,
+      platform: platform,
+      style: style,
+      originalPrompt: prompt,
+      dimensions: platformSize
+    };
 
   } catch (error) {
     console.error('❌ AI Image generation error:', error.response?.data || error.message);
