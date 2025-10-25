@@ -1,9 +1,15 @@
 const { createClient } = require('@supabase/supabase-js');
 
-// Initialize Supabase client
+// Initialize Supabase client (ANON key - respects RLS)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
+);
+
+// Initialize Supabase admin client (SERVICE_ROLE key - bypasses RLS for backend operations)
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 /**
@@ -237,6 +243,7 @@ async function healthCheck() {
 
 module.exports = {
   supabase,
+  supabaseAdmin,
   addPost,
   getDuePosts,
   getAllQueuedPosts,

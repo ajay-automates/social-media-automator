@@ -3,767 +3,463 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Social Media Automator - Multi-Platform</title>
+  <title>Social Media Automator - Automate Your Posts Across Platforms</title>
+  <meta name="description" content="Schedule posts across LinkedIn, Twitter & Instagram. Use AI to write captions. Manage everything from one dashboard.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <style>
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .float-animation {
+      animation: float 3s ease-in-out infinite;
+    }
+  </style>
 </head>
 <body class="bg-gray-900 text-white">
-  <div class="max-w-6xl mx-auto p-8">
-    <!-- Header -->
-    <div class="mb-8">
-      <h1 class="text-5xl font-bold mb-2">🚀 Social Media Automator</h1>
-      <p class="text-gray-400">Post to LinkedIn & Twitter with smart scheduling</p>
+  <!-- Navigation -->
+  <nav class="border-b border-gray-800 py-4">
+    <div class="max-w-6xl mx-auto px-8 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🚀</span>
+        <span class="text-xl font-bold">Social Media Automator</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#features" class="text-gray-400 hover:text-white transition">Features</a>
+        <a href="#pricing" class="text-gray-400 hover:text-white transition">Pricing</a>
+        <a href="/auth" class="text-gray-400 hover:text-white transition">Login</a>
+        <a href="/auth" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-bold transition">
+          Start Free
+        </a>
+      </div>
     </div>
+  </nav>
 
-    <!-- Account Selector -->
-    <div class="bg-gray-800 p-4 rounded-lg mb-4">
-      <label class="text-gray-400 text-sm mb-2 block">📂 Posting as:</label>
-      <select id="accountSelect" class="w-full p-3 bg-gray-700 rounded-lg text-white font-medium text-lg cursor-pointer hover:bg-gray-600 transition">
-        <option value="1">Loading accounts...</option>
-      </select>
-    </div>
+  <!-- Hero Section -->
+  <section class="py-20">
+    <div class="max-w-6xl mx-auto px-8 text-center">
+      <h1 class="text-6xl font-bold mb-6">
+        Automate Your Social Media <br>
+        <span class="gradient-text">in Minutes, Not Hours</span>
+      </h1>
+      
+      <p class="text-xl text-gray-400 mb-8 max-w-3xl mx-auto">
+        Schedule posts across LinkedIn, Twitter & Instagram. Use AI to write captions. 
+        Manage everything from one powerful dashboard.
+      </p>
+      
+      <div class="flex gap-4 justify-center mb-12">
+        <a href="/auth" class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition">
+          Start Free - No Credit Card Required
+        </a>
+        <a href="#features" class="bg-gray-800 hover:bg-gray-700 px-8 py-4 rounded-lg font-bold text-lg transition">
+          See How It Works
+        </a>
+      </div>
 
-    <!-- Status -->
-    <div class="bg-gray-800 p-4 rounded-lg mb-8">
-      <div class="flex items-center justify-between">
-        <div class="flex gap-4">
-          <div>
-            <span class="text-green-400 text-2xl">●</span>
-            <span class="ml-2 text-lg">System Online</span>
-          </div>
-          <div class="flex gap-2">
-            <span class="bg-blue-600 px-3 py-1 rounded-full text-sm">LinkedIn ✓</span>
-            <span class="bg-sky-500 px-3 py-1 rounded-full text-sm">Twitter ✓</span>
-            <span class="bg-pink-600 px-3 py-1 rounded-full text-sm">Instagram ✓</span>
+      <!-- Dashboard Screenshot Placeholder -->
+      <div class="bg-gray-800 rounded-lg p-4 shadow-2xl max-w-4xl mx-auto float-animation">
+        <div class="bg-gray-700 rounded-lg p-8 text-center">
+          <p class="text-gray-400 text-lg mb-2">📊 Beautiful Dashboard</p>
+          <p class="text-sm text-gray-500">Manage all your social media from one place</p>
+          <div class="mt-4 grid grid-cols-3 gap-4">
+            <div class="bg-blue-600 h-20 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">🔗</span>
+            </div>
+            <div class="bg-sky-500 h-20 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">🐦</span>
+            </div>
+            <div class="bg-pink-600 h-20 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">📸</span>
+            </div>
           </div>
         </div>
-        <div class="text-gray-400" id="queueCount">Queue: 0 posts</div>
       </div>
     </div>
+  </section>
 
-    <!-- Post Form -->
-    <div class="bg-gray-800 p-6 rounded-lg mb-8">
-      <h2 class="text-2xl font-bold mb-4">📝 Create Post</h2>
+  <!-- Features Section -->
+  <section id="features" class="py-20 bg-gray-800/50">
+    <div class="max-w-6xl mx-auto px-8">
+      <h2 class="text-4xl font-bold text-center mb-4">Everything You Need to Scale Your Social</h2>
+      <p class="text-gray-400 text-center mb-12">Powerful features that save you hours every week</p>
       
-      <textarea 
-        id="postText" 
-        placeholder="What's on your mind?" 
-        class="w-full p-4 bg-gray-700 rounded-lg mb-2 h-32 text-white"
-        rows="5"
-      ></textarea>
-      
-      <!-- AI Generate Button -->
-      <div class="mb-4">
-        <button 
-          onclick="openAIModal()" 
-          class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-bold transition text-sm"
-        >
-          ✨ AI Generate Caption
-        </button>
-      </div>
-      
-      <input 
-        id="imageUrl" 
-        type="text" 
-        placeholder="Media URL (optional - Image for LinkedIn, Image/Video for Instagram)" 
-        class="w-full p-4 bg-gray-700 rounded-lg mb-4 text-white"
-      >
-      
-      <!-- Platform Selection -->
-      <div class="mb-4">
-        <p class="text-sm text-gray-400 mb-2">Select platforms:</p>
-        <div class="flex gap-4">
-          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
-            <input type="checkbox" value="linkedin" class="platform-checkbox" checked>
-            <span>🔗 LinkedIn</span>
-          </label>
-          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
-            <input type="checkbox" value="twitter" class="platform-checkbox" checked>
-            <span>🐦 Twitter/X</span>
-          </label>
-          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
-            <input type="checkbox" value="instagram" class="platform-checkbox" checked>
-            <span>📸 Instagram</span>
-          </label>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
+          <div class="text-4xl mb-4">🤖</div>
+          <h3 class="text-xl font-bold mb-2">AI-Powered Captions</h3>
+          <p class="text-gray-400">
+            Generate engaging captions with Claude AI. Get 3 variations tailored to each platform's tone and style.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
+          <div class="text-4xl mb-4">📅</div>
+          <h3 class="text-xl font-bold mb-2">Smart Scheduling</h3>
+          <p class="text-gray-400">
+            Schedule posts weeks in advance. Set it and forget it. Your content posts automatically at the perfect time.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
+          <div class="text-4xl mb-4">📊</div>
+          <h3 class="text-xl font-bold mb-2">CSV Bulk Upload</h3>
+          <p class="text-gray-400">
+            Upload hundreds of posts at once with CSV. Perfect for content batching and agency workflows.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
+          <div class="text-4xl mb-4">🔗</div>
+          <h3 class="text-xl font-bold mb-2">Multi-Platform Support</h3>
+          <p class="text-gray-400">
+            Post to LinkedIn, Twitter, and Instagram from one dashboard. Cross-post or customize for each platform.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
+          <div class="text-4xl mb-4">📈</div>
+          <h3 class="text-xl font-bold mb-2">Analytics & History</h3>
+          <p class="text-gray-400">
+            Track every post with detailed history and success rates. Know what works and optimize your strategy.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
+          <div class="text-4xl mb-4">👥</div>
+          <h3 class="text-xl font-bold mb-2">Multi-Account Management</h3>
+          <p class="text-gray-400">
+            Manage multiple brands or clients. Switch between accounts seamlessly. Perfect for agencies and creators.
+          </p>
         </div>
       </div>
-      
-      <div class="flex gap-4 mb-4">
-        <input 
-          id="scheduleDateTime" 
-          type="datetime-local" 
-          class="flex-1 p-4 bg-gray-700 rounded-lg text-white"
-        >
-      </div>
-      
-      <div class="flex gap-4">
-        <button 
-          onclick="postNow()" 
-          class="flex-1 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition"
-        >
-          📤 Post Now
-        </button>
-        <button 
-          onclick="schedulePost()" 
-          class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-bold transition"
-        >
-          ⏰ Schedule Post
-        </button>
-      </div>
     </div>
+  </section>
 
-    <!-- Bulk CSV Upload -->
-    <div class="bg-gray-800 p-6 rounded-lg mb-8">
-      <h2 class="text-2xl font-bold mb-4">📂 Bulk CSV Upload</h2>
-      <p class="text-gray-400 text-sm mb-4">Upload a CSV file to schedule multiple posts at once</p>
+  <!-- Pricing Section -->
+  <section id="pricing" class="py-20">
+    <div class="max-w-6xl mx-auto px-8">
+      <h2 class="text-4xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
+      <p class="text-gray-400 text-center mb-12">Start free, upgrade when you need more</p>
       
-      <input 
-        type="file" 
-        id="csvFile" 
-        accept=".csv"
-        class="hidden"
-      >
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <!-- Free Plan -->
+        <div class="bg-gray-800 p-8 rounded-lg border-2 border-gray-700">
+          <h3 class="text-2xl font-bold mb-2">Free</h3>
+          <div class="text-4xl font-bold mb-6">$0<span class="text-lg text-gray-400">/month</span></div>
+          
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>10 posts per month</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>1 social account</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>LinkedIn or Twitter</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-400">✗</span>
+              <span class="text-gray-500">No AI captions</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>Community support</span>
+            </li>
+          </ul>
+          
+          <a href="/auth" class="block w-full text-center bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold transition">
+            Get Started
+          </a>
+        </div>
+
+        <!-- Pro Plan (Featured) -->
+        <div class="bg-gray-800 p-8 rounded-lg border-2 border-blue-500 relative transform scale-105">
+          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 px-4 py-1 rounded-full text-sm font-bold">
+            MOST POPULAR
+          </div>
+          
+          <h3 class="text-2xl font-bold mb-2">Pro</h3>
+          <div class="text-4xl font-bold mb-2">
+            $29<span class="text-lg text-gray-400">/month</span>
+          </div>
+          <p class="text-sm text-green-400 mb-6">or $290/year (save $58)</p>
+          
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>Unlimited posts</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>3 social accounts</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>All platforms</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>100 AI generations/month</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>Email support</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>CSV bulk upload</span>
+            </li>
+          </ul>
+          
+          <a href="/auth" class="block w-full text-center bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition">
+            Start Free Trial
+          </a>
+        </div>
+
+        <!-- Business Plan -->
+        <div class="bg-gray-800 p-8 rounded-lg border-2 border-gray-700">
+          <h3 class="text-2xl font-bold mb-2">Business</h3>
+          <div class="text-4xl font-bold mb-2">
+            $99<span class="text-lg text-gray-400">/month</span>
+          </div>
+          <p class="text-sm text-green-400 mb-6">or $990/year (save $198)</p>
+          
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>Unlimited everything</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>10 social accounts</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>Priority support</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>API access</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>White-label option</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>Remove branding</span>
+            </li>
+          </ul>
+          
+          <a href="/auth" class="block w-full text-center gradient-bg hover:opacity-90 py-3 rounded-lg font-bold transition">
+            Get Started
+          </a>
+        </div>
+      </div>
+
+      <p class="text-center text-gray-400 mt-8">
+        All plans include 14-day free trial. No credit card required. Cancel anytime.
+      </p>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <section class="py-20 bg-gray-800/50">
+    <div class="max-w-6xl mx-auto px-8 text-center">
+      <p class="text-gray-400 mb-8">Trusted by content creators and agencies worldwide</p>
       
-      <div class="flex gap-4">
-        <button 
-          onclick="document.getElementById('csvFile').click()" 
-          class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-bold transition"
-        >
-          📂 Choose CSV File
-        </button>
+      <div class="flex justify-center gap-12 mb-12">
+        <div class="text-center">
+          <div class="text-4xl font-bold gradient-text">100+</div>
+          <div class="text-gray-400">Active Users</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold gradient-text">5,000+</div>
+          <div class="text-gray-400">Posts Scheduled</div>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-bold gradient-text">95%</div>
+          <div class="text-gray-400">Success Rate</div>
+        </div>
+      </div>
+
+      <!-- Platform Logos -->
+      <div class="flex justify-center gap-8 mb-12">
+        <div class="bg-gray-800 px-6 py-3 rounded-lg">
+          <span class="text-2xl">🔗 LinkedIn</span>
+        </div>
+        <div class="bg-gray-800 px-6 py-3 rounded-lg">
+          <span class="text-2xl">🐦 Twitter/X</span>
+        </div>
+        <div class="bg-gray-800 px-6 py-3 rounded-lg">
+          <span class="text-2xl">📸 Instagram</span>
+        </div>
+      </div>
+
+      <!-- Testimonials -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <div class="text-yellow-400 mb-2">★★★★★</div>
+          <p class="text-gray-300 mb-4">"This tool saved me 10 hours a week. The AI caption generator is incredible!"</p>
+          <p class="text-sm text-gray-500">- Sarah K., Content Creator</p>
+        </div>
         
-        <a 
-          href="/template.csv" 
-          download 
-          class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition inline-flex items-center"
-        >
-          📥 Download Template
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <div class="text-yellow-400 mb-2">★★★★★</div>
+          <p class="text-gray-300 mb-4">"Managing 5 client accounts has never been easier. The CSV bulk upload is a lifesaver."</p>
+          <p class="text-sm text-gray-500">- Mike T., Agency Owner</p>
+        </div>
+        
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <div class="text-yellow-400 mb-2">★★★★★</div>
+          <p class="text-gray-300 mb-4">"Simple, powerful, and affordable. Exactly what I needed for my personal brand."</p>
+          <p class="text-sm text-gray-500">- Jessica L., Entrepreneur</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="py-20">
+    <div class="max-w-4xl mx-auto px-8">
+      <h2 class="text-4xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+      
+      <div class="space-y-4">
+        <details class="bg-gray-800 p-6 rounded-lg">
+          <summary class="font-bold cursor-pointer">How does OAuth work?</summary>
+          <p class="text-gray-400 mt-4">
+            You'll connect your social media accounts securely through OAuth. Just click "Connect LinkedIn" or "Connect Twitter", 
+            authorize the app, and you're done. We never see your passwords - it's the secure industry standard.
+          </p>
+        </details>
+
+        <details class="bg-gray-800 p-6 rounded-lg">
+          <summary class="font-bold cursor-pointer">What happens when I hit my limits?</summary>
+          <p class="text-gray-400 mt-4">
+            We use soft limits - you'll see a friendly reminder when you're close. We'll even let you post a few extra times 
+            before gently suggesting an upgrade. No hard blocks, no frustration.
+          </p>
+        </details>
+
+        <details class="bg-gray-800 p-6 rounded-lg">
+          <summary class="font-bold cursor-pointer">Can I cancel anytime?</summary>
+          <p class="text-gray-400 mt-4">
+            Absolutely! No contracts, no commitments. Cancel your subscription anytime from your billing dashboard. 
+            You'll still have access until the end of your billing period.
+          </p>
+        </details>
+
+        <details class="bg-gray-800 p-6 rounded-lg">
+          <summary class="font-bold cursor-pointer">Is my data secure?</summary>
+          <p class="text-gray-400 mt-4">
+            Yes! We use bank-level encryption for all data. OAuth tokens are stored securely, and we follow industry 
+            best practices for security. Your data is never shared with third parties.
+          </p>
+        </details>
+
+        <details class="bg-gray-800 p-6 rounded-lg">
+          <summary class="font-bold cursor-pointer">How does the AI caption generator work?</summary>
+          <p class="text-gray-400 mt-4">
+            We use Claude AI (Anthropic) to generate captions tailored to your niche and platform. Just enter your topic, 
+            select your niche, and get 3 unique variations instantly. Works for LinkedIn, Twitter, and Instagram.
+          </p>
+        </details>
+
+        <details class="bg-gray-800 p-6 rounded-lg">
+          <summary class="font-bold cursor-pointer">Can I manage multiple brands/clients?</summary>
+          <p class="text-gray-400 mt-4">
+            Yes! Pro plans support 3 accounts, Business plans support 10 accounts. Perfect for agencies, freelancers, 
+            or anyone managing multiple brands.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+    <div class="max-w-4xl mx-auto px-8 text-center">
+      <h2 class="text-4xl font-bold mb-4">Ready to Automate Your Social Media?</h2>
+      <p class="text-xl mb-8">Join 100+ creators saving hours every week</p>
+      
+      <div class="flex gap-4 justify-center">
+        <a href="/auth" class="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition">
+          Start Free - No Credit Card Required
         </a>
       </div>
       
-      <!-- Preview Table (hidden initially) -->
-      <div id="csvPreview" class="hidden mt-6">
-        <h3 class="text-xl font-bold mb-3">📋 Preview (first 10 rows)</h3>
-        <div class="overflow-x-auto bg-gray-700 rounded-lg">
-          <table id="previewTable" class="w-full">
-            <thead>
-              <tr class="bg-gray-600 text-left">
-                <th class="p-3">Account</th>
-                <th class="p-3">Text</th>
-                <th class="p-3">Platforms</th>
-                <th class="p-3">Schedule Time</th>
-              </tr>
-            </thead>
-            <tbody id="previewBody"></tbody>
-          </table>
-        </div>
-        
-        <div class="mt-4 flex gap-4">
-          <button 
-            onclick="scheduleBulkPosts()" 
-            class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-bold transition"
-          >
-            ⏰ Schedule All <span id="postCount">0</span> Posts
-          </button>
-          <button 
-            onclick="cancelBulkUpload()" 
-            class="bg-gray-600 hover:bg-gray-500 px-6 py-3 rounded-lg font-bold transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
+      <p class="text-sm mt-6 opacity-80">14-day free trial • Cancel anytime • No credit card required</p>
     </div>
+  </section>
 
-    <!-- Queue -->
-    <div class="bg-gray-800 p-6 rounded-lg">
-      <h2 class="text-2xl font-bold mb-4">📋 Scheduled Posts</h2>
-      <div id="queue" class="space-y-3">
-        <p class="text-gray-400">No posts scheduled yet</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- AI Modal -->
-  <div id="aiModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-    <div class="bg-gray-800 p-8 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">✨ AI Caption Generator</h2>
-        <button onclick="closeAIModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
-      </div>
-      
-      <!-- Input Form -->
-      <div id="aiForm" class="space-y-4">
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 py-12">
+    <div class="max-w-6xl mx-auto px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-          <label class="block text-sm text-gray-400 mb-2">What's your topic?</label>
-          <input 
-            id="aiTopic" 
-            type="text" 
-            placeholder="E.g., 'Benefits of using automation tools'"
-            class="w-full p-4 bg-gray-700 rounded-lg text-white"
-          >
+          <h3 class="font-bold mb-4">🚀 Social Media Automator</h3>
+          <p class="text-gray-400 text-sm">
+            Automate your social media posting across multiple platforms with AI-powered captions.
+          </p>
         </div>
         
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Select your niche:</label>
-          <select id="aiNiche" class="w-full p-4 bg-gray-700 rounded-lg text-white">
-            <option value="Restaurant Tools">Restaurant Tools</option>
-            <option value="E-commerce">E-commerce</option>
-            <option value="Content Creation">Content Creation</option>
-            <option value="Cost-Saving">Cost-Saving</option>
-            <option value="Real Estate">Real Estate</option>
-            <option value="General">General</option>
-          </select>
+          <h4 class="font-bold mb-4">Product</h4>
+          <ul class="space-y-2 text-gray-400">
+            <li><a href="#features" class="hover:text-white">Features</a></li>
+            <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
+            <li><a href="/auth" class="hover:text-white">Sign Up</a></li>
+            <li><a href="/auth" class="hover:text-white">Login</a></li>
+          </ul>
         </div>
         
         <div>
-          <label class="block text-sm text-gray-400 mb-2">Target platform:</label>
-          <select id="aiPlatform" class="w-full p-4 bg-gray-700 rounded-lg text-white">
-            <option value="linkedin">🔗 LinkedIn (Professional)</option>
-            <option value="twitter">🐦 Twitter/X (Casual)</option>
-            <option value="instagram">📸 Instagram (Trendy)</option>
-          </select>
+          <h4 class="font-bold mb-4">Resources</h4>
+          <ul class="space-y-2 text-gray-400">
+            <li><a href="#" class="hover:text-white">Documentation</a></li>
+            <li><a href="https://github.com/ajay-automates/social-media-automator" target="_blank" class="hover:text-white">GitHub</a></li>
+            <li><a href="#" class="hover:text-white">API</a></li>
+            <li><a href="#" class="hover:text-white">Support</a></li>
+          </ul>
         </div>
         
-        <button 
-          onclick="generateAICaptions()" 
-          id="generateBtn"
-          class="w-full bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-bold transition"
-        >
-          🚀 Generate Captions
-        </button>
+        <div>
+          <h4 class="font-bold mb-4">Legal</h4>
+          <ul class="space-y-2 text-gray-400">
+            <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+            <li><a href="mailto:support@socialmediaautomator.com" class="hover:text-white">Contact</a></li>
+          </ul>
+        </div>
       </div>
       
-      <!-- Loading State -->
-      <div id="aiLoading" class="hidden text-center py-8">
-        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto"></div>
-        <p class="text-gray-400 mt-4">Claude is writing your captions...</p>
-      </div>
-      
-      <!-- Results -->
-      <div id="aiResults" class="hidden space-y-4">
-        <h3 class="text-xl font-bold mb-4">Choose a caption:</h3>
-        <div id="aiVariations" class="space-y-4"></div>
-        <button 
-          onclick="showAIForm()" 
-          class="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition"
-        >
-          ← Generate New Captions
-        </button>
+      <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+        <p>&copy; 2025 Social Media Automator. All rights reserved.</p>
       </div>
     </div>
-  </div>
-
-  <script>
-    const API_URL = window.location.origin;
-    let accountsData = []; // Store accounts globally
-
-    function getSelectedPlatforms() {
-      return Array.from(document.querySelectorAll('.platform-checkbox:checked'))
-        .map(cb => cb.value);
-    }
-
-    function getSelectedAccount() {
-      return parseInt(document.getElementById('accountSelect').value);
-    }
-
-    // Load accounts from API
-    async function loadAccounts() {
-      try {
-        const response = await fetch(`${API_URL}/api/accounts`);
-        const data = await response.json();
-
-        if (data.success && data.accounts) {
-          accountsData = data.accounts;
-          populateAccountDropdown(data.accounts);
-        }
-      } catch (error) {
-        console.error('Error loading accounts:', error);
-      }
-    }
-
-    // Populate account dropdown with emoji and name
-    function populateAccountDropdown(accounts) {
-      const select = document.getElementById('accountSelect');
-      select.innerHTML = accounts.map(account => {
-        const platforms = [];
-        if (account.platforms.linkedin) platforms.push('🔗');
-        if (account.platforms.twitter) platforms.push('🐦');
-        if (account.platforms.instagram) platforms.push('📸');
-        
-        const platformBadge = platforms.length > 0 ? ` [${platforms.join('')}]` : ' [No credentials]';
-        
-        return `<option value="${account.id}">${account.emoji} ${account.name}${platformBadge}</option>`;
-      }).join('');
-    }
-
-    // Post immediately
-    async function postNow() {
-      const text = document.getElementById('postText').value;
-      const imageUrl = document.getElementById('imageUrl').value;
-      const platforms = getSelectedPlatforms();
-      const accountId = getSelectedAccount();
-
-      if (!text) {
-        alert('Please enter post text');
-        return;
-      }
-
-      if (platforms.length === 0) {
-        alert('Please select at least one platform');
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_URL}/api/post/now`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            text, 
-            imageUrl: imageUrl || null,
-            platforms,
-            accountId
-          })
-        });
-
-        const data = await response.json();
-
-        let successCount = 0;
-        let failCount = 0;
-        let message = 'Results:\n';
-
-        for (const [platform, result] of Object.entries(data)) {
-          if (result.success) {
-            successCount++;
-            message += `✅ ${platform}: Posted!\n`;
-          } else {
-            failCount++;
-            message += `❌ ${platform}: ${result.error}\n`;
-          }
-        }
-
-        if (successCount > 0) {
-          alert(message);
-          document.getElementById('postText').value = '';
-          document.getElementById('imageUrl').value = '';
-        } else {
-          alert('❌ All platforms failed:\n' + message);
-        }
-      } catch (error) {
-        alert('❌ Error: ' + error.message);
-      }
-    }
-
-    // Schedule post
-    async function schedulePost() {
-      const text = document.getElementById('postText').value;
-      const imageUrl = document.getElementById('imageUrl').value;
-      const scheduleDateTime = document.getElementById('scheduleDateTime').value;
-      const platforms = getSelectedPlatforms();
-      const accountId = getSelectedAccount();
-
-      if (!text || !scheduleDateTime) {
-        alert('Please enter post text and schedule time');
-        return;
-      }
-
-      if (platforms.length === 0) {
-        alert('Please select at least one platform');
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_URL}/api/post/schedule`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            text, 
-            imageUrl: imageUrl || null,
-            platforms,
-            scheduleTime: new Date(scheduleDateTime).toISOString(),
-            accountId
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          alert(`✅ Post scheduled for ${platforms.join(', ')}!`);
-          document.getElementById('postText').value = '';
-          document.getElementById('imageUrl').value = '';
-          document.getElementById('scheduleDateTime').value = '';
-          loadQueue();
-        } else {
-          alert('❌ Error: ' + data.error);
-        }
-      } catch (error) {
-        alert('❌ Error: ' + error.message);
-      }
-    }
-
-    // Delete post from queue
-    async function deletePost(id) {
-      if (!confirm('Delete this post from queue?')) return;
-
-      try {
-        const response = await fetch(`${API_URL}/api/queue/${id}`, {
-          method: 'DELETE'
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          loadQueue();
-        } else {
-          alert('❌ Error: ' + data.error);
-        }
-      } catch (error) {
-        alert('❌ Error: ' + error.message);
-      }
-    }
-
-    // Load queue
-    async function loadQueue() {
-      try {
-        const response = await fetch(`${API_URL}/api/queue`);
-        const data = await response.json();
-
-        const queueDiv = document.getElementById('queue');
-        const queueCountDiv = document.getElementById('queueCount');
-        
-        queueCountDiv.textContent = `Queue: ${data.queue.length} post(s)`;
-
-        if (data.queue.length === 0) {
-          queueDiv.innerHTML = '<p class="text-gray-400">No posts scheduled yet</p>';
-          return;
-        }
-
-        queueDiv.innerHTML = data.queue.map(post => {
-          const statusColor = {
-            'queued': 'bg-yellow-600',
-            'posted': 'bg-green-600',
-            'failed': 'bg-red-600',
-            'partial': 'bg-orange-600'
-          }[post.status] || 'bg-gray-600';
-
-          const statusEmoji = {
-            'queued': '⏳',
-            'posted': '✅',
-            'failed': '❌',
-            'partial': '⚠️'
-          }[post.status] || '❓';
-
-          const platformBadges = post.platforms.map(p => {
-            const badges = {
-              'linkedin': '<span class="bg-blue-600 px-2 py-1 rounded text-xs">🔗 LinkedIn</span>',
-              'twitter': '<span class="bg-sky-500 px-2 py-1 rounded text-xs">🐦 Twitter</span>',
-              'instagram': '<span class="bg-pink-600 px-2 py-1 rounded text-xs">📸 Instagram</span>'
-            };
-            return badges[p] || '';
-          }).join(' ');
-
-          return `
-            <div class="bg-gray-700 p-4 rounded-lg flex items-start justify-between">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="${statusColor} px-3 py-1 rounded-full text-sm font-bold">
-                    ${statusEmoji} ${post.status.toUpperCase()}
-                  </span>
-                  ${platformBadges}
-                  ${post.hasImage ? '<span class="bg-purple-600 px-2 py-1 rounded text-xs">📷 Image</span>' : ''}
-                </div>
-                <p class="text-gray-300 mb-2">${post.text}</p>
-                <p class="text-sm text-gray-400">
-                  📅 ${new Date(post.scheduleTime).toLocaleString()}
-                </p>
-              </div>
-              ${post.status === 'queued' ? `
-                <button 
-                  onclick="deletePost(${post.id})" 
-                  class="ml-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition"
-                >
-                  🗑️
-                </button>
-              ` : ''}
-            </div>
-          `;
-        }).join('');
-      } catch (error) {
-        console.error('Error loading queue:', error);
-      }
-    }
-
-    // Load accounts and queue on page load
-    loadAccounts();
-    loadQueue();
-    
-    // Refresh queue every 10 seconds
-    setInterval(loadQueue, 10000);
-
-    // ============================================
-    // AI CAPTION GENERATION
-    // ============================================
-
-    function openAIModal() {
-      document.getElementById('aiModal').classList.remove('hidden');
-      showAIForm();
-      
-      // Auto-detect platform from checkboxes
-      const selectedPlatforms = getSelectedPlatforms();
-      if (selectedPlatforms.length > 0) {
-        document.getElementById('aiPlatform').value = selectedPlatforms[0];
-      }
-    }
-
-    function closeAIModal() {
-      document.getElementById('aiModal').classList.add('hidden');
-      // Reset form
-      document.getElementById('aiTopic').value = '';
-    }
-
-    function showAIForm() {
-      document.getElementById('aiForm').classList.remove('hidden');
-      document.getElementById('aiLoading').classList.add('hidden');
-      document.getElementById('aiResults').classList.add('hidden');
-    }
-
-    function showAILoading() {
-      document.getElementById('aiForm').classList.add('hidden');
-      document.getElementById('aiLoading').classList.remove('hidden');
-      document.getElementById('aiResults').classList.add('hidden');
-    }
-
-    function showAIResults() {
-      document.getElementById('aiForm').classList.add('hidden');
-      document.getElementById('aiLoading').classList.add('hidden');
-      document.getElementById('aiResults').classList.remove('hidden');
-    }
-
-    async function generateAICaptions() {
-      const topic = document.getElementById('aiTopic').value;
-      const niche = document.getElementById('aiNiche').value;
-      const platform = document.getElementById('aiPlatform').value;
-
-      if (!topic) {
-        alert('Please enter a topic');
-        return;
-      }
-
-      showAILoading();
-
-      try {
-        const response = await fetch(`${API_URL}/api/ai/generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ topic, niche, platform })
-        });
-
-        const data = await response.json();
-
-        if (data.success && data.variations) {
-          displayAIVariations(data.variations);
-          showAIResults();
-        } else {
-          alert('❌ Error: ' + (data.error || 'Failed to generate captions'));
-          showAIForm();
-        }
-      } catch (error) {
-        alert('❌ Error: ' + error.message);
-        showAIForm();
-      }
-    }
-
-    function displayAIVariations(variations) {
-      const container = document.getElementById('aiVariations');
-      
-      container.innerHTML = variations.map((caption, index) => `
-        <div class="bg-gray-700 p-4 rounded-lg hover:bg-gray-600 transition cursor-pointer" 
-             onclick="useCaption(${index})">
-          <div class="flex justify-between items-start mb-2">
-            <span class="font-bold text-purple-400">Variation ${index + 1}</span>
-            <span class="text-xs text-gray-400">${caption.length} characters</span>
-          </div>
-          <p class="text-white whitespace-pre-wrap">${caption}</p>
-          <button class="mt-3 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-sm font-bold transition w-full">
-            Use This Caption ✓
-          </button>
-        </div>
-      `).join('');
-      
-      // Store variations globally for use
-      window.aiVariations = variations;
-    }
-
-    function useCaption(index) {
-      const caption = window.aiVariations[index];
-      document.getElementById('postText').value = caption;
-      closeAIModal();
-      
-      // Show success message
-      const postText = document.getElementById('postText');
-      postText.classList.add('ring-2', 'ring-purple-500');
-      setTimeout(() => {
-        postText.classList.remove('ring-2', 'ring-purple-500');
-      }, 1000);
-    }
-
-    // ============================================
-    // BULK CSV UPLOAD
-    // ============================================
-
-    let bulkPostsData = [];
-
-    // Handle CSV file selection
-    document.getElementById('csvFile').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      // Check file type
-      if (!file.name.endsWith('.csv')) {
-        alert('❌ Please select a CSV file');
-        return;
-      }
-
-      console.log('📂 Parsing CSV file:', file.name);
-
-      // Parse CSV using Papa Parse
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          console.log('✅ CSV parsed:', results.data.length, 'rows');
-          handleCSVParsed(results.data);
-        },
-        error: function(error) {
-          console.error('❌ CSV parse error:', error);
-          alert('❌ Error parsing CSV: ' + error.message);
-        }
-      });
-    });
-
-    function handleCSVParsed(data) {
-      if (data.length === 0) {
-        alert('❌ CSV file is empty');
-        return;
-      }
-
-      // Validate columns
-      const firstRow = data[0];
-      const requiredColumns = ['account_id', 'text', 'platforms', 'schedule_time'];
-      const missingColumns = requiredColumns.filter(col => !(col in firstRow));
-
-      if (missingColumns.length > 0) {
-        alert(`❌ Missing required columns: ${missingColumns.join(', ')}\n\nPlease download the template and use the correct format.`);
-        return;
-      }
-
-      bulkPostsData = data;
-      showCSVPreview(data);
-    }
-
-    function showCSVPreview(data) {
-      const preview = document.getElementById('csvPreview');
-      const tbody = document.getElementById('previewBody');
-      const postCount = document.getElementById('postCount');
-
-      postCount.textContent = data.length;
-
-      // Show first 10 rows
-      const previewData = data.slice(0, 10);
-
-      let html = '';
-      previewData.forEach((row, index) => {
-        const account = accountsData.find(a => a.id == row.account_id);
-        const accountName = account ? `${account.emoji} ${account.name}` : `⚠️ Unknown (${row.account_id})`;
-        const textPreview = row.text.length > 60 ? row.text.substring(0, 60) + '...' : row.text;
-
-        html += `
-          <tr class="border-t border-gray-600 hover:bg-gray-600">
-            <td class="p-3">${accountName}</td>
-            <td class="p-3 text-gray-300">${textPreview}</td>
-            <td class="p-3 text-sm">${row.platforms}</td>
-            <td class="p-3 text-sm text-gray-400">${row.schedule_time}</td>
-          </tr>
-        `;
-      });
-
-      if (data.length > 10) {
-        html += `
-          <tr class="border-t border-gray-600">
-            <td colspan="4" class="p-3 text-center text-gray-400 text-sm">
-              ... and ${data.length - 10} more row(s)
-            </td>
-          </tr>
-        `;
-      }
-
-      tbody.innerHTML = html;
-      preview.classList.remove('hidden');
-    }
-
-    async function scheduleBulkPosts() {
-      if (bulkPostsData.length === 0) {
-        alert('❌ No data to schedule');
-        return;
-      }
-
-      // Show loading state
-      const button = event.target;
-      const originalText = button.innerHTML;
-      button.innerHTML = '<span class="animate-pulse">⏳ Scheduling...</span>';
-      button.disabled = true;
-
-      try {
-        const response = await fetch(`${API_URL}/api/post/bulk-csv`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ posts: bulkPostsData })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          let message = `✅ Successfully scheduled ${data.scheduled} post(s)!`;
-          
-          if (data.failed > 0) {
-            message += `\n\n⚠️ ${data.failed} post(s) failed to schedule.`;
-            
-            if (data.errors && data.errors.length > 0) {
-              message += '\n\nErrors:';
-              data.errors.slice(0, 5).forEach(err => {
-                message += `\n- Row ${err.row}: ${err.error}`;
-              });
-              
-              if (data.errors.length > 5) {
-                message += `\n... and ${data.errors.length - 5} more error(s)`;
-              }
-            }
-          }
-
-          alert(message);
-          
-          // Refresh queue and reset
-          loadQueue();
-          cancelBulkUpload();
-        } else {
-          alert('❌ Error: ' + data.error);
-        }
-      } catch (error) {
-        console.error('Error scheduling bulk posts:', error);
-        alert('❌ Error: ' + error.message);
-      } finally {
-        // Restore button
-        button.innerHTML = originalText;
-        button.disabled = false;
-      }
-    }
-
-    function cancelBulkUpload() {
-      bulkPostsData = [];
-      document.getElementById('csvPreview').classList.add('hidden');
-      document.getElementById('csvFile').value = '';
-      console.log('🗑️ CSV upload cancelled');
-    }
-  </script>
+  </footer>
 </body>
 </html>
+

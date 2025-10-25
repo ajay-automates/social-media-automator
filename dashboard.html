@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Social Media Automator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-900 text-white">
+  <div class="max-w-6xl mx-auto p-8">
+    <!-- Header -->
+    <div class="mb-8 flex justify-between items-center">
+      <div>
+        <h1 class="text-5xl font-bold mb-2">🚀 Social Media Automator</h1>
+        <p class="text-gray-400">Post to LinkedIn & Twitter with smart scheduling</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="text-right">
+          <p class="text-sm text-gray-400">Logged in as</p>
+          <p id="userEmail" class="font-bold">Loading...</p>
+          <div id="planBadge" class="mt-1"></div>
+        </div>
+        <button 
+          onclick="handleLogout()"
+          class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-bold transition"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Usage & Billing Section -->
+    <div class="bg-gray-800 p-6 rounded-lg mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">📊 Your Plan & Usage</h2>
+        <button 
+          onclick="openBillingPortal()"
+          class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-bold transition text-sm"
+          id="manageBillingBtn"
+        >
+          ⚙️ Manage Billing
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="usageStats">
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-400 text-sm">Posts This Month</span>
+            <span class="text-xs text-gray-500" id="postsResetDate"></span>
+          </div>
+          <div class="text-3xl font-bold" id="postsUsage">Loading...</div>
+          <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+            <div class="bg-blue-600 h-2 rounded-full transition-all" id="postsProgress" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-400 text-sm">AI Generations</span>
+            <span class="text-xs text-gray-500" id="aiResetDate"></span>
+          </div>
+          <div class="text-3xl font-bold" id="aiUsage">Loading...</div>
+          <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+            <div class="bg-purple-600 h-2 rounded-full transition-all" id="aiProgress" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="bg-gray-700 p-4 rounded-lg">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-gray-400 text-sm">Connected Accounts</span>
+          </div>
+          <div class="text-3xl font-bold" id="accountsUsage">Loading...</div>
+          <button 
+            onclick="openConnectAccountsModal()"
+            class="mt-2 text-sm text-blue-400 hover:text-blue-300 transition"
+          >
+            → Manage Connections
+          </button>
+        </div>
+      </div>
+
+      <!-- Upgrade Prompt (shown when near limit) -->
+      <div id="upgradeBanner" class="hidden mt-4 bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-lg">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="font-bold text-lg" id="upgradeMessage">You're approaching your limit!</p>
+            <p class="text-sm opacity-90" id="upgradeDetails"></p>
+          </div>
+          <button 
+            onclick="showUpgradeModal()"
+            class="bg-white text-gray-900 hover:bg-gray-100 px-6 py-2 rounded-lg font-bold transition"
+          >
+            Upgrade Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connected Accounts Section -->
+    <div class="bg-gray-800 p-6 rounded-lg mb-8">
+      <h2 class="text-2xl font-bold mb-4">🔗 Connected Accounts</h2>
+      <div id="connectedAccountsList" class="space-y-3">
+        <p class="text-gray-400">Loading...</p>
+      </div>
+      
+      <div class="mt-4 flex gap-3">
+        <button 
+          onclick="connectLinkedIn()"
+          class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2"
+        >
+          <span>🔗</span> Connect LinkedIn
+        </button>
+        <button 
+          onclick="connectTwitter()"
+          class="bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2"
+        >
+          <span>🐦</span> Connect Twitter
+        </button>
+      </div>
+    </div>
+
+    <!-- Account Selector -->
+    <div class="bg-gray-800 p-4 rounded-lg mb-4">
+      <label class="text-gray-400 text-sm mb-2 block">📂 Posting as:</label>
+      <select id="accountSelect" class="w-full p-3 bg-gray-700 rounded-lg text-white font-medium text-lg cursor-pointer hover:bg-gray-600 transition">
+        <option value="1">Loading accounts...</option>
+      </select>
+    </div>
+
+    <!-- Status -->
+    <div class="bg-gray-800 p-4 rounded-lg mb-8">
+      <div class="flex items-center justify-between">
+        <div class="flex gap-4">
+          <div>
+            <span class="text-green-400 text-2xl">●</span>
+            <span class="ml-2 text-lg">System Online</span>
+          </div>
+          <div class="flex gap-2">
+            <span class="bg-blue-600 px-3 py-1 rounded-full text-sm">LinkedIn ✓</span>
+            <span class="bg-sky-500 px-3 py-1 rounded-full text-sm">Twitter ✓</span>
+            <span class="bg-pink-600 px-3 py-1 rounded-full text-sm">Instagram ✓</span>
+          </div>
+        </div>
+        <div class="text-gray-400" id="queueCount">Queue: 0 posts</div>
+      </div>
+    </div>
+
+    <!-- Post Form -->
+    <div class="bg-gray-800 p-6 rounded-lg mb-8">
+      <h2 class="text-2xl font-bold mb-4">📝 Create Post</h2>
+      
+      <textarea 
+        id="postText" 
+        placeholder="What's on your mind?" 
+        class="w-full p-4 bg-gray-700 rounded-lg mb-2 h-32 text-white"
+        rows="5"
+      ></textarea>
+      
+      <!-- AI Generate Button -->
+      <div class="mb-4">
+        <button 
+          onclick="openAIModal()" 
+          class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-bold transition text-sm"
+        >
+          ✨ AI Generate Caption
+        </button>
+      </div>
+      
+      <input 
+        id="imageUrl" 
+        type="text" 
+        placeholder="Media URL (optional - Image for LinkedIn, Image/Video for Instagram)" 
+        class="w-full p-4 bg-gray-700 rounded-lg mb-4 text-white"
+      >
+      
+      <!-- Platform Selection -->
+      <div class="mb-4">
+        <p class="text-sm text-gray-400 mb-2">Select platforms:</p>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
+            <input type="checkbox" value="linkedin" class="platform-checkbox" checked>
+            <span>🔗 LinkedIn</span>
+          </label>
+          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
+            <input type="checkbox" value="twitter" class="platform-checkbox" checked>
+            <span>🐦 Twitter/X</span>
+          </label>
+          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
+            <input type="checkbox" value="instagram" class="platform-checkbox" checked>
+            <span>📸 Instagram</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="flex gap-4 mb-4">
+        <input 
+          id="scheduleDateTime" 
+          type="datetime-local" 
+          class="flex-1 p-4 bg-gray-700 rounded-lg text-white"
+        >
+      </div>
+      
+      <div class="flex gap-4">
+        <button 
+          onclick="postNow()" 
+          class="flex-1 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          📤 Post Now
+        </button>
+        <button 
+          onclick="schedulePost()" 
+          class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          ⏰ Schedule Post
+        </button>
+      </div>
+    </div>
+
+    <!-- Bulk CSV Upload -->
+    <div class="bg-gray-800 p-6 rounded-lg mb-8">
+      <h2 class="text-2xl font-bold mb-4">📂 Bulk CSV Upload</h2>
+      <p class="text-gray-400 text-sm mb-4">Upload a CSV file to schedule multiple posts at once</p>
+      
+      <input 
+        type="file" 
+        id="csvFile" 
+        accept=".csv"
+        class="hidden"
+      >
+      
+      <div class="flex gap-4">
+        <button 
+          onclick="document.getElementById('csvFile').click()" 
+          class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          📂 Choose CSV File
+        </button>
+        
+        <a 
+          href="/template.csv" 
+          download 
+          class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition inline-flex items-center"
+        >
+          📥 Download Template
+        </a>
+      </div>
+      
+      <!-- Preview Table (hidden initially) -->
+      <div id="csvPreview" class="hidden mt-6">
+        <h3 class="text-xl font-bold mb-3">📋 Preview (first 10 rows)</h3>
+        <div class="overflow-x-auto bg-gray-700 rounded-lg">
+          <table id="previewTable" class="w-full">
+            <thead>
+              <tr class="bg-gray-600 text-left">
+                <th class="p-3">Account</th>
+                <th class="p-3">Text</th>
+                <th class="p-3">Platforms</th>
+                <th class="p-3">Schedule Time</th>
+              </tr>
+            </thead>
+            <tbody id="previewBody"></tbody>
+          </table>
+        </div>
+        
+        <div class="mt-4 flex gap-4">
+          <button 
+            onclick="scheduleBulkPosts()" 
+            class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-bold transition"
+          >
+            ⏰ Schedule All <span id="postCount">0</span> Posts
+          </button>
+          <button 
+            onclick="cancelBulkUpload()" 
+            class="bg-gray-600 hover:bg-gray-500 px-6 py-3 rounded-lg font-bold transition"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div class="bg-gray-800 p-6 rounded-lg">
+      <h2 class="text-2xl font-bold mb-4">📋 Scheduled Posts</h2>
+      <div id="queue" class="space-y-3">
+        <p class="text-gray-400">No posts scheduled yet</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upgrade Modal -->
+  <div id="upgradeModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 p-8 rounded-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold">⬆️ Upgrade Your Plan</h2>
+        <button onclick="closeUpgradeModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      
+      <p class="text-gray-400 mb-6">Choose the plan that's right for you:</p>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Pro Plan -->
+        <div class="bg-gray-700 p-6 rounded-lg border-2 border-blue-500">
+          <div class="text-center mb-4">
+            <h3 class="text-2xl font-bold mb-2">Pro</h3>
+            <div class="text-4xl font-bold mb-2">$29<span class="text-lg text-gray-400">/mo</span></div>
+            <p class="text-sm text-green-400">or $290/year (save $58)</p>
+          </div>
+          
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>Unlimited posts</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>3 social accounts</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>All platforms</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>100 AI generations/month</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>CSV bulk upload</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>Email support</span>
+            </li>
+          </ul>
+          
+          <button 
+            onclick="upgradeToPlan('pro', 'monthly')"
+            class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition mb-2"
+          >
+            Start 14-Day Free Trial
+          </button>
+          <button 
+            onclick="upgradeToPlan('pro', 'annual')"
+            class="w-full bg-gray-600 hover:bg-gray-500 py-2 rounded-lg font-bold transition text-sm"
+          >
+            Pay Annually (Save $58)
+          </button>
+        </div>
+
+        <!-- Business Plan -->
+        <div class="bg-gray-700 p-6 rounded-lg border-2 border-purple-500">
+          <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-600 px-4 py-1 rounded-full text-sm font-bold">
+            BEST VALUE
+          </div>
+          
+          <div class="text-center mb-4">
+            <h3 class="text-2xl font-bold mb-2">Business</h3>
+            <div class="text-4xl font-bold mb-2">$99<span class="text-lg text-gray-400">/mo</span></div>
+            <p class="text-sm text-green-400">or $990/year (save $198)</p>
+          </div>
+          
+          <ul class="space-y-2 mb-6">
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>Unlimited everything</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>10 social accounts</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>Priority support</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span><strong>API access</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>White-label option</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400">✓</span>
+              <span>Remove branding</span>
+            </li>
+          </ul>
+          
+          <button 
+            onclick="upgradeToPlan('business', 'monthly')"
+            class="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold transition mb-2"
+          >
+            Start 14-Day Free Trial
+          </button>
+          <button 
+            onclick="upgradeToPlan('business', 'annual')"
+            class="w-full bg-gray-600 hover:bg-gray-500 py-2 rounded-lg font-bold transition text-sm"
+          >
+            Pay Annually (Save $198)
+          </button>
+        </div>
+      </div>
+      
+      <p class="text-center text-gray-400 text-sm mt-6">
+        ✓ 14-day free trial &nbsp; ✓ Cancel anytime &nbsp; ✓ No credit card required for trial
+      </p>
+    </div>
+  </div>
+
+  <!-- AI Modal -->
+  <div id="aiModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 p-8 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">✨ AI Caption Generator</h2>
+        <button onclick="closeAIModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      
+      <!-- Input Form -->
+      <div id="aiForm" class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">What's your topic?</label>
+          <input 
+            id="aiTopic" 
+            type="text" 
+            placeholder="E.g., 'Benefits of using automation tools'"
+            class="w-full p-4 bg-gray-700 rounded-lg text-white"
+          >
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Select your niche:</label>
+          <select id="aiNiche" class="w-full p-4 bg-gray-700 rounded-lg text-white">
+            <option value="Restaurant Tools">Restaurant Tools</option>
+            <option value="E-commerce">E-commerce</option>
+            <option value="Content Creation">Content Creation</option>
+            <option value="Cost-Saving">Cost-Saving</option>
+            <option value="Real Estate">Real Estate</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Target platform:</label>
+          <select id="aiPlatform" class="w-full p-4 bg-gray-700 rounded-lg text-white">
+            <option value="linkedin">🔗 LinkedIn (Professional)</option>
+            <option value="twitter">🐦 Twitter/X (Casual)</option>
+            <option value="instagram">📸 Instagram (Trendy)</option>
+          </select>
+        </div>
+        
+        <button 
+          onclick="generateAICaptions()" 
+          id="generateBtn"
+          class="w-full bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          🚀 Generate Captions
+        </button>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="aiLoading" class="hidden text-center py-8">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto"></div>
+        <p class="text-gray-400 mt-4">Claude is writing your captions...</p>
+      </div>
+      
+      <!-- Results -->
+      <div id="aiResults" class="hidden space-y-4">
+        <h3 class="text-xl font-bold mb-4">Choose a caption:</h3>
+        <div id="aiVariations" class="space-y-4"></div>
+        <button 
+          onclick="showAIForm()" 
+          class="w-full bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg font-bold transition"
+        >
+          ← Generate New Captions
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Supabase client
+    const SUPABASE_URL = 'https://gzchblilbthkfuxqhoyo.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6Y2hibGlsYnRoa2Z1eHFob3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDgzOTcsImV4cCI6MjA3Njg4NDM5N30.h85XUXsVvxYAdMA9odgO4W5RN1148MDOO86XhwgOnb8';
+    
+    let supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+    let authToken = null;
+    
+    // Check authentication on page load
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        // Not logged in, redirect to auth page
+        window.location.href = '/auth';
+      } else {
+        // Store user and token
+        currentUser = session.user;
+        authToken = session.access_token;
+        
+        // Display user email
+        document.getElementById('userEmail').textContent = currentUser.email;
+        
+        // Now load data after token is set
+        loadUsageData();
+        loadConnectedAccounts();
+        loadAccounts();
+        loadQueue();
+      }
+    });
+
+    // Logout function
+    async function handleLogout() {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      window.location.href = '/auth';
+    }
+
+    const API_URL = window.location.origin;
+    let accountsData = []; // Store accounts globally
+
+    function getSelectedPlatforms() {
+      return Array.from(document.querySelectorAll('.platform-checkbox:checked'))
+        .map(cb => cb.value);
+    }
+
+    function getSelectedAccount() {
+      return parseInt(document.getElementById('accountSelect').value);
+    }
+
+    // Load accounts from API
+    async function loadAccounts() {
+      try {
+        const response = await fetch(`${API_URL}/api/accounts`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+        const data = await response.json();
+
+        if (data.success && data.accounts) {
+          accountsData = data.accounts;
+          populateAccountDropdown(data.accounts);
+        }
+      } catch (error) {
+        console.error('Error loading accounts:', error);
+      }
+    }
+
+    // Populate account dropdown with emoji and name
+    function populateAccountDropdown(accounts) {
+      const select = document.getElementById('accountSelect');
+      select.innerHTML = accounts.map(account => {
+        const platforms = [];
+        if (account.platforms.linkedin) platforms.push('🔗');
+        if (account.platforms.twitter) platforms.push('🐦');
+        if (account.platforms.instagram) platforms.push('📸');
+        
+        const platformBadge = platforms.length > 0 ? ` [${platforms.join('')}]` : ' [No credentials]';
+        
+        return `<option value="${account.id}">${account.emoji} ${account.name}${platformBadge}</option>`;
+      }).join('');
+    }
+
+    // Post immediately
+    async function postNow() {
+      const text = document.getElementById('postText').value;
+      const imageUrl = document.getElementById('imageUrl').value;
+      const platforms = getSelectedPlatforms();
+      const accountId = getSelectedAccount();
+
+      if (!text) {
+        alert('Please enter post text');
+        return;
+      }
+
+      if (platforms.length === 0) {
+        alert('Please select at least one platform');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/api/post/now`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ 
+            text, 
+            imageUrl: imageUrl || null,
+            platforms,
+            accountId
+          })
+        });
+
+        const data = await response.json();
+
+        let successCount = 0;
+        let failCount = 0;
+        let message = 'Results:\n';
+
+        // Check if we have results
+        if (!data.results) {
+          alert(`❌ Error: ${data.error || 'Unknown error'}`);
+          return;
+        }
+
+        for (const [platform, result] of Object.entries(data.results)) {
+          if (result.success) {
+            successCount++;
+            message += `✅ ${platform}: Posted!\n`;
+          } else {
+            failCount++;
+            message += `❌ ${platform}: ${result.error}\n`;
+          }
+        }
+
+        if (successCount > 0) {
+          alert(message);
+          document.getElementById('postText').value = '';
+          document.getElementById('imageUrl').value = '';
+        } else {
+          alert('❌ All platforms failed:\n' + message);
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Schedule post
+    async function schedulePost() {
+      const text = document.getElementById('postText').value;
+      const imageUrl = document.getElementById('imageUrl').value;
+      const scheduleDateTime = document.getElementById('scheduleDateTime').value;
+      const platforms = getSelectedPlatforms();
+      const accountId = getSelectedAccount();
+
+      if (!text || !scheduleDateTime) {
+        alert('Please enter post text and schedule time');
+        return;
+      }
+
+      if (platforms.length === 0) {
+        alert('Please select at least one platform');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/api/post/schedule`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ 
+            text, 
+            imageUrl: imageUrl || null,
+            platforms,
+            scheduleTime: new Date(scheduleDateTime).toISOString(),
+            accountId
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`✅ Post scheduled for ${platforms.join(', ')}!`);
+          document.getElementById('postText').value = '';
+          document.getElementById('imageUrl').value = '';
+          document.getElementById('scheduleDateTime').value = '';
+          loadQueue();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Delete post from queue
+    async function deletePost(id) {
+      if (!confirm('Delete this post from queue?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/api/queue/${id}`, {
+          method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          loadQueue();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Load queue
+    async function loadQueue() {
+      try {
+        const response = await fetch(`${API_URL}/api/queue`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+        const data = await response.json();
+
+        const queueDiv = document.getElementById('queue');
+        const queueCountDiv = document.getElementById('queueCount');
+        
+        queueCountDiv.textContent = `Queue: ${data.queue.length} post(s)`;
+
+        if (data.queue.length === 0) {
+          queueDiv.innerHTML = '<p class="text-gray-400">No posts scheduled yet</p>';
+          return;
+        }
+
+        queueDiv.innerHTML = data.queue.map(post => {
+          const statusColor = {
+            'queued': 'bg-yellow-600',
+            'posted': 'bg-green-600',
+            'failed': 'bg-red-600',
+            'partial': 'bg-orange-600'
+          }[post.status] || 'bg-gray-600';
+
+          const statusEmoji = {
+            'queued': '⏳',
+            'posted': '✅',
+            'failed': '❌',
+            'partial': '⚠️'
+          }[post.status] || '❓';
+
+          const platformBadges = post.platforms.map(p => {
+            const badges = {
+              'linkedin': '<span class="bg-blue-600 px-2 py-1 rounded text-xs">🔗 LinkedIn</span>',
+              'twitter': '<span class="bg-sky-500 px-2 py-1 rounded text-xs">🐦 Twitter</span>',
+              'instagram': '<span class="bg-pink-600 px-2 py-1 rounded text-xs">📸 Instagram</span>'
+            };
+            return badges[p] || '';
+          }).join(' ');
+
+          return `
+            <div class="bg-gray-700 p-4 rounded-lg flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="${statusColor} px-3 py-1 rounded-full text-sm font-bold">
+                    ${statusEmoji} ${post.status.toUpperCase()}
+                  </span>
+                  ${platformBadges}
+                  ${post.hasImage ? '<span class="bg-purple-600 px-2 py-1 rounded text-xs">📷 Image</span>' : ''}
+                </div>
+                <p class="text-gray-300 mb-2">${post.text}</p>
+                <p class="text-sm text-gray-400">
+                  📅 ${new Date(post.scheduleTime).toLocaleString()}
+                </p>
+              </div>
+              ${post.status === 'queued' ? `
+                <button 
+                  onclick="deletePost(${post.id})" 
+                  class="ml-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition"
+                >
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('Error loading queue:', error);
+      }
+    }
+
+    // Refresh queue every 10 seconds (loadAccounts and loadQueue called after auth)
+    setInterval(loadQueue, 10000);
+
+    // ============================================
+    // AI CAPTION GENERATION
+    // ============================================
+
+    function openAIModal() {
+      document.getElementById('aiModal').classList.remove('hidden');
+      showAIForm();
+      
+      // Auto-detect platform from checkboxes
+      const selectedPlatforms = getSelectedPlatforms();
+      if (selectedPlatforms.length > 0) {
+        document.getElementById('aiPlatform').value = selectedPlatforms[0];
+      }
+    }
+
+    function closeAIModal() {
+      document.getElementById('aiModal').classList.add('hidden');
+      // Reset form
+      document.getElementById('aiTopic').value = '';
+    }
+
+    function showAIForm() {
+      document.getElementById('aiForm').classList.remove('hidden');
+      document.getElementById('aiLoading').classList.add('hidden');
+      document.getElementById('aiResults').classList.add('hidden');
+    }
+
+    function showAILoading() {
+      document.getElementById('aiForm').classList.add('hidden');
+      document.getElementById('aiLoading').classList.remove('hidden');
+      document.getElementById('aiResults').classList.add('hidden');
+    }
+
+    function showAIResults() {
+      document.getElementById('aiForm').classList.add('hidden');
+      document.getElementById('aiLoading').classList.add('hidden');
+      document.getElementById('aiResults').classList.remove('hidden');
+    }
+
+    async function generateAICaptions() {
+      const topic = document.getElementById('aiTopic').value;
+      const niche = document.getElementById('aiNiche').value;
+      const platform = document.getElementById('aiPlatform').value;
+
+      if (!topic) {
+        alert('Please enter a topic');
+        return;
+      }
+
+      showAILoading();
+
+      try {
+        const response = await fetch(`${API_URL}/api/ai/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, niche, platform })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.variations) {
+          displayAIVariations(data.variations);
+          showAIResults();
+        } else {
+          alert('❌ Error: ' + (data.error || 'Failed to generate captions'));
+          showAIForm();
+        }
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+        showAIForm();
+      }
+    }
+
+    function displayAIVariations(variations) {
+      const container = document.getElementById('aiVariations');
+      
+      container.innerHTML = variations.map((caption, index) => `
+        <div class="bg-gray-700 p-4 rounded-lg hover:bg-gray-600 transition cursor-pointer" 
+             onclick="useCaption(${index})">
+          <div class="flex justify-between items-start mb-2">
+            <span class="font-bold text-purple-400">Variation ${index + 1}</span>
+            <span class="text-xs text-gray-400">${caption.length} characters</span>
+          </div>
+          <p class="text-white whitespace-pre-wrap">${caption}</p>
+          <button class="mt-3 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-sm font-bold transition w-full">
+            Use This Caption ✓
+          </button>
+        </div>
+      `).join('');
+      
+      // Store variations globally for use
+      window.aiVariations = variations;
+    }
+
+    function useCaption(index) {
+      const caption = window.aiVariations[index];
+      document.getElementById('postText').value = caption;
+      closeAIModal();
+      
+      // Show success message
+      const postText = document.getElementById('postText');
+      postText.classList.add('ring-2', 'ring-purple-500');
+      setTimeout(() => {
+        postText.classList.remove('ring-2', 'ring-purple-500');
+      }, 1000);
+    }
+
+    // ============================================
+    // BULK CSV UPLOAD
+    // ============================================
+
+    let bulkPostsData = [];
+
+    // Handle CSV file selection
+    document.getElementById('csvFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Check file type
+      if (!file.name.endsWith('.csv')) {
+        alert('❌ Please select a CSV file');
+        return;
+      }
+
+      console.log('📂 Parsing CSV file:', file.name);
+
+      // Parse CSV using Papa Parse
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          console.log('✅ CSV parsed:', results.data.length, 'rows');
+          handleCSVParsed(results.data);
+        },
+        error: function(error) {
+          console.error('❌ CSV parse error:', error);
+          alert('❌ Error parsing CSV: ' + error.message);
+        }
+      });
+    });
+
+    function handleCSVParsed(data) {
+      if (data.length === 0) {
+        alert('❌ CSV file is empty');
+        return;
+      }
+
+      // Validate columns
+      const firstRow = data[0];
+      const requiredColumns = ['account_id', 'text', 'platforms', 'schedule_time'];
+      const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+
+      if (missingColumns.length > 0) {
+        alert(`❌ Missing required columns: ${missingColumns.join(', ')}\n\nPlease download the template and use the correct format.`);
+        return;
+      }
+
+      bulkPostsData = data;
+      showCSVPreview(data);
+    }
+
+    function showCSVPreview(data) {
+      const preview = document.getElementById('csvPreview');
+      const tbody = document.getElementById('previewBody');
+      const postCount = document.getElementById('postCount');
+
+      postCount.textContent = data.length;
+
+      // Show first 10 rows
+      const previewData = data.slice(0, 10);
+
+      let html = '';
+      previewData.forEach((row, index) => {
+        const account = accountsData.find(a => a.id == row.account_id);
+        const accountName = account ? `${account.emoji} ${account.name}` : `⚠️ Unknown (${row.account_id})`;
+        const textPreview = row.text.length > 60 ? row.text.substring(0, 60) + '...' : row.text;
+
+        html += `
+          <tr class="border-t border-gray-600 hover:bg-gray-600">
+            <td class="p-3">${accountName}</td>
+            <td class="p-3 text-gray-300">${textPreview}</td>
+            <td class="p-3 text-sm">${row.platforms}</td>
+            <td class="p-3 text-sm text-gray-400">${row.schedule_time}</td>
+          </tr>
+        `;
+      });
+
+      if (data.length > 10) {
+        html += `
+          <tr class="border-t border-gray-600">
+            <td colspan="4" class="p-3 text-center text-gray-400 text-sm">
+              ... and ${data.length - 10} more row(s)
+            </td>
+          </tr>
+        `;
+      }
+
+      tbody.innerHTML = html;
+      preview.classList.remove('hidden');
+    }
+
+    async function scheduleBulkPosts() {
+      if (bulkPostsData.length === 0) {
+        alert('❌ No data to schedule');
+        return;
+      }
+
+      // Show loading state
+      const button = event.target;
+      const originalText = button.innerHTML;
+      button.innerHTML = '<span class="animate-pulse">⏳ Scheduling...</span>';
+      button.disabled = true;
+
+      try {
+        const response = await fetch(`${API_URL}/api/post/bulk-csv`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ posts: bulkPostsData })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          let message = `✅ Successfully scheduled ${data.scheduled} post(s)!`;
+          
+          if (data.failed > 0) {
+            message += `\n\n⚠️ ${data.failed} post(s) failed to schedule.`;
+            
+            if (data.errors && data.errors.length > 0) {
+              message += '\n\nErrors:';
+              data.errors.slice(0, 5).forEach(err => {
+                message += `\n- Row ${err.row}: ${err.error}`;
+              });
+              
+              if (data.errors.length > 5) {
+                message += `\n... and ${data.errors.length - 5} more error(s)`;
+              }
+            }
+          }
+
+          alert(message);
+          
+          // Refresh queue and reset
+          loadQueue();
+          cancelBulkUpload();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error scheduling bulk posts:', error);
+        alert('❌ Error: ' + error.message);
+      } finally {
+        // Restore button
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+    }
+
+    function cancelBulkUpload() {
+      bulkPostsData = [];
+      document.getElementById('csvPreview').classList.add('hidden');
+      document.getElementById('csvFile').value = '';
+      console.log('🗑️ CSV upload cancelled');
+    }
+
+    // ============================================
+    // BILLING & USAGE TRACKING
+    // ============================================
+
+    // Load usage data
+    async function loadUsageData() {
+      try {
+        // Don't load if token not ready yet
+        if (!authToken) {
+          console.log('⏳ Waiting for auth token...');
+          return;
+        }
+        
+        const response = await fetch(`${API_URL}/api/billing/usage`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Display plan badge
+          const planColors = {
+            'free': 'bg-gray-600',
+            'pro': 'bg-blue-600',
+            'business': 'bg-purple-600'
+          };
+          const planColor = planColors[data.plan.name.toLowerCase()] || 'bg-gray-600';
+          document.getElementById('planBadge').innerHTML = `
+            <span class="${planColor} px-3 py-1 rounded-full text-xs font-bold uppercase">
+              ${data.plan.displayName}
+            </span>
+          `;
+
+          // Display usage stats
+          const postsLimit = data.usage.posts.limit;
+          const postsUsed = data.usage.posts.used;
+          const postsRemaining = data.usage.posts.remaining;
+          
+          if (postsLimit === Infinity || postsLimit === 'Unlimited') {
+            document.getElementById('postsUsage').textContent = `${postsUsed} / Unlimited`;
+            document.getElementById('postsProgress').style.width = '0%';
+          } else {
+            document.getElementById('postsUsage').textContent = `${postsUsed} / ${postsLimit}`;
+            const postsPercent = (postsUsed / postsLimit) * 100;
+            document.getElementById('postsProgress').style.width = `${Math.min(postsPercent, 100)}%`;
+            
+            // Show warning if approaching limit
+            if (postsPercent >= 80) {
+              document.getElementById('postsProgress').classList.add('bg-red-600');
+              document.getElementById('postsProgress').classList.remove('bg-blue-600');
+            }
+          }
+
+          // AI usage
+          const aiLimit = data.usage.ai.limit;
+          const aiUsed = data.usage.ai.used;
+          
+          if (aiLimit === Infinity || aiLimit === 'Unlimited' || aiLimit === 0) {
+            document.getElementById('aiUsage').textContent = aiLimit === 0 ? 'Not Available' : `${aiUsed} / Unlimited`;
+            document.getElementById('aiProgress').style.width = '0%';
+          } else {
+            document.getElementById('aiUsage').textContent = `${aiUsed} / ${aiLimit}`;
+            const aiPercent = (aiUsed / aiLimit) * 100;
+            document.getElementById('aiProgress').style.width = `${Math.min(aiPercent, 100)}%`;
+            
+            if (aiPercent >= 80) {
+              document.getElementById('aiProgress').classList.add('bg-red-600');
+              document.getElementById('aiProgress').classList.remove('bg-purple-600');
+            }
+          }
+
+          // Accounts usage
+          const accountsLimit = data.usage.accounts.limit;
+          const accountsUsed = data.usage.accounts.used;
+          document.getElementById('accountsUsage').textContent = `${accountsUsed} / ${accountsLimit}`;
+
+          // Show upgrade banner if approaching limits
+          if (data.plan.name === 'free' && (postsUsed >= 8 || aiUsed >= 0)) {
+            document.getElementById('upgradeBanner').classList.remove('hidden');
+            document.getElementById('upgradeMessage').textContent = 'You\'re approaching your Free plan limit!';
+            document.getElementById('upgradeDetails').textContent = `${postsRemaining} posts remaining. Upgrade to Pro for unlimited posts and AI captions.`;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading usage:', error);
+      }
+    }
+
+    // Show upgrade modal
+    function showUpgradeModal() {
+      document.getElementById('upgradeModal').classList.remove('hidden');
+    }
+
+    // Close upgrade modal
+    function closeUpgradeModal() {
+      document.getElementById('upgradeModal').classList.add('hidden');
+    }
+
+    // Upgrade to plan
+    async function upgradeToPlan(plan, billing) {
+      try {
+        // Get price ID from environment or hardcoded for demo
+        const priceIds = {
+          'pro_monthly': 'price_pro_monthly_id',
+          'pro_annual': 'price_pro_annual_id',
+          'business_monthly': 'price_business_monthly_id',
+          'business_annual': 'price_business_annual_id'
+        };
+
+        const priceId = priceIds[`${plan}_${billing}`];
+
+        const response = await fetch(`${API_URL}/api/billing/checkout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ priceId, plan })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.url) {
+          // Redirect to Stripe checkout
+          window.location.href = data.url;
+        } else {
+          alert('❌ Error creating checkout session. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error upgrading:', error);
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Open billing portal
+    async function openBillingPortal() {
+      try {
+        const response = await fetch(`${API_URL}/api/billing/portal`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('❌ Error opening billing portal. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error opening portal:', error);
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // ============================================
+    // OAUTH ACCOUNT CONNECTIONS
+    // ============================================
+
+    // Load connected accounts
+    async function loadConnectedAccounts() {
+      try {
+        // Don't load if token not ready yet
+        if (!authToken) {
+          console.log('⏳ Waiting for auth token...');
+          return;
+        }
+        
+        const response = await fetch(`${API_URL}/api/user/accounts`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.accounts) {
+          const accountsList = document.getElementById('connectedAccountsList');
+          
+          if (data.accounts.length === 0) {
+            accountsList.innerHTML = '<p class="text-gray-400">No accounts connected yet. Click the buttons below to connect your social media accounts.</p>';
+          } else {
+            accountsList.innerHTML = data.accounts.map(account => `
+              <div class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">${account.platform === 'linkedin' ? '🔗' : '🐦'}</span>
+                  <div>
+                    <p class="font-bold">${account.platform_name}</p>
+                    <p class="text-sm text-gray-400">@${account.platform_username}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="bg-green-600 px-3 py-1 rounded-full text-xs">Connected</span>
+                  <button 
+                    onclick="disconnectAccount('${account.platform}')"
+                    class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm transition"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading accounts:', error);
+      }
+    }
+
+    // Connect LinkedIn
+    function connectLinkedIn() {
+      if (authToken) {
+        window.location.href = `${API_URL}/auth/linkedin/connect`;
+      } else {
+        alert('Please log in first');
+      }
+    }
+
+    // Connect Twitter
+    function connectTwitter() {
+      if (authToken) {
+        window.location.href = `${API_URL}/auth/twitter/connect`;
+      } else {
+        alert('Please log in first');
+      }
+    }
+
+    // Disconnect account
+    async function disconnectAccount(platform) {
+      if (!confirm(`Disconnect your ${platform} account?`)) return;
+
+      try {
+        const response = await fetch(`${API_URL}/api/user/accounts/${platform}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(`✅ ${platform} disconnected successfully!`);
+          loadConnectedAccounts();
+        } else {
+          alert('❌ Error: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error disconnecting:', error);
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    // Open connect accounts modal (placeholder)
+    function openConnectAccountsModal() {
+      // Scroll to connected accounts section
+      document.getElementById('connectedAccountsList').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ============================================
+    // LOAD DATA ON PAGE LOAD
+    // ============================================
+
+    // Data loading is handled in the auth check above
+
+    // Check for OAuth callback success messages
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('linkedin') === 'connected') {
+      alert('✅ LinkedIn account connected successfully!');
+      loadConnectedAccounts();
+      // Clean URL
+      window.history.replaceState({}, document.title, '/dashboard');
+    }
+    if (urlParams.get('twitter') === 'connected') {
+      alert('✅ Twitter account connected successfully!');
+      loadConnectedAccounts();
+      window.history.replaceState({}, document.title, '/dashboard');
+    }
+    if (urlParams.get('error') === 'linkedin_failed') {
+      alert('❌ Failed to connect LinkedIn account. Please try again.');
+      window.history.replaceState({}, document.title, '/dashboard');
+    }
+    if (urlParams.get('error') === 'twitter_failed') {
+      alert('❌ Failed to connect Twitter account. Please try again.');
+      window.history.replaceState({}, document.title, '/dashboard');
+    }
+    if (urlParams.get('checkout') === 'success') {
+      alert('🎉 Payment successful! Your subscription is now active.');
+      loadUsageData();
+      window.history.replaceState({}, document.title, '/dashboard');
+    }
+    if (urlParams.get('checkout') === 'cancelled') {
+      alert('Checkout cancelled. You can upgrade anytime from your dashboard.');
+      window.history.replaceState({}, document.title, '/dashboard');
+    }
+  </script>
+</body>
+</html>
