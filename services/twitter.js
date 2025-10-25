@@ -67,11 +67,15 @@ async function uploadMediaToTwitter(imageUrl, credentials) {
     const url = 'https://upload.twitter.com/1.1/media/upload.json';
     const method = 'POST';
     
-    const authHeader = generateOAuthHeader(method, url, credentials);
+    // IMPORTANT: media_data must be included in OAuth signature
+    const mediaData = base64Image;
+    const authHeader = generateOAuthHeader(method, url, credentials, {
+      media_data: mediaData
+    });
     
     const response = await axios.post(
       url,
-      `media_data=${encodeURIComponent(base64Image)}`,
+      `media_data=${encodeURIComponent(mediaData)}`,
       {
         headers: {
           'Authorization': authHeader,
