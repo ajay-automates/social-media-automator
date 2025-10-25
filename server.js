@@ -21,6 +21,7 @@ const {
 } = require('./services/database');
 
 const { generateCaption } = require('./services/ai');
+const aiImageService = require('./services/ai-image');
 const { 
   getAllAccountsWithStatus, 
   getAllCredentials 
@@ -754,7 +755,117 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
 });
 
 // ============================================
-// OAUTH ENDPOINTS (Protected)
+// AI IMAGE GENERATION ENDPOINTS
+// ============================================
+
+// GET available AI image styles
+app.get('/api/ai/image/styles', verifyAuth, (req, res) => {
+  try {
+    res.json({
+      success: true,
+      styles: aiImageService.getAvailableStyles()
+    });
+  } catch (error) {
+    console.error('Error getting styles:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load styles'
+    });
+  }
+});
+
+// GET platform options
+app.get('/api/ai/image/platforms', verifyAuth, (req, res) => {
+  try {
+    res.json({
+      success: true,
+      platforms: aiImageService.getPlatformOptions()
+    });
+  } catch (error) {
+    console.error('Error getting platforms:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load platforms'
+    });
+  }
+});
+
+// GET example prompts
+app.get('/api/ai/image/examples', verifyAuth, (req, res) => {
+  try {
+    res.json({
+      success: true,
+      examples: aiImageService.getExamplePrompts()
+    });
+  } catch (error) {
+    console.error('Error getting examples:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load examples'
+    });
+  }
+});
+
+// POST generate AI image
+app.post('/api/ai/image/generate', verifyAuth, async (req, res) => {
+  try {
+    const { prompt, style, platform } = req.body;
+    const userId = req.user.id;
+
+    // Validate prompt
+    if (!prompt || prompt.trim().length < 3) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide a detailed image description (minimum 3 characters)'
+      });
+    }
+
+    if (prompt.trim().length > 500) {
+      return res.status(400).json({
+        success: false,
+        error: 'Prompt too long (maximum 500 characters)'
+      });
+    }
+
+    console.log(`🎨 AI Image request from user ${userId}: "${prompt}"`);
+
+    // Generate image
+    const result = await aiImageService.generateImage(
+      prompt.trim(),
+      style || 'photographic',
+      platform || 'universal',
+      userId
+    );
+
+    if (result.success) {
+      console.log(`✅ AI Image generated successfully for user ${userId}`);
+
+      res.json({
+        success: true,
+        imageUrl: result.imageUrl,
+        platform: result.platform,
+        style: result.style,
+        dimensions: result.dimensions,
+        originalPrompt: result.originalPrompt
+      });
+    } else {
+      console.error(`❌ AI Image generation failed for user ${userId}:`, result.error);
+      
+      res.status(500).json({
+        success: false,
+        error: result.error
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ AI Image endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Image generation failed. Please try again.'
+    });
+  }
+});
+
 // ============================================
 
 /**
@@ -1135,5 +1246,9 @@ app.listen(PORT, async () => {
   console.log(`   GET  /api/history - View post history`);
   console.log(`   GET  /api/analytics/platforms - Platform statistics`);
   console.log(`   POST /api/ai/generate - Generate AI captions`);
+  console.log(`   GET  /api/ai/image/styles - Get AI image styles`);
+  console.log(`   GET  /api/ai/image/platforms - Get platform options`);
+  console.log(`   GET  /api/ai/image/examples - Get example prompts`);
+  console.log(`   POST /api/ai/image/generate - Generate AI images`);
   console.log('\n' + '='.repeat(50) + '\n');
 });

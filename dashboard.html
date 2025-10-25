@@ -168,6 +168,184 @@
         </button>
       </div>
       
+      <!-- AI IMAGE GENERATION SECTION -->
+      <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border-2 border-purple-200 mb-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            ✨ AI Image Generator
+          </h3>
+          <span id="aiUsageCounter" class="text-sm text-gray-600 bg-white px-3 py-1 rounded-full">
+            Loading...
+          </span>
+        </div>
+
+        <!-- Prompt Input -->
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            📝 What image do you want to create?
+          </label>
+          <textarea
+            id="aiImagePrompt"
+            rows="3"
+            placeholder="Be specific! Example: 'Professional business team celebrating success in modern office with natural lighting and happy expressions'"
+            class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+          ></textarea>
+          <div class="mt-1 flex items-center justify-between">
+            <span id="promptCounter" class="text-xs text-gray-500">0/500 characters</span>
+            <button
+              type="button"
+              onclick="showExamplePrompts()"
+              class="text-xs text-purple-600 hover:text-purple-800 font-medium underline"
+            >
+              💡 See examples
+            </button>
+          </div>
+        </div>
+
+        <!-- Style + Platform Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <!-- Style -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              🎨 Style
+            </label>
+            <select
+              id="aiImageStyle"
+              class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 transition"
+            >
+              <option value="">Loading styles...</option>
+            </select>
+            <p id="styleDescription" class="text-xs text-gray-500 mt-1">
+              Select a style to see description
+            </p>
+          </div>
+
+          <!-- Platform -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              📱 Optimize for
+            </label>
+            <select
+              id="aiImagePlatform"
+              class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 transition"
+            >
+              <option value="">Loading platforms...</option>
+            </select>
+            <p id="platformDescription" class="text-xs text-gray-500 mt-1">
+              Select a platform to see description
+            </p>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button
+          type="button"
+          id="generateAIImageBtn"
+          onclick="generateAIImage()"
+          class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-4 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all transform hover:scale-[1.02] shadow-lg font-bold text-lg flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+          <span>Generate Image with AI</span>
+        </button>
+
+        <!-- Pro Tips -->
+        <div class="mt-4 bg-purple-100 border-l-4 border-purple-500 p-4 rounded-lg">
+          <p class="text-sm text-purple-900 font-bold mb-2">💡 Pro Tips for Amazing Results:</p>
+          <ul class="text-sm text-purple-800 space-y-1 ml-4 list-disc">
+            <li><strong>Be specific:</strong> "Modern minimalist office" > "office"</li>
+            <li><strong>Add mood:</strong> "energetic", "professional", "serene", "inspiring"</li>
+            <li><strong>Include lighting:</strong> "golden hour", "studio lighting", "natural light"</li>
+            <li><strong>Mention colors:</strong> "vibrant blue sky", "warm earth tones"</li>
+            <li><strong>Add details:</strong> "with plants", "near windows", "smiling people"</li>
+          </ul>
+        </div>
+
+        <!-- Loading State -->
+        <div id="aiImageLoading" class="hidden mt-6">
+          <div class="flex flex-col items-center justify-center py-8 space-y-4">
+            <div class="relative">
+              <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+              <div class="absolute top-0 left-0 h-16 w-16 flex items-center justify-center">
+                <span class="text-3xl">✨</span>
+              </div>
+            </div>
+            <p class="text-lg font-bold text-purple-700">Creating your masterpiece...</p>
+            <p class="text-sm text-gray-600">This takes 5-10 seconds</p>
+            <div class="w-full max-w-xs bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div class="bg-gradient-to-r from-purple-600 to-blue-600 h-full rounded-full animate-pulse" style="width: 70%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div id="aiImagePreview" class="hidden mt-6">
+          <div class="relative">
+            <img
+              id="aiImagePreviewImg"
+              src=""
+              alt="AI Generated"
+              class="w-full rounded-lg shadow-2xl border-4 border-purple-300"
+            />
+            <div class="absolute top-3 left-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+              ✨ AI Generated
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onclick="regenerateAIImage()"
+              class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition font-bold flex items-center justify-center space-x-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Regenerate</span>
+            </button>
+            <button
+              type="button"
+              onclick="useAIImage()"
+              class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition font-bold flex items-center justify-center space-x-2"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Use This Image</span>
+            </button>
+          </div>
+
+          <!-- Image Info -->
+          <div class="mt-3 bg-gray-100 rounded-lg p-3">
+            <p class="text-xs text-gray-600">
+              <span class="font-semibold">Dimensions:</span> <span id="aiImageDimensions">-</span> •
+              <span class="font-semibold">Style:</span> <span id="aiImageStyle">-</span> •
+              <span class="font-semibold">Platform:</span> <span id="aiImagePlatform">-</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Example Prompts Modal -->
+      <div id="examplePromptsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onclick="hideExamplePrompts()">
+        <div class="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-bold text-gray-800">💡 Example Prompts</h3>
+            <button onclick="hideExamplePrompts()" class="text-gray-500 hover:text-gray-700 transition">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div id="examplePromptsList" class="space-y-2">
+            <!-- Populated via JavaScript -->
+          </div>
+        </div>
+      </div>
+      
       <!-- Image Upload Section -->
       <div class="mb-4 bg-gray-700 p-4 rounded-lg">
         <label class="block text-sm font-medium text-gray-300 mb-2">
@@ -1479,6 +1657,253 @@
     if (urlParams.get('checkout') === 'cancelled') {
       alert('Checkout cancelled. You can upgrade anytime from your dashboard.');
       window.history.replaceState({}, document.title, '/dashboard');
+    }
+
+    // ============================================
+    // AI IMAGE GENERATION - GLOBALS
+    // ============================================
+    let currentAIImage = null;
+    let lastAIPrompt = '';
+    let lastAIStyle = 'photographic';
+    let lastAIPlatform = 'universal';
+    let aiExamples = [];
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    async function initializeAIImageSystem() {
+      await loadAIStyles();
+      await loadAIPlatforms();
+      await loadAIExamples();
+      setupAIEventListeners();
+    }
+
+    // Call on page load
+    initializeAIImageSystem();
+
+    // Load styles
+    async function loadAIStyles() {
+      try {
+        const response = await fetch('/api/ai/image/styles', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          const select = document.getElementById('aiImageStyle');
+          select.innerHTML = data.styles.map(style =>
+            `<option value="${style.value}" data-description="${style.description}">${style.label}</option>`
+          ).join('');
+          
+          // Show first description
+          const firstOption = select.options[0];
+          document.getElementById('styleDescription').textContent = firstOption.getAttribute('data-description');
+        }
+      } catch (error) {
+        console.error('Error loading AI styles:', error);
+      }
+    }
+
+    // Load platforms
+    async function loadAIPlatforms() {
+      try {
+        const response = await fetch('/api/ai/image/platforms', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          const select = document.getElementById('aiImagePlatform');
+          select.innerHTML = data.platforms.map(platform =>
+            `<option value="${platform.value}" data-description="${platform.description}">${platform.label}</option>`
+          ).join('');
+          
+          // Show first description
+          const firstOption = select.options[0];
+          document.getElementById('platformDescription').textContent = firstOption.getAttribute('data-description');
+        }
+      } catch (error) {
+        console.error('Error loading platforms:', error);
+      }
+    }
+
+    // Load examples
+    async function loadAIExamples() {
+      try {
+        const response = await fetch('/api/ai/image/examples', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          aiExamples = data.examples;
+        }
+      } catch (error) {
+        console.error('Error loading examples:', error);
+      }
+    }
+
+    // Setup event listeners
+    function setupAIEventListeners() {
+      // Prompt character counter
+      const promptInput = document.getElementById('aiImagePrompt');
+      if (promptInput) {
+        promptInput.addEventListener('input', (e) => {
+          const count = e.target.value.length;
+          document.getElementById('promptCounter').textContent = `${count}/500 characters`;
+          
+          if (count > 500) {
+            e.target.value = e.target.value.substring(0, 500);
+          }
+        });
+      }
+      
+      // Style description update
+      const styleSelect = document.getElementById('aiImageStyle');
+      if (styleSelect) {
+        styleSelect.addEventListener('change', (e) => {
+          const selected = e.target.options[e.target.selectedIndex];
+          document.getElementById('styleDescription').textContent = 
+            selected.getAttribute('data-description') || '';
+        });
+      }
+      
+      // Platform description update
+      const platformSelect = document.getElementById('aiImagePlatform');
+      if (platformSelect) {
+        platformSelect.addEventListener('change', (e) => {
+          const selected = e.target.options[e.target.selectedIndex];
+          document.getElementById('platformDescription').textContent = 
+            selected.getAttribute('data-description') || '';
+        });
+      }
+    }
+
+    // ============================================
+    // AI IMAGE GENERATION
+    // ============================================
+    async function generateAIImage() {
+      const prompt = document.getElementById('aiImagePrompt').value.trim();
+      const style = document.getElementById('aiImageStyle').value;
+      const platform = document.getElementById('aiImagePlatform').value;
+
+      // Validation
+      if (!prompt || prompt.length < 3) {
+        alert('⚠️ Please describe the image you want (at least 3 characters)');
+        document.getElementById('aiImagePrompt').focus();
+        return;
+      }
+
+      // Save for regeneration
+      lastAIPrompt = prompt;
+      lastAIStyle = style;
+      lastAIPlatform = platform;
+
+      // Show loading state
+      document.getElementById('aiImageLoading').classList.remove('hidden');
+      document.getElementById('aiImagePreview').classList.add('hidden');
+      
+      const generateBtn = document.getElementById('generateAIImageBtn');
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<span class="animate-pulse">⏳ Generating...</span>';
+
+      try {
+        const response = await fetch('/api/ai/image/generate', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ prompt, style, platform })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Store generated image
+          currentAIImage = data.imageUrl;
+
+          // Show preview
+          document.getElementById('aiImagePreviewImg').src = data.imageUrl;
+          document.getElementById('aiImageDimensions').textContent = 
+            `${data.dimensions.width}x${data.dimensions.height}`;
+          document.getElementById('aiImageStyle').textContent = data.style;
+          document.getElementById('aiImagePlatform').textContent = data.platform;
+          
+          document.getElementById('aiImagePreview').classList.remove('hidden');
+          document.getElementById('aiImageLoading').classList.add('hidden');
+
+          console.log('✅ AI image generated:', data.imageUrl);
+        } else {
+          throw new Error(data.error || 'Generation failed');
+        }
+      } catch (error) {
+        console.error('❌ AI generation error:', error);
+        alert(`❌ Failed to generate image:\n\n${error.message}\n\nPlease try again or contact support.`);
+        document.getElementById('aiImageLoading').classList.add('hidden');
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = `
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+          <span>Generate Image with AI</span>
+        `;
+      }
+    }
+
+    // Regenerate image
+    function regenerateAIImage() {
+      if (lastAIPrompt) {
+        document.getElementById('aiImagePrompt').value = lastAIPrompt;
+        document.getElementById('aiImageStyle').value = lastAIStyle;
+        document.getElementById('aiImagePlatform').value = lastAIPlatform;
+        generateAIImage();
+      }
+    }
+
+    // Use AI image
+    function useAIImage() {
+      if (currentAIImage) {
+        // Set as current image for posting (connect to your existing image system)
+        currentImageUrl = currentAIImage;
+        currentImageSource = 'ai-generated';
+        
+        alert('✅ AI image ready!\n\nNow write your caption and click "Post Now" to share it on your platforms.');
+        
+        // Optionally scroll to post area
+        document.getElementById('postContent')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    // Show example prompts
+    function showExamplePrompts() {
+      const modal = document.getElementById('examplePromptsModal');
+      const list = document.getElementById('examplePromptsList');
+      
+      list.innerHTML = aiExamples.map((example, index) => `
+        <button
+          onclick="useExamplePrompt('${example.replace(/'/g, "\\'")}')"
+          class="w-full text-left px-4 py-3 bg-gray-50 hover:bg-purple-50 border-2 border-gray-200 hover:border-purple-400 rounded-lg transition-all transform hover:scale-[1.01]"
+        >
+          <span class="text-sm text-gray-800">${example}</span>
+        </button>
+      `).join('');
+      
+      modal.classList.remove('hidden');
+    }
+
+    // Hide example prompts
+    function hideExamplePrompts() {
+      document.getElementById('examplePromptsModal').classList.add('hidden');
+    }
+
+    // Use example prompt
+    function useExamplePrompt(prompt) {
+      document.getElementById('aiImagePrompt').value = prompt;
+      document.getElementById('aiImagePrompt').dispatchEvent(new Event('input'));
+      hideExamplePrompts();
+      document.getElementById('aiImagePrompt').focus();
     }
   </script>
 </body>

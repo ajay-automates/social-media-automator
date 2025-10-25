@@ -60,8 +60,46 @@ async function deleteImage(publicId) {
   }
 }
 
+/**
+ * Upload base64 image to Cloudinary (for AI-generated images)
+ * @param {string} base64Image - Base64 encoded image
+ * @param {string} userId - User ID for folder organization
+ * @returns {Promise<Object>}
+ */
+async function uploadBase64Image(base64Image, userId) {
+  try {
+    const result = await cloudinary.uploader.upload(
+      `data:image/png;base64,${base64Image}`,
+      {
+        folder: `social-media-automator/${userId}/ai-generated`,
+        resource_type: 'image',
+        transformation: [
+          { quality: 'auto:good' },
+          { fetch_format: 'auto' }
+        ]
+      }
+    );
+
+    return {
+      success: true,
+      url: result.secure_url,
+      publicId: result.public_id,
+      width: result.width,
+      height: result.height,
+      format: result.format
+    };
+  } catch (error) {
+    console.error('❌ Cloudinary base64 upload error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
 module.exports = {
   uploadImage,
+  uploadBase64Image,
   deleteImage
 };
 
