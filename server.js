@@ -967,12 +967,19 @@ app.post('/api/auth/linkedin/url', verifyAuth, async (req, res) => {
     const state = encryptState(userId);
     const scope = 'openid profile email w_member_social';
     
+    console.log('🔗 LinkedIn OAuth URL generation:');
+    console.log('  - Client ID:', clientId ? 'exists' : 'missing');
+    console.log('  - Redirect URI:', redirectUri);
+    console.log('  - Scope:', scope);
+    
     const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('client_id', clientId);
     authUrl.searchParams.append('redirect_uri', redirectUri);
     authUrl.searchParams.append('scope', scope);
     authUrl.searchParams.append('state', state);
+    
+    console.log('  - Generated URL:', authUrl.toString());
     
     res.json({
       success: true,
@@ -995,6 +1002,12 @@ app.get('/auth/linkedin/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
     
+    console.log('🔗 LinkedIn callback received:');
+    console.log('  - Code:', code ? 'exists' : 'missing');
+    console.log('  - State:', state ? 'exists' : 'missing');
+    console.log('  - Error:', error || 'none');
+    console.log('  - Query params:', JSON.stringify(req.query));
+    
     if (error) {
       console.error('LinkedIn OAuth error:', error);
       return res.redirect('/dashboard?error=linkedin_denied');
@@ -1006,6 +1019,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
     
     // Decrypt state to get userId
     const userId = decryptState(state);
+    console.log('  - Decrypted user ID:', userId);
     
     // Exchange code for access token
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/linkedin/callback`;
@@ -1097,6 +1111,11 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
     const scope = 'tweet.read tweet.write users.read offline.access';
     
+    console.log('🐦 Twitter OAuth URL generation:');
+    console.log('  - Client ID:', clientId ? 'exists' : 'missing');
+    console.log('  - Redirect URI:', redirectUri);
+    console.log('  - State:', state.substring(0, 20) + '...');
+    
     const authUrl = new URL('https://twitter.com/i/oauth2/authorize');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('client_id', clientId);
@@ -1105,6 +1124,8 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     authUrl.searchParams.append('state', state);
     authUrl.searchParams.append('code_challenge', codeChallenge);
     authUrl.searchParams.append('code_challenge_method', 'S256');
+    
+    console.log('  - Generated URL length:', authUrl.toString().length);
     
     res.json({
       success: true,
@@ -1127,6 +1148,12 @@ app.get('/auth/twitter/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
     
+    console.log('🐦 Twitter callback received:');
+    console.log('  - Code:', code ? 'exists' : 'missing');
+    console.log('  - State:', state ? state.substring(0, 20) + '...' : 'missing');
+    console.log('  - Error:', error || 'none');
+    console.log('  - Query params:', JSON.stringify(req.query));
+    
     if (error) {
       console.error('Twitter OAuth error:', error);
       return res.redirect('/dashboard?error=twitter_denied');
@@ -1138,15 +1165,20 @@ app.get('/auth/twitter/callback', async (req, res) => {
     
     // Get stored code_verifier
     const pkceData = pkceStore.get(state);
+    console.log('  - PKCE data:', pkceData ? 'found' : 'not found');
+    
     if (!pkceData) {
+      console.error('  - State expired or invalid. PKCE store size:', pkceStore.size);
       return res.redirect('/dashboard?error=twitter_expired');
     }
     
     const { codeVerifier, userId } = pkceData;
+    console.log('  - User ID from PKCE:', userId);
     pkceStore.delete(state); // Clean up
     
     // Exchange code for access token
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
+    console.log('  - Token exchange starting...');
     const tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token', 
       new URLSearchParams({
         grant_type: 'authorization_code',
