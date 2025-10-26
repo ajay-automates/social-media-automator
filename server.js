@@ -1321,6 +1321,12 @@ app.get('/api/user/accounts', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const accounts = await getUserConnectedAccounts(userId);
     
+    console.log('📋 User accounts requested for:', userId);
+    console.log('📋 Accounts found:', accounts.length);
+    accounts.forEach(acc => {
+      console.log(`  - Platform: ${acc.platform}, Name: ${acc.platform_name}, Username: ${acc.platform_username}`);
+    });
+    
     res.json({
       success: true,
       accounts
