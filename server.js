@@ -1375,23 +1375,36 @@ app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
       process.env.SUPABASE_SERVICE_KEY
     );
     
-    await supabaseAdmin
+    const insertData = {
+      user_id: userId,
+      platform: 'telegram',
+      platform_name: validation.bot.username || 'Telegram Bot',
+      oauth_provider: 'manual',
+      access_token: botToken,
+      platform_user_id: chatId,
+      platform_username: validation.bot.username || 'bot',
+      status: 'active',
+      connected_at: new Date().toISOString()
+    };
+    
+    console.log('📝 Inserting Telegram account:', JSON.stringify(insertData, null, 2));
+    
+    const { data: insertResult, error: insertError } = await supabaseAdmin
       .from('user_accounts')
-      .upsert({
-        user_id: userId,
-        platform: 'telegram',
-        platform_name: validation.bot.username || 'Telegram Bot',
-        oauth_provider: 'manual',
-        access_token: botToken,
-        platform_user_id: chatId,
-        platform_username: validation.bot.username || 'bot',
-        status: 'active',
-        connected_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id,platform'
+      .upsert(insertData, {
+        onConflict: 'user_id,platform,platform_user_id'
       });
     
-    console.log(`✅ Telegram bot connected for user ${userId}`);
+    if (insertError) {
+      console.error('❌ Database error:', insertError);
+      return res.status(500).json({
+        success: false,
+        error: insertError.message
+      });
+    }
+    
+    console.log('✅ Telegram bot connected for user', userId);
+    console.log('✅ Insert result:', insertResult);
     res.json({
       success: true,
       message: 'Telegram bot connected successfully',
