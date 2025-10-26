@@ -1755,12 +1755,17 @@
 
     // Connect LinkedIn
     async function connectLinkedIn() {
+      console.log('🔗 Connect LinkedIn clicked');
+      console.log('authToken:', authToken ? 'exists' : 'missing');
+      console.log('API_URL:', API_URL);
+      
       try {
         if (!authToken) {
           alert('Please log in first');
           return;
         }
         
+        console.log('Fetching LinkedIn OAuth URL...');
         showNotification('⏳ Redirecting to LinkedIn...', 'info');
         
         const response = await fetch(`${API_URL}/api/auth/linkedin/url`, {
@@ -1771,27 +1776,36 @@
           }
         });
         
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (data.success && data.oauthUrl) {
+          console.log('Redirecting to:', data.oauthUrl);
           window.location.href = data.oauthUrl;
         } else {
-          showNotification('❌ Failed to connect LinkedIn', 'error');
+          console.error('Failed to get OAuth URL:', data);
+          showNotification('❌ Failed to connect LinkedIn: ' + (data.error || 'Unknown error'), 'error');
         }
       } catch (error) {
         console.error('LinkedIn connection error:', error);
-        showNotification('❌ Failed to connect LinkedIn account', 'error');
+        showNotification('❌ Failed to connect LinkedIn account: ' + error.message, 'error');
       }
     }
 
     // Connect Twitter
     async function connectTwitter() {
+      console.log('🐦 Connect Twitter clicked');
+      console.log('authToken:', authToken ? 'exists' : 'missing');
+      console.log('API_URL:', API_URL);
+      
       try {
         if (!authToken) {
           alert('Please log in first');
           return;
         }
         
+        console.log('Fetching Twitter OAuth URL...');
         showNotification('⏳ Redirecting to Twitter...', 'info');
         
         const response = await fetch(`${API_URL}/api/auth/twitter/url`, {
@@ -1802,16 +1816,20 @@
           }
         });
         
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (data.success && data.oauthUrl) {
+          console.log('Redirecting to:', data.oauthUrl);
           window.location.href = data.oauthUrl;
         } else {
-          showNotification('❌ Failed to connect Twitter', 'error');
+          console.error('Failed to get OAuth URL:', data);
+          showNotification('❌ Failed to connect Twitter: ' + (data.error || 'Unknown error'), 'error');
         }
       } catch (error) {
         console.error('Twitter connection error:', error);
-        showNotification('❌ Failed to connect Twitter account', 'error');
+        showNotification('❌ Failed to connect Twitter account: ' + error.message, 'error');
       }
     }
 
