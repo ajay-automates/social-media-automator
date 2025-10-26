@@ -55,7 +55,9 @@ const { getAllPlans } = require('./config/plans');
 const app = express();
 
 // In-memory storage for PKCE code_verifier (use Redis in production)
+// NOTE: This is lost on server restart - using session storage as fallback
 const pkceStore = new Map();
+const sessionPkceStore = new Map(); // Temporary session store with timestamps
 
 // Initialize Supabase client for auth verification
 let supabase = null;
@@ -1121,8 +1123,14 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     const state = encryptState(userId);
     
     // Store code_verifier temporarily (expires in 10 minutes)
-    pkceStore.set(state, { codeVerifier, userId, timestamp: Date.now() });
-    setTimeout(() => pkceStore.delete(state), 10 * 60 * 1000);
+    // Store in both in-memory and session stores for redundancy
+    const pkceData = { codeVerifier, userId, timestamp: Date.now() };
+    pkceStore.set(state, pkceData);
+    sessionPkceStore.set(state, pkceData);
+    setTimeout(() => {
+      pkceStore.delete(state);
+      sessionPkceStore.delete(state);
+    }, 10 * 60 * 1000);
     
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
     const scope = 'tweet.read tweet.write users.read offline.access';
@@ -1181,15 +1189,28 @@ app.get('/auth/twitter/callback', async (req, res) => {
       return res.redirect('/dashboard?error=twitter_missing_params');
     }
     
-    // Get stored code_verifier
-    const pkceData = pkceStore.get(state);
+    // Get stored code_verifier - check both stores
+    let pkceData = pkceStore.get(state);
+    if (!pkceData) {
+      console.log('  - Not found in in-memory store, checking session store...');
+      pkceData = sessionPkceStore.get(state);
+      if (pkceData) {
+        console.log('  - Found in session store! (server may have restarted)');
+        // Restore to in-memory store
+        pkceStore.set(state, pkceData);
+      }
+    }
+    
     console.log('  - PKCE data:', pkceData ? 'found' : 'not found');
     console.log('  - PKCE store size:', pkceStore.size);
+    console.log('  - Session store size:', sessionPkceStore.size);
     console.log('  - PKCE store entries:', Array.from(pkceStore.keys()).map(k => k.substring(0, 20) + '...'));
     
     if (!pkceData) {
       console.error('  - State expired or invalid');
       console.error('  - Looking for state:', state.substring(0, 20) + '...');
+      console.error('  - Server may have restarted - PKCE state lost');
+      console.error('  - Try connecting again within 10 minutes of deployment');
       return res.redirect('/dashboard?error=twitter_expired');
     }
     
