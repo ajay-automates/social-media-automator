@@ -259,8 +259,10 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     const credentials = await getUserCredentialsForPosting(userId);
     console.log('🔑 Credentials loaded:', {
       linkedin: !!credentials.linkedin.accessToken,
-      twitter: !!credentials.twitter.accessToken
+      twitter: !!credentials.twitter.accessToken,
+      telegram: !!credentials.telegram.botToken
     });
+    console.log('🔑 Full credentials:', JSON.stringify(credentials, null, 2));
     
     // Check if video is being posted to unsupported platforms
     if (imageUrl && imageUrl.includes('/video/') && platforms.includes('linkedin')) {
@@ -283,11 +285,16 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
           error: 'Twitter account not connected. Please connect your Twitter account first.'
         });
       }
-      if (platform === 'telegram' && !credentials.telegram.botToken) {
-        return res.status(400).json({
-          success: false,
-          error: 'Telegram bot not connected. Please connect your Telegram bot first.'
-        });
+      if (platform === 'telegram') {
+        console.log('🔍 Checking Telegram credentials for platform:', platform);
+        console.log('  - credentials.telegram:', credentials.telegram);
+        console.log('  - botToken exists:', !!credentials.telegram?.botToken);
+        if (!credentials.telegram.botToken) {
+          return res.status(400).json({
+            success: false,
+            error: 'Telegram bot not connected. Please connect your Telegram bot first.'
+          });
+        }
       }
     }
     
@@ -371,11 +378,16 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
           error: 'Twitter account not connected. Please connect your Twitter account first.'
         });
       }
-      if (platform === 'telegram' && !credentials.telegram.botToken) {
-        return res.status(400).json({
-          success: false,
-          error: 'Telegram bot not connected. Please connect your Telegram bot first.'
-        });
+      if (platform === 'telegram') {
+        console.log('🔍 Checking Telegram credentials for schedule:');
+        console.log('  - credentials.telegram:', credentials.telegram);
+        console.log('  - botToken exists:', !!credentials.telegram?.botToken);
+        if (!credentials.telegram.botToken) {
+          return res.status(400).json({
+            success: false,
+            error: 'Telegram bot not connected. Please connect your Telegram bot first.'
+          });
+        }
       }
     }
     

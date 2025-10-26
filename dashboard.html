@@ -1802,10 +1802,18 @@
           if (data.accounts.length === 0) {
             accountsList.innerHTML = '<p class="text-gray-400">No accounts connected yet. Click the buttons below to connect your social media accounts.</p>';
           } else {
-            accountsList.innerHTML = data.accounts.map(account => `
+            accountsList.innerHTML = data.accounts.map(account => {
+              // Get platform emoji
+              let emoji = '🔗'; // default
+              if (account.platform === 'linkedin') emoji = '🔗';
+              else if (account.platform === 'twitter') emoji = '🐦';
+              else if (account.platform === 'instagram') emoji = '📸';
+              else if (account.platform === 'telegram') emoji = '📱';
+              
+              return `
               <div class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                  <span class="text-2xl">${account.platform === 'linkedin' ? '🔗' : '🐦'}</span>
+                  <span class="text-2xl">${emoji}</span>
                   <div>
                     <p class="font-bold">${account.platform_name}</p>
                     <p class="text-sm text-gray-400">@${account.platform_username}</p>
@@ -1821,7 +1829,8 @@
                   </button>
                 </div>
               </div>
-            `).join('');
+            `;
+            }).join('');
           }
         }
       } catch (error) {
