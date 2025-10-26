@@ -1,0 +1,46 @@
+=================================================================
+OAUTH QUICK FIX FOR LINKEDIN & TWITTER
+=================================================================
+
+YOUR APP URL: https://capable-mototion-production-7a75.up.railway.app
+
+=================================================================
+LINKEDIN FIX (1 minute)
+=================================================================
+
+1. Open: https://www.linkedin.com/developers/apps
+2. Click your app
+3. Go to "Auth" tab
+4. Find "Authorized redirect URLs for your app"
+5. Click "Add redirect URL"
+6. Paste this EXACT URL (no trailing slash):
+   https://capable-motivation-production-7a75.up.railway.app/auth/linkedin/callback
+7. Click "Update"
+
+=================================================================
+TWITTER FIX (1 minute)
+=================================================================
+
+1. Open: https://developer.twitter.com/en/portal/dashboard
+2. Click your app
+3. Click "App Settings" → "User authentication settings"
+4. Find "Callback URI / Redirect URL"
+5. Click "Add URI"
+6. Paste this EXACT URL (no trailing slash):
+   https://capable-motivation-production-7a75.up.railway.app/auth/twitter/callback
+7. Click "Save"
+
+=================================================================
+TEST (30 seconds)
+=================================================================
+
+1. Wait 1-2 minutes for changes to take effect
+2. Go to: https://capable-motivation-production-7a75.up.railway.app/dashboard
+3. Click "Connect LinkedIn" button
+4. Should redirect to LinkedIn and work! ✅
+5. Try same for Twitter
+
+=================================================================
+
+That's it! The callback URLs just need to be registered.
+

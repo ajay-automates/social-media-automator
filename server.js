@@ -1007,6 +1007,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
     console.log('  - State:', state ? 'exists' : 'missing');
     console.log('  - Error:', error || 'none');
     console.log('  - Query params:', JSON.stringify(req.query));
+    console.log('  - Full URL:', req.url);
     
     if (error) {
       console.error('LinkedIn OAuth error:', error);
@@ -1014,27 +1015,42 @@ app.get('/auth/linkedin/callback', async (req, res) => {
     }
     
     if (!code || !state) {
+      console.error('Missing code or state parameter');
       return res.redirect('/dashboard?error=linkedin_missing_params');
     }
     
     // Decrypt state to get userId
-    const userId = decryptState(state);
-    console.log('  - Decrypted user ID:', userId);
+    let userId;
+    try {
+      userId = decryptState(state);
+      console.log('  - Decrypted user ID:', userId);
+    } catch (stateError) {
+      console.error('State decryption error:', stateError.message);
+      return res.redirect('/dashboard?error=linkedin_invalid_state');
+    }
     
     // Exchange code for access token
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/linkedin/callback`;
-    const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
-      params: {
-        grant_type: 'authorization_code',
-        code,
-        client_id: process.env.LINKEDIN_CLIENT_ID,
-        client_secret: process.env.LINKEDIN_CLIENT_SECRET,
-        redirect_uri: redirectUri
-      },
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
+    console.log('  - Exchange token with redirect URI:', redirectUri);
+    
+    let tokenResponse;
+    try {
+      tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
+        params: {
+          grant_type: 'authorization_code',
+          code,
+          client_id: process.env.LINKEDIN_CLIENT_ID,
+          client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+          redirect_uri: redirectUri
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
+    } catch (tokenError) {
+      console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
+      return res.redirect('/dashboard?error=linkedin_token_exchange_failed');
+    }
     
     const { access_token, expires_in } = tokenResponse.data;
     
@@ -1153,6 +1169,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
     console.log('  - State:', state ? state.substring(0, 20) + '...' : 'missing');
     console.log('  - Error:', error || 'none');
     console.log('  - Query params:', JSON.stringify(req.query));
+    console.log('  - Full URL:', req.url);
     
     if (error) {
       console.error('Twitter OAuth error:', error);
@@ -1160,15 +1177,19 @@ app.get('/auth/twitter/callback', async (req, res) => {
     }
     
     if (!code || !state) {
+      console.error('Missing code or state parameter');
       return res.redirect('/dashboard?error=twitter_missing_params');
     }
     
     // Get stored code_verifier
     const pkceData = pkceStore.get(state);
     console.log('  - PKCE data:', pkceData ? 'found' : 'not found');
+    console.log('  - PKCE store size:', pkceStore.size);
+    console.log('  - PKCE store entries:', Array.from(pkceStore.keys()).map(k => k.substring(0, 20) + '...'));
     
     if (!pkceData) {
-      console.error('  - State expired or invalid. PKCE store size:', pkceStore.size);
+      console.error('  - State expired or invalid');
+      console.error('  - Looking for state:', state.substring(0, 20) + '...');
       return res.redirect('/dashboard?error=twitter_expired');
     }
     
@@ -1178,20 +1199,28 @@ app.get('/auth/twitter/callback', async (req, res) => {
     
     // Exchange code for access token
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
-    console.log('  - Token exchange starting...');
-    const tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token', 
-      new URLSearchParams({
-        grant_type: 'authorization_code',
-        code,
-        client_id: process.env.TWITTER_CLIENT_ID,
-        redirect_uri: redirectUri,
-        code_verifier: codeVerifier
-      }), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
-      }
-    });
+    console.log('  - Token exchange starting with redirect URI:', redirectUri);
+    
+    let tokenResponse;
+    try {
+      tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token', 
+        new URLSearchParams({
+          grant_type: 'authorization_code',
+          code,
+          client_id: process.env.TWITTER_CLIENT_ID,
+          redirect_uri: redirectUri,
+          code_verifier: codeVerifier
+        }), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
+        }
+      });
+      console.log('  - Token exchange successful');
+    } catch (tokenError) {
+      console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
+      return res.redirect('/dashboard?error=twitter_token_exchange_failed');
+    }
     
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
     
