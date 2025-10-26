@@ -754,7 +754,7 @@
 
   <!-- Telegram Connect Modal -->
   <div id="telegramModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-    <div class="bg-gray-800 p-8 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="bg-gray-800 p-8 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">📱 Connect Telegram Bot</h2>
         <button onclick="closeTelegramModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
@@ -802,6 +802,7 @@
         
         <!-- Connect Button -->
         <button 
+          type="button"
           onclick="connectTelegramBot()" 
           id="connectTelegramBtn"
           class="w-full bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-lg font-bold transition"
@@ -1923,10 +1924,14 @@
 
     // Connect Telegram bot
     async function connectTelegramBot() {
+      console.log('📱 Connect Telegram button clicked');
       const botToken = document.getElementById('telegram-bot-token').value.trim();
       const chatId = document.getElementById('telegram-chat-id').value.trim();
       const statusDiv = document.getElementById('telegramConnectStatus');
       const connectBtn = document.getElementById('connectTelegramBtn');
+      
+      console.log('Bot Token length:', botToken.length);
+      console.log('Chat ID:', chatId);
       
       if (!botToken || !chatId) {
         statusDiv.className = 'mt-4 p-4 rounded-lg bg-red-900 bg-opacity-50 text-red-200';
@@ -1938,6 +1943,7 @@
       try {
         connectBtn.disabled = true;
         connectBtn.textContent = '🔄 Connecting...';
+        console.log('Sending request to:', `${API_URL}/api/auth/telegram/connect`);
         
         const response = await fetch(`${API_URL}/api/auth/telegram/connect`, {
           method: 'POST',
@@ -1948,7 +1954,9 @@
           body: JSON.stringify({ botToken, chatId })
         });
         
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
         
         if (data.success) {
           statusDiv.className = 'mt-4 p-4 rounded-lg bg-green-900 bg-opacity-50 text-green-200';
@@ -1962,6 +1970,7 @@
             loadUsageData();
           }, 2000);
         } else {
+          console.error('Telegram connection failed:', data.error);
           statusDiv.className = 'mt-4 p-4 rounded-lg bg-red-900 bg-opacity-50 text-red-200';
           statusDiv.innerHTML = `❌ Failed: ${data.error || 'Unknown error'}`;
           statusDiv.classList.remove('hidden');
