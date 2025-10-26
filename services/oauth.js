@@ -450,17 +450,27 @@ async function getUserCredentialsForPosting(userId) {
         console.log('🔐 Loading Twitter credentials for user');
         
         const hasApiKey = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET;
+        const hasEnvTokens = process.env.TWITTER_ACCESS_TOKEN && process.env.TWITTER_ACCESS_SECRET;
         
-        if (hasApiKey) {
-          // Prefer OAuth 1.0a: Use env API keys + tokens from database
+        if (hasApiKey && hasEnvTokens) {
+          // Prefer OAuth 1.0a: Use ALL credentials from env vars
           // This is needed for Twitter v1.1 media upload API
           credentials.twitter = {
             apiKey: process.env.TWITTER_API_KEY,
             apiSecret: process.env.TWITTER_API_SECRET,
-            accessToken: account.access_token,
-            accessSecret: account.refresh_token || process.env.TWITTER_ACCESS_SECRET
+            accessToken: process.env.TWITTER_ACCESS_TOKEN,
+            accessSecret: process.env.TWITTER_ACCESS_SECRET
           };
-          console.log('   Using OAuth 1.0a (required for media uploads)');
+          console.log('   Using OAuth 1.0a from env vars (required for media uploads)');
+        } else if (hasApiKey) {
+          // Have API keys but missing tokens - try with database tokens
+          credentials.twitter = {
+            apiKey: process.env.TWITTER_API_KEY,
+            apiSecret: process.env.TWITTER_API_SECRET,
+            accessToken: account.access_token,
+            accessSecret: account.refresh_token
+          };
+          console.log('   Using OAuth 1.0a with env API keys and database tokens');
         } else {
           // Fallback to OAuth 2.0 (text-only posts)
           credentials.twitter = {
