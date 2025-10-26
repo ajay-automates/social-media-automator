@@ -181,13 +181,25 @@ app.get('/auth', (req, res) => {
 // Serve React Dashboard static assets first (before catch-all)
 try {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
-  if (require('fs').existsSync(dashboardPath)) {
-    app.use('/dashboard/assets', express.static(path.join(dashboardPath, 'assets')));
-    app.use('/dashboard/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
-    console.log('✅ React Dashboard static assets configured');
+  const fs = require('fs');
+  
+  if (fs.existsSync(dashboardPath)) {
+    const indexHtmlPath = path.join(dashboardPath, 'index.html');
+    
+    if (fs.existsSync(indexHtmlPath)) {
+      app.use('/dashboard/assets', express.static(path.join(dashboardPath, 'assets')));
+      app.use('/dashboard/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
+      console.log('✅ React Dashboard static assets configured');
+      console.log('📁 Dashboard path:', dashboardPath);
+    } else {
+      console.log('⚠️  Dashboard dist folder exists but index.html not found');
+    }
+  } else {
+    console.log('⚠️  Dashboard dist folder not found at:', dashboardPath);
+    console.log('📂 Current directory:', __dirname);
   }
 } catch (err) {
-  console.log('ℹ️  React dashboard not built yet');
+  console.log('❌ Error loading dashboard:', err.message);
 }
 
 // Fallback to old dashboard for now
@@ -197,7 +209,15 @@ app.get('/dashboard/old', (req, res) => {
 
 // React Router catch-all for dashboard (must be last to not interfere with static assets)
 app.get('/dashboard/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard/dist/index.html'));
+  const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
+  const fs = require('fs');
+  
+  if (fs.existsSync(dashboardIndex)) {
+    res.sendFile(dashboardIndex);
+  } else {
+    console.error('❌ Dashboard index.html not found at:', dashboardIndex);
+    res.status(404).send('Dashboard not deployed. Please check deployment.');
+  }
 });
 
 // ============================================
