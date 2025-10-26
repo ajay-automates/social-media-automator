@@ -56,8 +56,9 @@ function generateOAuthHeader(method, url, credentials, additionalParams = {}) {
 
 /**
  * Upload IMAGE to Twitter
+ * Supports both OAuth 2.0 and OAuth 1.0a
  */
-async function uploadMediaToTwitter(imageUrl, credentials) {
+async function uploadMediaToTwitter(imageUrl, credentials, isOAuth2 = false) {
   try {
     // Download image from URL
     const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
@@ -65,23 +66,35 @@ async function uploadMediaToTwitter(imageUrl, credentials) {
     const base64Image = imageBuffer.toString('base64');
     
     const url = 'https://upload.twitter.com/1.1/media/upload.json';
-    const method = 'POST';
     
-    // IMPORTANT: media_data must be included in OAuth signature
     const mediaData = base64Image;
-    const authHeader = generateOAuthHeader(method, url, credentials, {
-      media_data: mediaData
-    });
+    
+    // Use appropriate auth based on type
+    let authHeader;
+    let headers;
+    
+    if (isOAuth2) {
+      // OAuth 2.0: Simple bearer token
+      authHeader = `Bearer ${credentials.bearerToken || credentials.accessToken}`;
+      headers = {
+        'Authorization': authHeader,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      };
+    } else {
+      // OAuth 1.0a: Include media_data in signature
+      authHeader = generateOAuthHeader('POST', url, credentials, {
+        media_data: mediaData
+      });
+      headers = {
+        'Authorization': authHeader,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      };
+    }
     
     const response = await axios.post(
       url,
       `media_data=${encodeURIComponent(mediaData)}`,
-      {
-        headers: {
-          'Authorization': authHeader,
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }
+      { headers }
     );
     
     console.log('✅ Twitter: Media uploaded successfully');
@@ -102,8 +115,9 @@ async function uploadMediaToTwitter(imageUrl, credentials) {
 
 /**
  * Upload VIDEO to Twitter (multi-step upload)
+ * Supports both OAuth 2.0 and OAuth 1.0a
  */
-async function uploadVideoToTwitter(videoUrl, credentials) {
+async function uploadVideoToTwitter(videoUrl, credentials, isOAuth2 = false) {
   try {
     console.log('📹 Starting video upload to Twitter...');
     
@@ -124,8 +138,13 @@ async function uploadVideoToTwitter(videoUrl, credentials) {
       total_bytes: totalBytes.toString()
     });
     
-    // Generate OAuth header with form parameters
-    const initAuthHeader = generateOAuthHeader('POST', initUrl, credentials);
+    // Generate auth header
+    let initAuthHeader;
+    if (isOAuth2) {
+      initAuthHeader = `Bearer ${credentials.bearerToken || credentials.accessToken}`;
+    } else {
+      initAuthHeader = generateOAuthHeader('POST', initUrl, credentials);
+    }
     
     const initResponse = await axios.post(
       initUrl,
@@ -149,11 +168,16 @@ async function uploadVideoToTwitter(videoUrl, credentials) {
       const chunk = videoBuffer.slice(i, i + CHUNK_SIZE);
       const chunkBase64 = chunk.toString('base64');
       
-      const appendAuthHeader = generateOAuthHeader('POST', initUrl, credentials, {
-        command: 'APPEND',
-        media_id: mediaId,
-        segment_index: segmentIndex.toString()
-      });
+      let appendAuthHeader;
+      if (isOAuth2) {
+        appendAuthHeader = `Bearer ${credentials.bearerToken || credentials.accessToken}`;
+      } else {
+        appendAuthHeader = generateOAuthHeader('POST', initUrl, credentials, {
+          command: 'APPEND',
+          media_id: mediaId,
+          segment_index: segmentIndex.toString()
+        });
+      }
       
       await axios.post(
         initUrl,
@@ -171,10 +195,15 @@ async function uploadVideoToTwitter(videoUrl, credentials) {
     }
     
     // Step 3: FINALIZE
-    const finalizeAuthHeader = generateOAuthHeader('POST', initUrl, credentials, {
-      command: 'FINALIZE',
-      media_id: mediaId
-    });
+    let finalizeAuthHeader;
+    if (isOAuth2) {
+      finalizeAuthHeader = `Bearer ${credentials.bearerToken || credentials.accessToken}`;
+    } else {
+      finalizeAuthHeader = generateOAuthHeader('POST', initUrl, credentials, {
+        command: 'FINALIZE',
+        media_id: mediaId
+      });
+    }
     
     await axios.post(
       initUrl,
@@ -189,19 +218,21 @@ async function uploadVideoToTwitter(videoUrl, credentials) {
     
     console.log('✅ Twitter: Video uploaded successfully');
     
-    // Wait for processing
-    let status = 'processing';
-    let attempt = 0;
-    while (status === 'processing' && attempt < 10) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const statusAuthHeader = generateOAuthHeader('GET', `${initUrl}?command=STATUS&media_id=${mediaId}`, credentials);
-      const statusResponse = await axios.get(`${initUrl}?command=STATUS&media_id=${mediaId}`, {
-        headers: { 'Authorization': statusAuthHeader }
-      });
-      
-      status = statusResponse.data.processing_info.state;
-      attempt++;
+    // Wait for processing (only for OAuth 1.0a since OAuth 2.0 doesn't need status check)
+    if (!isOAuth2) {
+      let status = 'processing';
+      let attempt = 0;
+      while (status === 'processing' && attempt < 10) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const statusAuthHeader = generateOAuthHeader('GET', `${initUrl}?command=STATUS&media_id=${mediaId}`, credentials);
+        const statusResponse = await axios.get(`${initUrl}?command=STATUS&media_id=${mediaId}`, {
+          headers: { 'Authorization': statusAuthHeader }
+        });
+        
+        status = statusResponse.data.processing_info.state;
+        attempt++;
+      }
     }
     
     return { success: true, mediaId };
@@ -214,13 +245,16 @@ async function uploadVideoToTwitter(videoUrl, credentials) {
 
 /**
  * Post text to Twitter/X with optional image or video
+ * Supports both OAuth 2.0 (bearer token) and OAuth 1.0a credentials
  */
 async function postToTwitter(text, credentials, imageUrl = null) {
   try {
     const url = 'https://api.twitter.com/2/tweets';
-    const method = 'POST';
     
     const payload = { text };
+    
+    // Check if using OAuth 2.0 (bearer token) or OAuth 1.0a
+    const isOAuth2 = credentials.bearerToken || (credentials.accessToken && !credentials.apiKey);
     
     // Upload media if image/video URL provided
     if (imageUrl) {
@@ -229,7 +263,7 @@ async function postToTwitter(text, credentials, imageUrl = null) {
       
       if (isVideo) {
         console.log('📹 Uploading video to Twitter...');
-        const mediaResult = await uploadVideoToTwitter(imageUrl, credentials);
+        const mediaResult = await uploadVideoToTwitter(imageUrl, credentials, isOAuth2);
         
         if (mediaResult.success) {
           payload.media = {
@@ -240,7 +274,7 @@ async function postToTwitter(text, credentials, imageUrl = null) {
         }
       } else {
         console.log('📸 Uploading image to Twitter...');
-        const mediaResult = await uploadMediaToTwitter(imageUrl, credentials);
+        const mediaResult = await uploadMediaToTwitter(imageUrl, credentials, isOAuth2);
         
         if (mediaResult.success) {
           payload.media = {
@@ -252,7 +286,13 @@ async function postToTwitter(text, credentials, imageUrl = null) {
       }
     }
     
-    const authHeader = generateOAuthHeader(method, url, credentials);
+    // Use OAuth 2.0 bearer token if available, otherwise OAuth 1.0a
+    let authHeader;
+    if (isOAuth2) {
+      authHeader = `Bearer ${credentials.bearerToken || credentials.accessToken}`;
+    } else {
+      authHeader = generateOAuthHeader('POST', url, credentials);
+    }
     
     const response = await axios.post(
       url,

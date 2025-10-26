@@ -444,12 +444,24 @@ async function getUserCredentialsForPosting(userId) {
           type: 'person'
         };
       } else if (account.platform === 'twitter') {
-        credentials.twitter = {
-          apiKey: process.env.TWITTER_API_KEY,
-          apiSecret: process.env.TWITTER_API_SECRET,
-          accessToken: account.access_token,
-          accessSecret: account.refresh_token // Twitter stores access_secret in refresh_token field
-        };
+        // Check if this is OAuth 2.0 (bearer token) or OAuth 1.0a (has API key)
+        const hasApiKey = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET;
+        
+        if (hasApiKey && account.refresh_token) {
+          // OAuth 1.0a: use API keys + tokens
+          credentials.twitter = {
+            apiKey: process.env.TWITTER_API_KEY,
+            apiSecret: process.env.TWITTER_API_SECRET,
+            accessToken: account.access_token,
+            accessSecret: account.refresh_token // Twitter stores access_secret in refresh_token field
+          };
+        } else {
+          // OAuth 2.0: just use bearer token
+          credentials.twitter = {
+            bearerToken: account.access_token,
+            accessToken: account.access_token
+          };
+        }
       } else if (account.platform === 'instagram') {
         credentials.instagram = {
           accessToken: account.access_token,
