@@ -289,7 +289,7 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
         console.log('🔍 Checking Telegram credentials for platform:', platform);
         console.log('  - credentials.telegram:', credentials.telegram);
         console.log('  - botToken exists:', !!credentials.telegram?.botToken);
-        if (!credentials.telegram.botToken) {
+        if (!credentials.telegram?.botToken) {
           return res.status(400).json({
             success: false,
             error: 'Telegram bot not connected. Please connect your Telegram bot first.'
@@ -382,7 +382,7 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
         console.log('🔍 Checking Telegram credentials for schedule:');
         console.log('  - credentials.telegram:', credentials.telegram);
         console.log('  - botToken exists:', !!credentials.telegram?.botToken);
-        if (!credentials.telegram.botToken) {
+        if (!credentials.telegram?.botToken) {
           return res.status(400).json({
             success: false,
             error: 'Telegram bot not connected. Please connect your Telegram bot first.'
