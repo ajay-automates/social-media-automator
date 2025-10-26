@@ -434,7 +434,7 @@
             <!-- Platform Compatibility Warning -->
             <div id="videoWarning" class="hidden mt-2 bg-yellow-900 border border-yellow-600 rounded p-2">
               <p class="text-xs text-yellow-200">
-                ⚠️ Videos only supported on <strong>Instagram Reels</strong> and <strong>Twitter</strong>. 
+                ⚠️ Videos only supported on <strong>Twitter</strong>, <strong>Instagram Reels</strong>, and <strong>Telegram</strong>. 
                 LinkedIn will be skipped.
               </p>
             </div>
@@ -921,7 +921,7 @@
           window.URL.revokeObjectURL(video.src);
           const duration = video.duration;
           
-          // Twitter: 140s max, Instagram Reels: 90s max
+          // Twitter: 140s max, Instagram Reels: 90s max, Telegram: up to 2GB
           // Use Twitter's limit as upper bound
           if (duration > 140) {
             resolve({ 
@@ -932,15 +932,15 @@
           } else if (duration > 90) {
             resolve({ 
               valid: true, 
-              warning: 'Video longer than 90s will not work on Instagram Reels (only Twitter).',
+              warning: 'Video longer than 90s will not work on Instagram Reels (only Twitter and Telegram).',
               duration,
-              platforms: ['twitter'] // Only Twitter supported
+              platforms: ['twitter', 'telegram'] // Twitter and Telegram supported
             });
           } else {
             resolve({ 
               valid: true, 
               duration,
-              platforms: ['twitter', 'instagram'] // Both supported
+              platforms: ['twitter', 'instagram', 'telegram'] // All supported
             });
           }
         };
@@ -1036,7 +1036,7 @@
             document.getElementById('videoWarning').classList.remove('hidden');
             
             // Update warning with specific platforms
-            const platformText = currentVideoSupportedPlatforms?.join(', ') || 'Twitter, Instagram Reels';
+            const platformText = currentVideoSupportedPlatforms?.join(', ') || 'Twitter, Instagram Reels, Telegram';
             document.getElementById('videoWarning').querySelector('p').innerHTML = 
               `⚠️ Videos only supported on <strong>${platformText}</strong>. LinkedIn will be skipped.`;
           } else {
@@ -1110,11 +1110,11 @@
 
       // Auto-filter platforms if video is selected
       if (currentMediaType === 'video') {
-        const videoSupportedPlatforms = currentVideoSupportedPlatforms || ['twitter', 'instagram'];
+        const videoSupportedPlatforms = currentVideoSupportedPlatforms || ['twitter', 'instagram', 'telegram'];
         const filteredPlatforms = platforms.filter(p => videoSupportedPlatforms.includes(p));
         
         if (filteredPlatforms.length === 0) {
-          alert('⚠️ Video selected but no compatible platforms chosen. Please select Twitter or Instagram Reels.');
+          alert('⚠️ Video selected but no compatible platforms chosen. Please select Twitter, Instagram Reels, or Telegram.');
           return;
         }
         
@@ -1198,11 +1198,11 @@
 
       // Auto-filter platforms if video is selected
       if (currentMediaType === 'video') {
-        const videoSupportedPlatforms = currentVideoSupportedPlatforms || ['twitter', 'instagram'];
+        const videoSupportedPlatforms = currentVideoSupportedPlatforms || ['twitter', 'instagram', 'telegram'];
         const filteredPlatforms = platforms.filter(p => videoSupportedPlatforms.includes(p));
         
         if (filteredPlatforms.length === 0) {
-          alert('⚠️ Video selected but no compatible platforms chosen. Please select Twitter or Instagram Reels.');
+          alert('⚠️ Video selected but no compatible platforms chosen. Please select Twitter, Instagram Reels, or Telegram.');
           return;
         }
         
