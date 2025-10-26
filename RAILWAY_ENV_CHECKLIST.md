@@ -61,12 +61,15 @@ Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ---
 
-## 🚨 Most Common Issue: Missing SUPABASE_SERVICE_KEY
+## 🚨 CRITICAL ISSUE: Wrong Variable Name!
 
-If this is missing, OAuth callbacks will fail with "linkedin_failed" error.
+**Your Railway has**: `SUPABASE_SERVICE_ROLE_KEY` ❌  
+**Code expects**: `SUPABASE_SERVICE_KEY` ✅
 
-**Get it from Supabase:**
-1. Go to: https://supabase.com/dashboard/project/gzchblilbthkfuxqhoyo
-2. Click **Settings** → **API**
-3. Find **service_role** key
-4. Copy and add to Railway as `SUPABASE_SERVICE_KEY`
+### Fix:
+1. In Railway, find `SUPABASE_SERVICE_ROLE_KEY`
+2. Copy its value
+3. Add a **NEW** variable called `SUPABASE_SERVICE_KEY` with same value
+4. You can keep both (doesn't hurt) or delete the old one
+
+**This mismatch is why OAuth is failing!**
