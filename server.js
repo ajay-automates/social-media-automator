@@ -27,7 +27,8 @@ const {
   getAllCredentials 
 } = require('./services/accounts');
 const { 
-  uploadImage 
+  uploadImage,
+  uploadVideo 
 } = require('./services/cloudinary');
 const {
   initiateLinkedInOAuth,
@@ -127,13 +128,14 @@ app.use(express.static('.')); // Serve static files
 const upload = multer({
   dest: 'uploads/',
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB max
+    fileSize: 100 * 1024 * 1024 // Increase to 100MB for videos
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    // Accept images and videos
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed!'), false);
+      cb(new Error('Only image and video files are allowed!'), false);
     }
   }
 });
@@ -251,6 +253,12 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       twitter: !!credentials.twitter.accessToken
     });
     
+    // Check if video is being posted to unsupported platforms
+    if (imageUrl && imageUrl.includes('/video/') && platforms.includes('linkedin')) {
+      console.warn('⚠️  Videos not supported on LinkedIn, will skip LinkedIn');
+      platforms = platforms.filter(p => p !== 'linkedin');
+    }
+    
     // Validate that user has connected the requested platforms
     const requestedPlatforms = Array.isArray(platforms) ? platforms : [platforms];
     for (const platform of requestedPlatforms) {
@@ -326,6 +334,12 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
     
     // Get user's credentials from database
     const credentials = await getUserCredentialsForPosting(userId);
+    
+    // Check if video is being posted to unsupported platforms
+    if (imageUrl && imageUrl.includes('/video/') && platforms.includes('linkedin')) {
+      console.warn('⚠️  Videos not supported on LinkedIn, will skip LinkedIn');
+      platforms = platforms.filter(p => p !== 'linkedin');
+    }
     
     // Validate that user has connected the requested platforms
     const requestedPlatforms = Array.isArray(platforms) ? platforms : [platforms];
@@ -687,6 +701,65 @@ app.post('/api/upload/image', verifyAuth, upload.single('image'), async (req, re
     res.status(500).json({
       success: false,
       error: 'Failed to upload image'
+    });
+  }
+});
+
+/**
+ * POST /api/upload/video
+ * Upload video file to Cloudinary (protected)
+ */
+app.post('/api/upload/video', verifyAuth, upload.single('video'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No video file provided'
+      });
+    }
+
+    const userId = req.user.id;
+    console.log(`📹 Uploading video for user ${userId}...`);
+
+    // Upload to Cloudinary as video
+    const result = await uploadVideo(req.file.path, userId);
+
+    // Delete temporary file
+    await fs.unlink(req.file.path).catch(err => {
+      console.error('Error deleting temp file:', err);
+    });
+
+    if (result.success) {
+      console.log('✅ Video uploaded:', result.url);
+      
+      await incrementUsage(userId, 'video_upload');
+      
+      return res.json({
+        success: true,
+        videoUrl: result.url,
+        publicId: result.publicId,
+        duration: result.duration,
+        format: result.format,
+        source: 'upload'
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to upload video'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Video upload error:', error);
+    
+    if (req.file && req.file.path) {
+      await fs.unlink(req.file.path).catch(err => {
+        console.error('Error deleting temp file:', err);
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Failed to upload video'
     });
   }
 });

@@ -173,11 +173,11 @@ async function refreshLinkedInToken(accountId) {
  */
 async function initiateTwitterOAuth(userId, callbackUrl) {
   try {
-    const consumerKey = process.env.TWITTER_CONSUMER_KEY;
-    const consumerSecret = process.env.TWITTER_CONSUMER_SECRET;
+    const consumerKey = process.env.TWITTER_API_KEY;
+    const consumerSecret = process.env.TWITTER_API_SECRET;
     
     if (!consumerKey || !consumerSecret) {
-      throw new Error('Twitter OAuth not configured. Set TWITTER_CONSUMER_KEY and TWITTER_CONSUMER_SECRET in environment variables.');
+      throw new Error('Twitter OAuth not configured. Set TWITTER_API_KEY and TWITTER_API_SECRET in environment variables.');
     }
     
     // Step 1: Get request token
@@ -251,8 +251,8 @@ async function initiateTwitterOAuth(userId, callbackUrl) {
  */
 async function handleTwitterCallback(oauthToken, oauthVerifier, userId, oauthTokenSecret) {
   try {
-    const consumerKey = process.env.TWITTER_CONSUMER_KEY;
-    const consumerSecret = process.env.TWITTER_CONSUMER_SECRET;
+    const consumerKey = process.env.TWITTER_API_KEY;
+    const consumerSecret = process.env.TWITTER_API_SECRET;
     
     // Step 2: Exchange for access token
     const accessTokenUrl = 'https://api.twitter.com/oauth/access_token';

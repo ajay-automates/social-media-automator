@@ -97,9 +97,47 @@ async function uploadBase64Image(base64Image, userId) {
   }
 }
 
+/**
+ * Upload video to Cloudinary
+ * @param {string} filePath - Path to the uploaded video file
+ * @param {string} userId - User ID (for organizing uploads)
+ * @returns {Promise<Object>} - Cloudinary upload result with URL
+ */
+async function uploadVideo(filePath, userId) {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: `social-media-automator/${userId}/videos`,
+      resource_type: 'video',
+      transformation: [
+        { quality: 'auto' },
+        { fetch_format: 'auto' }
+      ]
+    });
+
+    console.log('✅ Video uploaded to Cloudinary:', result.secure_url);
+
+    return {
+      success: true,
+      url: result.secure_url,
+      publicId: result.public_id,
+      duration: result.duration,
+      format: result.format,
+      width: result.width,
+      height: result.height
+    };
+  } catch (error) {
+    console.error('❌ Cloudinary video upload error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
 module.exports = {
   uploadImage,
   uploadBase64Image,
-  deleteImage
+  deleteImage,
+  uploadVideo  // Add to exports
 };
 

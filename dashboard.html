@@ -346,67 +346,92 @@
         </div>
       </div>
       
-      <!-- Image Upload Section -->
+      <!-- Media Upload Section (Image/Video) -->
       <div class="mb-4 bg-gray-700 p-4 rounded-lg">
         <label class="block text-sm font-medium text-gray-300 mb-2">
-          🎨 Add Image (Optional)
+          🎬 Add Media (Optional)
         </label>
         
         <!-- Upload Area -->
-        <div id="uploadArea" class="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer" onclick="document.getElementById('imageUpload').click()">
+        <div id="uploadArea" class="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer" onclick="document.getElementById('mediaUpload').click()">
           <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
           </svg>
           <p class="text-sm text-gray-400">
             <span class="font-semibold text-blue-400 hover:text-blue-300">Click to upload</span>
             <span> or drag and drop</span>
           </p>
           <p class="text-xs text-gray-500 mt-1">
-            PNG, JPG, GIF up to 10MB
+            Images: PNG, JPG, GIF (max 10MB)
+          </p>
+          <p class="text-xs text-gray-500">
+            Videos: MP4, MOV, WebM (max 100MB)
+          </p>
+          <p class="text-xs text-yellow-400 mt-2">
+            💡 Videos only work on Instagram Reels & Twitter
           </p>
         </div>
         <input 
           type="file" 
-          id="imageUpload" 
-          accept="image/*" 
+          id="mediaUpload" 
+          accept="image/*,video/*" 
           class="hidden"
-          onchange="handleImageUpload(event)"
+          onchange="handleMediaUpload(event)"
         >
         
-        <!-- Image Preview -->
-        <div id="imagePreview" class="hidden mt-4">
+        <!-- Loading State -->
+        <div id="mediaLoadingState" class="hidden mt-4 text-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto mb-2"></div>
+          <p class="text-sm text-gray-400">Uploading...</p>
+        </div>
+        
+        <!-- Media Preview -->
+        <div id="mediaPreview" class="hidden mt-4">
           <div class="relative inline-block w-full">
+            <!-- Image Preview -->
             <img 
               id="previewImg" 
               src="" 
               alt="Preview" 
-              class="w-full h-auto rounded-lg border-2 border-gray-600 shadow-lg" 
+              class="hidden w-full h-auto rounded-lg border-2 border-gray-600 shadow-lg" 
               style="max-height: 400px; object-fit: contain;"
             >
+            
+            <!-- Video Preview -->
+            <video 
+              id="previewVideo" 
+              controls
+              class="hidden w-full rounded-lg border-2 border-gray-600 shadow-lg" 
+              style="max-height: 400px;"
+            >
+              Your browser does not support video playback.
+            </video>
+            
+            <!-- Media Type Badge -->
+            <div id="mediaBadge" class="absolute top-2 left-2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+              📷 Image
+            </div>
             
             <!-- Remove Button -->
             <button 
               type="button" 
-              onclick="removeImage()"
+              onclick="removeMedia()"
               class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition shadow-lg"
-              title="Remove image"
+              title="Remove media"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
             
-            <!-- Image Source Badge -->
-            <div class="absolute top-2 left-2 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-xs">
-              📤 Uploaded
+            <!-- Platform Compatibility Warning -->
+            <div id="videoWarning" class="hidden mt-2 bg-yellow-900 border border-yellow-600 rounded p-2">
+              <p class="text-xs text-yellow-200">
+                ⚠️ Videos only supported on <strong>Instagram Reels</strong> and <strong>Twitter</strong>. 
+                LinkedIn will be skipped.
+              </p>
             </div>
           </div>
-        </div>
-        
-        <!-- Loading State -->
-        <div id="imageLoadingState" class="hidden mt-4 text-center py-8">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          <p class="text-sm text-gray-400 mt-3">Uploading image...</p>
         </div>
       </div>
       
@@ -803,41 +828,113 @@
     }
 
     // ============================================
-    // IMAGE UPLOAD HANDLING
+    // MEDIA UPLOAD HANDLING (Images + Videos)
     // ============================================
-    let currentImageUrl = null;
-    let currentImageSource = 'none'; // 'none', 'upload'
+    let currentMediaUrl = null;
+    let currentMediaType = 'none'; // 'none', 'image', 'video'
+    let currentMediaSource = 'none'; // 'none', 'upload', 'ai'
+    let currentVideoDuration = null;
+    let currentVideoSupportedPlatforms = null;
 
-    // Handle image file upload
-    async function handleImageUpload(event) {
+    // Validate video duration before upload
+    async function validateVideoDuration(file) {
+      return new Promise((resolve) => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+          window.URL.revokeObjectURL(video.src);
+          const duration = video.duration;
+          
+          // Twitter: 140s max, Instagram Reels: 90s max
+          // Use Twitter's limit as upper bound
+          if (duration > 140) {
+            resolve({ 
+              valid: false, 
+              error: `Video too long (${Math.round(duration)}s). Max 2:20 for Twitter, 1:30 for Instagram Reels.`,
+              duration 
+            });
+          } else if (duration > 90) {
+            resolve({ 
+              valid: true, 
+              warning: 'Video longer than 90s will not work on Instagram Reels (only Twitter).',
+              duration,
+              platforms: ['twitter'] // Only Twitter supported
+            });
+          } else {
+            resolve({ 
+              valid: true, 
+              duration,
+              platforms: ['twitter', 'instagram'] // Both supported
+            });
+          }
+        };
+        video.onerror = () => {
+          resolve({ valid: false, error: 'Could not read video file' });
+        };
+        video.src = URL.createObjectURL(file);
+      });
+    }
+
+    // Handle media file upload (images or videos)
+    async function handleMediaUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('Image too large! Maximum size is 10MB.');
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+
+      // Validate file type
+      if (!isImage && !isVideo) {
+        alert('❌ Please select an image or video file (MP4, MOV, WebM, JPG, PNG, GIF)');
         event.target.value = '';
         return;
       }
 
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file (JPG, PNG, GIF)');
+      // Validate file size
+      const maxSize = isVideo ? 100 * 1024 * 1024 : 10 * 1024 * 1024; // 100MB for video, 10MB for image
+      if (file.size > maxSize) {
+        const maxSizeMB = isVideo ? '100MB' : '10MB';
+        const currentSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        alert(`❌ File too large (${currentSizeMB}MB). Maximum size is ${maxSizeMB}.`);
         event.target.value = '';
         return;
+      }
+
+      // Validate video duration (CRITICAL for Twitter/Instagram)
+      if (isVideo) {
+        const durationCheck = await validateVideoDuration(file);
+        
+        if (!durationCheck.valid) {
+          alert(`❌ ${durationCheck.error}`);
+          event.target.value = '';
+          return;
+        }
+        
+        // Store duration and supported platforms
+        currentVideoDuration = durationCheck.duration;
+        currentVideoSupportedPlatforms = durationCheck.platforms;
+        
+        // Show warning if video is long
+        if (durationCheck.warning) {
+          if (!confirm(`⚠️ ${durationCheck.warning}\n\nContinue upload?`)) {
+            event.target.value = '';
+            return;
+          }
+        }
       }
 
       // Show loading state
       document.getElementById('uploadArea').style.display = 'none';
-      document.getElementById('imageLoadingState').classList.remove('hidden');
+      document.getElementById('mediaLoadingState').classList.remove('hidden');
 
       try {
         // Create FormData
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append(isVideo ? 'video' : 'image', file);
 
-        // Upload to backend
-        const response = await fetch(`${API_URL}/api/upload/image`, {
+        // Upload to appropriate endpoint
+        const endpoint = isVideo ? '/api/upload/video' : '/api/upload/image';
+        const response = await fetch(`${API_URL}${endpoint}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${authToken}`
@@ -848,41 +945,80 @@
         const data = await response.json();
 
         if (data.success) {
-          currentImageUrl = data.imageUrl;
-          currentImageSource = 'upload';
+          currentMediaUrl = isVideo ? data.videoUrl : data.imageUrl;
+          currentMediaType = isVideo ? 'video' : 'image';
+          currentMediaSource = 'upload';
 
           // Show preview
-          document.getElementById('previewImg').src = data.imageUrl;
-          document.getElementById('imagePreview').classList.remove('hidden');
-          document.getElementById('imageLoadingState').classList.add('hidden');
+          if (isVideo) {
+            document.getElementById('previewVideo').src = data.videoUrl;
+            document.getElementById('previewVideo').classList.remove('hidden');
+            document.getElementById('previewImg').classList.add('hidden');
+            
+            const durationText = currentVideoDuration ? ` (${Math.round(currentVideoDuration)}s)` : '';
+            document.getElementById('mediaBadge').innerHTML = `🎬 Video${durationText}`;
+            document.getElementById('videoWarning').classList.remove('hidden');
+            
+            // Update warning with specific platforms
+            const platformText = currentVideoSupportedPlatforms?.join(', ') || 'Twitter, Instagram Reels';
+            document.getElementById('videoWarning').querySelector('p').innerHTML = 
+              `⚠️ Videos only supported on <strong>${platformText}</strong>. LinkedIn will be skipped.`;
+          } else {
+            document.getElementById('previewImg').src = data.imageUrl;
+            document.getElementById('previewImg').classList.remove('hidden');
+            document.getElementById('previewVideo').classList.add('hidden');
+            document.getElementById('mediaBadge').innerHTML = '📷 Image';
+            document.getElementById('videoWarning').classList.add('hidden');
+          }
 
-          console.log('✅ Image uploaded:', data.imageUrl);
+          document.getElementById('mediaPreview').classList.remove('hidden');
+          document.getElementById('mediaLoadingState').classList.add('hidden');
+
+          console.log(`✅ ${isVideo ? 'Video' : 'Image'} uploaded:`, currentMediaUrl);
         } else {
           throw new Error(data.error || 'Upload failed');
         }
       } catch (error) {
         console.error('❌ Upload error:', error);
-        alert(`Failed to upload image: ${error.message}`);
-        document.getElementById('imageLoadingState').classList.add('hidden');
+        
+        // Better error messages
+        let userMessage = 'Failed to upload media';
+        if (error.message.includes('size') || error.message.includes('large')) {
+          userMessage = '❌ File too large. Reduce file size and try again.';
+        } else if (error.message.includes('format') || error.message.includes('type')) {
+          userMessage = '❌ Unsupported format. Use MP4, MOV, WebM for videos or JPG, PNG, GIF for images.';
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          userMessage = '❌ Network error. Check your connection and try again.';
+        } else {
+          userMessage = `❌ ${error.message}`;
+        }
+        
+        alert(userMessage);
+        document.getElementById('mediaLoadingState').classList.add('hidden');
         document.getElementById('uploadArea').style.display = 'block';
         event.target.value = '';
       }
     }
 
-    // Remove uploaded image
-    function removeImage() {
-      currentImageUrl = null;
-      currentImageSource = 'none';
-      document.getElementById('imagePreview').classList.add('hidden');
+    // Remove uploaded media
+    function removeMedia() {
+      currentMediaUrl = null;
+      currentMediaType = 'none';
+      currentMediaSource = 'none';
+      currentVideoDuration = null;
+      currentVideoSupportedPlatforms = null;
+      document.getElementById('mediaPreview').classList.add('hidden');
       document.getElementById('previewImg').src = '';
-      document.getElementById('imageUpload').value = '';
+      document.getElementById('previewVideo').src = '';
+      document.getElementById('mediaUpload').value = '';
       document.getElementById('uploadArea').style.display = 'block';
+      document.getElementById('videoWarning').classList.add('hidden');
     }
 
     // Post immediately
     async function postNow() {
       const text = document.getElementById('postText').value;
-      const imageUrl = currentImageUrl; // Use the uploaded image URL
+      const imageUrl = currentMediaUrl; // Use the uploaded media URL
       const platforms = getSelectedPlatforms();
       const accountId = getSelectedAccount();
 
@@ -894,6 +1030,27 @@
       if (platforms.length === 0) {
         alert('Please select at least one platform');
         return;
+      }
+
+      // Auto-filter platforms if video is selected
+      if (currentMediaType === 'video') {
+        const videoSupportedPlatforms = currentVideoSupportedPlatforms || ['twitter', 'instagram'];
+        const filteredPlatforms = platforms.filter(p => videoSupportedPlatforms.includes(p));
+        
+        if (filteredPlatforms.length === 0) {
+          alert('⚠️ Video selected but no compatible platforms chosen. Please select Twitter or Instagram Reels.');
+          return;
+        }
+        
+        if (filteredPlatforms.length !== platforms.length) {
+          const removedPlatforms = platforms.filter(p => !videoSupportedPlatforms.includes(p));
+          if (!confirm(`⚠️ Videos not supported on ${removedPlatforms.join(', ')}. Continue with ${filteredPlatforms.join(', ')}?`)) {
+            return;
+          }
+        }
+        
+        platforms.length = 0; // Clear array
+        platforms.push(...filteredPlatforms); // Add filtered platforms
       }
 
       try {
@@ -936,7 +1093,7 @@
         if (successCount > 0) {
           alert(message);
           document.getElementById('postText').value = '';
-          removeImage(); // Clear uploaded image
+          removeMedia(); // Clear uploaded media
         } else {
           alert('❌ All platforms failed:\n' + message);
         }
@@ -948,7 +1105,7 @@
     // Schedule post
     async function schedulePost() {
       const text = document.getElementById('postText').value;
-      const imageUrl = currentImageUrl; // Use the uploaded image URL
+      const imageUrl = currentMediaUrl; // Use the uploaded media URL
       const scheduleDateTime = document.getElementById('scheduleDateTime').value;
       const platforms = getSelectedPlatforms();
       const accountId = getSelectedAccount();
@@ -961,6 +1118,27 @@
       if (platforms.length === 0) {
         alert('Please select at least one platform');
         return;
+      }
+
+      // Auto-filter platforms if video is selected
+      if (currentMediaType === 'video') {
+        const videoSupportedPlatforms = currentVideoSupportedPlatforms || ['twitter', 'instagram'];
+        const filteredPlatforms = platforms.filter(p => videoSupportedPlatforms.includes(p));
+        
+        if (filteredPlatforms.length === 0) {
+          alert('⚠️ Video selected but no compatible platforms chosen. Please select Twitter or Instagram Reels.');
+          return;
+        }
+        
+        if (filteredPlatforms.length !== platforms.length) {
+          const removedPlatforms = platforms.filter(p => !videoSupportedPlatforms.includes(p));
+          if (!confirm(`⚠️ Videos not supported on ${removedPlatforms.join(', ')}. Continue with ${filteredPlatforms.join(', ')}?`)) {
+            return;
+          }
+        }
+        
+        platforms.length = 0; // Clear array
+        platforms.push(...filteredPlatforms); // Add filtered platforms
       }
 
       try {
@@ -984,7 +1162,7 @@
         if (data.success) {
           alert(`✅ Post scheduled for ${platforms.join(', ')}!`);
           document.getElementById('postText').value = '';
-          removeImage(); // Clear uploaded image
+          removeMedia(); // Clear uploaded media
           document.getElementById('scheduleDateTime').value = '';
           loadQueue();
         } else {
@@ -1867,11 +2045,20 @@
     // Use AI image
     function useAIImage() {
       if (currentAIImage) {
-        // Set as current image for posting (connect to your existing image system)
-        currentImageUrl = currentAIImage;
-        currentImageSource = 'ai-generated';
+        // Set as current media for posting (connect to your existing media system)
+        currentMediaUrl = currentAIImage;
+        currentMediaType = 'image';
+        currentMediaSource = 'ai';
         
-        alert('✅ AI image ready!\n\nNow write your caption and click "Post Now" to share it on your platforms.');
+        // Show in main preview
+        document.getElementById('previewImg').src = currentAIImage;
+        document.getElementById('previewImg').classList.remove('hidden');
+        document.getElementById('previewVideo').classList.add('hidden');
+        document.getElementById('mediaBadge').innerHTML = '✨ AI Generated';
+        document.getElementById('mediaPreview').classList.remove('hidden');
+        document.getElementById('videoWarning').classList.add('hidden');
+        
+        alert('✅ AI image ready to post!');
         
         // Optionally scroll to post area
         document.getElementById('postContent')?.scrollIntoView({ behavior: 'smooth' });
