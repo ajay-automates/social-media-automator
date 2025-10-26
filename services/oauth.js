@@ -444,40 +444,30 @@ async function getUserCredentialsForPosting(userId) {
           type: 'person'
         };
       } else if (account.platform === 'twitter') {
-        // Twitter OAuth: Use tokens from database (OAuth 2.0 or OAuth 1.0a)
-        // The account.access_token contains the user's access token
-        // The account.refresh_token may contain access_secret (OAuth 1.0a) or refresh_token (OAuth 2.0)
+        // Twitter OAuth: Always prefer OAuth 1.0a if API keys available (media uploads require it)
+        // The account has OAuth 2.0 tokens, but posting needs OAuth 1.0a for media support
         
         console.log('🔐 Loading Twitter credentials for user');
-        console.log('   Has access_token:', !!account.access_token);
-        console.log('   Has refresh_token:', !!account.refresh_token);
         
-        if (account.refresh_token && account.refresh_token.length > 50) {
-          // Likely OAuth 1.0a access_secret stored in refresh_token field
-          const hasApiKey = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET;
-          if (hasApiKey) {
-            credentials.twitter = {
-              apiKey: process.env.TWITTER_API_KEY,
-              apiSecret: process.env.TWITTER_API_SECRET,
-              accessToken: account.access_token,
-              accessSecret: account.refresh_token
-            };
-            console.log('   Using OAuth 1.0a with API keys');
-          } else {
-            // OAuth 2.0: Use bearer token
-            credentials.twitter = {
-              bearerToken: account.access_token,
-              accessToken: account.access_token
-            };
-            console.log('   Using OAuth 2.0 bearer token');
-          }
+        const hasApiKey = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET;
+        
+        if (hasApiKey) {
+          // Prefer OAuth 1.0a: Use env API keys + tokens from database
+          // This is needed for Twitter v1.1 media upload API
+          credentials.twitter = {
+            apiKey: process.env.TWITTER_API_KEY,
+            apiSecret: process.env.TWITTER_API_SECRET,
+            accessToken: account.access_token,
+            accessSecret: account.refresh_token || process.env.TWITTER_ACCESS_SECRET
+          };
+          console.log('   Using OAuth 1.0a (required for media uploads)');
         } else {
-          // OAuth 2.0: Use bearer token
+          // Fallback to OAuth 2.0 (text-only posts)
           credentials.twitter = {
             bearerToken: account.access_token,
             accessToken: account.access_token
           };
-          console.log('   Using OAuth 2.0 bearer token (no refresh token)');
+          console.log('   Using OAuth 2.0 (text posts only, no media)');
         }
       } else if (account.platform === 'instagram') {
         credentials.instagram = {
