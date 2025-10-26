@@ -447,7 +447,9 @@ async function getUserCredentialsForPosting(userId) {
         // Check if this is OAuth 2.0 (bearer token) or OAuth 1.0a (has API key)
         const hasApiKey = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET;
         
-        if (hasApiKey && account.refresh_token) {
+        // IMPORTANT: Twitter v1.1 media upload API requires OAuth 1.0a
+        // If we have API keys available, use OAuth 1.0a for posting (media uploads)
+        if (hasApiKey) {
           // OAuth 1.0a: use API keys + tokens
           credentials.twitter = {
             apiKey: process.env.TWITTER_API_KEY,
@@ -455,12 +457,21 @@ async function getUserCredentialsForPosting(userId) {
             accessToken: account.access_token,
             accessSecret: account.refresh_token // Twitter stores access_secret in refresh_token field
           };
+          console.log('🔐 Using OAuth 1.0a for Twitter (required for media uploads)');
+        } else if (account.refresh_token) {
+          // OAuth 1.0a from database tokens
+          console.log('🔐 Using OAuth 1.0a tokens from database');
+          // Note: OAuth 1.0a requires API keys from env, so this won't work
+          // Need to reconnect with OAuth 1.0a credentials
+          credentials.twitter = {};
+          console.error('❌ OAuth 1.0a requires TWITTER_API_KEY and TWITTER_API_SECRET env vars');
         } else {
           // OAuth 2.0: just use bearer token
           credentials.twitter = {
             bearerToken: account.access_token,
             accessToken: account.access_token
           };
+          console.log('⚠️ Using OAuth 2.0 for Twitter (media uploads may fail)');
         }
       } else if (account.platform === 'instagram') {
         credentials.instagram = {
