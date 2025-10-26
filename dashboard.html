@@ -118,6 +118,12 @@
         >
           <span>🐦</span> Connect Twitter
         </button>
+        <button 
+          onclick="openTelegramModal()"
+          class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2"
+        >
+          <span>📱</span> Connect Telegram
+        </button>
       </div>
     </div>
 
@@ -137,10 +143,11 @@
             <span class="text-green-400 text-2xl">●</span>
             <span class="ml-2 text-lg">System Online</span>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 flex-wrap">
             <span class="bg-blue-600 px-3 py-1 rounded-full text-sm">LinkedIn ✓</span>
             <span class="bg-sky-500 px-3 py-1 rounded-full text-sm">Twitter ✓</span>
             <span class="bg-pink-600 px-3 py-1 rounded-full text-sm">Instagram ✓</span>
+            <span class="bg-indigo-600 px-3 py-1 rounded-full text-sm">Telegram ✓</span>
           </div>
         </div>
         <div class="text-gray-400" id="queueCount">Queue: 0 posts</div>
@@ -438,7 +445,7 @@
       <!-- Platform Selection -->
       <div class="mb-4">
         <p class="text-sm text-gray-400 mb-2">Select platforms:</p>
-        <div class="flex gap-4">
+        <div class="flex gap-4 flex-wrap">
           <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
             <input type="checkbox" value="linkedin" class="platform-checkbox" checked>
             <span>🔗 LinkedIn</span>
@@ -450,6 +457,10 @@
           <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
             <input type="checkbox" value="instagram" class="platform-checkbox" checked>
             <span>📸 Instagram</span>
+          </label>
+          <label class="flex items-center gap-2 bg-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-600">
+            <input type="checkbox" value="telegram" class="platform-checkbox">
+            <span>📱 Telegram</span>
           </label>
         </div>
       </div>
@@ -708,6 +719,7 @@
             <option value="linkedin">🔗 LinkedIn (Professional)</option>
             <option value="twitter">🐦 Twitter/X (Casual)</option>
             <option value="instagram">📸 Instagram (Trendy)</option>
+            <option value="telegram">📱 Telegram (Conversational)</option>
           </select>
         </div>
         
@@ -736,6 +748,69 @@
         >
           ← Generate New Captions
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Telegram Connect Modal -->
+  <div id="telegramModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-gray-800 p-8 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">📱 Connect Telegram Bot</h2>
+        <button onclick="closeTelegramModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      
+      <!-- Instructions -->
+      <div class="bg-blue-900 bg-opacity-50 p-4 rounded-lg mb-6">
+        <h3 class="font-bold mb-3">📋 Setup Instructions:</h3>
+        <ol class="list-decimal list-inside space-y-2 text-sm">
+          <li>Open Telegram and message <a href="https://t.me/BotFather" target="_blank" class="text-blue-400 hover:underline">@BotFather</a></li>
+          <li>Type <code class="bg-gray-700 px-1 rounded">/newbot</code> and follow the instructions</li>
+          <li>Copy the bot token you receive</li>
+          <li>Add your bot to your channel/group as an <strong>admin</strong> with posting permissions</li>
+          <li>Get your chat ID (see below)</li>
+        </ol>
+      </div>
+      
+      <div class="space-y-4">
+        <!-- Bot Token Input -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Bot Token</label>
+          <input 
+            id="telegram-bot-token" 
+            type="text" 
+            placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+            class="w-full p-4 bg-gray-700 rounded-lg text-white"
+          >
+          <p class="text-xs text-gray-500 mt-1">From @BotFather after creating your bot</p>
+        </div>
+        
+        <!-- Chat ID Input -->
+        <div>
+          <label class="block text-sm text-gray-400 mb-2">Chat ID</label>
+          <input 
+            id="telegram-chat-id" 
+            type="text" 
+            placeholder="@yourchannel or -100123456789"
+            class="w-full p-4 bg-gray-700 rounded-lg text-white"
+          >
+          <p class="text-xs text-gray-500 mt-1">
+            For public channels: @yourchannel (e.g., @my_channel)<br>
+            For private channels: Use <a href="https://t.me/userinfobot" target="_blank" class="text-blue-400 hover:underline">@userinfobot</a> to get the numeric ID (e.g., -100123456789)
+          </p>
+        </div>
+        
+        <!-- Connect Button -->
+        <button 
+          onclick="connectTelegramBot()" 
+          id="connectTelegramBtn"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-lg font-bold transition"
+        >
+          ✅ Connect Telegram Bot
+        </button>
+        
+        <!-- Status Message -->
+        <div id="telegramConnectStatus" class="hidden mt-4 p-4 rounded-lg"></div>
       </div>
     </div>
   </div>
@@ -1830,6 +1905,75 @@
       } catch (error) {
         console.error('Twitter connection error:', error);
         alert('❌ Failed to connect Twitter account: ' + error.message);
+      }
+    }
+
+    // Open Telegram modal
+    function openTelegramModal() {
+      document.getElementById('telegramModal').classList.remove('hidden');
+      document.getElementById('telegram-bot-token').value = '';
+      document.getElementById('telegram-chat-id').value = '';
+      document.getElementById('telegramConnectStatus').classList.add('hidden');
+    }
+
+    // Close Telegram modal
+    function closeTelegramModal() {
+      document.getElementById('telegramModal').classList.add('hidden');
+    }
+
+    // Connect Telegram bot
+    async function connectTelegramBot() {
+      const botToken = document.getElementById('telegram-bot-token').value.trim();
+      const chatId = document.getElementById('telegram-chat-id').value.trim();
+      const statusDiv = document.getElementById('telegramConnectStatus');
+      const connectBtn = document.getElementById('connectTelegramBtn');
+      
+      if (!botToken || !chatId) {
+        statusDiv.className = 'mt-4 p-4 rounded-lg bg-red-900 bg-opacity-50 text-red-200';
+        statusDiv.innerHTML = '❌ Please provide both bot token and chat ID';
+        statusDiv.classList.remove('hidden');
+        return;
+      }
+      
+      try {
+        connectBtn.disabled = true;
+        connectBtn.textContent = '🔄 Connecting...';
+        
+        const response = await fetch(`${API_URL}/api/auth/telegram/connect`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ botToken, chatId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          statusDiv.className = 'mt-4 p-4 rounded-lg bg-green-900 bg-opacity-50 text-green-200';
+          statusDiv.innerHTML = `✅ Successfully connected! Bot: @${data.bot.username}`;
+          statusDiv.classList.remove('hidden');
+          
+          // Reload accounts and close modal after 2 seconds
+          setTimeout(() => {
+            closeTelegramModal();
+            loadConnectedAccounts();
+            loadUsageData();
+          }, 2000);
+        } else {
+          statusDiv.className = 'mt-4 p-4 rounded-lg bg-red-900 bg-opacity-50 text-red-200';
+          statusDiv.innerHTML = `❌ Failed: ${data.error || 'Unknown error'}`;
+          statusDiv.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Telegram connection error:', error);
+        statusDiv.className = 'mt-4 p-4 rounded-lg bg-red-900 bg-opacity-50 text-red-200';
+        statusDiv.innerHTML = `❌ Error: ${error.message}`;
+        statusDiv.classList.remove('hidden');
+      } finally {
+        connectBtn.disabled = false;
+        connectBtn.textContent = '✅ Connect Telegram Bot';
       }
     }
 

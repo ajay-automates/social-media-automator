@@ -42,6 +42,7 @@ const {
   getUserConnectedAccounts,
   getUserCredentialsForPosting
 } = require('./services/oauth');
+const { validateBotToken } = require('./services/telegram');
 const {
   createCheckoutSession,
   createPortalSession,
@@ -282,6 +283,12 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
           error: 'Twitter account not connected. Please connect your Twitter account first.'
         });
       }
+      if (platform === 'telegram' && !credentials.telegram.botToken) {
+        return res.status(400).json({
+          success: false,
+          error: 'Telegram bot not connected. Please connect your Telegram bot first.'
+        });
+      }
     }
     
     const platformResults = await postNow(text, imageUrl || null, platforms, credentials);
@@ -362,6 +369,12 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
         return res.status(400).json({
           success: false,
           error: 'Twitter account not connected. Please connect your Twitter account first.'
+        });
+      }
+      if (platform === 'telegram' && !credentials.telegram.botToken) {
+        return res.status(400).json({
+          success: false,
+          error: 'Telegram bot not connected. Please connect your Telegram bot first.'
         });
       }
     }
@@ -1302,6 +1315,73 @@ app.get('/api/user/accounts', verifyAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting user accounts:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/auth/telegram/connect
+ * Connect Telegram bot (user provides bot token)
+ */
+app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { botToken, chatId } = req.body;
+    
+    console.log('📱 Connecting Telegram bot for user:', userId);
+    
+    if (!botToken || !chatId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Bot token and chat ID are required'
+      });
+    }
+    
+    // Validate bot token
+    const validation = await validateBotToken(botToken);
+    
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        error: validation.error || 'Invalid bot token'
+      });
+    }
+    
+    // Store in database using supabaseAdmin
+    const { createClient } = require('@supabase/supabase-js');
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
+    
+    await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'telegram',
+        platform_name: validation.bot.username || 'Telegram Bot',
+        oauth_provider: 'manual',
+        access_token: botToken,
+        platform_user_id: chatId,
+        platform_username: validation.bot.username || 'bot',
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform'
+      });
+    
+    console.log(`✅ Telegram bot connected for user ${userId}`);
+    res.json({
+      success: true,
+      message: 'Telegram bot connected successfully',
+      bot: validation.bot
+    });
+    
+  } catch (error) {
+    console.error('Error connecting Telegram bot:', error);
     res.status(500).json({
       success: false,
       error: error.message

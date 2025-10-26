@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
 const { postToInstagram } = require('./instagram');
+const { sendToTelegram } = require('./telegram');
 const { 
   addPost, 
   getDuePosts, 
@@ -82,6 +83,15 @@ async function postNow(text, imageUrl, platforms, credentials) {
             imageUrl,
             credentials.instagram.accessToken,
             credentials.instagram.igUserId
+          );
+          break;
+          
+        case 'telegram':
+          result = await sendToTelegram(
+            credentials.telegram.botToken,
+            credentials.telegram.chatId,
+            text,
+            imageUrl
           );
           break;
           

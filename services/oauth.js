@@ -433,7 +433,8 @@ async function getUserCredentialsForPosting(userId) {
     const credentials = {
       linkedin: {},
       twitter: {},
-      instagram: {}
+      instagram: {},
+      telegram: {}
     };
     
     accounts?.forEach(account => {
@@ -484,6 +485,11 @@ async function getUserCredentialsForPosting(userId) {
           accessToken: account.access_token,
           igUserId: account.platform_user_id
         };
+      } else if (account.platform === 'telegram') {
+        credentials.telegram = {
+          botToken: account.access_token,
+          chatId: account.platform_user_id
+        };
       }
     });
     
@@ -494,7 +500,8 @@ async function getUserCredentialsForPosting(userId) {
     return {
       linkedin: {},
       twitter: {},
-      instagram: {}
+      instagram: {},
+      telegram: {}
     };
   }
 }
