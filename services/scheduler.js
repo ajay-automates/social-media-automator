@@ -15,14 +15,15 @@ const {
 /**
  * Schedule a post for later
  */
-async function schedulePost(text, imageUrl, platforms, scheduleTime, credentials) {
+async function schedulePost(text, imageUrl, platforms, scheduleTime, credentials, userId = null) {
   try {
     const post = await addPost({
       text,
       imageUrl,
       platforms,
       scheduleTime: new Date(scheduleTime),
-      credentials
+      credentials,
+      userId // Pass userId for multi-tenant
     });
     
     console.log(`   Caption: ${text.slice(0, 50)}...`);

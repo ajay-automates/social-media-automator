@@ -20,6 +20,8 @@ const {
 const { 
   getPostHistory, 
   getPlatformStats,
+  getAnalyticsOverview,
+  getTimelineData,
   healthCheck
 } = require('./services/database');
 
@@ -131,7 +133,10 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000  // 24 hours
   }
 }));
-app.use(express.static('.')); // Serve static files
+// Serve static files for landing page and auth ONLY
+app.use(express.static(__dirname, {
+  index: false // Don't serve index.html automatically
+}));
 
 // Configure Multer for file uploads
 const upload = multer({
@@ -173,9 +178,26 @@ app.get('/auth', (req, res) => {
   res.sendFile(path.join(__dirname, 'auth.html'));
 });
 
-// Dashboard (protected on client-side)
-app.get('/dashboard', (req, res) => {
+// Serve React Dashboard static assets first (before catch-all)
+try {
+  const dashboardPath = path.join(__dirname, 'dashboard/dist');
+  if (require('fs').existsSync(dashboardPath)) {
+    app.use('/dashboard/assets', express.static(path.join(dashboardPath, 'assets')));
+    app.use('/dashboard/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
+    console.log('✅ React Dashboard static assets configured');
+  }
+} catch (err) {
+  console.log('ℹ️  React dashboard not built yet');
+}
+
+// Fallback to old dashboard for now
+app.get('/dashboard/old', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+// React Router catch-all for dashboard (must be last to not interfere with static assets)
+app.get('/dashboard/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard/dist/index.html'));
 });
 
 // ============================================
@@ -391,12 +413,13 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
       }
     }
     
-    const queueItem = schedulePost(
+    const queueItem = await schedulePost(
       text, 
       imageUrl || null,
       platforms || ['linkedin'],
       scheduleTime, 
-      credentials
+      credentials,
+      userId // Pass userId for multi-tenant
     );
     
     // Increment usage count
@@ -423,8 +446,9 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
  * POST /api/post/bulk
  * Schedule multiple posts at once (supports different accounts per post) (protected)
  */
-app.post('/api/post/bulk', verifyAuth, (req, res) => {
+app.post('/api/post/bulk', verifyAuth, async (req, res) => {
   try {
+    const userId = req.user.id;
     const { posts } = req.body;
     
     if (!posts || !Array.isArray(posts)) {
@@ -436,22 +460,23 @@ app.post('/api/post/bulk', verifyAuth, (req, res) => {
     
     const scheduled = [];
     
-    posts.forEach(post => {
+    for (const post of posts) {
       if (post.text && post.scheduleTime) {
         // Each post can have its own accountId (defaults to 1)
         const accountId = post.accountId || 1;
         const credentials = getAllCredentials(accountId);
         
-        const queueItem = schedulePost(
+        const queueItem = await schedulePost(
           post.text,
           post.imageUrl || null,
           post.platforms || ['linkedin'],
           post.scheduleTime,
-          credentials
+          credentials,
+          userId // Pass userId
         );
         scheduled.push(queueItem.id);
       }
-    });
+    }
     
     res.json({ 
       success: true, 
@@ -473,6 +498,7 @@ app.post('/api/post/bulk', verifyAuth, (req, res) => {
  */
 app.post('/api/post/bulk-csv', verifyAuth, async (req, res) => {
   try {
+    const userId = req.user.id;
     const { posts } = req.body;
     
     if (!posts || !Array.isArray(posts)) {
@@ -538,12 +564,13 @@ app.post('/api/post/bulk-csv', verifyAuth, async (req, res) => {
         }
         
         // Schedule the post
-        const queueItem = schedulePost(
+        const queueItem = await schedulePost(
           post.text.toString(),
           post.image_url || null,
           platforms,
           scheduleTime,
-          credentials
+          credentials,
+          userId // Pass userId
         );
         
         scheduled.push(queueItem.id);
@@ -658,21 +685,76 @@ app.get('/api/history', verifyAuth, async (req, res) => {
 
 /**
  * GET /api/analytics/platforms
- * Get platform statistics (protected)
+ * Get platform statistics (protected - multi-tenant)
  */
 app.get('/api/analytics/platforms', verifyAuth, async (req, res) => {
   try {
-    const stats = await getPlatformStats();
+    const userId = req.user.id;
+    const stats = await getPlatformStats(userId);
+    
+    // Format for frontend
+    const platformsArray = Object.keys(stats).map(platform => ({
+      platform,
+      total: stats[platform].total,
+      successful: stats[platform].successful,
+      failed: stats[platform].failed,
+      successRate: stats[platform].successRate
+    }));
     
     res.json({ 
       success: true,
-      stats
+      platforms: platformsArray
     });
   } catch (error) {
     console.error('Error in /api/analytics/platforms:', error);
     res.status(500).json({ 
       success: false, 
       error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/analytics/overview
+ * Get analytics overview for current user (protected - multi-tenant)
+ */
+app.get('/api/analytics/overview', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const overview = await getAnalyticsOverview(userId);
+    
+    res.json({
+      success: true,
+      ...overview
+    });
+  } catch (error) {
+    console.error('Error in /api/analytics/overview:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/analytics/timeline
+ * Get timeline data for last 30 days (protected - multi-tenant)
+ */
+app.get('/api/analytics/timeline', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const days = parseInt(req.query.days) || 30;
+    const timeline = await getTimelineData(userId, days);
+    
+    res.json({
+      success: true,
+      ...timeline
+    });
+  } catch (error) {
+    console.error('Error in /api/analytics/timeline:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
