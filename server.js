@@ -5,7 +5,10 @@ const path = require('path');
 const session = require('express-session');
 const multer = require('multer');
 const fs = require('fs').promises;
+const crypto = require('crypto');
+const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
+const { encryptState, decryptState } = require('./utilities/oauthState');
 const { 
   schedulePost, 
   postNow, 
@@ -50,6 +53,9 @@ const {
 const { getAllPlans } = require('./config/plans');
 
 const app = express();
+
+// In-memory storage for PKCE code_verifier (use Redis in production)
+const pkceStore = new Map();
 
 // Initialize Supabase client for auth verification
 let supabase = null;
@@ -942,69 +948,42 @@ app.post('/api/ai/image/generate', verifyAuth, async (req, res) => {
 // ============================================
 
 /**
- * GET /auth/linkedin/connect
- * Initiate LinkedIn OAuth flow
- * Note: This is accessed via browser navigation, not AJAX, so no Bearer token
+ * POST /api/auth/linkedin/url
+ * Generate LinkedIn OAuth URL (authenticated endpoint)
  */
-app.get('/auth/linkedin/connect', async (req, res) => {
+app.post('/api/auth/linkedin/url', verifyAuth, async (req, res) => {
   try {
-    // TODO: Get user ID from session/cookie instead of Bearer token
-    // For now, show configuration message
-    
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>LinkedIn OAuth</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-      </head>
-      <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-8">
-        <div class="max-w-2xl bg-gray-800 p-8 rounded-lg">
-          <h1 class="text-3xl font-bold mb-4">🔗 LinkedIn OAuth Coming Soon!</h1>
-          <p class="text-gray-300 mb-4">
-            LinkedIn OAuth requires additional setup:
-          </p>
-          <ol class="list-decimal list-inside space-y-2 text-gray-300 mb-6">
-            <li>Create LinkedIn OAuth app at <a href="https://www.linkedin.com/developers" class="text-blue-400 hover:underline" target="_blank">LinkedIn Developers</a></li>
-            <li>Add Client ID and Secret to .env</li>
-            <li>Configure redirect URL</li>
-          </ol>
-          <div class="bg-yellow-900 border border-yellow-600 p-4 rounded mb-6">
-            <p class="text-yellow-200 font-bold mb-2">✅ For Testing:</p>
-            <p class="text-yellow-100 text-sm">
-              I'll add test LinkedIn/Twitter credentials to your account so you can test the posting UI.
-              Run this SQL in Supabase:
-            </p>
-          </div>
-          <pre class="bg-gray-900 p-4 rounded text-xs text-green-400 mb-6 overflow-x-auto">
-INSERT INTO user_accounts (user_id, platform, platform_name, oauth_provider, access_token, refresh_token, platform_user_id, platform_username, status)
-VALUES 
-  ((SELECT id FROM auth.users WHERE email = 'ajaykumarreddynelavetla@gmail.com'), 
-   'linkedin', 'LinkedIn', 'manual', 'test_linkedin_token', NULL, 
-   'ajay_linkedin', 'Ajay Kumar Reddy', 'active'),
-  ((SELECT id FROM auth.users WHERE email = 'ajaykumarreddynelavetla@gmail.com'), 
-   'twitter', 'Twitter/X', 'manual', 'test_twitter_token', 'test_twitter_secret', 
-   'ajay_twitter', 'Ajay Kumar', 'active')
-ON CONFLICT (user_id, platform, platform_user_id) DO NOTHING;
-          </pre>
-          <a href="/dashboard" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold inline-block">
-            ← Back to Dashboard
-          </a>
-        </div>
-      </body>
-      </html>
-    `);
-    return;
-    
     const userId = req.user.id;
-    const redirectUri = `${req.protocol}://${req.get('host')}/auth/linkedin/callback`;
+    const clientId = process.env.LINKEDIN_CLIENT_ID;
     
-    const authUrl = initiateLinkedInOAuth(userId, redirectUri);
+    if (!clientId) {
+      return res.status(500).json({
+        success: false,
+        error: 'LinkedIn OAuth not configured'
+      });
+    }
     
-    res.redirect(authUrl);
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/linkedin/callback`;
+    const state = encryptState(userId);
+    const scope = 'openid profile email w_member_social';
+    
+    const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('client_id', clientId);
+    authUrl.searchParams.append('redirect_uri', redirectUri);
+    authUrl.searchParams.append('scope', scope);
+    authUrl.searchParams.append('state', state);
+    
+    res.json({
+      success: true,
+      oauthUrl: authUrl.toString()
+    });
   } catch (error) {
-    console.error('Error initiating LinkedIn OAuth:', error);
-    res.status(500).send('Error connecting to LinkedIn');
+    console.error('Error generating LinkedIn OAuth URL:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate OAuth URL'
+    });
   }
 });
 
@@ -1014,88 +993,129 @@ ON CONFLICT (user_id, platform, platform_user_id) DO NOTHING;
  */
 app.get('/auth/linkedin/callback', async (req, res) => {
   try {
-    const { code, state } = req.query;
-    const redirectUri = `${req.protocol}://${req.get('host')}/auth/linkedin/callback`;
+    const { code, state, error } = req.query;
     
-    const result = await handleLinkedInCallback(code, state, redirectUri);
+    if (error) {
+      console.error('LinkedIn OAuth error:', error);
+      return res.redirect('/dashboard?error=linkedin_denied');
+    }
     
-    // Redirect to dashboard with success message
-    res.redirect('/dashboard?linkedin=connected');
+    if (!code || !state) {
+      return res.redirect('/dashboard?error=linkedin_missing_params');
+    }
+    
+    // Decrypt state to get userId
+    const userId = decryptState(state);
+    
+    // Exchange code for access token
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/linkedin/callback`;
+    const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
+      params: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: process.env.LINKEDIN_CLIENT_ID,
+        client_secret: process.env.LINKEDIN_CLIENT_SECRET,
+        redirect_uri: redirectUri
+      },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    
+    const { access_token, expires_in } = tokenResponse.data;
+    
+    // Get user profile
+    const profileResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
+      headers: {
+        'Authorization': `Bearer ${access_token}`
+      }
+    });
+    
+    const profile = profileResponse.data;
+    const expiresAt = new Date(Date.now() + (expires_in * 1000));
+    
+    // Store in database using supabaseAdmin (bypasses RLS)
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
+    
+    await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'linkedin',
+        platform_name: 'LinkedIn',
+        oauth_provider: 'linkedin',
+        access_token: access_token,
+        token_expires_at: expiresAt.toISOString(),
+        platform_user_id: profile.sub,
+        platform_username: profile.name || profile.email,
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      });
+    
+    console.log(`✅ LinkedIn account connected for user ${userId}`);
+    res.redirect('/dashboard?connected=linkedin&success=true');
   } catch (error) {
-    console.error('Error in LinkedIn callback:', error);
+    console.error('Error in LinkedIn callback:', error.message);
     res.redirect('/dashboard?error=linkedin_failed');
   }
 });
 
 /**
- * GET /auth/twitter/connect
- * Initiate Twitter OAuth flow
- * Note: This is accessed via browser navigation, not AJAX, so no Bearer token
+ * POST /api/auth/twitter/url
+ * Generate Twitter OAuth URL with PKCE (authenticated endpoint)
  */
-app.get('/auth/twitter/connect', async (req, res) => {
+app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
   try {
-    // TODO: Get user ID from session/cookie instead of Bearer token
-    // For now, show configuration message
-    
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Twitter OAuth</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-      </head>
-      <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-8">
-        <div class="max-w-2xl bg-gray-800 p-8 rounded-lg">
-          <h1 class="text-3xl font-bold mb-4">🐦 Twitter OAuth Coming Soon!</h1>
-          <p class="text-gray-300 mb-4">
-            Twitter OAuth requires additional setup:
-          </p>
-          <ol class="list-decimal list-inside space-y-2 text-gray-300 mb-6">
-            <li>Create Twitter OAuth app at <a href="https://developer.twitter.com" class="text-blue-400 hover:underline" target="_blank">Twitter Developers</a></li>
-            <li>Add API keys to .env</li>
-            <li>Configure callback URL</li>
-          </ol>
-          <div class="bg-yellow-900 border border-yellow-600 p-4 rounded mb-6">
-            <p class="text-yellow-200 font-bold mb-2">✅ For Testing:</p>
-            <p class="text-yellow-100 text-sm">
-              I'll add test credentials to your account. Run this SQL in Supabase:
-            </p>
-          </div>
-          <pre class="bg-gray-900 p-4 rounded text-xs text-green-400 mb-6 overflow-x-auto">
-INSERT INTO user_accounts (user_id, platform, platform_name, oauth_provider, access_token, refresh_token, platform_user_id, platform_username, status)
-VALUES 
-  ((SELECT id FROM auth.users WHERE email = 'ajaykumarreddynelavetla@gmail.com'), 
-   'linkedin', 'LinkedIn', 'manual', 'test_linkedin_token', NULL, 
-   'ajay_linkedin', 'Ajay Kumar Reddy', 'active'),
-  ((SELECT id FROM auth.users WHERE email = 'ajaykumarreddynelavetla@gmail.com'), 
-   'twitter', 'Twitter/X', 'manual', 'test_twitter_token', 'test_twitter_secret', 
-   'ajay_twitter', 'Ajay Kumar', 'active')
-ON CONFLICT (user_id, platform, platform_user_id) DO NOTHING;
-          </pre>
-          <a href="/dashboard" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold inline-block">
-            ← Back to Dashboard
-          </a>
-        </div>
-      </body>
-      </html>
-    `);
-    return;
-    
     const userId = req.user.id;
-    const callbackUrl = `${req.protocol}://${req.get('host')}/auth/twitter/callback`;
+    const clientId = process.env.TWITTER_CLIENT_ID;
     
-    const result = await initiateTwitterOAuth(userId, callbackUrl);
+    if (!clientId) {
+      return res.status(500).json({
+        success: false,
+        error: 'Twitter OAuth not configured'
+      });
+    }
     
-    // Store token secret in session (simplified for MVP)
-    // In production, use Redis or encrypted session storage
-    req.session = req.session || {};
-    req.session.twitter_oauth_token_secret = result.oauthTokenSecret;
-    req.session.twitter_user_id = userId;
+    // Generate PKCE code_verifier and code_challenge
+    const codeVerifier = crypto.randomBytes(32).toString('base64url');
+    const codeChallenge = crypto
+      .createHash('sha256')
+      .update(codeVerifier)
+      .digest('base64url');
     
-    res.redirect(result.authUrl);
+    const state = encryptState(userId);
+    
+    // Store code_verifier temporarily (expires in 10 minutes)
+    pkceStore.set(state, { codeVerifier, userId, timestamp: Date.now() });
+    setTimeout(() => pkceStore.delete(state), 10 * 60 * 1000);
+    
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
+    const scope = 'tweet.read tweet.write users.read offline.access';
+    
+    const authUrl = new URL('https://twitter.com/i/oauth2/authorize');
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('client_id', clientId);
+    authUrl.searchParams.append('redirect_uri', redirectUri);
+    authUrl.searchParams.append('scope', scope);
+    authUrl.searchParams.append('state', state);
+    authUrl.searchParams.append('code_challenge', codeChallenge);
+    authUrl.searchParams.append('code_challenge_method', 'S256');
+    
+    res.json({
+      success: true,
+      oauthUrl: authUrl.toString()
+    });
   } catch (error) {
-    console.error('Error initiating Twitter OAuth:', error);
-    res.status(500).send('Error connecting to Twitter');
+    console.error('Error generating Twitter OAuth URL:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate OAuth URL'
+    });
   }
 });
 
@@ -1105,26 +1125,82 @@ ON CONFLICT (user_id, platform, platform_user_id) DO NOTHING;
  */
 app.get('/auth/twitter/callback', async (req, res) => {
   try {
-    const { oauth_token, oauth_verifier } = req.query;
+    const { code, state, error } = req.query;
     
-    // Get stored token secret and user ID from session
-    // This is simplified - in production use proper session management
-    const tokenSecret = req.session?.twitter_oauth_token_secret;
-    const userId = req.session?.twitter_user_id;
-    
-    if (!tokenSecret || !userId) {
-      throw new Error('Session expired or invalid');
+    if (error) {
+      console.error('Twitter OAuth error:', error);
+      return res.redirect('/dashboard?error=twitter_denied');
     }
     
-    const result = await handleTwitterCallback(oauth_token, oauth_verifier, userId, tokenSecret);
+    if (!code || !state) {
+      return res.redirect('/dashboard?error=twitter_missing_params');
+    }
     
-    // Clear session data
-    delete req.session.twitter_oauth_token_secret;
-    delete req.session.twitter_user_id;
+    // Get stored code_verifier
+    const pkceData = pkceStore.get(state);
+    if (!pkceData) {
+      return res.redirect('/dashboard?error=twitter_expired');
+    }
     
-    res.redirect('/dashboard?twitter=connected');
+    const { codeVerifier, userId } = pkceData;
+    pkceStore.delete(state); // Clean up
+    
+    // Exchange code for access token
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
+    const tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token', 
+      new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        client_id: process.env.TWITTER_CLIENT_ID,
+        redirect_uri: redirectUri,
+        code_verifier: codeVerifier
+      }), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
+      }
+    });
+    
+    const { access_token, refresh_token, expires_in } = tokenResponse.data;
+    
+    // Get user profile
+    const profileResponse = await axios.get('https://api.twitter.com/2/users/me', {
+      headers: {
+        'Authorization': `Bearer ${access_token}`
+      }
+    });
+    
+    const profile = profileResponse.data.data;
+    const expiresAt = expires_in ? new Date(Date.now() + (expires_in * 1000)) : null;
+    
+    // Store in database using supabaseAdmin
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
+    
+    await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'twitter',
+        platform_name: 'Twitter/X',
+        oauth_provider: 'twitter',
+        access_token: access_token,
+        refresh_token: refresh_token,
+        token_expires_at: expiresAt?.toISOString(),
+        platform_user_id: profile.id,
+        platform_username: profile.username,
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      });
+    
+    console.log(`✅ Twitter account connected for user ${userId}`);
+    res.redirect('/dashboard?connected=twitter&success=true');
   } catch (error) {
-    console.error('Error in Twitter callback:', error);
+    console.error('Error in Twitter callback:', error.message);
     res.redirect('/dashboard?error=twitter_failed');
   }
 });

@@ -1754,20 +1754,64 @@
     }
 
     // Connect LinkedIn
-    function connectLinkedIn() {
-      if (authToken) {
-        window.location.href = `${API_URL}/auth/linkedin/connect`;
-      } else {
-        alert('Please log in first');
+    async function connectLinkedIn() {
+      try {
+        if (!authToken) {
+          alert('Please log in first');
+          return;
+        }
+        
+        showNotification('⏳ Redirecting to LinkedIn...', 'info');
+        
+        const response = await fetch(`${API_URL}/api/auth/linkedin/url`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.oauthUrl) {
+          window.location.href = data.oauthUrl;
+        } else {
+          showNotification('❌ Failed to connect LinkedIn', 'error');
+        }
+      } catch (error) {
+        console.error('LinkedIn connection error:', error);
+        showNotification('❌ Failed to connect LinkedIn account', 'error');
       }
     }
 
     // Connect Twitter
-    function connectTwitter() {
-      if (authToken) {
-        window.location.href = `${API_URL}/auth/twitter/connect`;
-      } else {
-        alert('Please log in first');
+    async function connectTwitter() {
+      try {
+        if (!authToken) {
+          alert('Please log in first');
+          return;
+        }
+        
+        showNotification('⏳ Redirecting to Twitter...', 'info');
+        
+        const response = await fetch(`${API_URL}/api/auth/twitter/url`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.oauthUrl) {
+          window.location.href = data.oauthUrl;
+        } else {
+          showNotification('❌ Failed to connect Twitter', 'error');
+        }
+      } catch (error) {
+        console.error('Twitter connection error:', error);
+        showNotification('❌ Failed to connect Twitter account', 'error');
       }
     }
 
@@ -1811,24 +1855,17 @@
 
     // Check for OAuth callback success messages
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('linkedin') === 'connected') {
-      alert('✅ LinkedIn account connected successfully!');
+    if (urlParams.get('connected')) {
+      const platform = urlParams.get('connected');
+      showNotification(`✅ ${platform.charAt(0).toUpperCase() + platform.slice(1)} connected successfully!`, 'success');
       loadConnectedAccounts();
       // Clean URL
-      window.history.replaceState({}, document.title, '/dashboard');
+      window.history.replaceState({}, '', '/dashboard');
     }
-    if (urlParams.get('twitter') === 'connected') {
-      alert('✅ Twitter account connected successfully!');
-      loadConnectedAccounts();
-      window.history.replaceState({}, document.title, '/dashboard');
-    }
-    if (urlParams.get('error') === 'linkedin_failed') {
-      alert('❌ Failed to connect LinkedIn account. Please try again.');
-      window.history.replaceState({}, document.title, '/dashboard');
-    }
-    if (urlParams.get('error') === 'twitter_failed') {
-      alert('❌ Failed to connect Twitter account. Please try again.');
-      window.history.replaceState({}, document.title, '/dashboard');
+    if (urlParams.get('error')) {
+      const error = urlParams.get('error');
+      showNotification(`❌ Connection failed: ${error}`, 'error');
+      window.history.replaceState({}, '', '/dashboard');
     }
     if (urlParams.get('checkout') === 'success') {
       alert('🎉 Payment successful! Your subscription is now active.');

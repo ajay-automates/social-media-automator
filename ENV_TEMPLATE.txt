@@ -20,16 +20,19 @@ SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY_HERE
 # SOCIAL MEDIA API CREDENTIALS
 # ====================================================================================
 
-# LinkedIn OAuth
+# LinkedIn OAuth 2.0
 LINKEDIN_CLIENT_ID=your_linkedin_client_id
 LINKEDIN_CLIENT_SECRET=your_linkedin_client_secret
-LINKEDIN_ACCESS_TOKEN=your_linkedin_access_token
 
-# Twitter OAuth 1.0a
-TWITTER_CONSUMER_KEY=your_twitter_consumer_key
-TWITTER_CONSUMER_SECRET=your_twitter_consumer_secret
-TWITTER_ACCESS_TOKEN=your_twitter_access_token
-TWITTER_ACCESS_SECRET=your_twitter_access_secret
+# Twitter OAuth 2.0
+TWITTER_CLIENT_ID=your_twitter_client_id
+TWITTER_CLIENT_SECRET=your_twitter_client_secret
+
+# OAuth State Encryption Secret (generate once, keep secure)
+OAUTH_STATE_SECRET=81e83078e15ae349e50e28f617cb34acca527d9d4152a6da1dfe0fc98117a4bd
+
+# Production App URL
+APP_URL=https://capable-motivation-production-7a75.up.railway.app
 
 # Instagram (via Facebook Graph API)
 INSTAGRAM_ACCESS_TOKEN=your_instagram_access_token
