@@ -462,11 +462,12 @@ function initiateInstagramOAuth(userId) {
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
   
-  // Facebook Login with minimal scopes (only public_profile works without app review)
-  const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
+  // Instagram Basic Display API - only works with Basic Display App ID
+  // This is read-only, cannot post to Instagram
+  const authUrl = new URL('https://api.instagram.com/oauth/authorize');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'public_profile');
+  authUrl.searchParams.append('scope', 'user_profile,user_media');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
