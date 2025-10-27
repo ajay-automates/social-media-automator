@@ -624,11 +624,12 @@ function initiateFacebookOAuth(userId) {
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
   
-  // Facebook OAuth with pages permissions
+  // Facebook OAuth - request minimal permissions first
+  // pages_show_list is the only Pages permission available without app review
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'pages_manage_posts,pages_read_engagement,pages_show_list');
+  authUrl.searchParams.append('scope', 'pages_show_list'); // Minimal permission that works
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
