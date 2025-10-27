@@ -22,10 +22,21 @@ async function generateImage(prompt, style = 'photorealistic') {
   
   console.log(`🎨 Generating image: "${prompt}" (style: ${style})`);
   
-  // Try Hugging Face first (Free)
+  // PROVIDER 0: Pollinations.ai (UNLIMITED FREE) ⚡ PRIMARY
+  try {
+    console.log('🎨 Trying Pollinations.ai (free & unlimited)...');
+    const result = generateWithPollinations(enhancedPrompt);
+    console.log('✅ Pollinations.ai succeeded! Cost: $0');
+    return { ...result, success: true };
+  } catch (error) {
+    console.error('❌ Pollinations.ai failed:', error.message);
+    errors.push(`Pollinations.ai: ${error.message}`);
+  }
+  
+  // Try Hugging Face (Secondary)
   if (HUGGINGFACE_TOKEN) {
     try {
-      console.log('🎨 Trying Hugging Face (Free, FLUX.1-schnell)...');
+      console.log('🎨 Trying Hugging Face (secondary)...');
       const result = await generateWithHuggingFace(enhancedPrompt);
       console.log('✅ Hugging Face succeeded! Cost: $0');
       return { ...result, success: true };
@@ -37,10 +48,10 @@ async function generateImage(prompt, style = 'photorealistic') {
     errors.push('Hugging Face: Token not configured');
   }
   
-  // Try Replicate second ($5 credits)
+  // Try Replicate (Tertiary - $0.003 per image)
   if (REPLICATE_API_TOKEN) {
     try {
-      console.log('🎨 Trying Replicate ($0.003 per image)...');
+      console.log('🎨 Trying Replicate (tertiary - $0.003 per image)...');
       const result = await generateWithReplicate(enhancedPrompt);
       console.log('✅ Replicate succeeded! Cost: $0.003');
       return { ...result, success: true };
@@ -52,10 +63,10 @@ async function generateImage(prompt, style = 'photorealistic') {
     errors.push('Replicate: Token not configured');
   }
   
-  // Try Stability AI last (backup)
+  // Try Stability AI (Final backup)
   if (STABILITY_API_KEY) {
     try {
-      console.log('🎨 Trying Stability AI ($0.04 per image)...');
+      console.log('🎨 Trying Stability AI (final backup - $0.04 per image)...');
       const result = await generateWithStabilityAI(enhancedPrompt);
       console.log('✅ Stability AI succeeded! Cost: $0.04');
       return { ...result, success: true };
@@ -78,7 +89,19 @@ async function generateImage(prompt, style = 'photorealistic') {
 }
 
 /**
- * Generate with Hugging Face (Primary - FREE)
+ * Generate with Pollinations.ai (PRIMARY - UNLIMITED FREE)
+ */
+function generateWithPollinations(prompt) {
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&enhance=true`;
+  return {
+    imageUrl,
+    provider: 'Pollinations.ai',
+    cost: 0
+  };
+}
+
+/**
+ * Generate with Hugging Face (Secondary - FREE)
  */
 async function generateWithHuggingFace(prompt) {
   try {
