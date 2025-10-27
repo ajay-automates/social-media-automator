@@ -189,12 +189,9 @@ try {
     const indexHtmlPath = path.join(dashboardPath, 'index.html');
     
     if (fs.existsSync(indexHtmlPath)) {
-      // Serve static assets for React dashboard
+      // Serve static assets for React dashboard at root level
       app.use('/assets', express.static(path.join(dashboardPath, 'assets')));
       app.use('/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
-      // Also serve under /dashboard for backward compatibility
-      app.use('/dashboard/assets', express.static(path.join(dashboardPath, 'assets')));
-      app.use('/dashboard/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
       console.log('✅ React Dashboard static assets configured');
       console.log('📁 Dashboard path:', dashboardPath);
     } else {
