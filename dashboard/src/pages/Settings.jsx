@@ -78,12 +78,13 @@ export default function Settings() {
     }
   };
 
-  const disconnectAccount = async (accountId) => {
+  const disconnectAccount = async (account) => {
     try {
-      await api.delete(`/accounts/${accountId}`);
+      await api.delete(`/user/accounts/${account.platform}`);
       showSuccess('Account disconnected');
       loadAccounts();
     } catch (err) {
+      console.error('Disconnect error:', err);
       showError('Failed to disconnect account');
     }
   };
@@ -161,9 +162,9 @@ export default function Settings() {
                     <div className="text-sm text-gray-600">{account?.username || account?.email || 'Connected'}</div>
                   </div>
                 </div>
-                {account?.id && (
+                {account?.platform && (
                   <button
-                    onClick={() => disconnectAccount(account.id)}
+                    onClick={() => disconnectAccount(account)}
                     className="text-red-600 hover:text-red-700 font-medium transition"
                   >
                     Disconnect
