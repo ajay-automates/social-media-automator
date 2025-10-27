@@ -1562,7 +1562,7 @@ app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
 
 /**
  * DELETE /api/user/accounts/:platform
- * Disconnect a social media account
+ * Disconnect a social media account (all accounts for the platform)
  */
 app.delete('/api/user/accounts/:platform', verifyAuth, async (req, res) => {
   try {

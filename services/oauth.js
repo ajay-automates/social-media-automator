@@ -445,39 +445,15 @@ async function getUserCredentialsForPosting(userId) {
           type: 'person'
         });
       } else if (account.platform === 'twitter') {
-        // Twitter OAuth: Always prefer OAuth 1.0a if API keys available (media uploads require it)
+        // Twitter: Use OAuth 2.0 credentials from database (multi-tenant safe)
+        // Each user's Twitter account has its own access token from the database
         console.log('🔐 Loading Twitter credentials for user');
+        console.log('   Using OAuth 2.0 from database');
         
-        const hasApiKey = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET;
-        const hasEnvTokens = process.env.TWITTER_ACCESS_TOKEN && process.env.TWITTER_ACCESS_SECRET;
-        
-        if (hasApiKey && hasEnvTokens) {
-          // Prefer OAuth 1.0a: Use ALL credentials from env vars
-          // This is needed for Twitter v1.1 media upload API
-          credentials.twitter.push({
-            apiKey: process.env.TWITTER_API_KEY,
-            apiSecret: process.env.TWITTER_API_SECRET,
-            accessToken: process.env.TWITTER_ACCESS_TOKEN,
-            accessSecret: process.env.TWITTER_ACCESS_SECRET
-          });
-          console.log('   Using OAuth 1.0a from env vars (required for media uploads)');
-        } else if (hasApiKey) {
-          // Have API keys but missing tokens - try with database tokens
-          credentials.twitter.push({
-            apiKey: process.env.TWITTER_API_KEY,
-            apiSecret: process.env.TWITTER_API_SECRET,
-            accessToken: account.access_token,
-            accessSecret: account.refresh_token
-          });
-          console.log('   Using OAuth 1.0a with env API keys and database tokens');
-        } else {
-          // Fallback to OAuth 2.0 (text-only posts)
-          credentials.twitter.push({
-            bearerToken: account.access_token,
-            accessToken: account.access_token
-          });
-          console.log('   Using OAuth 2.0 (text posts only, no media)');
-        }
+        credentials.twitter.push({
+          bearerToken: account.access_token,
+          accessToken: account.access_token
+        });
       } else if (account.platform === 'instagram') {
         credentials.instagram.push({
           accessToken: account.access_token,
