@@ -81,30 +81,33 @@ async function generateImage(prompt, style = 'photorealistic') {
  * Generate with Hugging Face (Primary - FREE)
  */
 async function generateWithHuggingFace(prompt) {
-  const response = await axios.post(
-    'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
-    {
-      inputs: prompt,
-      parameters: { width: 1024, height: 1024 }
-    },
-    {
-      headers: {
-        'Authorization': `Bearer ${HUGGINGFACE_TOKEN}`,
-        'Content-Type': 'application/json'
+  try {
+    const response = await axios.post(
+      'https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5',
+      {
+        inputs: prompt
       },
-      responseType: 'arraybuffer',
-      timeout: 90000 // 90 seconds
-    }
-  );
-  
-  // Convert to base64
-  const base64Image = Buffer.from(response.data, 'binary').toString('base64');
-  
-  return {
-    imageUrl: `data:image/png;base64,${base64Image}`,
-    provider: 'Hugging Face',
-    cost: 0
-  };
+      {
+        headers: {
+          'Authorization': `Bearer ${HUGGINGFACE_TOKEN}`
+        },
+        responseType: 'arraybuffer',
+        timeout: 90000 // 90 seconds
+      }
+    );
+    
+    // Convert to base64
+    const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+    
+    return {
+      imageUrl: `data:image/png;base64,${base64Image}`,
+      provider: 'Hugging Face',
+      cost: 0
+    };
+  } catch (error) {
+    console.log('HF Error details:', error.response?.status, error.response?.data);
+    throw error;
+  }
 }
 
 /**
