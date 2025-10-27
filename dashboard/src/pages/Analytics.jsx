@@ -4,6 +4,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, L
 import api from '../lib/api';
 import { showError } from '../components/ui/Toast';
 import { NoAnalyticsEmpty } from '../components/ui/EmptyState';
+import { AnalyticsSkeleton } from '../components/ui/LoadingStates';
 
 export default function Analytics() {
   const [analytics, setAnalytics] = useState(null);
@@ -18,10 +19,30 @@ export default function Analytics() {
   const loadAnalytics = async () => {
     try {
       const response = await api.get('/analytics/overview');
-      setAnalytics(response.data);
+      console.log('📊 Analytics API response:', response.data);
+      
+      // API returns { success: true, totalPosts: X, postsToday: X, ... }
+      // or just the data directly
+      let analyticsData = response.data;
+      
+      // Extract data if wrapped in success object
+      if (analyticsData.success && analyticsData.totalPosts !== undefined) {
+        // Data is already in response.data
+        analyticsData = analyticsData;
+      } else if (analyticsData.success) {
+        // Data might be nested, extract it
+        const { success, ...data } = analyticsData;
+        analyticsData = data;
+      }
+      
+      console.log('📊 Analytics data being set:', analyticsData);
+      console.log('📊 totalPosts:', analyticsData.totalPosts);
+      console.log('📊 postsToday:', analyticsData.postsToday);
+      
+      setAnalytics(analyticsData);
     } catch (err) {
       console.error('Error loading analytics:', err);
-      // Show empty state for now
+      setAnalytics(null);
     } finally {
       setLoading(false);
     }
@@ -30,28 +51,42 @@ export default function Analytics() {
   const loadHistory = async () => {
     try {
       const response = await api.get('/history');
-      setHistory(response.data || []);
+      console.log('📋 History API response:', response.data);
+      // The API returns { success: true, history: [...], count: N }
+      const historyData = response.data?.history || response.data || [];
+      setHistory(Array.isArray(historyData) ? historyData : []);
     } catch (err) {
       console.error('Error loading history:', err);
+      setHistory([]);
     }
   };
 
   if (loading) {
     return (
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Analytics</h1>
+        <AnalyticsSkeleton />
+      </div>
+    );
+  }
+
+  if (!analytics) {
+    return (
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         className="w-full px-4 sm:px-6 lg:px-8 py-8"
       >
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading analytics...</p>
-        </div>
+        <h1 className="text-4xl font-bold mb-4">Analytics</h1>
+        <NoAnalyticsEmpty />
       </motion.div>
     );
   }
 
-  if (!analytics || analytics.totalPosts === 0) {
+  // Show data even with 0 posts to debug
+  const hasData = analytics && (analytics.totalPosts > 0 || analytics.postsToday > 0);
+  
+  if (!hasData) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}

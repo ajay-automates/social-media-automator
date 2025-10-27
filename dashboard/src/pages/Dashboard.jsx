@@ -1,7 +1,104 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import api from '../lib/api';
+import { DashboardSkeleton } from '../components/ui/LoadingStates';
+import { NoPostsEmpty } from '../components/ui/EmptyState';
+import { showError } from '../components/ui/Toast';
+import { staggerContainer } from '../utils/animations';
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  // Refresh when user returns to dashboard
+  useEffect(() => {
+    const handleFocus = () => {
+      loadDashboardData();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setError(null);
+      // Fetch analytics overview which contains the stats we need
+      const [analyticsResponse, historyResponse] = await Promise.all([
+        api.get('/analytics/overview').catch(() => null),
+        api.get('/history?limit=10').catch(() => null),
+      ]);
+
+      if (analyticsResponse?.data) {
+        const analytics = analyticsResponse.data;
+        setStats({
+          postsToday: analytics.postsToday || 0,
+          totalPosts: analytics.totalPosts || 0,
+          successRate: analytics.successRate || 0,
+          scheduledCount: analytics.scheduledCount || 0,
+          activePlatforms: analytics.activePlatforms || 0,
+          recentPosts: historyResponse?.data?.history || []
+        });
+      } else {
+        // If API fails, show default empty stats
+        setStats({
+          postsToday: 0,
+          totalPosts: 0,
+          successRate: 0,
+          scheduledCount: 0,
+          activePlatforms: 0,
+          recentPosts: []
+        });
+      }
+    } catch (err) {
+      console.error('Error loading dashboard:', err);
+      setError(err.message);
+      showError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreatePost = () => {
+    navigate('/create');
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Dashboard</h1>
+        <DashboardSkeleton />
+      </div>
+    );
+  }
+
+  if (error && !stats) {
+    return (
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div className="text-red-500 text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Failed to Load Dashboard</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={loadDashboardData}
+            className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const hasNoActivity = stats.totalPosts === 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -14,12 +111,17 @@ export default function Dashboard() {
       </div>
       
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <motion.div
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+      >
         <motion.div 
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">12</div>
+          <div className="text-3xl font-bold">{stats?.postsToday || 0}</div>
           <div className="text-blue-100 mt-1">Posts Today</div>
         </motion.div>
         
@@ -27,7 +129,7 @@ export default function Dashboard() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">3</div>
+          <div className="text-3xl font-bold">{stats?.activePlatforms || 0}</div>
           <div className="text-green-100 mt-1">Platforms</div>
         </motion.div>
         
@@ -35,7 +137,7 @@ export default function Dashboard() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">98%</div>
+          <div className="text-3xl font-bold">{stats?.successRate || 0}%</div>
           <div className="text-purple-100 mt-1">Success Rate</div>
         </motion.div>
         
@@ -43,10 +145,16 @@ export default function Dashboard() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">5</div>
+          <div className="text-3xl font-bold">{stats?.scheduledCount || 0}</div>
           <div className="text-orange-100 mt-1">Scheduled</div>
         </motion.div>
-      </div>
+      </motion.div>
+
+      {hasNoActivity && (
+        <div className="mb-8">
+          <NoPostsEmpty onCreate={handleCreatePost} />
+        </div>
+      )}
       
       {/* Quick Actions */}
       <div className="mb-8">

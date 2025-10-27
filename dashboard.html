@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 </head>
 <body class="bg-gray-900 text-white">
   <div class="max-w-6xl mx-auto p-8">
@@ -554,9 +555,117 @@
 
     <!-- Queue -->
     <div class="bg-gray-800 p-6 rounded-lg">
-      <h2 class="text-2xl font-bold mb-4">📋 Scheduled Posts</h2>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">📋 Scheduled Posts</h2>
+        <button 
+          onclick="showAnalyticsSection()" 
+          class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-bold transition text-sm"
+        >
+          📊 View Analytics
+        </button>
+      </div>
       <div id="queue" class="space-y-3">
         <p class="text-gray-400">No posts scheduled yet</p>
+      </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div id="analyticsSection" class="hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold">📊 Analytics Dashboard</h2>
+        <button 
+          onclick="hideAnalyticsSection()" 
+          class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg font-bold transition text-sm"
+        >
+          ← Back to Dashboard
+        </button>
+      </div>
+
+      <!-- Stats Cards Row -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6 rounded-lg shadow-lg">
+          <div class="text-3xl font-bold mb-2" id="statsTotalPosts">0</div>
+          <div class="text-blue-100 font-semibold">Total Posts</div>
+        </div>
+        <div class="bg-gradient-to-br from-green-600 to-green-700 p-6 rounded-lg shadow-lg">
+          <div class="text-3xl font-bold mb-2" id="statsMonthPosts">0</div>
+          <div class="text-green-100 font-semibold">This Month</div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-600 to-purple-700 p-6 rounded-lg shadow-lg">
+          <div class="text-3xl font-bold mb-2" id="statsSuccessRate">0%</div>
+          <div class="text-purple-100 font-semibold">Success Rate</div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-600 to-orange-700 p-6 rounded-lg shadow-lg">
+          <div class="text-3xl font-bold mb-2" id="statsActivePlatforms">0</div>
+          <div class="text-orange-100 font-semibold">Active Platforms</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Timeline Chart -->
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <h3 class="text-xl font-bold mb-4">📈 Posts Timeline (Last 30 Days)</h3>
+          <div id="timelineChartLoading" class="text-gray-400 text-center py-8">Loading chart...</div>
+          <canvas id="timelineChart" class="hidden"></canvas>
+          <div id="timelineChartEmpty" class="hidden text-gray-400 text-center py-8">
+            📊 No posts yet! Create your first post to see analytics.
+          </div>
+        </div>
+
+        <!-- Platform Distribution Chart -->
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <h3 class="text-xl font-bold mb-4">🥧 Platform Distribution</h3>
+          <div id="platformChartLoading" class="text-gray-400 text-center py-8">Loading chart...</div>
+          <canvas id="platformChart" class="hidden"></canvas>
+          <div id="platformChartEmpty" class="hidden text-gray-400 text-center py-8">
+            📊 No posts yet! Create your first post to see analytics.
+          </div>
+        </div>
+      </div>
+
+      <!-- Usage Metrics -->
+      <div class="bg-gray-800 p-6 rounded-lg mb-8">
+        <h3 class="text-xl font-bold mb-4">📊 Usage Metrics</h3>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="text-gray-300 font-semibold">Posts Used</span>
+              <span id="usagePostsText" class="text-gray-400">-</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-4">
+              <div id="usagePostsBar" class="bg-blue-600 h-4 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="text-gray-300 font-semibold">AI Generations</span>
+              <span id="usageAIText" class="text-gray-400">-</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-4">
+              <div id="usageAIBar" class="bg-purple-600 h-4 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="text-gray-300 font-semibold">Connected Accounts</span>
+              <span id="usageAccountsText" class="text-gray-400">-</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-4">
+              <div id="usageAccountsBar" class="bg-green-600 h-4 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity Feed -->
+      <div class="bg-gray-800 p-6 rounded-lg">
+        <h3 class="text-xl font-bold mb-4">📝 Recent Activity</h3>
+        <div id="recentActivityLoading" class="text-gray-400 text-center py-4">Loading activity...</div>
+        <div id="recentActivityFeed" class="space-y-3"></div>
+        <div id="recentActivityEmpty" class="hidden text-gray-400 text-center py-8">
+          📊 No recent posts. Create your first post to see activity.
+        </div>
       </div>
     </div>
   </div>
@@ -2313,6 +2422,326 @@
       document.getElementById('aiImagePrompt').dispatchEvent(new Event('input'));
       hideExamplePrompts();
       document.getElementById('aiImagePrompt').focus();
+    }
+
+    // ============================================
+    // ANALYTICS DASHBOARD
+    // ============================================
+    
+    let timelineChart = null;
+    let platformChart = null;
+
+    // Show analytics section
+    async function showAnalyticsSection() {
+      // Hide all sections except analytics
+      document.querySelectorAll('section, div').forEach(el => {
+        if (el.id && el.id !== 'analyticsSection') {
+          el.classList.add('hidden');
+        }
+      });
+      
+      // Show analytics section
+      document.getElementById('analyticsSection').classList.remove('hidden');
+      
+      // Load analytics data
+      await loadAnalytics();
+    }
+
+    // Hide analytics section
+    function hideAnalyticsSection() {
+      document.getElementById('analyticsSection').classList.add('hidden');
+      
+      // Show all main sections
+      location.reload(); // Simple approach: reload page
+    }
+
+    // Load all analytics data
+    async function loadAnalytics() {
+      try {
+        console.log('🔍 Loading analytics data...');
+        console.log('📡 API_URL:', API_URL);
+        console.log('🔑 authToken exists:', !!authToken);
+        
+        // Fetch overview stats
+        const overviewRes = await fetch(`${API_URL}/api/analytics/overview`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        console.log('📊 Overview response status:', overviewRes.status);
+        const overviewData = await overviewRes.json();
+        console.log('📊 Overview data:', overviewData);
+        
+        if (overviewData.success) {
+          updateStatsCards(overviewData);
+          
+          // Show empty state if no posts
+          if (overviewData.totalPosts === 0) {
+            console.log('📭 No posts found, showing empty state');
+            document.getElementById('timelineChartEmpty').classList.remove('hidden');
+            document.getElementById('timelineChartLoading').classList.add('hidden');
+            document.getElementById('platformChartEmpty').classList.remove('hidden');
+            document.getElementById('platformChartLoading').classList.add('hidden');
+            document.getElementById('recentActivityEmpty').classList.remove('hidden');
+            return;
+          }
+        }
+
+        // Fetch timeline data
+        const timelineRes = await fetch(`${API_URL}/api/analytics/timeline`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const timelineData = await timelineRes.json();
+        console.log('📈 Timeline data:', timelineData);
+        
+        if (timelineData.success) {
+          renderTimelineChart(timelineData);
+        }
+
+        // Fetch platform data
+        const platformsRes = await fetch(`${API_URL}/api/analytics/platforms`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const platformsData = await platformsRes.json();
+        console.log('🥧 Platforms data:', platformsData);
+        
+        if (platformsData.success) {
+          renderPlatformChart(platformsData.platforms || []);
+        }
+
+        // Fetch usage data (reuse existing endpoint)
+        await loadUsageData(); // Already implemented above
+
+        // Load recent activity
+        await loadRecentActivity();
+
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+      }
+    }
+
+    // Update stat cards
+    function updateStatsCards(data) {
+      document.getElementById('statsTotalPosts').textContent = data.totalPosts || 0;
+      document.getElementById('statsMonthPosts').textContent = data.postsThisMonth || 0;
+      document.getElementById('statsSuccessRate').textContent = `${data.successRate || 0}%`;
+      document.getElementById('statsActivePlatforms').textContent = data.activePlatforms || 0;
+    }
+
+    // Render timeline chart
+    function renderTimelineChart(data) {
+      const ctx = document.getElementById('timelineChart');
+      const loadingEl = document.getElementById('timelineChartLoading');
+      const emptyEl = document.getElementById('timelineChartEmpty');
+      
+      if (!data.dates || data.dates.length === 0) {
+        loadingEl.classList.add('hidden');
+        emptyEl.classList.remove('hidden');
+        ctx.classList.add('hidden');
+        return;
+      }
+
+      // Destroy existing chart if it exists
+      if (timelineChart) {
+        timelineChart.destroy();
+      }
+
+      ctx.classList.remove('hidden');
+      loadingEl.classList.add('hidden');
+      emptyEl.classList.add('hidden');
+
+      // Format dates for display (show last 7 days only on x-axis)
+      const displayDates = data.dates.map(date => {
+        const d = new Date(date);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+
+      timelineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: displayDates,
+          datasets: [
+            {
+              label: 'Successful',
+              data: data.successful,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Failed',
+              data: data.failed,
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              labels: { color: '#d1d5db' }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff'
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#9ca3af' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            },
+            y: {
+              ticks: { color: '#9ca3af' },
+              grid: { color: 'rgba(255, 255, 255, 0.1)' },
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    // Render platform distribution chart
+    function renderPlatformChart(platforms) {
+      const ctx = document.getElementById('platformChart');
+      const loadingEl = document.getElementById('platformChartLoading');
+      const emptyEl = document.getElementById('platformChartEmpty');
+      
+      if (!platforms || platforms.length === 0) {
+        loadingEl.classList.add('hidden');
+        emptyEl.classList.remove('hidden');
+        ctx.classList.add('hidden');
+        return;
+      }
+
+      // Destroy existing chart if it exists
+      if (platformChart) {
+        platformChart.destroy();
+      }
+
+      ctx.classList.remove('hidden');
+      loadingEl.classList.add('hidden');
+      emptyEl.classList.add('hidden');
+
+      // Platform colors
+      const platformColors = {
+        'linkedin': '#0A66C2',
+        'twitter': '#1DA1F2',
+        'instagram': '#E4405F',
+        'telegram': '#0088cc',
+        'pinterest': '#E60023',
+        'facebook': '#1877F2',
+        'youtube': '#FF0000',
+        'tiktok': '#000000'
+      };
+
+      const labels = platforms.map(p => p.platform);
+      const data = platforms.map(p => p.total);
+      const colors = platforms.map(p => platformColors[p.platform] || '#6b7280');
+
+      platformChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: colors,
+            borderColor: '#1a1a1a',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#d1d5db' }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.parsed;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} posts (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Load recent activity
+    async function loadRecentActivity() {
+      try {
+        const response = await fetch(`${API_URL}/api/history?limit=10`, {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const data = await response.json();
+        
+        const feedEl = document.getElementById('recentActivityFeed');
+        const loadingEl = document.getElementById('recentActivityLoading');
+        const emptyEl = document.getElementById('recentActivityEmpty');
+        
+        if (!data.success || !data.history || data.history.length === 0) {
+          loadingEl.classList.add('hidden');
+          emptyEl.classList.remove('hidden');
+          feedEl.innerHTML = '';
+          return;
+        }
+
+        const platformEmoji = {
+          'linkedin': '🔗',
+          'twitter': '🐦',
+          'instagram': '📸',
+          'telegram': '📱'
+        };
+
+        feedEl.innerHTML = data.history.slice(0, 10).map(post => {
+          const statusBadge = post.status === 'posted' ? 
+            '<span class="bg-green-600 px-2 py-1 rounded text-xs">✅ Posted</span>' :
+            post.status === 'failed' ? 
+            '<span class="bg-red-600 px-2 py-1 rounded text-xs">❌ Failed</span>' :
+            '<span class="bg-yellow-600 px-2 py-1 rounded text-xs">⏰ Queued</span>';
+          
+          const platformsList = post.platforms.map(p => 
+            `${platformEmoji[p] || '📱'} ${p.charAt(0).toUpperCase() + p.slice(1)}`
+          ).join(', ');
+          
+          const textPreview = post.text.length > 50 ? post.text.substring(0, 50) + '...' : post.text;
+          const timestamp = new Date(post.created_at).toLocaleString();
+          
+          return `
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <div class="flex justify-between items-start mb-2">
+                <div class="flex items-center gap-2">
+                  <span>${platformsList}</span>
+                  ${statusBadge}
+                </div>
+                <span class="text-xs text-gray-400">${timestamp}</span>
+              </div>
+              <p class="text-gray-300 text-sm">${textPreview}</p>
+            </div>
+          `;
+        }).join('');
+
+        loadingEl.classList.add('hidden');
+        emptyEl.classList.add('hidden');
+      } catch (error) {
+        console.error('Error loading recent activity:', error);
+        document.getElementById('recentActivityLoading').classList.add('hidden');
+      }
     }
   </script>
 </body>

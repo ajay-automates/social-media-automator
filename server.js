@@ -22,7 +22,9 @@ const {
   getPlatformStats,
   getAnalyticsOverview,
   getTimelineData,
-  healthCheck
+  healthCheck,
+  addPost,
+  updatePostStatus
 } = require('./services/database');
 
 const { generateCaption } = require('./services/ai');
@@ -346,8 +348,41 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     const allSuccess = Object.values(platformResults).every(r => r.success);
     const anySuccess = Object.values(platformResults).some(r => r.success);
     
-    // Increment usage count if at least one platform succeeded
+    // Save the post to database
     if (anySuccess) {
+      try {
+        // Determine final status
+        let status;
+        if (allSuccess) {
+          status = 'posted';
+        } else if (anySuccess && !allSuccess) {
+          status = 'partial';
+        } else {
+          status = 'failed';
+        }
+        
+        // Save post to database
+        const savedPost = await addPost({
+          text,
+          imageUrl: imageUrl || null,
+          platforms,
+          scheduleTime: new Date(), // For "post now", use current time
+          credentials,
+          userId
+        });
+        
+        // Update post status with results
+        if (savedPost && savedPost.id) {
+          await updatePostStatus(savedPost.id, status, platformResults);
+        }
+        
+        console.log(`✅ Post saved to database with status: ${status}`);
+      } catch (dbError) {
+        console.error('⚠️  Error saving post to database:', dbError);
+        // Don't fail the request if DB save fails
+      }
+      
+      // Increment usage count
       await incrementUsage(userId, 'posts');
     }
     
@@ -686,8 +721,9 @@ app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
  */
 app.get('/api/history', verifyAuth, async (req, res) => {
   try {
+    const userId = req.user.id;
     const limit = parseInt(req.query.limit) || 50;
-    const history = await getPostHistory(limit);
+    const history = await getPostHistory(limit, userId);
     
     res.json({ 
       success: true,

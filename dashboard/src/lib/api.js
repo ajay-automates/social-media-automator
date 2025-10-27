@@ -22,7 +22,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Redirect to login on auth failure
-      window.location.href = '/auth.html';
+      window.location.href = '/auth';
     }
     return Promise.reject(error);
   }

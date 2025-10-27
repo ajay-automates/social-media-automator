@@ -5,7 +5,7 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/dashboard/',
+  base: process.env.NODE_ENV === 'production' ? '/dashboard/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

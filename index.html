@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,22 +13,9 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-    }
-
-    .float-animation {
-      animation: float 3s ease-in-out infinite;
-    }
   </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-gray-950 text-white">
   <!-- Navigation -->
   <nav class="border-b border-gray-800 py-4">
     <div class="max-w-6xl mx-auto px-8 flex items-center justify-between">
@@ -39,8 +26,8 @@
       <div class="flex items-center gap-4">
         <a href="#features" class="text-gray-400 hover:text-white transition">Features</a>
         <a href="#pricing" class="text-gray-400 hover:text-white transition">Pricing</a>
-        <a href="/auth" class="text-gray-400 hover:text-white transition">Login</a>
-        <a href="/auth" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-bold transition">
+        <a href="/auth.html" class="text-gray-400 hover:text-white transition">Login</a>
+        <a href="/auth.html" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-bold transition">
           Start Free
         </a>
       </div>
@@ -48,41 +35,62 @@
   </nav>
 
   <!-- Hero Section -->
-  <section class="py-20">
-    <div class="max-w-6xl mx-auto px-8 text-center">
-      <h1 class="text-6xl font-bold mb-6">
-        Automate Your Social Media <br>
-        <span class="gradient-text">in Minutes, Not Hours</span>
-      </h1>
-      
-      <p class="text-xl text-gray-400 mb-8 max-w-3xl mx-auto">
-        Schedule posts across LinkedIn, Twitter & Instagram. Use AI to write captions. 
-        Manage everything from one powerful dashboard.
-      </p>
-      
-      <div class="flex gap-4 justify-center mb-12">
-        <a href="/auth" class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-lg font-bold text-lg transition">
-          Start Free - No Credit Card Required
-        </a>
-        <a href="#features" class="bg-gray-800 hover:bg-gray-700 px-8 py-4 rounded-lg font-bold text-lg transition">
-          See How It Works
-        </a>
-      </div>
-
-      <!-- Dashboard Screenshot Placeholder -->
-      <div class="bg-gray-800 rounded-lg p-4 shadow-2xl max-w-4xl mx-auto float-animation">
-        <div class="bg-gray-700 rounded-lg p-8 text-center">
-          <p class="text-gray-400 text-lg mb-2">📊 Beautiful Dashboard</p>
-          <p class="text-sm text-gray-500">Manage all your social media from one place</p>
-          <div class="mt-4 grid grid-cols-3 gap-4">
-            <div class="bg-blue-600 h-20 rounded-lg flex items-center justify-center">
-              <span class="text-2xl">🔗</span>
+  <section class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center py-20">
+    <div class="container mx-auto px-6 max-w-7xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <!-- Left Side: Headline + CTAs -->
+        <div>
+          <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+            Automate Your Social Media in Minutes
+          </h1>
+          
+          <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+            Post to 7+ platforms at once. Generate AI captions with Claude. Schedule weeks in advance. Save 10+ hours per week on social media.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <a href="/auth.html" class="bg-blue-600 hover:bg-blue-700 px-10 py-5 rounded-lg font-bold text-lg transition transform hover:scale-105 text-center">
+              Start Free Trial
+            </a>
+            <a href="#features" class="bg-gray-800 hover:bg-gray-700 px-10 py-5 rounded-lg font-bold text-lg transition text-center">
+              See Features
+            </a>
+          </div>
+          
+          <div class="flex flex-wrap gap-6 text-sm text-gray-400">
+            <div class="flex items-center gap-2">
+              <span>✓</span>
+              <span>No credit card required</span>
             </div>
-            <div class="bg-sky-500 h-20 rounded-lg flex items-center justify-center">
-              <span class="text-2xl">🐦</span>
+            <div class="flex items-center gap-2">
+              <span>✓</span>
+              <span>14-day free trial</span>
             </div>
-            <div class="bg-pink-600 h-20 rounded-lg flex items-center justify-center">
-              <span class="text-2xl">📸</span>
+            <div class="flex items-center gap-2">
+              <span>✓</span>
+              <span>Cancel anytime</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Side: Dashboard Preview -->
+        <div class="relative">
+          <div class="bg-gray-800 rounded-xl p-6 shadow-2xl border border-gray-700">
+            <div class="bg-gradient-to-br from-blue-900 to-purple-900 rounded-lg p-12 text-center">
+              <div class="text-4xl mb-4">📊</div>
+              <h3 class="text-2xl font-bold mb-2">Dashboard Preview</h3>
+              <p class="text-gray-300 mb-6">Centralized control for all your platforms</p>
+              <div class="grid grid-cols-3 gap-4">
+                <div class="bg-blue-600 bg-opacity-50 h-24 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                  <span class="text-3xl">🔗</span>
+                </div>
+                <div class="bg-cyan-600 bg-opacity-50 h-24 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                  <span class="text-3xl">🐦</span>
+                </div>
+                <div class="bg-pink-600 bg-opacity-50 h-24 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                  <span class="text-3xl">📸</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -91,372 +99,419 @@
   </section>
 
   <!-- Features Section -->
-  <section id="features" class="py-20 bg-gray-800/50">
-    <div class="max-w-6xl mx-auto px-8">
-      <h2 class="text-4xl font-bold text-center mb-4">Everything You Need to Scale Your Social</h2>
-      <p class="text-gray-400 text-center mb-12">Powerful features that save you hours every week</p>
+  <section id="features" class="py-20 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">Everything You Need to Scale</h2>
+        <p class="text-gray-400 text-xl">9 powerful features that save you 10+ hours per week</p>
+      </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         <!-- Feature 1 -->
-        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
-          <div class="text-4xl mb-4">🤖</div>
-          <h3 class="text-xl font-bold mb-2">AI-Powered Captions</h3>
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">🚀</div>
+          <h3 class="text-2xl font-bold mb-3">Multi-Platform Posting</h3>
           <p class="text-gray-400">
-            Generate engaging captions with Claude AI. Get 3 variations tailored to each platform's tone and style.
+            Post to 7+ platforms at once—LinkedIn, Twitter, Telegram, Pinterest, Facebook, YouTube, and TikTok. Grow your reach 7x faster.
           </p>
         </div>
 
         <!-- Feature 2 -->
-        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
-          <div class="text-4xl mb-4">📅</div>
-          <h3 class="text-xl font-bold mb-2">Smart Scheduling</h3>
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">🤖</div>
+          <h3 class="text-2xl font-bold mb-3">AI Caption Generator</h3>
           <p class="text-gray-400">
-            Schedule posts weeks in advance. Set it and forget it. Your content posts automatically at the perfect time.
+            Claude AI-powered captions tailored to each platform. Get 3 variations in seconds, no manual writing needed.
           </p>
         </div>
 
         <!-- Feature 3 -->
-        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
-          <div class="text-4xl mb-4">📊</div>
-          <h3 class="text-xl font-bold mb-2">CSV Bulk Upload</h3>
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">📅</div>
+          <h3 class="text-2xl font-bold mb-3">Smart Scheduling</h3>
           <p class="text-gray-400">
-            Upload hundreds of posts at once with CSV. Perfect for content batching and agency workflows.
+            Schedule weeks in advance with intelligent timing. Set it and forget it—automation handles the rest.
           </p>
         </div>
 
         <!-- Feature 4 -->
-        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
-          <div class="text-4xl mb-4">🔗</div>
-          <h3 class="text-xl font-bold mb-2">Multi-Platform Support</h3>
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">🎨</div>
+          <h3 class="text-2xl font-bold mb-3">AI Image Generation</h3>
           <p class="text-gray-400">
-            Post to LinkedIn, Twitter, and Instagram from one dashboard. Cross-post or customize for each platform.
+            Create stunning visuals with Stability AI. Generate custom images for every post without designers.
           </p>
         </div>
 
         <!-- Feature 5 -->
-        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
-          <div class="text-4xl mb-4">📈</div>
-          <h3 class="text-xl font-bold mb-2">Analytics & History</h3>
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">📊</div>
+          <h3 class="text-2xl font-bold mb-3">Analytics Dashboard</h3>
           <p class="text-gray-400">
-            Track every post with detailed history and success rates. Know what works and optimize your strategy.
+            Track performance with detailed analytics. Know what works and optimize your content strategy.
           </p>
         </div>
 
         <!-- Feature 6 -->
-        <div class="bg-gray-800 p-6 rounded-lg hover:transform hover:scale-105 transition">
-          <div class="text-4xl mb-4">👥</div>
-          <h3 class="text-xl font-bold mb-2">Multi-Account Management</h3>
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">📦</div>
+          <h3 class="text-2xl font-bold mb-3">Bulk CSV Upload</h3>
           <p class="text-gray-400">
-            Manage multiple brands or clients. Switch between accounts seamlessly. Perfect for agencies and creators.
+            Upload hundreds of posts at once with CSV. Perfect for agencies and content batching workflows.
           </p>
         </div>
+
+        <!-- Feature 7 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">🔐</div>
+          <h3 class="text-2xl font-bold mb-3">OAuth Integration</h3>
+          <p class="text-gray-400">
+            Secure account connections with industry-standard OAuth. Never share passwords—bank-level security.
+          </p>
+        </div>
+
+        <!-- Feature 8 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">⚡</div>
+          <h3 class="text-2xl font-bold mb-3">Auto-Posting</h3>
+          <p class="text-gray-400">
+            Cron-based automation posts on time, every time. 99% uptime guaranteed, never miss a scheduled post.
+          </p>
+        </div>
+
+        <!-- Feature 9 -->
+        <div class="bg-gray-800 p-6 rounded-lg hover:scale-105 hover:shadow-2xl transition-transform">
+          <div class="text-5xl mb-4">👥</div>
+          <h3 class="text-2xl font-bold mb-3">Multi-Tenant</h3>
+          <p class="text-gray-400">
+            Isolated user data for maximum security. Manage multiple brands, clients, or team members safely.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="py-20 bg-gray-800/50">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">How It Works</h2>
+        <p class="text-gray-400 text-xl">Get started in 3 simple steps</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto">
+        <!-- Step 1 -->
+        <div class="text-center">
+          <div class="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6">
+            1
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Connect Your Accounts</h3>
+          <p class="text-gray-400 text-lg">
+            OAuth in 30 seconds. Link LinkedIn, Twitter, Instagram, and more with secure authentication. No passwords needed.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="text-center">
+          <div class="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6">
+            2
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Create or Generate Content</h3>
+          <p class="text-gray-400 text-lg">
+            Write your own posts or use AI to generate captions. Upload images or create them with AI. Everything in one place.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="text-center">
+          <div class="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-6">
+            3
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Schedule & Post</h3>
+          <p class="text-gray-400 text-lg">
+            Automation handles the rest. Your posts go live at the perfect time across all platforms. Track everything in real-time.
+          </p>
+        </div>
+      </div>
+      
+      <div class="text-center mt-12">
+        <a href="/auth.html" class="bg-blue-600 hover:bg-blue-700 px-10 py-5 rounded-lg font-bold text-lg transition inline-block">
+          Start Free Trial →
+        </a>
       </div>
     </div>
   </section>
 
   <!-- Pricing Section -->
-  <section id="pricing" class="py-20">
-    <div class="max-w-6xl mx-auto px-8">
-      <h2 class="text-4xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
-      <p class="text-gray-400 text-center mb-12">Start free, upgrade when you need more</p>
+  <section id="pricing" class="py-20 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+        <p class="text-gray-400 text-xl">Choose the perfect plan for your needs</p>
+      </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         <!-- Free Plan -->
-        <div class="bg-gray-800 p-8 rounded-lg border-2 border-gray-700">
-          <h3 class="text-2xl font-bold mb-2">Free</h3>
-          <div class="text-4xl font-bold mb-6">$0<span class="text-lg text-gray-400">/month</span></div>
+        <div class="bg-gray-800 p-8 rounded-lg border-2 border-gray-700 flex flex-col">
+          <div class="mb-6">
+            <h3 class="text-2xl font-bold mb-2">Free</h3>
+            <div class="text-5xl font-bold mb-6">$0<span class="text-lg text-gray-400">/month</span></div>
+            <p class="text-gray-400">Great for getting started</p>
+          </div>
           
-          <ul class="space-y-3 mb-8">
+          <ul class="space-y-3 mb-8 flex-grow">
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-green-400 text-xl">✓</span>
               <span>10 posts per month</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-green-400 text-xl">✓</span>
               <span>1 social account</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
-              <span>LinkedIn or Twitter</span>
+              <span class="text-green-400 text-xl">✓</span>
+              <span>Basic features</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-red-400">✗</span>
-              <span class="text-gray-500">No AI captions</span>
+              <span class="text-red-400 text-xl">✗</span>
+              <span class="text-gray-500">No AI features</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-green-400 text-xl">✓</span>
               <span>Community support</span>
             </li>
           </ul>
           
-          <a href="/auth" class="block w-full text-center bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold transition">
+          <a href="/auth.html" class="block w-full text-center bg-gray-700 hover:bg-gray-600 py-4 rounded-lg font-bold transition">
             Get Started
           </a>
         </div>
 
         <!-- Pro Plan (Featured) -->
-        <div class="bg-gray-800 p-8 rounded-lg border-2 border-blue-500 relative transform scale-105">
-          <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 px-4 py-1 rounded-full text-sm font-bold">
+        <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-8 rounded-lg border-2 border-blue-400 relative transform scale-105 flex flex-col shadow-2xl">
+          <div class="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-gray-900 px-4 py-2 rounded-full text-sm font-bold shadow-lg">
             MOST POPULAR
           </div>
           
-          <h3 class="text-2xl font-bold mb-2">Pro</h3>
-          <div class="text-4xl font-bold mb-2">
-            $29<span class="text-lg text-gray-400">/month</span>
+          <div class="mb-6">
+            <h3 class="text-2xl font-bold mb-2">Pro</h3>
+            <div class="text-5xl font-bold mb-2">
+              $29<span class="text-lg opacity-80">/month</span>
+            </div>
+            <p class="text-sm opacity-90">or $290/year (save $58)</p>
           </div>
-          <p class="text-sm text-green-400 mb-6">or $290/year (save $58)</p>
           
-          <ul class="space-y-3 mb-8">
+          <ul class="space-y-3 mb-8 flex-grow">
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-xl">✓</span>
               <span><strong>Unlimited posts</strong></span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-xl">✓</span>
               <span>3 social accounts</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-xl">✓</span>
               <span>All platforms</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-xl">✓</span>
               <span><strong>100 AI generations/month</strong></span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
-              <span>Email support</span>
+              <span class="text-xl">✓</span>
+              <span>CSV bulk upload</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
-              <span>CSV bulk upload</span>
+              <span class="text-xl">✓</span>
+              <span>Email support</span>
             </li>
           </ul>
           
-          <a href="/auth" class="block w-full text-center bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition">
+          <a href="/auth.html" class="block w-full text-center bg-white text-blue-600 hover:bg-gray-100 py-4 rounded-lg font-bold transition">
             Start Free Trial
           </a>
         </div>
 
         <!-- Business Plan -->
-        <div class="bg-gray-800 p-8 rounded-lg border-2 border-gray-700">
-          <h3 class="text-2xl font-bold mb-2">Business</h3>
-          <div class="text-4xl font-bold mb-2">
-            $99<span class="text-lg text-gray-400">/month</span>
+        <div class="bg-gray-800 p-8 rounded-lg border-2 border-gray-700 flex flex-col">
+          <div class="mb-6">
+            <h3 class="text-2xl font-bold mb-2">Business</h3>
+            <div class="text-5xl font-bold mb-2">
+              $99<span class="text-lg text-gray-400">/month</span>
+            </div>
+            <p class="text-gray-400">or $990/year (save $198)</p>
           </div>
-          <p class="text-sm text-green-400 mb-6">or $990/year (save $198)</p>
           
-          <ul class="space-y-3 mb-8">
+          <ul class="space-y-3 mb-8 flex-grow">
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-green-400 text-xl">✓</span>
               <span><strong>Unlimited everything</strong></span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-green-400 text-xl">✓</span>
               <span>10 social accounts</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
-              <span>Priority support</span>
+              <span class="text-green-400 text-xl">✓</span>
+              <span>Unlimited AI features</span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
-              <span><strong>API access</strong></span>
+              <span class="text-green-400 text-xl">✓</span>
+              <span><strong>Priority support</strong></span>
             </li>
             <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
+              <span class="text-green-400 text-xl">✓</span>
+              <span>API access</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-green-400 text-xl">✓</span>
               <span>White-label option</span>
-            </li>
-            <li class="flex items-start gap-2">
-              <span class="text-green-400">✓</span>
-              <span>Remove branding</span>
             </li>
           </ul>
           
-          <a href="/auth" class="block w-full text-center gradient-bg hover:opacity-90 py-3 rounded-lg font-bold transition">
+          <a href="/auth.html" class="block w-full text-center bg-gray-700 hover:bg-gray-600 py-4 rounded-lg font-bold transition">
             Get Started
           </a>
         </div>
       </div>
 
-      <p class="text-center text-gray-400 mt-8">
-        All plans include 14-day free trial. No credit card required. Cancel anytime.
-      </p>
+      <div class="text-center mt-12">
+        <p class="text-gray-400 text-lg mb-4">
+          ✓ No credit card required • ✓ 14-day free trial • ✓ Cancel anytime
+        </p>
+      </div>
     </div>
   </section>
 
-  <!-- Social Proof -->
+  <!-- Social Proof Section -->
   <section class="py-20 bg-gray-800/50">
-    <div class="max-w-6xl mx-auto px-8 text-center">
-      <p class="text-gray-400 mb-8">Trusted by content creators and agencies worldwide</p>
-      
-      <div class="flex justify-center gap-12 mb-12">
-        <div class="text-center">
-          <div class="text-4xl font-bold gradient-text">100+</div>
-          <div class="text-gray-400">Active Users</div>
-        </div>
-        <div class="text-center">
-          <div class="text-4xl font-bold gradient-text">5,000+</div>
-          <div class="text-gray-400">Posts Scheduled</div>
-        </div>
-        <div class="text-center">
-          <div class="text-4xl font-bold gradient-text">95%</div>
-          <div class="text-gray-400">Success Rate</div>
-        </div>
+    <div class="container mx-auto px-6">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">Trusted by Creators Worldwide</h2>
+        <p class="text-gray-400 text-xl">Join hundreds of users saving 10+ hours per week</p>
       </div>
 
       <!-- Platform Logos -->
-      <div class="flex justify-center gap-8 mb-12">
-        <div class="bg-gray-800 px-6 py-3 rounded-lg">
-          <span class="text-2xl">🔗 LinkedIn</span>
+      <div class="flex flex-wrap justify-center gap-6 mb-16">
+        <div class="bg-gray-800 px-8 py-4 rounded-lg hover:scale-105 transition-transform">
+          <span class="text-lg font-semibold">🔗 LinkedIn</span>
         </div>
-        <div class="bg-gray-800 px-6 py-3 rounded-lg">
-          <span class="text-2xl">🐦 Twitter/X</span>
+        <div class="bg-gray-800 px-8 py-4 rounded-lg hover:scale-105 transition-transform">
+          <span class="text-lg font-semibold">🐦 Twitter/X</span>
         </div>
-        <div class="bg-gray-800 px-6 py-3 rounded-lg">
-          <span class="text-2xl">📸 Instagram</span>
+        <div class="bg-gray-800 px-8 py-4 rounded-lg hover:scale-105 transition-transform">
+          <span class="text-lg font-semibold">📸 Instagram</span>
         </div>
-      </div>
-
-      <!-- Testimonials -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="bg-gray-800 p-6 rounded-lg">
-          <div class="text-yellow-400 mb-2">★★★★★</div>
-          <p class="text-gray-300 mb-4">"This tool saved me 10 hours a week. The AI caption generator is incredible!"</p>
-          <p class="text-sm text-gray-500">- Sarah K., Content Creator</p>
+        <div class="bg-gray-800 px-8 py-4 rounded-lg hover:scale-105 transition-transform">
+          <span class="text-lg font-semibold">💬 Telegram</span>
         </div>
-        
-        <div class="bg-gray-800 p-6 rounded-lg">
-          <div class="text-yellow-400 mb-2">★★★★★</div>
-          <p class="text-gray-300 mb-4">"Managing 5 client accounts has never been easier. The CSV bulk upload is a lifesaver."</p>
-          <p class="text-sm text-gray-500">- Mike T., Agency Owner</p>
+        <div class="bg-gray-800 px-8 py-4 rounded-lg hover:scale-105 transition-transform">
+          <span class="text-lg font-semibold">📌 Pinterest</span>
         </div>
-        
-        <div class="bg-gray-800 p-6 rounded-lg">
-          <div class="text-yellow-400 mb-2">★★★★★</div>
-          <p class="text-gray-300 mb-4">"Simple, powerful, and affordable. Exactly what I needed for my personal brand."</p>
-          <p class="text-sm text-gray-500">- Jessica L., Entrepreneur</p>
+        <div class="bg-gray-800 px-8 py-4 rounded-lg hover:scale-105 transition-transform">
+          <span class="text-lg font-semibold">📘 Facebook</span>
+        </div>
+        <div class="bg-gray-800 px-8 py-4 rounded-lg hover:scale-105 transition-transform">
+          <span class="text-lg font-semibold">📺 YouTube</span>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- FAQ Section -->
-  <section class="py-20">
-    <div class="max-w-4xl mx-auto px-8">
-      <h2 class="text-4xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-      
-      <div class="space-y-4">
-        <details class="bg-gray-800 p-6 rounded-lg">
-          <summary class="font-bold cursor-pointer">How does OAuth work?</summary>
-          <p class="text-gray-400 mt-4">
-            You'll connect your social media accounts securely through OAuth. Just click "Connect LinkedIn" or "Connect Twitter", 
-            authorize the app, and you're done. We never see your passwords - it's the secure industry standard.
-          </p>
-        </details>
-
-        <details class="bg-gray-800 p-6 rounded-lg">
-          <summary class="font-bold cursor-pointer">What happens when I hit my limits?</summary>
-          <p class="text-gray-400 mt-4">
-            We use soft limits - you'll see a friendly reminder when you're close. We'll even let you post a few extra times 
-            before gently suggesting an upgrade. No hard blocks, no frustration.
-          </p>
-        </details>
-
-        <details class="bg-gray-800 p-6 rounded-lg">
-          <summary class="font-bold cursor-pointer">Can I cancel anytime?</summary>
-          <p class="text-gray-400 mt-4">
-            Absolutely! No contracts, no commitments. Cancel your subscription anytime from your billing dashboard. 
-            You'll still have access until the end of your billing period.
-          </p>
-        </details>
-
-        <details class="bg-gray-800 p-6 rounded-lg">
-          <summary class="font-bold cursor-pointer">Is my data secure?</summary>
-          <p class="text-gray-400 mt-4">
-            Yes! We use bank-level encryption for all data. OAuth tokens are stored securely, and we follow industry 
-            best practices for security. Your data is never shared with third parties.
-          </p>
-        </details>
-
-        <details class="bg-gray-800 p-6 rounded-lg">
-          <summary class="font-bold cursor-pointer">How does the AI caption generator work?</summary>
-          <p class="text-gray-400 mt-4">
-            We use Claude AI (Anthropic) to generate captions tailored to your niche and platform. Just enter your topic, 
-            select your niche, and get 3 unique variations instantly. Works for LinkedIn, Twitter, and Instagram.
-          </p>
-        </details>
-
-        <details class="bg-gray-800 p-6 rounded-lg">
-          <summary class="font-bold cursor-pointer">Can I manage multiple brands/clients?</summary>
-          <p class="text-gray-400 mt-4">
-            Yes! Pro plans support 3 accounts, Business plans support 10 accounts. Perfect for agencies, freelancers, 
-            or anyone managing multiple brands.
-          </p>
-        </details>
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div class="bg-gray-800 p-8 rounded-lg text-center">
+          <div class="text-5xl font-bold gradient-text mb-3">7+</div>
+          <div class="text-gray-400 text-lg">Platforms Supported</div>
+        </div>
+        <div class="bg-gray-800 p-8 rounded-lg text-center">
+          <div class="text-5xl font-bold gradient-text mb-3">10,000+</div>
+          <div class="text-gray-400 text-lg">Posts Published</div>
+        </div>
+        <div class="bg-gray-800 p-8 rounded-lg text-center">
+          <div class="text-5xl font-bold gradient-text mb-3">99%</div>
+          <div class="text-gray-400 text-lg">Uptime</div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
+  <!-- Final CTA Section -->
   <section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
-    <div class="max-w-4xl mx-auto px-8 text-center">
-      <h2 class="text-4xl font-bold mb-4">Ready to Automate Your Social Media?</h2>
-      <p class="text-xl mb-8">Join 100+ creators saving hours every week</p>
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-5xl font-bold mb-6">Ready to Automate Your Social Media?</h2>
+      <p class="text-2xl mb-10 text-white opacity-90">
+        Join hundreds of creators saving 10+ hours per week
+      </p>
       
-      <div class="flex gap-4 justify-center">
-        <a href="/auth" class="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition">
-          Start Free - No Credit Card Required
-        </a>
+      <a href="/auth.html" class="bg-white text-blue-600 hover:bg-gray-100 px-12 py-6 rounded-lg font-bold text-xl transition transform hover:scale-105 inline-block shadow-2xl mb-8">
+        Start Your Free Trial
+      </a>
+      
+      <div class="flex flex-wrap justify-center gap-8 text-white opacity-90">
+        <div class="flex items-center gap-2">
+          <span>✓</span>
+          <span>No credit card required</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>✓</span>
+          <span>14-day free trial</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span>✓</span>
+          <span>Cancel anytime</span>
+        </div>
       </div>
-      
-      <p class="text-sm mt-6 opacity-80">14-day free trial • Cancel anytime • No credit card required</p>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="border-t border-gray-800 py-12">
-    <div class="max-w-6xl mx-auto px-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+  <footer class="border-t border-gray-800 py-12 bg-gray-900">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <!-- Brand -->
         <div>
-          <h3 class="font-bold mb-4">🚀 Social Media Automator</h3>
-          <p class="text-gray-400 text-sm">
+          <h3 class="font-bold text-2xl mb-4 flex items-center gap-2">
+            <span>🚀</span>
+            <span>Social Media Automator</span>
+          </h3>
+          <p class="text-gray-400">
             Automate your social media posting across multiple platforms with AI-powered captions.
           </p>
         </div>
         
+        <!-- Product -->
         <div>
           <h4 class="font-bold mb-4">Product</h4>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="#features" class="hover:text-white">Features</a></li>
-            <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
-            <li><a href="/auth" class="hover:text-white">Sign Up</a></li>
-            <li><a href="/auth" class="hover:text-white">Login</a></li>
+          <ul class="space-y-3 text-gray-400">
+            <li><a href="#features" class="hover:text-white transition">Features</a></li>
+            <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+            <li><a href="/dashboard.html" class="hover:text-white transition">Dashboard</a></li>
+            <li><a href="/auth.html" class="hover:text-white transition">Sign Up</a></li>
           </ul>
         </div>
         
-        <div>
-          <h4 class="font-bold mb-4">Resources</h4>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="#" class="hover:text-white">Documentation</a></li>
-            <li><a href="https://github.com/ajay-automates/social-media-automator" target="_blank" class="hover:text-white">GitHub</a></li>
-            <li><a href="#" class="hover:text-white">API</a></li>
-            <li><a href="#" class="hover:text-white">Support</a></li>
-          </ul>
-        </div>
-        
+        <!-- Legal -->
         <div>
           <h4 class="font-bold mb-4">Legal</h4>
-          <ul class="space-y-2 text-gray-400">
-            <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
-            <li><a href="#" class="hover:text-white">Terms of Service</a></li>
-            <li><a href="mailto:support@socialmediaautomator.com" class="hover:text-white">Contact</a></li>
+          <ul class="space-y-3 text-gray-400">
+            <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+            <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+          </ul>
+        </div>
+        
+        <!-- Connect -->
+        <div>
+          <h4 class="font-bold mb-4">Connect</h4>
+          <ul class="space-y-3 text-gray-400">
+            <li><a href="mailto:support@yourdomain.com" class="hover:text-white transition">Email Us</a></li>
+            <li><a href="https://twitter.com" target="_blank" class="hover:text-white transition">Twitter</a></li>
+            <li><a href="https://linkedin.com" target="_blank" class="hover:text-white transition">LinkedIn</a></li>
           </ul>
         </div>
       </div>
       
-      <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-        <p>&copy; 2025 Social Media Automator. All rights reserved.</p>
+      <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+        <p>&copy; 2024 Social Media Automator. All rights reserved.</p>
       </div>
     </div>
   </footer>

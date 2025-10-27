@@ -138,15 +138,22 @@ async function deletePost(postId) {
 }
 
 /**
- * Get post history (last N posts)
+ * Get post history (last N posts) - multi-tenant aware
  */
-async function getPostHistory(limit = 50) {
+async function getPostHistory(limit = 50, userId = null) {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('posts')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
+    
+    // Filter by user_id if provided (multi-tenant)
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query;
     
     if (error) throw error;
     return data || [];
@@ -240,6 +247,27 @@ async function getAnalyticsOverview(userId) {
     
     const postsThisMonth = monthPosts ? monthPosts.length : 0;
     
+    // Get posts today
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const { data: todayPosts, error: todayError } = await supabase
+      .from('posts')
+      .select('id')
+      .eq('user_id', userId)
+      .gte('created_at', startOfDay.toISOString());
+    
+    const postsToday = todayError ? 0 : (todayPosts ? todayPosts.length : 0);
+    
+    // Get scheduled count
+    const { data: scheduledData, error: scheduledError } = await supabase
+      .from('posts')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('status', 'queued');
+    
+    const scheduledCount = scheduledError ? 0 : (scheduledData ? scheduledData.length : 0);
+    
     // Calculate success rate
     const { data: completedPosts, error: completedError } = await supabase
       .from('posts')
@@ -274,6 +302,8 @@ async function getAnalyticsOverview(userId) {
     return {
       totalPosts,
       postsThisMonth,
+      postsToday,
+      scheduledCount,
       successRate,
       activePlatforms
     };
