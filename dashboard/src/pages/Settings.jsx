@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
+import BillingSettings from '../components/BillingSettings';
 
 export default function Settings() {
   const [accounts, setAccounts] = useState([]);
@@ -9,6 +10,7 @@ export default function Settings() {
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [telegramBotToken, setTelegramBotToken] = useState('');
   const [telegramChatId, setTelegramChatId] = useState('');
+  const [activeTab, setActiveTab] = useState('accounts');
 
   useEffect(() => {
     loadAccounts();
@@ -100,8 +102,37 @@ export default function Settings() {
         <p className="text-gray-600">Manage your account and platform connections.</p>
       </div>
 
-      {/* Connected Accounts Section */}
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+      {/* Tabs */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab('accounts')}
+            className={`${
+              activeTab === 'accounts'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+          >
+            Connected Accounts
+          </button>
+          <button
+            onClick={() => setActiveTab('billing')}
+            className={`${
+              activeTab === 'billing'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+          >
+            Billing & Usage
+          </button>
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'accounts' && (
+        <>
+        {/* Connected Accounts Section */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Connected Accounts</h2>
         <p className="text-gray-600 mb-6">Connect your social media accounts to get started.</p>
         
@@ -264,18 +295,14 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Billing Section */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Billing</h2>
-        <p className="text-gray-600 mb-4">Manage your subscription and billing information.</p>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
-        >
-          Manage Billing
-        </motion.button>
-      </div>
+        </>
+      )}
+
+      {activeTab === 'billing' && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <BillingSettings />
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -7,16 +7,35 @@ import { DashboardSkeleton } from '../components/ui/LoadingStates';
 import { NoPostsEmpty } from '../components/ui/EmptyState';
 import { showError } from '../components/ui/Toast';
 import { staggerContainer } from '../utils/animations';
+import UpgradeModal from '../components/UpgradeModal';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
+  const [billingInfo, setBillingInfo] = useState(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
+    loadBillingInfo();
   }, []);
+
+  const loadBillingInfo = async () => {
+    try {
+      const response = await api.get('/billing/usage');
+      setBillingInfo(response.data);
+      
+      // Check if user has hit post limit
+      const { usage, plan } = response.data;
+      if (plan.name === 'free' && usage.posts.used >= usage.posts.limit) {
+        setShowUpgrade(true);
+      }
+    } catch (err) {
+      console.error('Error loading billing info:', err);
+    }
+  };
 
   // Refresh when user returns to dashboard
   useEffect(() => {
@@ -110,6 +129,35 @@ export default function Dashboard() {
         <p className="text-gray-600">Welcome back! Manage your social media posts from one place.</p>
       </div>
       
+      {/* Usage Summary */}
+      {billingInfo && (
+        <div className="mb-6">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📊</span>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  You've used {billingInfo.usage.posts.used}/{billingInfo.usage.posts.limit} posts this month
+                </p>
+                {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && (
+                  <p className={`text-xs mt-1 ${billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? 'text-red-600' : 'text-yellow-600'}`}>
+                    {billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? '❌ Limit reached' : '⚠️ Approaching limit'}
+                  </p>
+                )}
+              </div>
+            </div>
+            {billingInfo.plan.name === 'free' && (
+              <Link
+                to="/pricing"
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm ml-2"
+              >
+                Upgrade →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <motion.div
         variants={staggerContainer}
@@ -215,6 +263,14 @@ export default function Dashboard() {
           </Link>
         </motion.div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        reason="posts_limit"
+        currentPlan={billingInfo?.plan?.name || 'free'}
+      />
     </motion.div>
   );
 }

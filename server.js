@@ -1636,8 +1636,8 @@ app.post('/api/billing/checkout', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const { priceId, plan } = req.body;
     
-    const successUrl = `${req.protocol}://${req.get('host')}/dashboard?checkout=success`;
-    const cancelUrl = `${req.protocol}://${req.get('host')}/dashboard?checkout=cancelled`;
+    const successUrl = `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${req.protocol}://${req.get('host')}/cancel`;
     
     const session = await createCheckoutSession(userId, priceId, plan, successUrl, cancelUrl);
     

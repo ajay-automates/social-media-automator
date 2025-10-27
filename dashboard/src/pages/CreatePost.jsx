@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
@@ -6,6 +6,7 @@ import { PostingOverlay } from '../components/ui/LoadingStates';
 import { useLoadingState } from '../hooks/useLoadingState';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { celebrateSuccess } from '../utils/animations';
+import UpgradeModal from '../components/UpgradeModal';
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -22,6 +23,21 @@ export default function CreatePost() {
   const [selectedVariation, setSelectedVariation] = useState(null);
   const [generatedImage, setGeneratedImage] = useState(null);
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const [billingInfo, setBillingInfo] = useState(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
+
+  useEffect(() => {
+    loadBillingInfo();
+  }, []);
+
+  const loadBillingInfo = async () => {
+    try {
+      const response = await api.get('/billing/usage');
+      setBillingInfo(response.data);
+    } catch (err) {
+      console.error('Error loading billing info:', err);
+    }
+  };
 
   const generateCaption = async () => {
     if (!niche) {
@@ -135,6 +151,17 @@ export default function CreatePost() {
     if (!caption.trim()) {
       showError('Please enter a caption');
       return;
+    }
+
+    // Check usage limits
+    if (billingInfo) {
+      const { usage, plan } = billingInfo;
+      const percentage = usage.posts.used / usage.posts.limit;
+      
+      if (percentage >= 1.0 && usage.posts.limit !== Infinity) {
+        setShowUpgrade(true);
+        return;
+      }
     }
 
     startLoading('twitter');
@@ -277,6 +304,22 @@ export default function CreatePost() {
             </div>
           </div>
           
+          {/* Post Usage Info */}
+          {billingInfo && (
+            <div className={`border rounded-lg p-3 ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-700">
+                  {billingInfo.usage.posts.limit === Infinity ? 'Unlimited posts' : `${billingInfo.usage.posts.limit - billingInfo.usage.posts.used} posts remaining`}
+                </span>
+                {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan.name === 'free' && (
+                  <a href="/pricing" className="text-blue-600 hover:text-blue-700 font-medium">
+                    Upgrade →
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-4">
             <motion.button
@@ -504,6 +547,14 @@ export default function CreatePost() {
           </motion.div>
         </div>
       )}
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        reason="posts_limit"
+        currentPlan={billingInfo?.plan?.name || 'free'}
+      />
     </>
   );
 }
