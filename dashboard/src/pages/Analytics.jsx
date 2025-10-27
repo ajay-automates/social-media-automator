@@ -198,28 +198,82 @@ export default function Analytics() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {history.slice(0, 10).map((post, idx) => (
-                <tr key={idx}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {post.platform}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{post.text.substring(0, 50)}...</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-sm font-semibold rounded-full ${
-                      post.status === 'posted' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {post.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
+              {history.slice(0, 10).map((post, idx) => {
+                // Get platforms - handle both array and string formats
+                const platforms = Array.isArray(post.platforms) ? post.platforms : (post.platforms ? [post.platforms] : []);
+                
+                // Platform icons mapping
+                const platformIcons = {
+                  linkedin: { emoji: '🔗', color: 'bg-blue-100 text-blue-800', name: 'LinkedIn' },
+                  twitter: { emoji: '🐦', color: 'bg-sky-100 text-sky-800', name: 'Twitter' },
+                  telegram: { emoji: '💬', color: 'bg-indigo-100 text-indigo-800', name: 'Telegram' },
+                  instagram: { emoji: '📸', color: 'bg-pink-100 text-pink-800', name: 'Instagram' }
+                };
+
+                return (
+                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
+                      {platforms.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {platforms.map((platform, pIdx) => {
+                            const platformInfo = platformIcons[platform.toLowerCase()] || { emoji: '📱', color: 'bg-gray-100 text-gray-800', name: platform };
+                            return (
+                              <span 
+                                key={pIdx}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full ${platformInfo.color} transition hover:scale-110`}
+                                title={platformInfo.name}
+                              >
+                                <span className="text-base">{platformInfo.emoji}</span>
+                                <span>{platformInfo.name}</span>
+                              </span>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400 italic">No platforms</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 max-w-md">
+                        <div className="truncate">{post.text || post.caption || 'No caption'}</div>
+                        {post.image_url && (
+                          <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
+                            <span>🖼️</span>
+                            <span>With image</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-1">
+                        <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                          post.status === 'posted' ? 'bg-green-100 text-green-800' : 
+                          post.status === 'failed' ? 'bg-red-100 text-red-800' :
+                          post.status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {post.status === 'posted' ? '✓ Posted' : 
+                           post.status === 'failed' ? '✗ Failed' :
+                           post.status === 'partial' ? '⚠ Partial' : post.status}
+                        </span>
+                        {post.results && Object.keys(post.results).length > 0 && (
+                          <span className="text-xs text-gray-500">
+                            {Object.values(post.results).filter(r => r.success).length}/{Object.keys(post.results).length} succeeded
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex flex-col">
+                        <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                        <span className="text-xs text-gray-400">
+                          {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
