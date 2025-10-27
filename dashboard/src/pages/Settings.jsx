@@ -17,6 +17,27 @@ export default function Settings() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    // Check for Instagram connection status in URL params
+    const params = new URLSearchParams(window.location.search);
+    const instagram = params.get('instagram');
+    const error = params.get('error');
+    
+    if (instagram === 'connected') {
+      showSuccess('Instagram connected successfully!');
+      loadAccounts();
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+    
+    if (error && error.startsWith('instagram')) {
+      const message = params.get('message') || 'Failed to connect Instagram';
+      showError(message);
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+  }, []);
+
   const loadAccounts = async () => {
     try {
       const response = await api.get('/accounts');
@@ -61,6 +82,20 @@ export default function Settings() {
 
   const connectTelegram = async () => {
     setShowTelegramModal(true);
+  };
+
+  const connectInstagram = async () => {
+    try {
+      const response = await api.post('/auth/instagram/url');
+      if (response.data?.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      } else {
+        showError('Failed to generate Instagram OAuth URL');
+      }
+    } catch (err) {
+      console.error('Instagram connection error:', err);
+      showError('Failed to connect Instagram');
+    }
   };
 
   const handleTelegramConnect = async () => {
@@ -170,6 +205,14 @@ export default function Settings() {
               >
                 <span>📱</span> Connect Telegram
               </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectInstagram}
+                className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
+              >
+                <span>📷</span> Connect Instagram
+              </motion.button>
             </div>
           </div>
         ) : (
@@ -184,6 +227,7 @@ export default function Settings() {
                     {account?.platform === 'linkedin' && '🔗'}
                     {account?.platform === 'twitter' && '🐦'}
                     {account?.platform === 'telegram' && '📱'}
+                    {account?.platform === 'instagram' && '📷'}
                     {!account?.platform && '📱'}
                   </div>
                   <div>
@@ -232,6 +276,14 @@ export default function Settings() {
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
               + Connect Telegram
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={connectInstagram}
+              className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition"
+            >
+              + Connect Instagram
             </motion.button>
           </div>
         )}

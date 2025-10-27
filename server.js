@@ -343,9 +343,50 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
           });
         }
       }
+      if (platform === 'instagram' && credentials.instagram.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Instagram account not connected. Please connect your Instagram account first.'
+        });
+      }
+    }
+
+    // Instagram requires an image
+    if (requestedPlatforms.includes('instagram') && !imageUrl) {
+      return res.status(400).json({
+        success: false,
+        error: 'Instagram requires an image. Please upload or generate an image first.'
+      });
+    }
+
+    // If base64 image for Instagram, upload to Cloudinary first
+    let finalImageUrl = imageUrl;
+    if (requestedPlatforms.includes('instagram') && imageUrl && imageUrl.startsWith('data:image')) {
+      try {
+        const { uploadBase64Image } = require('./services/cloudinary');
+        const uploadResult = await uploadBase64Image(
+          imageUrl.replace(/^data:image\/\w+;base64,/, ''),
+          userId
+        );
+        if (uploadResult.success) {
+          finalImageUrl = uploadResult.url;
+          console.log('✅ Uploaded base64 image to Cloudinary for Instagram');
+        } else {
+          return res.status(400).json({
+            success: false,
+            error: 'Failed to upload image for Instagram'
+          });
+        }
+      } catch (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        return res.status(400).json({
+          success: false,
+          error: 'Failed to process image for Instagram'
+        });
+      }
     }
     
-    const platformResults = await postNow(text, imageUrl || null, platforms, credentials);
+    const platformResults = await postNow(text, finalImageUrl || null, platforms, credentials);
     
     // Check if all platforms succeeded
     const allSuccess = Object.values(platformResults).every(r => r.success);
@@ -1478,6 +1519,108 @@ app.get('/api/user/accounts', verifyAuth, async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+});
+
+/**
+ * POST /api/auth/instagram/url
+ * Generate Instagram OAuth URL (authenticated endpoint)
+ */
+app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const clientId = process.env.INSTAGRAM_APP_ID;
+    
+    if (!clientId) {
+      return res.status(500).json({
+        success: false,
+        error: 'Instagram OAuth not configured'
+      });
+    }
+    
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/instagram/callback`;
+    const state = encryptState(userId);
+    const scope = 'user_profile,user_media,instagram_basic,instagram_content_publish';
+    
+    console.log('📱 Instagram OAuth URL generation:');
+    console.log('  - Client ID:', clientId ? 'exists' : 'missing');
+    console.log('  - Redirect URI:', redirectUri);
+    console.log('  - User ID:', userId);
+    
+    const authUrl = new URL('https://api.instagram.com/oauth/authorize');
+    authUrl.searchParams.append('client_id', clientId);
+    authUrl.searchParams.append('redirect_uri', redirectUri);
+    authUrl.searchParams.append('scope', scope);
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('state', state);
+    
+    console.log('  - OAuth URL:', authUrl.toString());
+    
+    res.json({
+      success: true,
+      oauthUrl: authUrl.toString()
+    });
+    
+  } catch (error) {
+    console.error('Error generating Instagram OAuth URL:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /auth/instagram/callback
+ * Handle Instagram OAuth callback
+ */
+app.get('/auth/instagram/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+    
+    console.log('📱 Instagram callback received:');
+    console.log('  - Code:', code ? 'exists' : 'missing');
+    console.log('  - State:', state ? 'exists' : 'missing');
+    console.log('  - Error:', error || 'none');
+    
+    if (error) {
+      console.error('  ❌ OAuth error:', error);
+      return res.redirect('/dashboard?error=instagram_denied');
+    }
+    
+    if (!code || !state) {
+      console.error('  ❌ Missing code or state');
+      return res.redirect('/dashboard?error=instagram_invalid_callback');
+    }
+    
+    // Verify and decrypt state
+    let userId;
+    try {
+      userId = decryptState(state);
+      console.log('  - User ID from state:', userId);
+    } catch (stateError) {
+      console.error('State decryption error:', stateError.message);
+      return res.redirect('/dashboard?error=instagram_invalid_state');
+    }
+    
+    // Handle Instagram callback
+    try {
+      const { handleInstagramCallback } = require('./services/oauth');
+      const result = await handleInstagramCallback(code, state);
+      
+      console.log('  ✅ Instagram account connected successfully');
+      console.log('  - Account:', result.account);
+      
+      return res.redirect('/dashboard?instagram=connected');
+      
+    } catch (callbackError) {
+      console.error('  ❌ Instagram callback error:', callbackError.message);
+      return res.redirect(`/dashboard?error=instagram_failed&message=${encodeURIComponent(callbackError.message)}`);
+    }
+    
+  } catch (error) {
+    console.error('Error handling Instagram callback:', error);
+    return res.redirect('/dashboard?error=instagram_failed');
   }
 });
 

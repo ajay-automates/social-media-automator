@@ -239,6 +239,10 @@ export default function Analytics() {
                       url = `https://twitter.com/i/web/status/${post.results[platform].postId}`;
                     } else if (platformLower === 'telegram') {
                       url = `https://t.me/c/${post.results[platform].chatId}/${post.results[platform].messageId}`;
+                    } else if (platformLower === 'instagram') {
+                      // Instagram posts use shortcode (need to construct from id)
+                      // For now, return null as we'd need to fetch the shortcode
+                      url = null; // Instagram Graph API doesn't provide direct post URLs easily
                     }
                     
                     if (url) {

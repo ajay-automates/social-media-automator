@@ -153,6 +153,12 @@ export default function CreatePost() {
       return;
     }
 
+    // Validate Instagram requires image
+    if (platforms.includes('instagram') && !image) {
+      showError('Instagram requires an image. Please upload or generate an image first.');
+      return;
+    }
+
     // Check usage limits
     if (billingInfo) {
       const { usage, plan } = billingInfo;
@@ -285,24 +291,39 @@ export default function CreatePost() {
               Select Platforms
             </label>
             <div className="flex flex-wrap gap-2">
-              {['twitter', 'linkedin', 'telegram'].map(platform => (
+              {[
+                { id: 'twitter', name: 'Twitter', icon: '🐦', color: 'bg-sky-500' },
+                { id: 'linkedin', name: 'LinkedIn', icon: '🔗', color: 'bg-blue-600' },
+                { id: 'telegram', name: 'Telegram', icon: '💬', color: 'bg-indigo-600' },
+                { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500' }
+              ].map(platform => (
                 <motion.button
-                  key={platform}
+                  key={platform.id}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => togglePlatform(platform)}
+                  onClick={() => togglePlatform(platform.id)}
                   className={`px-6 py-3 rounded-lg font-medium transition ${
-                    platforms.includes(platform)
-                      ? 'bg-blue-600 text-white shadow-lg'
+                    platforms.includes(platform.id)
+                      ? `${platform.color} text-white shadow-lg ${platform.id === 'instagram' ? '' : ''}`
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
-                  {platform === 'twitter' && '🐦'} {platform === 'linkedin' && '🔗'} {platform === 'telegram' && '💬'}
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                  {platform.icon} {platform.name}
                 </motion.button>
               ))}
             </div>
           </div>
+
+          {/* Instagram Image Requirement Warning */}
+          {platforms.includes('instagram') && !image && (
+            <div className="border border-yellow-400 bg-yellow-50 rounded-lg p-3 flex items-center gap-2">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <div className="font-semibold text-yellow-800">Image Required</div>
+                <div className="text-sm text-yellow-700">Instagram requires an image or video. Please upload or generate one above.</div>
+              </div>
+            </div>
+          )}
           
           {/* Post Usage Info */}
           {billingInfo && (

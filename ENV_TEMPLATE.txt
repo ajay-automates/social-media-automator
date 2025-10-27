@@ -34,9 +34,15 @@ OAUTH_STATE_SECRET=81e83078e15ae349e50e28f617cb34acca527d9d4152a6da1dfe0fc98117a
 # Production App URL
 APP_URL=https://capable-motivation-production-7a75.up.railway.app
 
-# Instagram (via Facebook Graph API)
-INSTAGRAM_ACCESS_TOKEN=your_instagram_access_token
-INSTAGRAM_ACCOUNT_ID=your_instagram_account_id
+# Instagram OAuth (via Facebook Graph API)
+INSTAGRAM_APP_ID=your_instagram_app_id
+INSTAGRAM_APP_SECRET=your_instagram_app_secret
+INSTAGRAM_REDIRECT_URI=http://localhost:3000/auth/instagram/callback
+# For production: INSTAGRAM_REDIRECT_URI=https://capable-motivation-production-7a75.up.railway.app/auth/instagram/callback
+
+# Threads API (for future use)
+THREADS_APP_ID=your_threads_app_id
+THREADS_APP_SECRET=your_threads_app_secret
 
 # ====================================================================================
 # AI CONFIGURATION

@@ -442,6 +442,188 @@ async function getUserConnectedAccounts(userId) {
   }
 }
 
+// ============================================
+// INSTAGRAM OAUTH
+// ============================================
+
+/**
+ * Initiate Instagram OAuth flow
+ * @param {string} userId - User ID from Supabase auth
+ * @returns {string} Authorization URL
+ */
+function initiateInstagramOAuth(userId) {
+  const clientId = process.env.INSTAGRAM_APP_ID;
+  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
+  const scope = 'user_profile,user_media,instagram_basic,instagram_content_publish';
+  
+  if (!clientId) {
+    throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID in environment variables.');
+  }
+  
+  // Generate state parameter for security (store userId in it)
+  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
+  
+  const authUrl = new URL('https://api.instagram.com/oauth/authorize');
+  authUrl.searchParams.append('client_id', clientId);
+  authUrl.searchParams.append('redirect_uri', redirectUri);
+  authUrl.searchParams.append('scope', scope);
+  authUrl.searchParams.append('response_type', 'code');
+  authUrl.searchParams.append('state', state);
+  
+  return authUrl.toString();
+}
+
+/**
+ * Handle Instagram OAuth callback
+ * Exchange authorization code for access token and store in database
+ * @param {string} code - Authorization code from Instagram
+ * @param {string} state - State parameter (contains userId)
+ * @returns {object} Account info
+ */
+async function handleInstagramCallback(code, state) {
+  try {
+    // Decode state to get userId
+    const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
+    
+    const clientId = process.env.INSTAGRAM_APP_ID;
+    const clientSecret = process.env.INSTAGRAM_APP_SECRET;
+    const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
+    
+    if (!clientId || !clientSecret) {
+      throw new Error('Instagram OAuth not configured');
+    }
+    
+    // Step 1: Exchange code for short-lived access token
+    console.log('📱 Step 1: Exchanging code for short-lived token...');
+    const shortTokenResponse = await axios.post(
+      'https://api.instagram.com/oauth/access_token',
+      null,
+      {
+        params: {
+          client_id: clientId,
+          client_secret: clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: redirectUri,
+          code
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    );
+    
+    const shortLivedToken = shortTokenResponse.data.access_token;
+    const igUserId = shortTokenResponse.data.user_id;
+    
+    // Step 2: Exchange for long-lived token (60 days)
+    console.log('📱 Step 2: Exchanging for long-lived token...');
+    const longTokenResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/oauth/access_token`,
+      {
+        params: {
+          grant_type: 'ig_exchange_token',
+          client_secret: clientSecret,
+          access_token: shortLivedToken
+        }
+      }
+    );
+    
+    const longLivedToken = longTokenResponse.data.access_token;
+    const expiresIn = longTokenResponse.data.expires_in; // seconds
+    
+    // Step 3: Get Facebook Pages (to find Instagram Business Account)
+    console.log('📱 Step 3: Getting Facebook Pages...');
+    const pagesResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/me/accounts`,
+      {
+        params: {
+          access_token: longLivedToken
+        }
+      }
+    );
+    
+    const pages = pagesResponse.data.data;
+    if (!pages || pages.length === 0) {
+      throw new Error('No Facebook Pages found. Instagram Business account must be linked to a Facebook Page.');
+    }
+    
+    // Step 4: Get Instagram Business Account ID from first page
+    console.log('📱 Step 4: Getting Instagram Business Account ID...');
+    const pageId = pages[0].id;
+    const pageToken = pages[0].access_token;
+    
+    const igBusinessResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${pageId}`,
+      {
+        params: {
+          fields: 'instagram_business_account',
+          access_token: pageToken
+        }
+      }
+    );
+    
+    const igBusinessId = igBusinessResponse.data.instagram_business_account?.id;
+    if (!igBusinessId) {
+      throw new Error('Instagram Business or Creator account not found. Please link your Instagram account to a Facebook Page.');
+    }
+    
+    // Step 5: Get Instagram username
+    console.log('📱 Step 5: Getting Instagram username...');
+    const usernameResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/${igBusinessId}`,
+      {
+        params: {
+          fields: 'username',
+          access_token: longLivedToken
+        }
+      }
+    );
+    
+    const username = usernameResponse.data.username;
+    
+    // Step 6: Calculate token expiry
+    const expiresAt = new Date(Date.now() + (expiresIn * 1000));
+    
+    // Step 7: Store in database
+    const { data: account, error } = await supabase
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'instagram',
+        platform_name: 'Instagram',
+        oauth_provider: 'instagram',
+        access_token: longLivedToken,
+        token_expires_at: expiresAt.toISOString(),
+        platform_user_id: igBusinessId,
+        platform_username: username,
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log(`✅ Instagram account connected for user ${userId}`);
+    
+    return {
+      success: true,
+      account: {
+        id: account.id,
+        platform: 'instagram',
+        username: username,
+        connected: true
+      }
+    };
+    
+  } catch (error) {
+    console.error('❌ Instagram OAuth error:', error.message);
+    throw new Error('Failed to connect Instagram account: ' + error.message);
+  }
+}
+
 /**
  * Get user credentials for posting
  * Returns credentials formatted for the posting services
@@ -519,6 +701,10 @@ module.exports = {
   // Twitter
   initiateTwitterOAuth,
   handleTwitterCallback,
+  
+  // Instagram
+  initiateInstagramOAuth,
+  handleInstagramCallback,
   
   // Common
   disconnectAccount,
