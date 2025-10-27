@@ -604,11 +604,161 @@ async function handleInstagramCallback(code, state) {
   }
 }
 
+// ============================================
+// FACEBOOK OAUTH
+// ============================================
+
+/**
+ * Initiate Facebook OAuth flow
+ * @param {string} userId - User ID from Supabase auth
+ * @returns {string} Authorization URL
+ */
+function initiateFacebookOAuth(userId) {
+  const clientId = process.env.FACEBOOK_APP_ID;
+  const redirectUri = process.env.FACEBOOK_REDIRECT_URI;
+  
+  if (!clientId) {
+    throw new Error('Facebook OAuth not configured. Set FACEBOOK_APP_ID in environment variables.');
+  }
+  
+  // Generate state parameter for security (store userId in it)
+  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
+  
+  // Facebook OAuth with pages permissions
+  const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
+  authUrl.searchParams.append('client_id', clientId);
+  authUrl.searchParams.append('redirect_uri', redirectUri);
+  authUrl.searchParams.append('scope', 'pages_manage_posts,pages_read_engagement,pages_show_list');
+  authUrl.searchParams.append('response_type', 'code');
+  authUrl.searchParams.append('state', state);
+  
+  return authUrl.toString();
+}
+
+/**
+ * Handle Facebook OAuth callback
+ * @param {string} code - Authorization code
+ * @param {string} state - State parameter
+ * @returns {object} Account info
+ */
+async function handleFacebookCallback(code, state) {
+  try {
+    // Decode state to get userId
+    const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
+    
+    const redirectUri = process.env.FACEBOOK_REDIRECT_URI;
+    
+    console.log('📘 Facebook OAuth callback for user:', userId);
+    
+    // Step 1: Exchange code for access token
+    console.log('📘 Step 1: Exchanging code for access token...');
+    const tokenResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/oauth/access_token`,
+      {
+        params: {
+          client_id: process.env.FACEBOOK_APP_ID,
+          client_secret: process.env.FACEBOOK_APP_SECRET,
+          redirect_uri: redirectUri,
+          code: code
+        }
+      }
+    );
+    
+    const userAccessToken = tokenResponse.data.access_token;
+    const expiresIn = tokenResponse.data.expires_in || 0;
+    
+    console.log('✅ Got user access token, expires in:', expiresIn);
+    
+    // Step 2: Get user's Facebook Pages
+    console.log('📘 Step 2: Getting user\'s Facebook Pages...');
+    const pagesResponse = await axios.get(
+      `https://graph.facebook.com/v18.0/me/accounts`,
+      {
+        params: {
+          access_token: userAccessToken
+        }
+      }
+    );
+    
+    const pages = pagesResponse.data.data;
+    
+    if (!pages || pages.length === 0) {
+      throw new Error('No Facebook Pages found. Please create a Facebook Page first.');
+    }
+    
+    console.log(`✅ Found ${pages.length} Facebook Pages`);
+    
+    // Save each Page as a separate account
+    const savedAccounts = [];
+    
+    for (const page of pages) {
+      // Get Page access token and info
+      const pageId = page.id;
+      const pageAccessToken = page.access_token;
+      
+      // Get page details
+      const pageInfoResponse = await axios.get(
+        `https://graph.facebook.com/v18.0/${pageId}`,
+        {
+          params: {
+            fields: 'name,username,picture',
+            access_token: pageAccessToken
+          }
+        }
+      );
+      
+      const pageInfo = pageInfoResponse.data;
+      
+      // Calculate expiry (use page token expiry or default 60 days)
+      const expiresAt = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000));
+      
+      // Save to database
+      const { data: account, error } = await supabase
+        .from('user_accounts')
+        .upsert({
+          user_id: userId,
+          platform: 'facebook',
+          platform_name: `Facebook (${pageInfo.name})`,
+          oauth_provider: 'facebook',
+          access_token: pageAccessToken,
+          refresh_token: userAccessToken, // Store user token as refresh
+          token_expires_at: expiresAt.toISOString(),
+          platform_user_id: pageId,
+          platform_username: pageInfo.username || pageInfo.name,
+          status: 'active',
+          connected_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,platform,platform_user_id'
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ Error saving Facebook Page:', error);
+        continue;
+      }
+      
+      savedAccounts.push(account);
+      console.log(`✅ Saved Facebook Page: ${pageInfo.name}`);
+    }
+    
+    return {
+      success: true,
+      accounts: savedAccounts,
+      connected: true
+    };
+    
+  } catch (error) {
+    console.error('❌ Facebook OAuth error:', error.message);
+    throw new Error('Failed to connect Facebook account: ' + error.message);
+  }
+}
+
 /**
  * Get user credentials for posting
  * Returns credentials formatted for the posting services
  * @param {string} userId - User ID
- * @returns {object} Credentials object with linkedin, twitter, instagram
+ * @returns {object} Credentials object with linkedin, twitter, instagram, facebook
  */
 async function getUserCredentialsForPosting(userId) {
   try {
@@ -626,7 +776,8 @@ async function getUserCredentialsForPosting(userId) {
       linkedin: [],
       twitter: [],
       instagram: [],
-      telegram: []
+      telegram: [],
+      facebook: []
     };
     
     accounts?.forEach(account => {
@@ -656,6 +807,11 @@ async function getUserCredentialsForPosting(userId) {
           botToken: account.access_token,
           chatId: account.platform_user_id
         });
+      } else if (account.platform === 'facebook') {
+        credentials.facebook.push({
+          accessToken: account.access_token,
+          pageId: account.platform_user_id
+        });
       }
     });
     
@@ -667,7 +823,8 @@ async function getUserCredentialsForPosting(userId) {
       linkedin: [],
       twitter: [],
       instagram: [],
-      telegram: []
+      telegram: [],
+      facebook: []
     };
   }
 }
@@ -685,6 +842,10 @@ module.exports = {
   // Instagram
   initiateInstagramOAuth,
   handleInstagramCallback,
+  
+  // Facebook
+  initiateFacebookOAuth,
+  handleFacebookCallback,
   
   // Common
   disconnectAccount,

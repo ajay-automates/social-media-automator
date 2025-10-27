@@ -101,6 +101,37 @@ async function postNow(text, imageUrl, platforms, credentials) {
           };
           break;
           
+        case 'facebook':
+          // Post to ALL Facebook Pages
+          const { postToFacebookPage } = require('./facebook');
+          for (const fbCreds of credentials.facebook) {
+            try {
+              const result = await postToFacebookPage(text, imageUrl, {
+                pageId: fbCreds.pageId,
+                accessToken: fbCreds.accessToken
+              });
+              accountResults.push({
+                success: true,
+                pageId: fbCreds.pageId,
+                postId: result.postId,
+                permalink: result.permalink
+              });
+            } catch (error) {
+              accountResults.push({
+                success: false,
+                pageId: fbCreds.pageId,
+                error: error.message
+              });
+            }
+          }
+          results[platform] = {
+            success: accountResults.some(r => r.success),
+            results: accountResults,
+            accountCount: accountResults.length,
+            successCount: accountResults.filter(r => r.success).length
+          };
+          break;
+          
         case 'telegram':
           // Post to ALL Telegram accounts
           for (const telegramCreds of credentials.telegram) {

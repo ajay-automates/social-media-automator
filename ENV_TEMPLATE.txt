@@ -34,6 +34,12 @@ OAUTH_STATE_SECRET=81e83078e15ae349e50e28f617cb34acca527d9d4152a6da1dfe0fc98117a
 # Production App URL
 APP_URL=https://capable-motivation-production-7a75.up.railway.app
 
+# Facebook OAuth (for posting to Facebook Pages)
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_APP_SECRET=your_facebook_app_secret
+FACEBOOK_REDIRECT_URI=http://localhost:3000/auth/facebook/callback
+# For production: FACEBOOK_REDIRECT_URI=https://capable-motivation-production-7a75.up.railway.app/auth/facebook/callback
+
 # Instagram OAuth (via Facebook Graph API)
 INSTAGRAM_APP_ID=your_instagram_app_id
 INSTAGRAM_APP_SECRET=your_instagram_app_secret
