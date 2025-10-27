@@ -466,7 +466,7 @@ function initiateInstagramOAuth(userId) {
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'pages_show_list,pages_read_engagement,business_management');
+  authUrl.searchParams.append('scope', 'instagram_graph_user_profile,instagram_graph_user_media');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
