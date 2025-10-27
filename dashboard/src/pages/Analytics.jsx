@@ -202,7 +202,16 @@ export default function Analytics() {
             <tbody className="bg-white divide-y divide-gray-200">
               {history.slice(0, 10).map((post, idx) => {
                 // Get platforms - handle both array and string formats
-                const platforms = Array.isArray(post.platforms) ? post.platforms : (post.platforms ? [post.platforms] : []);
+                let platforms = [];
+                if (Array.isArray(post.platforms)) {
+                  platforms = post.platforms;
+                } else if (typeof post.platforms === 'string') {
+                  platforms = [post.platforms];
+                } else if (post.platform) {
+                  platforms = [post.platform];
+                }
+                
+                console.log(`Post ${idx} platforms:`, platforms, 'Raw:', post.platforms || post.platform);
                 
                 // Platform icons mapping
                 const platformIcons = {
