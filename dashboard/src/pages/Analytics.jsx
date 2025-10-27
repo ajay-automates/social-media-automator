@@ -221,6 +221,24 @@ export default function Analytics() {
                   instagram: { emoji: '📸', color: 'bg-pink-100 text-pink-800', name: 'Instagram' }
                 };
 
+                // Helper function to get post URL from results
+                const getPostUrl = (platform) => {
+                  if (post.results && post.results[platform] && post.results[platform].url) {
+                    return post.results[platform].url;
+                  }
+                  if (post.results && post.results[platform] && post.results[platform].postId) {
+                    const platformLower = platform.toLowerCase();
+                    if (platformLower === 'linkedin') {
+                      return `https://www.linkedin.com/feed/update/${post.results[platform].postId}`;
+                    } else if (platformLower === 'twitter') {
+                      return `https://twitter.com/i/web/status/${post.results[platform].postId}`;
+                    } else if (platformLower === 'telegram') {
+                      return `https://t.me/c/${post.results[platform].chatId}/${post.results[platform].messageId}`;
+                    }
+                  }
+                  return null;
+                };
+
                 return (
                   <tr key={idx} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
@@ -228,15 +246,31 @@ export default function Analytics() {
                         <div className="flex flex-wrap gap-2">
                           {platforms.map((platform, pIdx) => {
                             const platformInfo = platformIcons[platform.toLowerCase()] || { emoji: '📱', color: 'bg-gray-100 text-gray-800', name: platform };
+                            const postUrl = getPostUrl(platform);
+                            const isClickable = postUrl !== null;
+                            
                             return (
-                              <span 
+                              <a
                                 key={pIdx}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full ${platformInfo.color} transition hover:scale-110`}
-                                title={platformInfo.name}
+                                href={postUrl || '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => {
+                                  if (!isClickable) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full ${platformInfo.color} transition ${
+                                  isClickable 
+                                    ? 'hover:scale-110 cursor-pointer hover:shadow-md' 
+                                    : 'cursor-default opacity-60'
+                                }`}
+                                title={isClickable ? `View post on ${platformInfo.name}` : `${platformInfo.name} - No link available`}
                               >
                                 <span className="text-base">{platformInfo.emoji}</span>
                                 <span>{platformInfo.name}</span>
-                              </span>
+                                {isClickable && <span className="text-xs">↗</span>}
+                              </a>
                             );
                           })}
                         </div>
