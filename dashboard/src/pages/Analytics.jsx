@@ -211,7 +211,7 @@ export default function Analytics() {
                   platforms = [post.platform];
                 }
                 
-                console.log(`Post ${idx} platforms:`, platforms, 'Raw:', post.platforms || post.platform);
+
                 
                 // Platform icons mapping
                 const platformIcons = {
@@ -223,11 +223,8 @@ export default function Analytics() {
 
                 // Helper function to get post URL from results
                 const getPostUrl = (platform) => {
-                  console.log('🔍 Getting URL for platform:', platform, 'Post results:', post.results);
-                  
                   // First try: Direct URL from results
                   if (post.results && post.results[platform] && post.results[platform].url) {
-                    console.log('✅ Found direct URL:', post.results[platform].url);
                     return post.results[platform].url;
                   }
                   
@@ -245,12 +242,10 @@ export default function Analytics() {
                     }
                     
                     if (url) {
-                      console.log('✅ Constructed URL from postId:', url);
                       return url;
                     }
                   }
                   
-                  console.log('❌ No URL available for platform:', platform);
                   return null;
                 };
 
@@ -268,23 +263,25 @@ export default function Analytics() {
                               <a
                                 key={pIdx}
                                 href={postUrl || '#'}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                target={isClickable ? "_blank" : undefined}
+                                rel={isClickable ? "noopener noreferrer" : undefined}
                                 onClick={(e) => {
                                   if (!isClickable) {
                                     e.preventDefault();
+                                    // Show toast notification
+                                    alert(`Link not available for this ${platformInfo.name} post. The post was successful but the URL wasn't saved in the database.`);
                                   }
                                 }}
                                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full ${platformInfo.color} transition ${
                                   isClickable 
-                                    ? 'hover:scale-110 cursor-pointer hover:shadow-md' 
-                                    : 'cursor-default opacity-60'
+                                    ? 'hover:scale-110 cursor-pointer hover:shadow-md hover:ring-2 hover:ring-blue-400' 
+                                    : 'cursor-pointer opacity-70 hover:opacity-100'
                                 }`}
-                                title={isClickable ? `View post on ${platformInfo.name}` : `${platformInfo.name} - No link available`}
+                                title={isClickable ? `View post on ${platformInfo.name}` : `Click to see why link isn't available for ${platformInfo.name}`}
                               >
                                 <span className="text-base">{platformInfo.emoji}</span>
                                 <span>{platformInfo.name}</span>
-                                {isClickable && <span className="text-xs">↗</span>}
+                                {isClickable ? <span className="text-xs">↗</span> : <span className="text-xs opacity-50">ⓘ</span>}
                               </a>
                             );
                           })}
