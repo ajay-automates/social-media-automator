@@ -6,6 +6,9 @@ import { showSuccess, showError } from '../components/ui/Toast';
 export default function Settings() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showTelegramModal, setShowTelegramModal] = useState(false);
+  const [telegramBotToken, setTelegramBotToken] = useState('');
+  const [telegramChatId, setTelegramChatId] = useState('');
 
   useEffect(() => {
     loadAccounts();
@@ -28,26 +31,49 @@ export default function Settings() {
 
   const connectLinkedIn = async () => {
     try {
-      // This should redirect to OAuth flow
-      window.location.href = '/api/auth/linkedin';
+      const response = await api.post('/auth/linkedin/url');
+      if (response.data?.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      } else {
+        showError('Failed to generate LinkedIn OAuth URL');
+      }
     } catch (err) {
+      console.error('LinkedIn connection error:', err);
       showError('Failed to connect LinkedIn');
     }
   };
 
   const connectTwitter = async () => {
     try {
-      window.location.href = '/api/auth/twitter';
+      const response = await api.post('/auth/twitter/url');
+      if (response.data?.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      } else {
+        showError('Failed to generate Twitter OAuth URL');
+      }
     } catch (err) {
+      console.error('Twitter connection error:', err);
       showError('Failed to connect Twitter');
     }
   };
 
   const connectTelegram = async () => {
+    setShowTelegramModal(true);
+  };
+
+  const handleTelegramConnect = async () => {
     try {
-      // Open modal for Telegram bot setup
-      showError('Telegram setup - entering bot token required');
+      await api.post('/auth/telegram/connect', {
+        botToken: telegramBotToken,
+        chatId: telegramChatId
+      });
+      showSuccess('Telegram connected successfully!');
+      setShowTelegramModal(false);
+      setTelegramBotToken('');
+      setTelegramChatId('');
+      loadAccounts();
     } catch (err) {
+      console.error('Telegram connection error:', err);
       showError('Failed to connect Telegram');
     }
   };
@@ -167,9 +193,75 @@ export default function Settings() {
             >
               + Connect Twitter
             </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={connectTelegram}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            >
+              + Connect Telegram
+            </motion.button>
           </div>
         )}
       </div>
+
+      {/* Telegram Modal */}
+      {showTelegramModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
+          >
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Telegram Bot</h3>
+            <p className="text-gray-600 mb-6">
+              Enter your Telegram bot token and chat ID to connect.
+            </p>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bot Token
+                </label>
+                <input
+                  type="text"
+                  value={telegramBotToken}
+                  onChange={(e) => setTelegramBotToken(e.target.value)}
+                  placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chat ID
+                </label>
+                <input
+                  type="text"
+                  value={telegramChatId}
+                  onChange={(e) => setTelegramChatId(e.target.value)}
+                  placeholder="123456789"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowTelegramModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTelegramConnect}
+                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+              >
+                Connect
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Billing Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
