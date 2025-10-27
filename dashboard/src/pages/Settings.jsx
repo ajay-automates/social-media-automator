@@ -10,27 +10,17 @@ export default function Settings() {
 
   useEffect(() => {
     loadAccounts();
-    loadCredentials();
   }, []);
 
   const loadAccounts = async () => {
     try {
       const response = await api.get('/accounts');
-      setAccounts(response.data || []);
+      setAccounts(response.data?.accounts || response.data || []);
     } catch (err) {
       console.error('Error loading accounts:', err);
       showError('Failed to load accounts');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadCredentials = async () => {
-    try {
-      const response = await api.get('/credentials');
-      setCredentials(response.data || []);
-    } catch (err) {
-      console.error('Error loading credentials:', err);
     }
   };
 
