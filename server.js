@@ -189,6 +189,10 @@ try {
     const indexHtmlPath = path.join(dashboardPath, 'index.html');
     
     if (fs.existsSync(indexHtmlPath)) {
+      // Serve static assets for React dashboard
+      app.use('/assets', express.static(path.join(dashboardPath, 'assets')));
+      app.use('/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
+      // Also serve under /dashboard for backward compatibility
       app.use('/dashboard/assets', express.static(path.join(dashboardPath, 'assets')));
       app.use('/dashboard/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
       console.log('✅ React Dashboard static assets configured');
@@ -209,7 +213,7 @@ app.get('/dashboard/old', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
-// React Router catch-all for dashboard (must be last to not interfere with static assets)
+// Serve React Dashboard index.html for /dashboard routes
 app.get('/dashboard/*', (req, res) => {
   const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
   const fs = require('fs');
@@ -1693,6 +1697,28 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+});
+
+// ============================================
+// CATCH-ALL ROUTE FOR REACT SPA (must be last)
+// ============================================
+
+// Serve React Dashboard for all non-API routes
+app.get('*', (req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/') || req.path.startsWith('/auth') || req.path.startsWith('/template.csv')) {
+    return next();
+  }
+  
+  const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
+  const fs = require('fs');
+  
+  if (fs.existsSync(dashboardIndex)) {
+    res.sendFile(dashboardIndex);
+  } else {
+    // Fallback to landing page
+    res.sendFile(path.join(__dirname, 'index.html'));
   }
 });
 
