@@ -54,6 +54,8 @@ export default function Analytics() {
       console.log('📋 History API response:', response.data);
       // The API returns { success: true, history: [...], count: N }
       const historyData = response.data?.history || response.data || [];
+      console.log('📋 History data:', historyData);
+      console.log('📋 First post platforms:', historyData[0]?.platforms);
       setHistory(Array.isArray(historyData) ? historyData : []);
     } catch (err) {
       console.error('Error loading history:', err);
