@@ -1660,6 +1660,9 @@ app.get('/auth/facebook/callback', async (req, res) => {
     const { code, state, error } = req.query;
     
     console.log('📘 Facebook OAuth callback received');
+    console.log('  - Code:', code ? code.substring(0, 20) + '...' : 'missing');
+    console.log('  - State:', state ? state.substring(0, 20) + '...' : 'missing');
+    console.log('  - Error:', error || 'none');
     
     if (error) {
       console.log('  ❌ Facebook denied access:', error);
@@ -1673,23 +1676,30 @@ app.get('/auth/facebook/callback', async (req, res) => {
     
     const { handleFacebookCallback } = require('./services/oauth');
     
+    console.log('📘 Starting Facebook callback handler...');
+    
     try {
       const result = await handleFacebookCallback(code, state);
+      
+      console.log('📘 Callback result:', JSON.stringify(result, null, 2));
       
       if (result.success && result.accounts && result.accounts.length > 0) {
         console.log('  ✅ Facebook connected successfully:', result.accounts.length, 'Pages');
         return res.redirect('/dashboard?facebook=connected');
       } else {
+        console.log('  ⚠️  No Pages saved');
         return res.redirect('/dashboard?error=facebook_no_pages');
       }
       
     } catch (callbackError) {
       console.error('  ❌ Facebook callback error:', callbackError.message);
+      console.error('  ❌ Full error:', callbackError);
       return res.redirect(`/dashboard?error=facebook_failed&message=${encodeURIComponent(callbackError.message)}`);
     }
     
   } catch (error) {
     console.error('Error handling Facebook callback:', error);
+    console.error('Full error:', error);
     return res.redirect('/dashboard?error=facebook_failed');
   }
 });
