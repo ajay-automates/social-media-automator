@@ -1546,11 +1546,11 @@ app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
     console.log('  - Redirect URI:', redirectUri);
     console.log('  - User ID:', userId);
     
-    // Instagram Basic Display API
-    const authUrl = new URL('https://api.instagram.com/oauth/authorize');
+    // Instagram Graph API via Facebook Login
+    const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
     authUrl.searchParams.append('client_id', clientId);
     authUrl.searchParams.append('redirect_uri', redirectUri);
-    authUrl.searchParams.append('scope', 'user_profile,user_media');
+    authUrl.searchParams.append('scope', 'pages_show_list,pages_read_engagement,business_management');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('state', state);
     
