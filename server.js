@@ -252,21 +252,22 @@ app.get('/api/health', async (req, res) => {
 
 /**
  * GET /api/accounts
- * Get all accounts with their platform availability (protected)
+ * Get user's connected accounts (protected)
  */
-app.get('/api/accounts', verifyAuth, (req, res) => {
+app.get('/api/accounts', verifyAuth, async (req, res) => {
   try {
-    const accounts = getAllAccountsWithStatus();
+    const userId = req.user.id;
+    const accounts = await getUserConnectedAccounts(userId);
     res.json({ 
       success: true,
-      accounts,
-      count: accounts.length
+      accounts: accounts || [],
+      count: accounts?.length || 0
     });
   } catch (error) {
     console.error('Error in /api/accounts:', error);
     res.status(500).json({ 
-      success: false, 
-      error: error.message 
+      success: false,
+      error: error.message
     });
   }
 });
