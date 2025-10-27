@@ -7,6 +7,7 @@ const multer = require('multer');
 const fs = require('fs').promises;
 const crypto = require('crypto');
 const axios = require('axios');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
 const { encryptState, decryptState } = require('./utilities/oauthState');
 const { 
