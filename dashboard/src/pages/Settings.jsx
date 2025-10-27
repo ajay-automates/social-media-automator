@@ -18,9 +18,10 @@ export default function Settings() {
   }, []);
 
   useEffect(() => {
-    // Check for Instagram connection status in URL params
+    // Check for Instagram and Facebook connection status in URL params
     const params = new URLSearchParams(window.location.search);
     const instagram = params.get('instagram');
+    const facebook = params.get('facebook');
     const error = params.get('error');
     
     if (instagram === 'connected') {
@@ -30,8 +31,22 @@ export default function Settings() {
       window.history.replaceState({}, '', '/dashboard/settings');
     }
     
+    if (facebook === 'connected') {
+      showSuccess('Facebook connected successfully!');
+      loadAccounts();
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+    
     if (error && error.startsWith('instagram')) {
       const message = params.get('message') || 'Failed to connect Instagram';
+      showError(message);
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+    
+    if (error && error.startsWith('facebook')) {
+      const message = params.get('message') || 'Failed to connect Facebook';
       showError(message);
       // Clean URL
       window.history.replaceState({}, '', '/dashboard/settings');
@@ -95,6 +110,20 @@ export default function Settings() {
     } catch (err) {
       console.error('Instagram connection error:', err);
       showError('Failed to connect Instagram');
+    }
+  };
+
+  const connectFacebook = async () => {
+    try {
+      const response = await api.post('/auth/facebook/url');
+      if (response.data?.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      } else {
+        showError('Failed to generate Facebook OAuth URL');
+      }
+    } catch (err) {
+      console.error('Facebook connection error:', err);
+      showError('Failed to connect Facebook');
     }
   };
 
@@ -213,6 +242,14 @@ export default function Settings() {
               >
                 <span>📷</span> Connect Instagram
               </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectFacebook}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2"
+              >
+                <span>📘</span> Connect Facebook
+              </motion.button>
             </div>
           </div>
         ) : (
@@ -228,6 +265,7 @@ export default function Settings() {
                     {account?.platform === 'twitter' && '🐦'}
                     {account?.platform === 'telegram' && '📱'}
                     {account?.platform === 'instagram' && '📷'}
+                    {account?.platform === 'facebook' && '📘'}
                     {!account?.platform && '📱'}
                   </div>
                   <div>
@@ -284,6 +322,14 @@ export default function Settings() {
               className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition"
             >
               + Connect Instagram
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={connectFacebook}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+            >
+              + Connect Facebook
             </motion.button>
           </div>
         )}
