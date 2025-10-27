@@ -1550,7 +1550,7 @@ app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
     const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
     authUrl.searchParams.append('client_id', clientId);
     authUrl.searchParams.append('redirect_uri', redirectUri);
-    authUrl.searchParams.append('scope', 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement');
+    authUrl.searchParams.append('scope', 'pages_manage_posts,pages_read_engagement,instagram_basic,instagram_content_publish');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('state', state);
     
