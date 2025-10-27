@@ -359,7 +359,7 @@ function createSignatureBase(method, url, params) {
 }
 
 /**
- * Disconnect a social media account
+ * Disconnect a social media account (all accounts for the platform)
  * @param {string} userId - User ID
  * @param {string} platform - Platform to disconnect
  * @returns {object} Result
@@ -375,15 +375,45 @@ async function disconnectAccount(userId, platform) {
     
     if (error) throw error;
     
-    console.log(`✅ ${platform} account disconnected for user ${userId}`);
+    console.log(`✅ ${platform} account(s) disconnected for user ${userId}`);
     
     return {
       success: true,
-      message: `${platform} account disconnected successfully`
+      message: `${platform} account(s) disconnected successfully`
     };
     
   } catch (error) {
     console.error(`❌ Error disconnecting ${platform}:`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Disconnect a specific account by ID
+ * @param {string} userId - User ID
+ * @param {number} accountId - Account ID to disconnect
+ * @returns {object} Result
+ */
+async function disconnectAccountById(userId, accountId) {
+  try {
+    // Use supabaseAdmin to bypass RLS for backend operations
+    const { error } = await supabaseAdmin
+      .from('user_accounts')
+      .update({ status: 'disconnected' })
+      .eq('id', accountId)
+      .eq('user_id', userId); // Ensure user owns this account
+    
+    if (error) throw error;
+    
+    console.log(`✅ Account ${accountId} disconnected for user ${userId}`);
+    
+    return {
+      success: true,
+      message: 'Account disconnected successfully'
+    };
+    
+  } catch (error) {
+    console.error(`❌ Error disconnecting account ${accountId}:`, error.message);
     throw error;
   }
 }
@@ -492,6 +522,7 @@ module.exports = {
   
   // Common
   disconnectAccount,
+  disconnectAccountById,
   getUserConnectedAccounts,
   getUserCredentialsForPosting
 };

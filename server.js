@@ -43,6 +43,7 @@ const {
   initiateTwitterOAuth,
   handleTwitterCallback,
   disconnectAccount,
+  disconnectAccountById,
   getUserConnectedAccounts,
   getUserCredentialsForPosting
 } = require('./services/oauth');
@@ -1574,6 +1575,27 @@ app.delete('/api/user/accounts/:platform', verifyAuth, async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('Error disconnecting account:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/user/accounts/:platform/:accountId
+ * Disconnect a specific account by ID
+ */
+app.delete('/api/user/accounts/:platform/:accountId', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const accountId = parseInt(req.params.accountId);
+    
+    const result = await disconnectAccountById(userId, accountId);
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Error disconnecting account by ID:', error);
     res.status(500).json({
       success: false,
       error: error.message

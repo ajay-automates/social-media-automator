@@ -80,7 +80,7 @@ export default function Settings() {
 
   const disconnectAccount = async (account) => {
     try {
-      await api.delete(`/user/accounts/${account.platform}`);
+      await api.delete(`/user/accounts/${account.platform}/${account.id}`);
       showSuccess('Account disconnected');
       loadAccounts();
     } catch (err) {
@@ -157,12 +157,12 @@ export default function Settings() {
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">
-                      {account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account'}
+                      {account?.platform_name || (account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account')}
                     </div>
-                    <div className="text-sm text-gray-600">{account?.username || account?.email || 'Connected'}</div>
+                    <div className="text-sm text-gray-600">{account?.platform_username || account?.username || account?.email || 'Connected'}</div>
                   </div>
                 </div>
-                {account?.platform && (
+                {account?.id && (
                   <button
                     onClick={() => disconnectAccount(account)}
                     className="text-red-600 hover:text-red-700 font-medium transition"
