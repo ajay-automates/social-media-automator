@@ -1540,17 +1540,17 @@ app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
     
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/instagram/callback`;
     const state = encryptState(userId);
-    const scope = 'user_profile,user_media,instagram_basic,instagram_content_publish';
     
-    console.log('📱 Instagram OAuth URL generation:');
+    console.log('📱 Instagram OAuth URL generation (Facebook Login):');
     console.log('  - Client ID:', clientId ? 'exists' : 'missing');
     console.log('  - Redirect URI:', redirectUri);
     console.log('  - User ID:', userId);
     
-    const authUrl = new URL('https://api.instagram.com/oauth/authorize');
+    // Use Facebook Login for Instagram Graph API
+    const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
     authUrl.searchParams.append('client_id', clientId);
     authUrl.searchParams.append('redirect_uri', redirectUri);
-    authUrl.searchParams.append('scope', scope);
+    authUrl.searchParams.append('scope', 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('state', state);
     
