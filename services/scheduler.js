@@ -52,58 +52,86 @@ async function postNow(text, imageUrl, platforms, credentials) {
   
   for (const platform of platforms) {
     try {
-      let result;
+      const accountResults = [];
       
       switch(platform) {
         case 'linkedin':
-          if (imageUrl) {
-            result = await postImageToLinkedIn(
-              text,
-              imageUrl,
-              credentials.linkedin.accessToken,
-              credentials.linkedin.urn,
-              credentials.linkedin.type
-            );
-          } else {
-            result = await postTextToLinkedIn(
-              text,
-              credentials.linkedin.accessToken,
-              credentials.linkedin.urn,
-              credentials.linkedin.type
-            );
+          // Post to ALL LinkedIn accounts
+          for (const linkedinCreds of credentials.linkedin) {
+            const result = imageUrl 
+              ? await postImageToLinkedIn(text, imageUrl, linkedinCreds.accessToken, linkedinCreds.urn, linkedinCreds.type)
+              : await postTextToLinkedIn(text, linkedinCreds.accessToken, linkedinCreds.urn, linkedinCreds.type);
+            accountResults.push(result);
           }
+          // Aggregate results: success if ANY succeeded
+          results[platform] = {
+            success: accountResults.some(r => r.success),
+            results: accountResults,
+            accountCount: accountResults.length,
+            successCount: accountResults.filter(r => r.success).length
+          };
           break;
           
         case 'twitter':
-          result = await postToTwitter(text, credentials.twitter, imageUrl);
+          // Post to ALL Twitter accounts
+          for (const twitterCreds of credentials.twitter) {
+            const result = await postToTwitter(text, twitterCreds, imageUrl);
+            accountResults.push(result);
+          }
+          // Aggregate results: success if ANY succeeded
+          results[platform] = {
+            success: accountResults.some(r => r.success),
+            results: accountResults,
+            accountCount: accountResults.length,
+            successCount: accountResults.filter(r => r.success).length
+          };
           break;
           
         case 'instagram':
-          result = await postToInstagram(
-            text,
-            imageUrl,
-            credentials.instagram.accessToken,
-            credentials.instagram.igUserId
-          );
+          // Post to ALL Instagram accounts
+          for (const instagramCreds of credentials.instagram) {
+            const result = await postToInstagram(text, imageUrl, instagramCreds.accessToken, instagramCreds.igUserId);
+            accountResults.push(result);
+          }
+          results[platform] = {
+            success: accountResults.some(r => r.success),
+            results: accountResults,
+            accountCount: accountResults.length,
+            successCount: accountResults.filter(r => r.success).length
+          };
           break;
           
         case 'telegram':
-          result = await sendToTelegram(
-            credentials.telegram.botToken,
-            credentials.telegram.chatId,
-            text,
-            imageUrl
-          );
+          // Post to ALL Telegram accounts
+          for (const telegramCreds of credentials.telegram) {
+            const result = await sendToTelegram(telegramCreds.botToken, telegramCreds.chatId, text, imageUrl);
+            accountResults.push(result);
+          }
+          results[platform] = {
+            success: accountResults.some(r => r.success),
+            results: accountResults,
+            accountCount: accountResults.length,
+            successCount: accountResults.filter(r => r.success).length
+          };
           break;
           
         default:
-          result = { success: false, error: `Unknown platform: ${platform}` };
+          accountResults.push({ success: false, error: `Unknown platform: ${platform}` });
+          results[platform] = {
+            success: false,
+            results: accountResults,
+            accountCount: 0,
+            successCount: 0
+          };
       }
-      
-      results[platform] = result;
     } catch (error) {
       console.error(`❌ Error posting to ${platform}:`, error.message);
-      results[platform] = { success: false, error: error.message };
+      results[platform] = { 
+        success: false, 
+        error: error.message,
+        accountCount: 0,
+        successCount: 0
+      };
     }
   }
   

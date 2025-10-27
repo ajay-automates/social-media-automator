@@ -429,25 +429,23 @@ async function getUserCredentialsForPosting(userId) {
     
     if (error) throw error;
     
-    // Format credentials for posting services
+    // Format credentials for posting services (arrays to support multiple accounts per platform)
     const credentials = {
-      linkedin: {},
-      twitter: {},
-      instagram: {},
-      telegram: {}
+      linkedin: [],
+      twitter: [],
+      instagram: [],
+      telegram: []
     };
     
     accounts?.forEach(account => {
       if (account.platform === 'linkedin') {
-        credentials.linkedin = {
+        credentials.linkedin.push({
           accessToken: account.access_token,
           urn: account.platform_user_id,
           type: 'person'
-        };
+        });
       } else if (account.platform === 'twitter') {
         // Twitter OAuth: Always prefer OAuth 1.0a if API keys available (media uploads require it)
-        // The account has OAuth 2.0 tokens, but posting needs OAuth 1.0a for media support
-        
         console.log('🔐 Loading Twitter credentials for user');
         
         const hasApiKey = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET;
@@ -456,40 +454,40 @@ async function getUserCredentialsForPosting(userId) {
         if (hasApiKey && hasEnvTokens) {
           // Prefer OAuth 1.0a: Use ALL credentials from env vars
           // This is needed for Twitter v1.1 media upload API
-          credentials.twitter = {
+          credentials.twitter.push({
             apiKey: process.env.TWITTER_API_KEY,
             apiSecret: process.env.TWITTER_API_SECRET,
             accessToken: process.env.TWITTER_ACCESS_TOKEN,
             accessSecret: process.env.TWITTER_ACCESS_SECRET
-          };
+          });
           console.log('   Using OAuth 1.0a from env vars (required for media uploads)');
         } else if (hasApiKey) {
           // Have API keys but missing tokens - try with database tokens
-          credentials.twitter = {
+          credentials.twitter.push({
             apiKey: process.env.TWITTER_API_KEY,
             apiSecret: process.env.TWITTER_API_SECRET,
             accessToken: account.access_token,
             accessSecret: account.refresh_token
-          };
+          });
           console.log('   Using OAuth 1.0a with env API keys and database tokens');
         } else {
           // Fallback to OAuth 2.0 (text-only posts)
-          credentials.twitter = {
+          credentials.twitter.push({
             bearerToken: account.access_token,
             accessToken: account.access_token
-          };
+          });
           console.log('   Using OAuth 2.0 (text posts only, no media)');
         }
       } else if (account.platform === 'instagram') {
-        credentials.instagram = {
+        credentials.instagram.push({
           accessToken: account.access_token,
           igUserId: account.platform_user_id
-        };
+        });
       } else if (account.platform === 'telegram') {
-        credentials.telegram = {
+        credentials.telegram.push({
           botToken: account.access_token,
           chatId: account.platform_user_id
-        };
+        });
       }
     });
     
@@ -498,10 +496,10 @@ async function getUserCredentialsForPosting(userId) {
   } catch (error) {
     console.error('❌ Error fetching user credentials for posting:', error.message);
     return {
-      linkedin: {},
-      twitter: {},
-      instagram: {},
-      telegram: {}
+      linkedin: [],
+      twitter: [],
+      instagram: [],
+      telegram: []
     };
   }
 }

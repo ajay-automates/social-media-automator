@@ -304,9 +304,9 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     // Get user's credentials from database
     const credentials = await getUserCredentialsForPosting(userId);
     console.log('🔑 Credentials loaded:', {
-      linkedin: !!credentials.linkedin.accessToken,
-      twitter: !!credentials.twitter.accessToken,
-      telegram: !!credentials.telegram.botToken
+      linkedin: credentials.linkedin.length,
+      twitter: credentials.twitter.length,
+      telegram: credentials.telegram.length
     });
     console.log('🔑 Full credentials:', JSON.stringify(credentials, null, 2));
     
@@ -319,13 +319,13 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     // Validate that user has connected the requested platforms
     const requestedPlatforms = Array.isArray(platforms) ? platforms : [platforms];
     for (const platform of requestedPlatforms) {
-      if (platform === 'linkedin' && !credentials.linkedin.accessToken) {
+      if (platform === 'linkedin' && credentials.linkedin.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'LinkedIn account not connected. Please connect your LinkedIn account first.'
         });
       }
-      if (platform === 'twitter' && !credentials.twitter.accessToken) {
+      if (platform === 'twitter' && credentials.twitter.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'Twitter account not connected. Please connect your Twitter account first.'
@@ -334,8 +334,8 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       if (platform === 'telegram') {
         console.log('🔍 Checking Telegram credentials for platform:', platform);
         console.log('  - credentials.telegram:', credentials.telegram);
-        console.log('  - botToken exists:', !!credentials.telegram?.botToken);
-        if (!credentials.telegram?.botToken) {
+        console.log('  - accounts count:', credentials.telegram.length);
+        if (credentials.telegram.length === 0) {
           return res.status(400).json({
             success: false,
             error: 'Telegram bot not connected. Please connect your Telegram bot first.'
@@ -445,13 +445,13 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
     // Validate that user has connected the requested platforms
     const requestedPlatforms = Array.isArray(platforms) ? platforms : [platforms];
     for (const platform of requestedPlatforms) {
-      if (platform === 'linkedin' && !credentials.linkedin.accessToken) {
+      if (platform === 'linkedin' && credentials.linkedin.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'LinkedIn account not connected. Please connect your LinkedIn account first.'
         });
       }
-      if (platform === 'twitter' && !credentials.twitter.accessToken) {
+      if (platform === 'twitter' && credentials.twitter.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'Twitter account not connected. Please connect your Twitter account first.'
@@ -460,8 +460,8 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
       if (platform === 'telegram') {
         console.log('🔍 Checking Telegram credentials for schedule:');
         console.log('  - credentials.telegram:', credentials.telegram);
-        console.log('  - botToken exists:', !!credentials.telegram?.botToken);
-        if (!credentials.telegram?.botToken) {
+        console.log('  - accounts count:', credentials.telegram.length);
+        if (credentials.telegram.length === 0) {
           return res.status(400).json({
             success: false,
             error: 'Telegram bot not connected. Please connect your Telegram bot first.'
