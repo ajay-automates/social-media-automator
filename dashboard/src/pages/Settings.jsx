@@ -5,20 +5,22 @@ import { showSuccess, showError } from '../components/ui/Toast';
 
 export default function Settings() {
   const [accounts, setAccounts] = useState([]);
-  const [credentials, setCredentials] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadAccounts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadAccounts = async () => {
     try {
       const response = await api.get('/accounts');
-      setAccounts(response.data?.accounts || response.data || []);
+      const accountsData = response.data?.accounts || response.data || [];
+      setAccounts(accountsData);
     } catch (err) {
       console.error('Error loading accounts:', err);
-      showError('Failed to load accounts');
+      // Silently handle error - just set empty array
+      setAccounts([]);
     } finally {
       setLoading(false);
     }
