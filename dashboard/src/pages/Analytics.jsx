@@ -223,19 +223,34 @@ export default function Analytics() {
 
                 // Helper function to get post URL from results
                 const getPostUrl = (platform) => {
+                  console.log('🔍 Getting URL for platform:', platform, 'Post results:', post.results);
+                  
+                  // First try: Direct URL from results
                   if (post.results && post.results[platform] && post.results[platform].url) {
+                    console.log('✅ Found direct URL:', post.results[platform].url);
                     return post.results[platform].url;
                   }
+                  
+                  // Second try: Construct from postId
                   if (post.results && post.results[platform] && post.results[platform].postId) {
                     const platformLower = platform.toLowerCase();
+                    let url = null;
+                    
                     if (platformLower === 'linkedin') {
-                      return `https://www.linkedin.com/feed/update/${post.results[platform].postId}`;
-                    } else if (platformLower === 'twitter') {
-                      return `https://twitter.com/i/web/status/${post.results[platform].postId}`;
+                      url = `https://www.linkedin.com/feed/update/${post.results[platform].postId}`;
+                    } else if (platformLower === 'twitter' || platformLower === 'x') {
+                      url = `https://twitter.com/i/web/status/${post.results[platform].postId}`;
                     } else if (platformLower === 'telegram') {
-                      return `https://t.me/c/${post.results[platform].chatId}/${post.results[platform].messageId}`;
+                      url = `https://t.me/c/${post.results[platform].chatId}/${post.results[platform].messageId}`;
+                    }
+                    
+                    if (url) {
+                      console.log('✅ Constructed URL from postId:', url);
+                      return url;
                     }
                   }
+                  
+                  console.log('❌ No URL available for platform:', platform);
                   return null;
                 };
 
