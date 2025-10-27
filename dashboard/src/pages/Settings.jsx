@@ -116,30 +116,33 @@ export default function Settings() {
           </div>
         ) : (
           <div className="space-y-3">
-            {accounts.map(account => (
+            {accounts.map((account, index) => (
               <div
-                key={account.id}
+                key={account?.id || `account-${index}`}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <div className="text-3xl">
-                    {account.platform === 'linkedin' && '🔗'}
-                    {account.platform === 'twitter' && '🐦'}
-                    {account.platform === 'telegram' && '📱'}
+                    {account?.platform === 'linkedin' && '🔗'}
+                    {account?.platform === 'twitter' && '🐦'}
+                    {account?.platform === 'telegram' && '📱'}
+                    {!account?.platform && '📱'}
                   </div>
                   <div>
                     <div className="font-semibold text-gray-900">
-                      {account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}
+                      {account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account'}
                     </div>
-                    <div className="text-sm text-gray-600">{account.username || account.email}</div>
+                    <div className="text-sm text-gray-600">{account?.username || account?.email || 'Connected'}</div>
                   </div>
                 </div>
-                <button
-                  onClick={() => disconnectAccount(account.id)}
-                  className="text-red-600 hover:text-red-700 font-medium transition"
-                >
-                  Disconnect
-                </button>
+                {account?.id && (
+                  <button
+                    onClick={() => disconnectAccount(account.id)}
+                    className="text-red-600 hover:text-red-700 font-medium transition"
+                  >
+                    Disconnect
+                  </button>
+                )}
               </div>
             ))}
           </div>
