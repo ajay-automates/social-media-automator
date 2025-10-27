@@ -462,11 +462,11 @@ function initiateInstagramOAuth(userId) {
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
   
-  // Facebook Login for Instagram Graph API (using Facebook App ID)
+  // Facebook Login with minimal scopes (only public_profile works without app review)
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'public_profile,pages_show_list,pages_read_engagement');
+  authUrl.searchParams.append('scope', 'public_profile');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
