@@ -5,7 +5,7 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/',  // Use root base so assets load correctly
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -14,5 +14,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+  },
+  server: {
+    historyApiFallback: true,  // Enable SPA routing
   },
 })
