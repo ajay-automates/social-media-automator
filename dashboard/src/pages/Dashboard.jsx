@@ -116,6 +116,19 @@ export default function Dashboard() {
     );
   }
 
+  // Initialize stats if null to prevent blank screen
+  if (!stats) {
+    setStats({
+      postsToday: 0,
+      totalPosts: 0,
+      successRate: 0,
+      scheduledCount: 0,
+      activePlatforms: 0,
+      recentPosts: []
+    });
+    return null;
+  }
+
   const hasNoActivity = stats.totalPosts === 0;
 
   return (
