@@ -104,6 +104,8 @@ export default function Templates() {
       setStats({
         total: 0,
         favorites: 0,
+        totalUses: 0,
+        mostUsed: [],
         categories: {},
         ...statsData
       });
@@ -114,6 +116,8 @@ export default function Templates() {
       setStats({
         total: 0,
         favorites: 0,
+        totalUses: 0,
+        mostUsed: [],
         categories: {}
       });
       
@@ -274,7 +278,7 @@ async function handleSaveTemplate() {
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-purple-600">
-              {stats.mostUsed[0]?.use_count || 0}
+              {stats.mostUsed && stats.mostUsed.length > 0 ? stats.mostUsed[0]?.use_count || 0 : 0}
             </div>
             <div className="text-sm text-gray-600 mt-1">Most Used</div>
           </div>
