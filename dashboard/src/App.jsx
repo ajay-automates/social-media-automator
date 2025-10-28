@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Templates from './pages/Templates';
 import Pricing from './pages/Pricing';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCancel from './pages/PaymentCancel';
@@ -27,6 +28,7 @@ function Navigation() {
             <div className="ml-10 flex items-center space-x-4">
               <Link to="/" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Dashboard</Link>
               <Link to="/create" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/create') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Create Post</Link>
+              <Link to="/templates" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/templates') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Templates</Link>
               <Link to="/analytics" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/analytics') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Analytics</Link>
               <Link to="/settings" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/settings') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Settings</Link>
               <Link to="/pricing" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/pricing') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Pricing</Link>
@@ -55,6 +57,7 @@ function App() {
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+              <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />

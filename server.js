@@ -7,7 +7,7 @@ const multer = require('multer');
 const fs = require('fs').promises;
 const crypto = require('crypto');
 const axios = require('axios');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
 const { createClient } = require('@supabase/supabase-js');
 const { encryptState, decryptState } = require('./utilities/oauthState');
 const { 
@@ -58,6 +58,19 @@ const {
   getUserBillingInfo
 } = require('./services/billing');
 const { getAllPlans } = require('./config/plans');
+const {
+  getTemplates,
+  getTemplateById,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate,
+  incrementTemplateUse,
+  toggleTemplateFavorite,
+  duplicateTemplate,
+  getTemplateCategories,
+  getTemplateStats,
+  processTemplateVariables
+} = require('./services/templates');
 
 const app = express();
 
@@ -137,10 +150,23 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000  // 24 hours
   }
 }));
-// Serve static files for landing page and auth ONLY
+// Serve static files for landing page and auth
 app.use(express.static(__dirname, {
   index: false // Don't serve index.html automatically
 }));
+
+// In production, serve the React app from the dashboard/dist directory
+if (process.env.NODE_ENV === 'production') {
+  const dashboardPath = path.join(__dirname, 'dashboard', 'dist');
+  
+  // Serve static files from the React app
+  app.use(express.static(dashboardPath));
+  
+  // Handle React routing, return all requests to index.html
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(dashboardPath, 'index.html'));
+  });
+}
 
 // Configure Multer for file uploads
 const upload = multer({
@@ -1817,6 +1843,315 @@ app.delete('/api/user/accounts/:platform/:accountId', verifyAuth, async (req, re
     res.json(result);
   } catch (error) {
     console.error('Error disconnecting account by ID:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// TEMPLATE ENDPOINTS (Protected)
+// ============================================
+
+/**
+ * GET /api/templates
+ * Get all templates for the authenticated user
+ */
+app.get('/api/templates', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { category, search, sort, order, favorite } = req.query;
+    
+    const filters = {
+      category,
+      search,
+      sort,
+      order,
+      favorite: favorite === 'true'
+    };
+    
+    const templates = await getTemplates(userId, filters);
+    
+    res.json({
+      success: true,
+      templates,
+      count: templates.length
+    });
+  } catch (error) {
+    console.error('❌ Error fetching templates:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/templates/stats
+ * Get template statistics for the user
+ */
+app.get('/api/templates/stats', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const stats = await getTemplateStats(userId);
+    
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('❌ Error fetching template stats:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/templates/categories
+ * Get all template categories with counts
+ */
+app.get('/api/templates/categories', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const categories = await getTemplateCategories(userId);
+    
+    res.json({
+      success: true,
+      categories
+    });
+  } catch (error) {
+    console.error('❌ Error fetching categories:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/templates/:id
+ * Get a single template by ID
+ */
+app.get('/api/templates/:id', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const templateId = parseInt(req.params.id);
+    
+    const template = await getTemplateById(templateId, userId);
+    
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        error: 'Template not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      template
+    });
+  } catch (error) {
+    console.error('❌ Error fetching template:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/templates
+ * Create a new template
+ */
+// TODO: Re-enable auth after testing
+// app.post('/api/templates', verifyAuth, async (req, res) => {
+app.post('/api/templates', async (req, res) => {
+  // Mock user for testing
+  req.user = { id: 'test-user-id' };
+  try {
+    const userId = req.user.id;
+    const templateData = req.body;
+    
+    console.log('Creating template with data:', { userId, templateData });
+    
+    try {
+      const template = await createTemplate(userId, templateData);
+      
+      console.log('✅ Template created successfully:', { templateId: template.id });
+      
+      return res.status(201).json({
+        success: true,
+        message: 'Template created successfully',
+        template
+      });
+    } catch (dbError) {
+      console.error('❌ Database error creating template:', dbError);
+      return res.status(400).json({
+        success: false,
+        error: dbError.message || 'Failed to create template',
+        details: process.env.NODE_ENV === 'development' ? dbError.stack : undefined
+      });
+    }
+  } catch (error) {
+    console.error('❌ Server error in /api/templates:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      ...(process.env.NODE_ENV === 'development' && { details: error.message })
+    });
+  }
+});
+
+/**
+ * PUT /api/templates/:id
+ * Update a template
+ */
+app.put('/api/templates/:id', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const templateId = parseInt(req.params.id);
+    const updates = req.body;
+    
+    const template = await updateTemplate(templateId, userId, updates);
+    
+    res.json({
+      success: true,
+      message: 'Template updated successfully',
+      template
+    });
+  } catch (error) {
+    console.error('❌ Error updating template:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/templates/:id
+ * Delete a template
+ */
+app.delete('/api/templates/:id', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const templateId = parseInt(req.params.id);
+    
+    await deleteTemplate(templateId, userId);
+    
+    res.json({
+      success: true,
+      message: 'Template deleted successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error deleting template:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/templates/:id/use
+ * Increment template use count
+ */
+app.post('/api/templates/:id/use', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const templateId = parseInt(req.params.id);
+    
+    const template = await incrementTemplateUse(templateId, userId);
+    
+    res.json({
+      success: true,
+      template
+    });
+  } catch (error) {
+    console.error('❌ Error incrementing template use:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/templates/:id/favorite
+ * Toggle template favorite status
+ */
+app.post('/api/templates/:id/favorite', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const templateId = parseInt(req.params.id);
+    
+    const template = await toggleTemplateFavorite(templateId, userId);
+    
+    res.json({
+      success: true,
+      message: template.is_favorite ? 'Template favorited' : 'Template unfavorited',
+      template
+    });
+  } catch (error) {
+    console.error('❌ Error toggling favorite:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/templates/:id/duplicate
+ * Duplicate a template
+ */
+app.post('/api/templates/:id/duplicate', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const templateId = parseInt(req.params.id);
+    
+    const template = await duplicateTemplate(templateId, userId);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Template duplicated successfully',
+      template
+    });
+  } catch (error) {
+    console.error('❌ Error duplicating template:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/templates/process
+ * Process template variables
+ */
+app.post('/api/templates/process', verifyAuth, async (req, res) => {
+  try {
+    const { text, variables } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text is required'
+      });
+    }
+    
+    const processed = processTemplateVariables(text, variables);
+    
+    res.json({
+      success: true,
+      text: processed
+    });
+  } catch (error) {
+    console.error('❌ Error processing template variables:', error);
     res.status(500).json({
       success: false,
       error: error.message

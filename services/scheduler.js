@@ -5,9 +5,12 @@ const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
 const { postToInstagram } = require('./instagram');
 const { postToFacebookPage } = require('./facebook');
-const { getUserCredentialsForPosting } = require('./oauth'); // ✅ ADD THIS
+const { getUserCredentialsForPosting } = require('./oauth');
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(
+  process.env.SUPABASE_URL?.trim() || process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 let isProcessing = false;
 

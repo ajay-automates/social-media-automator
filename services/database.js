@@ -1,16 +1,22 @@
 const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Supabase client (ANON key - respects RLS)
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL?.trim();
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY?.trim();
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
+  console.error('❌ Missing Supabase credentials in .env file');
+  console.error('SUPABASE_URL:', supabaseUrl ? '✓' : '✗');
+  console.error('SUPABASE_ANON_KEY:', supabaseAnonKey ? '✓' : '✗');
+  console.error('SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? '✓' : '✗');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Initialize Supabase admin client (SERVICE_ROLE key - bypasses RLS for backend operations)
-const supabaseAdmin = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
  * Add a post to the queue (with user_id for multi-tenant)
