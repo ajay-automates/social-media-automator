@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const { createClient } = require('@supabase/supabase-js');
-const { postToLinkedIn } = require('./linkedin');
+const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
 const { postToInstagram } = require('./instagram');
@@ -91,10 +91,15 @@ async function postNow(post) {
           if (credentials.linkedin && Array.isArray(credentials.linkedin)) {
             for (const account of credentials.linkedin) {
               try {
-                const result = await postToLinkedIn(text, image_url, account);
+                let result;
+                if (image_url) {
+                  result = await postImageToLinkedIn(text, image_url, account.accessToken, account.urn, account.type);
+                } else {
+                  result = await postTextToLinkedIn(text, account.accessToken, account.urn, account.type);
+                }
                 results.linkedin = results.linkedin || [];
                 results.linkedin.push(result);
-                console.log(`    ✅ Posted to LinkedIn (${account.name})`);
+                console.log(`    ✅ Posted to LinkedIn`);
               } catch (err) {
                 console.error(`    ❌ LinkedIn error:`, err.message);
                 results.linkedin = results.linkedin || [];
@@ -108,10 +113,10 @@ async function postNow(post) {
           if (credentials.twitter && Array.isArray(credentials.twitter)) {
             for (const account of credentials.twitter) {
               try {
-                const result = await postToTwitter(text, image_url, account);
+                const result = await postToTwitter(text, account, image_url);
                 results.twitter = results.twitter || [];
                 results.twitter.push(result);
-                console.log(`    ✅ Posted to Twitter (${account.name})`);
+                console.log(`    ✅ Posted to Twitter`);
               } catch (err) {
                 console.error(`    ❌ Twitter error:`, err.message);
                 results.twitter = results.twitter || [];
