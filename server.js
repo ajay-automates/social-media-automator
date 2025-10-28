@@ -13,7 +13,7 @@ const { encryptState, decryptState } = require('./utilities/oauthState');
 const { 
   schedulePost, 
   postNow, 
-  startQueueProcessor, 
+  startScheduler, 
   getQueue,
   deleteFromQueue 
 } = require('./services/scheduler');
@@ -166,7 +166,7 @@ if (!require('fs').existsSync(uploadsDir)) {
 }
 
 // Start the queue processor
-startQueueProcessor();
+startScheduler();
 
 // ============================================
 // PAGE ROUTES (Unprotected)
