@@ -125,18 +125,22 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
         else if (platform === 'twitter') {
           // Twitter - post to all connected accounts
           if (credentials.twitter && Array.isArray(credentials.twitter)) {
+            console.log(`🐦 Twitter credentials found:`, credentials.twitter.length, 'accounts');
             for (const account of credentials.twitter) {
+              console.log(`🐦 Posting to Twitter with account:`, JSON.stringify(account, null, 2));
               try {
                 const result = await postToTwitter(text, account, image_url);
                 results.twitter = results.twitter || [];
                 results.twitter.push(result);
-                console.log(`    ✅ Posted to Twitter`);
+                console.log(`    ✅ Posted to Twitter - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
                 console.error(`    ❌ Twitter error:`, err.message);
                 results.twitter = results.twitter || [];
                 results.twitter.push({ error: err.message });
               }
             }
+          } else {
+            console.log(`⚠️  No Twitter credentials found`);
           }
         } 
         else if (platform === 'telegram') {
