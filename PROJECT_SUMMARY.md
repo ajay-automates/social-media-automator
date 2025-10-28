@@ -435,8 +435,42 @@ You've built a **real, working SaaS product** with:
 
 ---
 
-**Current Version:** v3.0 with Multi-Account Support & Enhanced UX  
-**Last Updated:** December 2024  
+## 🐛 Recent Deployment Fixes (October 2024)
+
+### **Issue: Blank Dashboard After Login**
+
+**Symptoms:**
+- Dashboard appeared blank after successful login
+- Browser console showed 404 errors for JavaScript assets
+- Files like `index-DMPWxKBm.js` and `index-CsNMN35u.js` were missing
+
+**Root Causes:**
+1. **Missing Build Assets**: Railway deployment wasn't including the compiled React dashboard files
+2. **Git Ignore**: The `dashboard/dist/` folder was excluded by `.gitignore`
+3. **Asset Route Conflict**: Catch-all route was intercepting `/assets/` requests
+4. **Old Build Hash**: Production had old asset hash names that didn't exist
+
+**Fixes Applied:**
+1. ✅ Modified `.gitignore` to allow `dashboard/dist/` with exception pattern
+2. ✅ Fixed `server.js` catch-all route to skip `/assets/` and `/vite.svg` requests  
+3. ✅ Added proper fallback stats in Dashboard component to prevent blank screens
+4. ✅ Improved error handling in API interceptor
+5. ✅ Removed conflicting basename from BrowserRouter
+6. ✅ Committed built assets to git with `git add -f dashboard/dist/`
+
+**Key Commits:**
+- `ef7a377` - Include dashboard build assets in git for Railway deployment
+- `0fe5010` - Skip asset requests in catch-all route
+- `7b48b28` - Prevent blank dashboard with proper fallback stats
+- `e32b719` - Add error handling to prevent blank dashboard after login
+
+**Solution:**
+The dashboard was building locally but Railway couldn't serve the files because they weren't in git. Added the exception to `.gitignore` and force-committed the built assets so Railway can serve them.
+
+---
+
+**Current Version:** v3.1 with Fixed Deployment & Asset Handling  
+**Last Updated:** October 2024  
 **Production URL:** https://capable-motivation-production-7a75.up.railway.app  
 **GitHub:** https://github.com/ajay-automates/social-media-automator  
 **Status:** ✅ Live and fully functional
