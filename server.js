@@ -207,10 +207,7 @@ try {
   console.log('❌ Error loading dashboard:', err.message);
 }
 
-// Fallback to old dashboard for now
-app.get('/dashboard/old', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
-});
+// Old dashboard removed - using React Dashboard now
 
 // Serve React Dashboard index.html for /dashboard routes
 app.get('/dashboard/*', (req, res) => {
