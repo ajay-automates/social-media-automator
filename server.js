@@ -1970,6 +1970,7 @@ app.get('*', (req, res, next) => {
 // ============================================
 // START SERVER
 // ============================================
+// Deployment timestamp: 2025-01-27 - Instagram/Facebook scheduler fix
 
 const PORT = process.env.PORT || 3000;
 
