@@ -25,15 +25,18 @@ export default function Dashboard() {
   const loadBillingInfo = async () => {
     try {
       const response = await api.get('/billing/usage');
-      setBillingInfo(response.data);
+      const data = response.data;
+      setBillingInfo(data);
       
       // Check if user has hit post limit
-      const { usage, plan } = response.data;
-      if (plan.name === 'free' && usage.posts.used >= usage.posts.limit) {
+      const { usage, plan } = data;
+      if (plan && plan.name === 'free' && usage && usage.posts && usage.posts.used >= usage.posts.limit) {
         setShowUpgrade(true);
       }
     } catch (err) {
       console.error('Error loading billing info:', err);
+      // Set default empty billing info on error
+      setBillingInfo(null);
     }
   };
 
@@ -140,7 +143,7 @@ export default function Dashboard() {
       </div>
       
       {/* Usage Summary */}
-      {billingInfo && (
+      {billingInfo && billingInfo.usage && billingInfo.usage.posts && billingInfo.plan && billingInfo.plan.name && (
         <div className="mb-6">
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
