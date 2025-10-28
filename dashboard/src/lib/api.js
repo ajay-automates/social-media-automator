@@ -25,6 +25,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      console.error('❌ Auth failed - threshold 401 error');
       // Redirect to login on auth failure
       window.location.href = '/auth';
     }

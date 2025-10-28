@@ -70,29 +70,39 @@ export default function Settings() {
 
   const connectLinkedIn = async () => {
     try {
+      console.log('🔗 Attempting to connect LinkedIn...');
       const response = await api.post('/auth/linkedin/url');
+      console.log('🔗 LinkedIn response:', response.data);
       if (response.data?.oauthUrl) {
+        console.log('🔗 Redirecting to:', response.data.oauthUrl);
         window.location.href = response.data.oauthUrl;
       } else {
+        console.error('🔗 No OAuth URL in response');
         showError('Failed to generate LinkedIn OAuth URL');
       }
     } catch (err) {
       console.error('LinkedIn connection error:', err);
-      showError('Failed to connect LinkedIn');
+      console.error('Error response:', err.response?.data);
+      showError(err.response?.data?.error || 'Failed to connect LinkedIn');
     }
   };
 
   const connectTwitter = async () => {
     try {
+      console.log('🐦 Attempting to connect Twitter...');
       const response = await api.post('/auth/twitter/url');
+      console.log('🐦 Twitter response:', response.data);
       if (response.data?.oauthUrl) {
+        console.log('🐦 Redirecting to:', response.data.oauthUrl);
         window.location.href = response.data.oauthUrl;
       } else {
+        console.error('🐦 No OAuth URL in response');
         showError('Failed to generate Twitter OAuth URL');
       }
     } catch (err) {
       console.error('Twitter connection error:', err);
-      showError('Failed to connect Twitter');
+      console.error('Error response:', err.response?.data);
+      showError(err.response?.data?.error || 'Failed to connect Twitter');
     }
   };
 
