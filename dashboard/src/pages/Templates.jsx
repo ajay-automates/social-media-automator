@@ -54,7 +54,7 @@ export default function Templates() {
       params.append('sort', 'created_at');
       params.append('order', 'desc');
 
-      const response = await api.get(`/api/templates?${params}`);
+      const response = await api.get(`/templates?${params}`);
       
       // Handle both response formats:
       // 1. Direct array response: [template1, template2, ...]
@@ -88,7 +88,7 @@ export default function Templates() {
 
   async function fetchStats() {
     try {
-      const response = await api.get('/api/templates/stats');
+      const response = await api.get('/templates/stats');
       
       // Handle different response formats
       let statsData = {};
@@ -156,9 +156,9 @@ async function handleSaveTemplate() {
     try {
       let response;
       if (editingTemplate) {
-        response = await api.put(`/api/templates/${editingTemplate.id}`, templateData);
+        response = await api.put(`/templates/${editingTemplate.id}`, templateData);
       } else {
-        response = await api.post('/api/templates', templateData);
+        response = await api.post('/templates', templateData);
       }
       
       toast.success(editingTemplate ? 'Template updated successfully!' : 'Template created successfully!', { id: loadingToast });
@@ -194,7 +194,7 @@ async function handleSaveTemplate() {
 
   async function handleDuplicateTemplate(id) {
     try {
-      await api.post(`/api/templates/${id}/duplicate`);
+      await api.post(`/templates/${id}/duplicate`);
       toast.success('Template duplicated successfully!');
       fetchTemplates();
     } catch (error) {
@@ -205,7 +205,7 @@ async function handleSaveTemplate() {
 
   async function handleToggleFavorite(id) {
     try {
-      await api.post(`/api/templates/${id}/favorite`);
+      await api.post(`/templates/${id}/favorite`);
       fetchTemplates();
     } catch (error) {
       console.error('Error toggling favorite:', error);
