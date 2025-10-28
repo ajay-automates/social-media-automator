@@ -182,7 +182,7 @@ async function handleSaveTemplate() {
     if (!confirm('Are you sure you want to delete this template?')) return;
 
     try {
-      await api.delete(`/api/templates/${id}`);
+      await api.delete(`/templates/${id}`);
       toast.success('Template deleted successfully!');
       fetchTemplates();
       fetchStats();
