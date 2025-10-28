@@ -1,305 +1,311 @@
 const cron = require('node-cron');
-const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
+const { createClient } = require('@supabase/supabase-js');
+const { postToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
-const { postToInstagram } = require('./instagram');
 const { sendToTelegram } = require('./telegram');
-const { 
-  addPost, 
-  getDuePosts, 
-  getAllQueuedPosts, 
-  updatePostStatus, 
-  deletePost,
-  cleanupOldPosts
-} = require('./database');
+const { postToInstagram } = require('./instagram');
+const { postToFacebookPage } = require('./facebook');
+const { getUserCredentialsForPosting } = require('./oauth'); // ✅ ADD THIS
 
-/**
- * Schedule a post for later
- */
-async function schedulePost(text, imageUrl, platforms, scheduleTime, credentials, userId = null) {
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+let isProcessing = false;
+
+// Start the scheduler
+function startScheduler() {
+  console.log('🚀 Queue processor started - checking every minute');
+  
+  // Run every minute
+  cron.schedule('* * * * *', async () => {
+    if (isProcessing) return;
+    
+    try {
+      isProcessing = true;
+      await processDueQueue();
+    } catch (error) {
+      console.error('❌ Queue processor error:', error);
+    } finally {
+      isProcessing = false;
+    }
+  });
+}
+
+async function processDueQueue() {
   try {
-    const post = await addPost({
-      text,
-      imageUrl,
-      platforms,
-      scheduleTime: new Date(scheduleTime),
-      credentials,
-      userId // Pass userId for multi-tenant
-    });
-    
-    console.log(`   Caption: ${text.slice(0, 50)}...`);
-    console.log(`   Platforms: ${platforms.join(', ')}`);
-    console.log(`   Scheduled for: ${new Date(scheduleTime).toLocaleString()}\n`);
-    
-    return post;
+    // Get all posts that are due
+    const { data: duePostsData, error: dueError } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('status', 'queued')
+      .lte('schedule_time', new Date().toISOString())
+      .limit(10);
+
+    if (dueError) {
+      console.error('Error fetching due posts:', dueError);
+      return;
+    }
+
+    if (!duePostsData || duePostsData.length === 0) {
+      return;
+    }
+
+    console.log(`📋 Processing ${duePostsData.length} due posts...`);
+
+    for (const post of duePostsData) {
+      await postNow(post);
+    }
   } catch (error) {
-    console.error('❌ Error scheduling post:', error.message);
-    throw error;
+    console.error('❌ Error in processDueQueue:', error);
   }
 }
 
-/**
- * Post immediately to selected platforms
- */
-async function postNow(text, imageUrl, platforms, credentials) {
-  // Ensure platforms is always an array
-  if (!Array.isArray(platforms)) {
-    platforms = platforms ? [platforms] : ['linkedin'];
-  }
-  
-  console.log(`\n🚀 Posting to: ${platforms.join(', ')}...\n`);
-  
-  const results = {};
-  
-  for (const platform of platforms) {
-    try {
-      const accountResults = [];
-      
-      switch(platform) {
-        case 'linkedin':
-          // Post to ALL LinkedIn accounts
-          for (const linkedinCreds of credentials.linkedin) {
-            const result = imageUrl 
-              ? await postImageToLinkedIn(text, imageUrl, linkedinCreds.accessToken, linkedinCreds.urn, linkedinCreds.type)
-              : await postTextToLinkedIn(text, linkedinCreds.accessToken, linkedinCreds.urn, linkedinCreds.type);
-            accountResults.push(result);
-          }
-          // Aggregate results: success if ANY succeeded
-          results[platform] = {
-            success: accountResults.some(r => r.success),
-            results: accountResults,
-            accountCount: accountResults.length,
-            successCount: accountResults.filter(r => r.success).length
-          };
-          break;
-          
-        case 'twitter':
-          // Post to ALL Twitter accounts
-          for (const twitterCreds of credentials.twitter) {
-            const result = await postToTwitter(text, twitterCreds, imageUrl);
-            accountResults.push(result);
-          }
-          // Aggregate results: success if ANY succeeded
-          results[platform] = {
-            success: accountResults.some(r => r.success),
-            results: accountResults,
-            accountCount: accountResults.length,
-            successCount: accountResults.filter(r => r.success).length
-          };
-          break;
-          
-        case 'instagram':
-          // Post to ALL Instagram accounts
-          for (const instagramCreds of credentials.instagram) {
-            const result = await postToInstagram(text, imageUrl, instagramCreds.accessToken, instagramCreds.igUserId);
-            accountResults.push(result);
-          }
-          results[platform] = {
-            success: accountResults.some(r => r.success),
-            results: accountResults,
-            accountCount: accountResults.length,
-            successCount: accountResults.filter(r => r.success).length
-          };
-          break;
-          
-        case 'facebook':
-          // Post to ALL Facebook Pages
-          const { postToFacebookPage } = require('./facebook');
-          for (const fbCreds of credentials.facebook) {
-            try {
-              const result = await postToFacebookPage(text, imageUrl, {
-                pageId: fbCreds.pageId,
-                accessToken: fbCreds.accessToken
-              });
-              accountResults.push({
-                success: true,
-                pageId: fbCreds.pageId,
-                postId: result.postId,
-                permalink: result.permalink
-              });
-            } catch (error) {
-              accountResults.push({
-                success: false,
-                pageId: fbCreds.pageId,
-                error: error.message
-              });
+async function postNow(post) {
+  try {
+    const { id, user_id, text, image_url, platforms } = post;
+    let platformsArray = platforms;
+
+    if (typeof platforms === 'string') {
+      platformsArray = JSON.parse(platforms);
+    }
+
+    console.log(`\n📤 Posting [${id}] to: ${platformsArray.join(', ')}`);
+
+    // ✅ FIXED: Get credentials from database, not environment
+    const credentials = await getUserCredentialsForPosting(user_id);
+    
+    if (!credentials) {
+      console.error(`❌ No credentials found for user ${user_id}`);
+      await updatePostStatus(id, 'failed', 'No connected accounts');
+      return;
+    }
+
+    const results = {};
+
+    // Process each platform
+    for (const platform of platformsArray) {
+      try {
+        console.log(`  → Posting to ${platform}...`);
+
+        if (platform === 'linkedin') {
+          // LinkedIn - post to all connected accounts
+          if (credentials.linkedin && Array.isArray(credentials.linkedin)) {
+            for (const account of credentials.linkedin) {
+              try {
+                const result = await postToLinkedIn(text, image_url, account);
+                results.linkedin = results.linkedin || [];
+                results.linkedin.push(result);
+                console.log(`    ✅ Posted to LinkedIn (${account.name})`);
+              } catch (err) {
+                console.error(`    ❌ LinkedIn error:`, err.message);
+                results.linkedin = results.linkedin || [];
+                results.linkedin.push({ error: err.message });
+              }
             }
           }
-          results[platform] = {
-            success: accountResults.some(r => r.success),
-            results: accountResults,
-            accountCount: accountResults.length,
-            successCount: accountResults.filter(r => r.success).length
-          };
-          break;
-          
-        case 'telegram':
-          // Post to ALL Telegram accounts
-          for (const telegramCreds of credentials.telegram) {
-            const result = await sendToTelegram(telegramCreds.botToken, telegramCreds.chatId, text, imageUrl);
-            accountResults.push(result);
+        } 
+        else if (platform === 'twitter') {
+          // Twitter - post to all connected accounts
+          if (credentials.twitter && Array.isArray(credentials.twitter)) {
+            for (const account of credentials.twitter) {
+              try {
+                const result = await postToTwitter(text, image_url, account);
+                results.twitter = results.twitter || [];
+                results.twitter.push(result);
+                console.log(`    ✅ Posted to Twitter (${account.name})`);
+              } catch (err) {
+                console.error(`    ❌ Twitter error:`, err.message);
+                results.twitter = results.twitter || [];
+                results.twitter.push({ error: err.message });
+              }
+            }
           }
-          results[platform] = {
-            success: accountResults.some(r => r.success),
-            results: accountResults,
-            accountCount: accountResults.length,
-            successCount: accountResults.filter(r => r.success).length
-          };
-          break;
-          
-        default:
-          accountResults.push({ success: false, error: `Unknown platform: ${platform}` });
-          results[platform] = {
-            success: false,
-            results: accountResults,
-            accountCount: 0,
-            successCount: 0
-          };
-      }
-    } catch (error) {
-      console.error(`❌ Error posting to ${platform}:`, error.message);
-      results[platform] = { 
-        success: false, 
-        error: error.message,
-        accountCount: 0,
-        successCount: 0
-      };
-    }
-  }
-  
-  return results;
-}
-
-/**
- * Start the queue processor (checks every minute for due posts)
- */
-function startQueueProcessor() {
-  console.log('⏰ Queue processor started - checking every minute');
-  console.log('📊 Using Supabase database for persistent storage\n');
-  
-  cron.schedule('* * * * *', async () => {
-    try {
-      const duePosts = await getDuePosts();
-      
-      if (duePosts.length === 0) {
-        return;
-      }
-      
-      const now = new Date();
-      console.log(`\n⏰ [${now.toLocaleTimeString()}] Found ${duePosts.length} post(s) to publish...\n`);
-      
-      for (const post of duePosts) {
-        console.log(`🚀 Publishing post ID ${post.id} to: ${post.platforms.join(', ')}`);
-        console.log(`   Text: ${post.text.slice(0, 60)}...`);
-        
-        // Re-construct credentials from environment (not stored in DB for security)
-        const credentials = {
-          linkedin: {
-            accessToken: process.env.LINKEDIN_TOKEN,
-            urn: process.env.LINKEDIN_URN,
-            type: process.env.LINKEDIN_TYPE
-          },
-          twitter: {
-            apiKey: process.env.TWITTER_API_KEY,
-            apiSecret: process.env.TWITTER_API_SECRET,
-            accessToken: process.env.TWITTER_ACCESS_TOKEN,
-            accessSecret: process.env.TWITTER_ACCESS_SECRET
-          },
-          instagram: {
-            accessToken: process.env.INSTAGRAM_ACCESS_TOKEN,
-            igUserId: process.env.INSTAGRAM_USER_ID
+        } 
+        else if (platform === 'telegram') {
+          // Telegram - post to all connected bots
+          if (credentials.telegram) {
+            try {
+              const result = await sendToTelegram(text, image_url, credentials.telegram);
+              results.telegram = result;
+              console.log(`    ✅ Posted to Telegram`);
+            } catch (err) {
+              console.error(`    ❌ Telegram error:`, err.message);
+              results.telegram = { error: err.message };
+            }
           }
-        };
-        
-        const results = await postNow(
-          post.text,
-          post.image_url,
-          post.platforms,
-          credentials
-        );
-        
-        let allSucceeded = true;
-        let hasFailure = false;
-        
-        for (const [platform, result] of Object.entries(results)) {
-          if (result.success) {
-            console.log(`   ✅ ${platform}: SUCCESS`);
-          } else {
-            console.log(`   ❌ ${platform}: ${result.error}`);
-            allSucceeded = false;
-            hasFailure = true;
+        } 
+        else if (platform === 'instagram') {
+          // ✅ FIXED: Use database credentials instead of process.env
+          if (credentials.instagram && Array.isArray(credentials.instagram)) {
+            for (const account of credentials.instagram) {
+              try {
+                const result = await postToInstagram(text, image_url, account.access_token, account.platform_user_id);
+                results.instagram = results.instagram || [];
+                results.instagram.push(result);
+                console.log(`    ✅ Posted to Instagram (${account.platform_username})`);
+              } catch (err) {
+                console.error(`    ❌ Instagram error:`, err.message);
+                results.instagram = results.instagram || [];
+                results.instagram.push({ error: err.message });
+              }
+            }
+          }
+        } 
+        else if (platform === 'facebook') {
+          // ✅ FIXED: Use database credentials instead of process.env
+          if (credentials.facebook && Array.isArray(credentials.facebook)) {
+            for (const account of credentials.facebook) {
+              try {
+                const result = await postToFacebookPage(text, image_url, {
+                  pageId: account.platform_user_id,
+                  accessToken: account.access_token
+                });
+                results.facebook = results.facebook || [];
+                results.facebook.push(result);
+                console.log(`    ✅ Posted to Facebook (${account.platform_username})`);
+              } catch (err) {
+                console.error(`    ❌ Facebook error:`, err.message);
+                results.facebook = results.facebook || [];
+                results.facebook.push({ error: err.message });
+              }
+            }
           }
         }
-        
-        // Determine final status
-        let status;
-        if (allSucceeded) {
-          status = 'posted';
-        } else if (hasFailure && Object.values(results).some(r => r.success)) {
-          status = 'partial';
-        } else {
-          status = 'failed';
-        }
-        
-        // Update post status in database
-        await updatePostStatus(post.id, status, results);
-        
-        console.log(`${allSucceeded ? '✅' : '⚠️'} Post ID ${post.id} completed (${status})\n`);
+      } catch (error) {
+        console.error(`❌ Platform ${platform} error:`, error);
+        results[platform] = { error: error.message };
       }
-    } catch (error) {
-      console.error('❌ Queue processor error:', error.message);
     }
-  });
-  
-  // Cleanup old posts every hour
-  cron.schedule('0 * * * *', async () => {
-    try {
-      await cleanupOldPosts();
-    } catch (error) {
-      console.error('❌ Cleanup error:', error.message);
-    }
-  });
-}
 
-/**
- * Get all posts in queue (for display)
- */
-async function getQueue() {
-  try {
-    const posts = await getAllQueuedPosts();
-    
-    return posts.map(post => ({
-      id: post.id,
-      text: post.text.slice(0, 100) + (post.text.length > 100 ? '...' : ''),
-      platforms: post.platforms,
-      hasImage: !!post.image_url,
-      scheduleTime: post.schedule_time,
-      status: post.status,
-      createdAt: post.created_at,
-      postedAt: post.posted_at,
-      results: post.results
-    }));
+    // Check if all platforms succeeded
+    const hasErrors = Object.values(results).some(r => {
+      if (Array.isArray(r)) return r.some(item => item.error);
+      return r.error;
+    });
+
+    const status = hasErrors ? 'failed' : 'posted';
+    const message = JSON.stringify(results);
+
+    await updatePostStatus(id, status, message);
+    console.log(`✅ Post [${id}] completed - Status: ${status}`);
+
   } catch (error) {
-    console.error('❌ Error getting queue:', error.message);
+    console.error(`❌ Error posting [${post.id}]:`, error);
+    await updatePostStatus(post.id, 'failed', error.message);
+  }
+}
+
+async function updatePostStatus(postId, status, message = null) {
+  try {
+    const update = { status, updated_at: new Date().toISOString() };
+    if (message) update.result = message;
+
+    const { error } = await supabase
+      .from('posts')
+      .update(update)
+      .eq('id', postId);
+
+    if (error) {
+      console.error('Error updating post status:', error);
+    }
+  } catch (error) {
+    console.error('Error in updatePostStatus:', error);
+  }
+}
+
+async function schedulePost(postData) {
+  try {
+    const { user_id, text, image_url, platforms, schedule_time } = postData;
+
+    const { data, error } = await supabase
+      .from('posts')
+      .insert([
+        {
+          user_id,
+          text,
+          image_url,
+          platforms: Array.isArray(platforms) ? platforms : [platforms],
+          schedule_time: new Date(schedule_time).toISOString(),
+          status: 'queued',
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select();
+
+    if (error) {
+      throw error;
+    }
+
+    return { success: true, post: data[0] };
+  } catch (error) {
+    console.error('Error scheduling post:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function getQueue(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'queued')
+      .order('schedule_time', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching queue:', error);
     return [];
   }
 }
 
-/**
- * Delete a post from queue
- */
-async function deleteFromQueue(postId) {
+async function deleteFromQueue(postId, userId) {
   try {
-    return await deletePost(postId);
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', postId)
+      .eq('user_id', userId);
+
+    if (error) {
+      throw error;
+    }
+
+    return { success: true };
   } catch (error) {
-    console.error('❌ Error deleting post:', error.message);
-    return false;
+    console.error('Error deleting from queue:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function getAllQueuedPosts() {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('status', 'queued')
+      .order('schedule_time', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching all queued posts:', error);
+    return [];
   }
 }
 
 module.exports = {
-  schedulePost,
+  startScheduler,
   postNow,
-  startQueueProcessor,
+  schedulePost,
   getQueue,
-  deleteFromQueue
+  deleteFromQueue,
+  getAllQueuedPosts,
+  processDueQueue,
 };
