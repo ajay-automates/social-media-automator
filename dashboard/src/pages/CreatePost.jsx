@@ -332,7 +332,7 @@ export default function CreatePost() {
                 <span className="text-gray-700">
                   {billingInfo.usage.posts.limit === Infinity ? 'Unlimited posts' : `${billingInfo.usage.posts.limit - billingInfo.usage.posts.used} posts remaining`}
                 </span>
-                {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan.name === 'free' && (
+                {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan && billingInfo.plan.name === 'free' && (
                   <a href="/pricing" className="text-blue-600 hover:text-blue-700 font-medium">
                     Upgrade →
                   </a>

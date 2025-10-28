@@ -159,7 +159,7 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-            {billingInfo.plan.name === 'free' && (
+            {billingInfo.plan && billingInfo.plan.name === 'free' && (
               <Link
                 to="/pricing"
                 className="text-blue-600 hover:text-blue-700 font-medium text-sm ml-2"
