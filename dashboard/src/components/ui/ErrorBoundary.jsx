@@ -21,9 +21,14 @@ class ErrorBoundary extends React.Component {
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4">
               We're sorry, but something unexpected happened. Please try refreshing the page.
             </p>
+            {this.state.error && (
+              <pre className="text-left text-xs bg-gray-100 p-3 rounded mb-4 overflow-auto max-h-32">
+                {this.state.error.toString()}
+              </pre>
+            )}
             <button
               onClick={() => window.location.reload()}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition"
