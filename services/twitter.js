@@ -322,7 +322,7 @@ async function postToTwitter(text, credentials, imageUrl = null) {
   } catch (error) {
     console.error('❌ Twitter error:');
     console.error('   Status:', error.response?.status);
-    console.error('   Data:', JSON.stringify(error.response?. orchestr, null, 2));
+    console.error('   Data:', JSON.stringify(error.response?.data, null, 2));
     console.error('   Message:', error.message);
     return {
       success: false,
