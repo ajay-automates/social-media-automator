@@ -1950,8 +1950,12 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
 
 // Serve React Dashboard for all non-API routes
 app.get('*', (req, res, next) => {
-  // Skip API routes
-  if (req.path.startsWith('/api/') || req.path.startsWith('/auth') || req.path.startsWith('/template.csv')) {
+  // Skip API routes, auth routes, and static assets
+  if (req.path.startsWith('/api/') || 
+      req.path.startsWith('/auth') || 
+      req.path.startsWith('/template.csv') ||
+      req.path.startsWith('/assets/') ||
+      req.path.startsWith('/vite.svg')) {
     return next();
   }
   
