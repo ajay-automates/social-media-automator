@@ -294,6 +294,11 @@ async function postToTwitter(text, credentials, imageUrl = null) {
       authHeader = generateOAuthHeader('POST', url, credentials);
     }
     
+    console.log('🐦 Twitter API call:');
+    console.log('   URL:', url);
+    console.log('   Payload:', JSON.stringify(payload, null, 2));
+    console.log('   Auth type:', isOAuth2 ? 'OAuth 2.0' : 'OAuth 1.0a');
+    
     const response = await axios.post(
       url,
       payload,
@@ -307,6 +312,7 @@ async function postToTwitter(text, credentials, imageUrl = null) {
     
     console.log('✅ Twitter: Posted successfully');
     console.log('   Tweet ID:', response.data.data.id);
+    console.log('   Full response:', JSON.stringify(response.data, null, 2));
     
     return {
       success: true,
@@ -314,10 +320,13 @@ async function postToTwitter(text, credentials, imageUrl = null) {
       platform: 'twitter'
     };
   } catch (error) {
-    console.error('❌ Twitter error:', error.response?.data || error.message);
+    console.error('❌ Twitter error:');
+    console.error('   Status:', error.response?.status);
+    console.error('   Data:', JSON.stringify(error.response?. orchestr, null, 2));
+    console.error('   Message:', error.message);
     return {
       success: false,
-      error: error.response?.data?.detail || error.message,
+      error: error.response?.data?.detail || error.response?.data?.title || error.message,
       platform: 'twitter'
     };
   }
