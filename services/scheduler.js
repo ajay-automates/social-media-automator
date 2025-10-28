@@ -59,24 +59,35 @@ async function processDueQueue() {
   }
 }
 
-async function postNow(post) {
+async function postNow(text, imageUrl, platforms, providedCredentials) {
   try {
-    const { id, user_id, text, image_url, platforms } = post;
-    let platformsArray = platforms;
-
-    if (typeof platforms === 'string') {
-      platformsArray = JSON.parse(platforms);
+    let id, user_id, image_url, platformsArray, credentials;
+    
+    // Support both signatures:
+    // 1. postNow({id, user_id, text, image_url, platforms}) - for scheduled posts
+    // 2. postNow(text, imageUrl, platforms, credentials) - for immediate posts
+    if (typeof text === 'object' && text.text) {
+      // Signature 1: Scheduled post object
+      ({ id, user_id, text, image_url, platforms } = text);
+      platformsArray = platforms;
+      if (typeof platforms === 'string') {
+        platformsArray = JSON.parse(platforms);
+      }
+      // Get credentials from database
+      credentials = await getUserCredentialsForPosting(user_id);
+    } else {
+      // Signature 2: Immediate post (OLD signature)
+      platformsArray = platforms;
+      image_url = imageUrl;
+      credentials = providedCredentials;
+      user_id = 'immediate';
     }
 
-    console.log(`\n📤 Posting [${id}] to: ${platformsArray.join(', ')}`);
-
-    // ✅ FIXED: Get credentials from database, not environment
-    const credentials = await getUserCredentialsForPosting(user_id);
+    console.log(`\n📤 Posting to: ${platformsArray.join(', ')}`);
     
     if (!credentials) {
-      console.error(`❌ No credentials found for user ${user_id}`);
-      await updatePostStatus(id, 'failed', 'No connected accounts');
-      return;
+      console.error(`❌ No credentials found`);
+      return {};
     }
 
     const results = {};
@@ -190,12 +201,24 @@ async function postNow(post) {
     const status = hasErrors ? 'failed' : 'posted';
     const message = JSON.stringify(results);
 
-    await updatePostStatus(id, status, message);
-    console.log(`✅ Post [${id}] completed - Status: ${status}`);
+    // Only update post status if this is a scheduled post (has id)
+    if (id) {
+      await updatePostStatus(id, status, message);
+      console.log(`✅ Post [${id}] completed - Status: ${status}`);
+    }
+    
+    // Return results for immediate posting
+    return results;
 
   } catch (error) {
-    console.error(`❌ Error posting [${post.id}]:`, error);
-    await updatePostStatus(post.id, 'failed', error.message);
+    console.error(`❌ Error posting:`, error);
+    
+    // Only update post status if this is a scheduled post (has id)
+    if (id) {
+      await updatePostStatus(id, 'failed', error.message);
+    }
+    
+    throw error; // Re-throw for immediate posts
   }
 }
 
