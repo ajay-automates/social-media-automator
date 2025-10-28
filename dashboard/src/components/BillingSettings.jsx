@@ -59,7 +59,16 @@ export default function BillingSettings() {
   }
 
   const { plan, subscription, usage } = billingData;
-  const isFree = plan.name === 'free';
+  const isFree = plan && plan.name === 'free';
+  
+  // Safety checks
+  if (!plan || !usage) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">Failed to load billing information</p>
+      </div>
+    );
+  }
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';

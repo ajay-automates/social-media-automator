@@ -160,7 +160,7 @@ export default function CreatePost() {
     }
 
     // Check usage limits
-    if (billingInfo) {
+    if (billingInfo && billingInfo.usage && billingInfo.usage.posts) {
       const { usage, plan } = billingInfo;
       const percentage = usage.posts.used / usage.posts.limit;
       
@@ -326,7 +326,7 @@ export default function CreatePost() {
           )}
           
           {/* Post Usage Info */}
-          {billingInfo && (
+          {billingInfo && billingInfo.usage && billingInfo.usage.posts && (
             <div className={`border rounded-lg p-3 ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-700">
