@@ -116,20 +116,17 @@ export default function Dashboard() {
     );
   }
 
-  // Initialize stats if null to prevent blank screen
-  if (!stats) {
-    setStats({
-      postsToday: 0,
-      totalPosts: 0,
-      successRate: 0,
-      scheduledCount: 0,
-      activePlatforms: 0,
-      recentPosts: []
-    });
-    return null;
-  }
+  // Show empty state with 0 stats if no data
+  const displayStats = stats || {
+    postsToday: 0,
+    totalPosts: 0,
+    successRate: 0,
+    scheduledCount: 0,
+    activePlatforms: 0,
+    recentPosts: []
+  };
 
-  const hasNoActivity = stats.totalPosts === 0;
+  const hasNoActivity = displayStats.totalPosts === 0;
 
   return (
     <motion.div
@@ -182,7 +179,7 @@ export default function Dashboard() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">{stats?.postsToday || 0}</div>
+          <div className="text-3xl font-bold">{displayStats.postsToday || 0}</div>
           <div className="text-blue-100 mt-1">Posts Today</div>
         </motion.div>
         
@@ -190,7 +187,7 @@ export default function Dashboard() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">{stats?.activePlatforms || 0}</div>
+          <div className="text-3xl font-bold">{displayStats.activePlatforms || 0}</div>
           <div className="text-green-100 mt-1">Platforms</div>
         </motion.div>
         
@@ -198,7 +195,7 @@ export default function Dashboard() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">{stats?.successRate || 0}%</div>
+          <div className="text-3xl font-bold">{displayStats.successRate || 0}%</div>
           <div className="text-purple-100 mt-1">Success Rate</div>
         </motion.div>
         
@@ -206,7 +203,7 @@ export default function Dashboard() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white"
         >
-          <div className="text-3xl font-bold">{stats?.scheduledCount || 0}</div>
+          <div className="text-3xl font-bold">{displayStats.scheduledCount || 0}</div>
           <div className="text-orange-100 mt-1">Scheduled</div>
         </motion.div>
       </motion.div>
