@@ -57,7 +57,8 @@ export default function Settings() {
     try {
       const response = await api.get('/accounts');
       const accountsData = response.data?.accounts || response.data || [];
-      setAccounts(accountsData);
+      // Ensure accountsData is always an array
+      setAccounts(Array.isArray(accountsData) ? accountsData : []);
     } catch (err) {
       console.error('Error loading accounts:', err);
       // Silently handle error - just set empty array
@@ -254,7 +255,7 @@ export default function Settings() {
           </div>
         ) : (
           <div className="space-y-3">
-            {accounts.map((account, index) => (
+            {accounts && Array.isArray(accounts) && accounts.map((account, index) => (
               <div
                 key={account?.id || `account-${index}`}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
@@ -289,7 +290,7 @@ export default function Settings() {
         )}
 
         {/* Connect Buttons */}
-        {accounts.length > 0 && (
+        {accounts && Array.isArray(accounts) && accounts.length > 0 && (
           <div className="mt-6 flex gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
