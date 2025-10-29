@@ -149,17 +149,19 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
             results.telegram = [];
             for (const account of credentials.telegram) {
               try {
-                console.log(`    📱 Posting to Telegram - Bot: ${account.platform_username}, Chat: ${account.platform_user_id}`);
-                const result = await sendToTelegram(account.access_token, account.platform_user_id, text, image_url);
+                // Note: getUserCredentialsForPosting returns { botToken, chatId }
+                console.log(`    📱 Posting to Telegram - Bot token: ${account.botToken ? 'exists' : 'missing'}, Chat ID: ${account.chatId}`);
+                const result = await sendToTelegram(account.botToken, account.chatId, text, image_url);
                 results.telegram.push(result);
                 console.log(`    ✅ Posted to Telegram - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
-                console.error(`    ❌ Telegram error for ${account.platform_username}:`, err.message);
+                console.error(`    ❌ Telegram error:`, err.message);
                 results.telegram.push({ error: err.message, platform: 'telegram' });
               }
             }
           } else {
             console.log(`⚠️  No Telegram credentials found or invalid format`);
+            console.log(`⚠️  Credentials structure:`, JSON.stringify(credentials.telegram, null, 2));
           }
         } 
         else if (platform === 'instagram') {
