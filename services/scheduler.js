@@ -5,6 +5,7 @@ const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
 const { postToInstagram } = require('./instagram');
 const { postToFacebookPage } = require('./facebook');
+const { postToYouTube } = require('./youtube');
 const { getUserCredentialsForPosting } = require('./oauth');
 
 const supabase = createClient(
@@ -197,6 +198,35 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
                 console.error(`    ❌ Facebook error:`, err.message);
                 results.facebook = results.facebook || [];
                 results.facebook.push({ error: err.message });
+              }
+            }
+          }
+        }
+        else if (platform === 'youtube') {
+          if (credentials.youtube && Array.isArray(credentials.youtube)) {
+            results.youtube = [];
+            for (const account of credentials.youtube) {
+              try {
+                const content = {
+                  text: text,
+                  videoUrl: image_url && image_url.includes('/video/') ? image_url : null,
+                  imageUrl: image_url && !image_url.includes('/video/') ? image_url : null,
+                  title: text.substring(0, 100),
+                  description: text.substring(0, 5000),
+                  tags: [],
+                  type: image_url && image_url.includes('/video/') ? 'short' : 'community'
+                };
+
+                const result = await postToYouTube(content, {
+                  accessToken: account.access_token,
+                  refreshToken: account.refresh_token
+                });
+
+                results.youtube.push(result);
+                console.log(`    ✅ Posted to YouTube (${account.platform_username})`);
+              } catch (err) {
+                console.error(`    ❌ YouTube error:`, err.message);
+                results.youtube.push({ error: err.message });
               }
             }
           }

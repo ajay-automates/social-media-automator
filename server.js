@@ -384,6 +384,12 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
         });
       }
     }
+      if (platform === 'youtube' && credentials.youtube.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'YouTube account not connected. Please connect your YouTube channel first.'
+        });
+      }
 
     // Instagram requires an image
     if (requestedPlatforms.includes('instagram') && !imageUrl) {
@@ -2420,6 +2426,88 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
 });
 
 // ============================================
+
+// ============================================
+// YOUTUBE OAUTH ROUTES
+// ============================================
+
+app.post('/api/auth/youtube/url', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const state = encryptState(userId);
+    const oauthUrl = generateYouTubeOAuthUrl(userId, state);
+    console.log('🎬 YouTube OAuth URL generated');
+    res.json({ success: true, oauthUrl });
+  } catch (error) {
+    console.error('Error generating YouTube OAuth URL:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/auth/youtube/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+    console.log('🎬 YouTube callback received');
+    
+    if (error) {
+      console.error('YouTube OAuth error:', error);
+      return res.redirect(`/dashboard?error=youtube_denied`);
+    }
+    if (!code || !state) {
+      return res.redirect('/dashboard?error=youtube_missing_params');
+    }
+    
+    let userId;
+    try {
+      userId = decryptState(state);
+    } catch (stateError) {
+      return res.redirect('/dashboard?error=youtube_invalid_state');
+    }
+    
+    const tokenData = await exchangeYouTubeCode(code);
+    const channelInfo = await getChannelInfo(tokenData.accessToken);
+    
+    if (!channelInfo) {
+      throw new Error('Could not retrieve channel information');
+    }
+    
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
+    
+    const expiresAt = new Date(Date.now() + (tokenData.expiresIn * 1000));
+    
+    const { error: upsertError } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'youtube',
+        platform_name: 'YouTube',
+        oauth_provider: 'google',
+        access_token: tokenData.accessToken,
+        refresh_token: tokenData.refreshToken,
+        token_expires_at: expiresAt.toISOString(),
+        platform_user_id: channelInfo.channelId,
+        platform_username: channelInfo.title,
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      });
+    
+    if (upsertError) throw upsertError;
+    
+    console.log(`✅ YouTube account connected for user ${userId}`);
+    res.redirect('/dashboard?connected=youtube&success=true');
+    
+  } catch (error) {
+    console.error('Error in YouTube callback:', error.message);
+    res.redirect('/dashboard?error=youtube_failed');
+  }
+});
+
+
 // CATCH-ALL ROUTE FOR REACT SPA (must be last)
 // ============================================
 

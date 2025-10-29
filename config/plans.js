@@ -12,7 +12,7 @@ const PLANS = {
       posts: 10,           // 10 posts per month
       accounts: 1,         // 1 social media account
       ai: 0,               // No AI captions
-      platforms: ['linkedin', 'twitter']  // Only LinkedIn and Twitter
+      platforms: ['linkedin', 'twitter', 'youtube']  // Only LinkedIn and Twitter
     },
     features: [
       '10 posts per month',
