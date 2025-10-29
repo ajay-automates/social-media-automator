@@ -4,27 +4,39 @@ const path = require('path');
 console.log('\n🔍 Verifying dashboard build...');
 
 const distPath = path.join(__dirname, 'dashboard', 'dist');
-const indexPath = path.join(distPath, 'index.html');
+const assetsPath = path.join(distPath, 'assets');
 
 if (!fs.existsSync(distPath)) {
   console.log('❌ dashboard/dist directory does NOT exist');
-  console.log('   Build did not run or failed!');
   process.exit(1);
 }
 
-if (!fs.existsSync(indexPath)) {
-  console.log('❌ dashboard/dist/index.html does NOT exist');
-  console.log('   Build did not complete!');
+if (!fs.existsSync(assetsPath)) {
+  console.log('❌ dashboard/dist/assets directory does NOT exist');
   process.exit(1);
 }
 
-const indexContent = fs.readFileSync(indexPath, 'utf8');
+// Check all JS files in assets folder
+const files = fs.readdirSync(assetsPath);
+const jsFiles = files.filter(f => f.endsWith('.js'));
 
-if (indexContent.includes('Connect YouTube') || indexContent.includes('youtube')) {
-  console.log('✅ YouTube button found in built index.html!');
+console.log('Checking', jsFiles.length, 'JavaScript files...');
+
+let found = false;
+for (const file of jsFiles) {
+  const content = fs.readFileSync(path.join(assetsPath, file), 'utf8');
+  if (content.includes('Connect YouTube') || content.includes('youtube')) {
+    console.log('✅ YouTube button found in', file);
+    found = true;
+    break;
+  }
+}
+
+if (found) {
+  console.log('✅ Build verification PASSED!');
   process.exit(0);
 } else {
-  console.log('⚠️  index.html exists but YouTube button not found');
-  console.log('   Possible old build');
+  console.log('❌ YouTube button NOT found in any JS files');
+  console.log('   Build may be using old source code');
   process.exit(1);
 }
