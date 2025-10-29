@@ -789,17 +789,50 @@ async function getUserCredentialsForPosting(userId) {
           type: 'person'
         });
       } else if (account.platform === 'twitter') {
-        // Twitter: Use OAuth 2.0 credentials from database (multi-tenant safe)
-        // NOTE: Media uploads require OAuth 1.0a (API Key/Secret) which we don't have
-        // For now, only bearerToken (OAuth 2.0) is available for posting text tweets
+        // Twitter: Support both OAuth 2.0 and OAuth 1.0a credentials
+        // OAuth 1.0a credentials are stored in additional_credentials field for media uploads
         console.log('🔐 Loading Twitter credentials for user');
-        console.log('   Using OAuth 2.0 from database');
-        console.log('   WARNING: Media uploads may not work without OAuth 1.0a credentials');
         
-        credentials.twitter.push({
+        const twitterCreds = {
           bearerToken: account.access_token,
           accessToken: account.access_token
-        });
+        };
+        
+        // Check if OAuth 1.0a credentials are available (for media uploads)
+        if (account.additional_credentials) {
+          try {
+            const additional = typeof account.additional_credentials === 'string' 
+              ? JSON.parse(account.additional_credentials) 
+              : account.additional_credentials;
+            
+            if (additional.apiKey && additional.apiSecret) {
+              console.log('   ✅ OAuth 1.0a credentials found - media uploads enabled');
+              twitterCreds.apiKey = additional.apiKey;
+              twitterCreds.apiSecret = additional.apiSecret;
+            }
+          } catch (e) {
+            console.log('   ⚠️  Failed to parse additional_credentials');
+          }
+        }
+        
+        // Check if OAuth 1.0a access token/secret are in refresh_token field
+        // (Twitter sometimes stores OAuth 1.0a token there)
+        if (account.refresh_token && account.refresh_token.includes(':')) {
+          try {
+            const [oauth1AccessToken, oauth1AccessSecret] = account.refresh_token.split(':');
+            twitterCreds.accessTokenOAuth1 = oauth1AccessToken;
+            twitterCreds.accessSecret = oauth1AccessSecret;
+            console.log('   ✅ OAuth 1.0a access token found');
+          } catch (e) {
+            // Not OAuth 1.0a format, ignore
+          }
+        }
+        
+        if (!twitterCreds.apiKey) {
+          console.log('   ⚠️  OAuth 2.0 only - media uploads will fail');
+        }
+        
+        credentials.twitter.push(twitterCreds);
       } else if (account.platform === 'instagram') {
         credentials.instagram.push({
           accessToken: account.access_token,

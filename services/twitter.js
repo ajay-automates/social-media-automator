@@ -77,7 +77,7 @@ async function uploadMediaToTwitter(imageUrl, credentials, isOAuth2 = false) {
     // OAuth 2.0 bearer token does NOT work for media uploads
     // Check if we have OAuth 1.0a credentials (apiKey, apiSecret, etc.)
     const hasOAuth1 = credentials.apiKey && credentials.apiSecret && 
-                      credentials.accessToken && credentials.accessSecret;
+                      credentials.accessTokenOAuth1 && credentials.accessSecret;
     
     if (hasOAuth1) {
       // OAuth 1.0a: Include media_data in signature

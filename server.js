@@ -1501,6 +1501,17 @@ app.get('/auth/twitter/callback', async (req, res) => {
       process.env.SUPABASE_SERVICE_KEY
     );
     
+    // Check if we have OAuth 1.0a credentials in environment (API Key/Secret)
+    // These are app-level credentials that all users can use for media uploads
+    const oauth1Credentials = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET 
+      ? {
+          apiKey: process.env.TWITTER_API_KEY,
+          apiSecret: process.env.TWITTER_API_SECRET
+        }
+      : null;
+    
+    console.log('  - OAuth 1.0a credentials available:', oauth1Credentials ? 'Yes' : 'No');
+    
     await supabaseAdmin
       .from('user_accounts')
       .upsert({
@@ -1514,7 +1525,9 @@ app.get('/auth/twitter/callback', async (req, res) => {
         platform_user_id: profile.id,
         platform_username: profile.username,
         status: 'active',
-        connected_at: new Date().toISOString()
+        connected_at: new Date().toISOString(),
+        // Store OAuth 1.0a credentials in additional_credentials field
+        additional_credentials: oauth1Credentials ? JSON.stringify(oauth1Credentials) : null
       }, {
         onConflict: 'user_id,platform,platform_user_id'
       });
