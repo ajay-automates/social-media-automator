@@ -1513,22 +1513,26 @@ app.get('/auth/twitter/callback', async (req, res) => {
     
     console.log('  - OAuth 1.0a credentials available:', oauth1Credentials ? 'Yes' : 'No');
     
-    // Check if account already exists with OAuth 1.0a credentials
-    const { data: existingAccount } = await supabaseAdmin
+    // Check if ANY Twitter account for this user has OAuth 1.0a credentials
+    // (needed because platform_user_id might change or account might be recreated)
+    const { data: existingAccounts } = await supabaseAdmin
       .from('user_accounts')
-      .select('refresh_token')
+      .select('refresh_token, platform_username')
       .eq('user_id', userId)
-      .eq('platform', 'twitter')
-      .eq('platform_user_id', profile.id)
-      .single();
+      .eq('platform', 'twitter');
     
-    // Preserve OAuth 1.0a credentials if they exist (format: starts with digits-dash)
+    // Preserve OAuth 1.0a credentials if they exist in ANY Twitter account
     let finalRefreshToken = refresh_token;
-    if (existingAccount?.refresh_token) {
-      const isOAuth1Format = /^\d+-\w/.test(existingAccount.refresh_token);
-      if (isOAuth1Format) {
-        console.log('   🔒 Preserving existing OAuth 1.0a credentials');
-        finalRefreshToken = existingAccount.refresh_token; // Keep OAuth 1.0a credentials
+    if (existingAccounts && existingAccounts.length > 0) {
+      for (const account of existingAccounts) {
+        if (account.refresh_token) {
+          const isOAuth1Format = /^\d+-\w/.test(account.refresh_token);
+          if (isOAuth1Format) {
+            console.log(`   🔒 Preserving OAuth 1.0a credentials from account: ${account.platform_username}`);
+            finalRefreshToken = account.refresh_token; // Keep OAuth 1.0a credentials
+            break; // Use first OAuth 1.0a credentials found
+          }
+        }
       }
     }
     
