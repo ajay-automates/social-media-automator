@@ -295,7 +295,8 @@ export default function CreatePost() {
                 { id: 'twitter', name: 'Twitter', icon: '🐦', color: 'bg-sky-500' },
                 { id: 'linkedin', name: 'LinkedIn', icon: '🔗', color: 'bg-blue-600' },
                 { id: 'telegram', name: 'Telegram', icon: '💬', color: 'bg-indigo-600' },
-                { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500' }
+                { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500' },
+                { id: 'youtube', name: 'YouTube', icon: '🎬', color: 'bg-red-600' }
               ].map(platform => (
                 <motion.button
                   key={platform.id}
