@@ -50,7 +50,19 @@ export default function Settings() {
       showError(message);
       // Clean URL
       window.history.replaceState({}, '', '/dashboard/settings');
+    }    
+    if (params.get('connected') === 'youtube') {
+      showSuccess('YouTube connected successfully!');
+      loadAccounts();
+      window.history.replaceState({}, '', '/dashboard/settings');
     }
+    
+    if (error && error.startsWith('youtube')) {
+      const message = params.get('message') || 'Failed to connect YouTube';
+      showError(message);
+      window.history.replaceState({}, '', '/dashboard/settings');
+    }
+
   }, []);
 
   const loadAccounts = async () => {
@@ -135,6 +147,18 @@ export default function Settings() {
     } catch (err) {
       console.error('Facebook connection error:', err);
       showError('Failed to connect Facebook');
+    }
+  const connectYouTube = async () => {
+    try {
+      const response = await api.post('/auth/youtube/url');
+      if (response.data?.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      } else {
+        showError('Failed to generate YouTube OAuth URL');
+      }
+    } catch (err) {
+      console.error('YouTube connection error:', err);
+      showError('Failed to connect YouTube');
     }
   };
 
@@ -261,6 +285,15 @@ export default function Settings() {
               >
                 <span>📘</span> Connect Facebook
               </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectYouTube}
+                className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition flex items-center gap-2"
+              >
+                <span>🎬</span> Connect YouTube
+              </motion.button>
+
             </div>
           </div>
         ) : (
@@ -275,6 +308,7 @@ export default function Settings() {
                     {account?.platform === 'linkedin' && '🔗'}
                     {account?.platform === 'twitter' && '🐦'}
                     {account?.platform === 'telegram' && '📱'}
+                    {account?.platform === 'youtube' && '🎬'}
                     {account?.platform === 'instagram' && '📷'}
                     {account?.platform === 'facebook' && '📘'}
                     {!account?.platform && '📱'}
