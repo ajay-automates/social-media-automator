@@ -103,7 +103,7 @@ async function getChannelInfo(accessToken) {
     const channel = response.data.items[0];
     return { channelId: channel.id, title: channel.snippet.title, description: channel.snippet.description, profileImageUrl: channel.snippet.thumbnails.default.url, subscriberCount: channel.statistics.subscriberCount, videoCount: channel.statistics.videoCount, viewCount: channel.statistics.viewCount, canUploadContent: channel.snippet.country !== null };
   } catch (error) {
-    console.error('❌ Error fetching channel info:', error.response?.data || error.message);
+    console.log("❌ Error fetching channel info:", error.response?.data || error.message);
     return null;
   }
 }
