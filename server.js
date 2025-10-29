@@ -2291,10 +2291,13 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
 
 // Serve React Dashboard for all non-API routes
 app.get('*', (req, res, next) => {
-  // Skip API routes, auth routes, template CSV, and assets (already served above)
+  // Skip API routes, auth routes, template CSV, assets, and vite.svg (already served above)
   if (req.path.startsWith('/api/') || 
       req.path.startsWith('/auth') || 
-      req.path.startsWith('/template.csv')) {
+      req.path.startsWith('/template.csv') ||
+      req.path.startsWith('/assets/') ||
+      req.path === '/vite.svg') {
+    console.log('⏭️  Skipping catch-all for:', req.path);
     return next();
   }
   
