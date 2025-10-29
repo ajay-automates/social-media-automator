@@ -1525,9 +1525,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
         platform_user_id: profile.id,
         platform_username: profile.username,
         status: 'active',
-        connected_at: new Date().toISOString(),
-        // Store OAuth 1.0a credentials in additional_credentials field
-        additional_credentials: oauth1Credentials ? JSON.stringify(oauth1Credentials) : null
+        connected_at: new Date().toISOString()
       }, {
         onConflict: 'user_id,platform,platform_user_id'
       })
@@ -1812,27 +1810,17 @@ app.post('/api/auth/twitter/oauth1', verifyAuth, async (req, res) => {
       });
     }
     
-    // Parse existing additional_credentials
-    let additionalCreds = {};
-    if (existingAccount.additional_credentials) {
-      try {
-        additionalCreds = typeof existingAccount.additional_credentials === 'string'
-          ? JSON.parse(existingAccount.additional_credentials)
-          : existingAccount.additional_credentials;
-      } catch (e) {
-        console.log('Failed to parse existing additional_credentials');
-      }
-    }
+    // Store OAuth 1.0a credentials in refresh_token field
+    // Format: oauth2_refresh_token:oauth1_access_token:oauth1_access_secret
+    const newRefreshToken = existingAccount.refresh_token 
+      ? `${existingAccount.refresh_token}:${accessToken}:${accessSecret}`
+      : `${accessToken}:${accessSecret}`;
     
-    // Add OAuth 1.0a access token and secret
-    additionalCreds.accessTokenOAuth1 = accessToken;
-    additionalCreds.accessSecret = accessSecret;
-    
-    // Update account
+    // Update account with OAuth 1.0a credentials in refresh_token
     const { error } = await supabaseAdmin
       .from('user_accounts')
       .update({
-        additional_credentials: JSON.stringify(additionalCreds)
+        refresh_token: newRefreshToken
       })
       .eq('id', existingAccount.id);
     
