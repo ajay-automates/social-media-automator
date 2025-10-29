@@ -57,6 +57,7 @@ const {
   incrementUsage,
   getUserBillingInfo
 } = require('./services/billing');
+const { generateYouTubeOAuthUrl, exchangeYouTubeCode, getChannelInfo } = require('./services/youtube');
 const { getAllPlans } = require('./config/plans');
 const {
   getTemplates,
