@@ -831,14 +831,28 @@ async function getUserCredentialsForPosting(userId) {
         
         // Check if OAuth 1.0a access token/secret are in refresh_token field
         // Format: access_token:access_secret
+        // OAuth 1.0a tokens typically start with numbers (Twitter user ID + dash)
+        // OAuth 2.0 refresh tokens are base64-like strings
         if (account.refresh_token && account.refresh_token.includes(':')) {
           try {
-            const [oauth1AccessToken, oauth1AccessSecret] = account.refresh_token.split(':');
-            twitterCreds.accessTokenOAuth1 = oauth1AccessToken;
-            twitterCreds.accessSecret = oauth1AccessSecret;
-            console.log('   ✅ OAuth 1.0a access token found in refresh_token');
+            const parts = account.refresh_token.split(':');
+            // OAuth 1.0a format: starts with digits followed by dash (e.g., "1981568508711579648-...")
+            // OAuth 2.0 refresh token: base64 string (e.g., "b3FqNS1VbTJVcXMt...")
+            const firstPart = parts[0];
+            const isOAuth1Format = /^\d+-\w/.test(firstPart); // Matches pattern like "1981568508711579648-abc123..."
+            
+            if (isOAuth1Format && parts.length >= 2) {
+              // This is OAuth 1.0a format: access_token:access_secret
+              const oauth1AccessToken = parts[0];
+              const oauth1AccessSecret = parts.slice(1).join(':'); // Join in case secret contains ':'
+              twitterCreds.accessTokenOAuth1 = oauth1AccessToken;
+              twitterCreds.accessSecret = oauth1AccessSecret;
+              console.log('   ✅ OAuth 1.0a access token found in refresh_token');
+            } else {
+              console.log('   ⚠️  Refresh token contains OAuth 2.0 token, not OAuth 1.0a');
+            }
           } catch (e) {
-            console.log('   ⚠️  Failed to parse OAuth 1.0a tokens from refresh_token');
+            console.log('   ⚠️  Failed to parse OAuth 1.0a tokens from refresh_token:', e.message);
           }
         }
         
