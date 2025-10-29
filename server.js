@@ -2277,17 +2277,29 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
 });
 
 // ============================================
+// PRODUCTION STATIC FILES SERVING
+// ============================================
+if (process.env.NODE_ENV === 'production') {
+  const dashboardPath = path.join(__dirname, 'dashboard/dist');
+  const fs = require('fs');
+  
+  if (fs.existsSync(dashboardPath)) {
+    // Serve ALL static files from dashboard/dist FIRST
+    app.use(express.static(dashboardPath));
+    console.log('✅ Production: Serving static files from', dashboardPath);
+  }
+}
+
+// ============================================
 // CATCH-ALL ROUTE FOR REACT SPA (must be last)
 // ============================================
 
 // Serve React Dashboard for all non-API routes
 app.get('*', (req, res, next) => {
-  // Skip API routes, auth routes, and static assets
+  // Skip API routes, auth routes, template CSV, and assets (already served above)
   if (req.path.startsWith('/api/') || 
       req.path.startsWith('/auth') || 
-      req.path.startsWith('/template.csv') ||
-      req.path.startsWith('/assets/') ||
-      req.path.startsWith('/vite.svg')) {
+      req.path.startsWith('/template.csv')) {
     return next();
   }
   
@@ -2295,6 +2307,7 @@ app.get('*', (req, res, next) => {
   const fs = require('fs');
   
   if (fs.existsSync(dashboardIndex)) {
+    console.log('🎯 Catch-all: Serving dashboard for path:', req.path);
     res.sendFile(dashboardIndex);
   } else {
     // Fallback to landing page
