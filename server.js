@@ -1513,6 +1513,25 @@ app.get('/auth/twitter/callback', async (req, res) => {
     
     console.log('  - OAuth 1.0a credentials available:', oauth1Credentials ? 'Yes' : 'No');
     
+    // Check if account already exists with OAuth 1.0a credentials
+    const { data: existingAccount } = await supabaseAdmin
+      .from('user_accounts')
+      .select('refresh_token')
+      .eq('user_id', userId)
+      .eq('platform', 'twitter')
+      .eq('platform_user_id', profile.id)
+      .single();
+    
+    // Preserve OAuth 1.0a credentials if they exist (format: starts with digits-dash)
+    let finalRefreshToken = refresh_token;
+    if (existingAccount?.refresh_token) {
+      const isOAuth1Format = /^\d+-\w/.test(existingAccount.refresh_token);
+      if (isOAuth1Format) {
+        console.log('   🔒 Preserving existing OAuth 1.0a credentials');
+        finalRefreshToken = existingAccount.refresh_token; // Keep OAuth 1.0a credentials
+      }
+    }
+    
     const { data: upsertResult, error: upsertError } = await supabaseAdmin
       .from('user_accounts')
       .upsert({
@@ -1521,7 +1540,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
         platform_name: 'Twitter/X',
         oauth_provider: 'twitter',
         access_token: access_token,
-        refresh_token: refresh_token,
+        refresh_token: finalRefreshToken,
         token_expires_at: expiresAt?.toISOString(),
         platform_user_id: profile.id,
         platform_username: profile.username,
