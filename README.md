@@ -2,6 +2,8 @@
 
 A production-ready **multi-platform social media automation SaaS** that helps you schedule and publish content across LinkedIn, Twitter/X, Telegram, and Instagram.
 
+<!-- Last deployed: $(date) -->
+
 ![Platform Support](https://img.shields.io/badge/platforms-LinkedIn%20%7C%20Twitter%20%7C%20Telegram-blue)
 ![Status](https://img.shields.io/badge/status-Production-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
