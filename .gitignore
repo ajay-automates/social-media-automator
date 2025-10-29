@@ -27,5 +27,3 @@ coverage/
 
 # Build
 build/
-# Allow dashboard/dist for deployment
-!dashboard/dist/
