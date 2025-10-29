@@ -73,8 +73,11 @@ async function uploadMediaToTwitter(imageUrl, credentials, isOAuth2 = false) {
     let authHeader;
     let headers;
     
+    // Twitter media upload endpoint requires different handling
+    // Try OAuth 2.0 first, but may need to use OAuth 1.0a for media
     if (isOAuth2) {
-      // OAuth 2.0: Simple bearer token
+      // OAuth 2.0: Try with bearer token
+      console.log('  Trying OAuth 2.0 for media upload...');
       authHeader = `Bearer ${credentials.bearerToken || credentials.accessToken}`;
       headers = {
         'Authorization': authHeader,
@@ -82,6 +85,7 @@ async function uploadMediaToTwitter(imageUrl, credentials, isOAuth2 = false) {
       };
     } else {
       // OAuth 1.0a: Include media_data in signature
+      console.log('  Using OAuth 1.0a for media upload...');
       authHeader = generateOAuthHeader('POST', url, credentials, {
         media_data: mediaData
       });
