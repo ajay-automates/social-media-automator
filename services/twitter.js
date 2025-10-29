@@ -258,6 +258,7 @@ async function postToTwitter(text, credentials, imageUrl = null) {
     
     // Upload media if image/video URL provided
     if (imageUrl) {
+      console.log('📸 Image URL provided:', imageUrl);
       // Detect video by Cloudinary URL pattern
       const isVideo = imageUrl.includes('/video/') || imageUrl.endsWith('.mp4') || imageUrl.endsWith('.mov');
       
@@ -269,8 +270,10 @@ async function postToTwitter(text, credentials, imageUrl = null) {
           payload.media = {
             media_ids: [mediaResult.mediaId]
           };
+          console.log('✅ Video media ID added to payload:', mediaResult.mediaId);
         } else {
-          console.warn('⚠️  Failed to upload video, posting text only');
+          console.warn('⚠️  Failed to upload video:', mediaResult.error);
+          console.warn('⚠️  Posting text only');
         }
       } else {
         console.log('📸 Uploading image to Twitter...');
@@ -280,8 +283,10 @@ async function postToTwitter(text, credentials, imageUrl = null) {
           payload.media = {
             media_ids: [mediaResult.mediaId]
           };
+          console.log('✅ Image media ID added to payload:', mediaResult.mediaId);
         } else {
-          console.warn('⚠️  Failed to upload image, posting text only');
+          console.warn('⚠️  Failed to upload image:', mediaResult.error);
+          console.warn('⚠️  Posting text only');
         }
       }
     }
