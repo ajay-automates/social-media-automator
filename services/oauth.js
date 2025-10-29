@@ -808,6 +808,10 @@ async function getUserCredentialsForPosting(userId) {
           console.log('   ✅ OAuth 1.0a API credentials found from environment - media uploads enabled');
         }
         
+        // Debug: Log what we have in refresh_token
+        console.log('   🔍 Refresh token preview:', account.refresh_token ? account.refresh_token.substring(0, 50) : 'null');
+        console.log('   🔍 Refresh token length:', account.refresh_token ? account.refresh_token.length : 0);
+        
         // Check if OAuth 1.0a credentials are available in additional_credentials field
         if (account.additional_credentials) {
           try {
