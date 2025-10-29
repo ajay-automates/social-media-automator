@@ -106,6 +106,9 @@ async function uploadMediaToTwitter(imageUrl, credentials, isOAuth2 = false) {
     };
   } catch (error) {
     console.error('❌ Twitter media upload error:', error.response?.data || error.message);
+    console.error('❌ Full error response:', JSON.stringify(error.response?.data, null, 2));
+    console.error('❌ Error status:', error.response?.status);
+    console.error('❌ Error headers:', error.response?.headers);
     return {
       success: false,
       error: error.response?.data?.error || error.message
