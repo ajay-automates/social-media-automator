@@ -1512,7 +1512,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
     
     console.log('  - OAuth 1.0a credentials available:', oauth1Credentials ? 'Yes' : 'No');
     
-    await supabaseAdmin
+    const { data: upsertResult, error: upsertError } = await supabaseAdmin
       .from('user_accounts')
       .upsert({
         user_id: userId,
@@ -1530,7 +1530,30 @@ app.get('/auth/twitter/callback', async (req, res) => {
         additional_credentials: oauth1Credentials ? JSON.stringify(oauth1Credentials) : null
       }, {
         onConflict: 'user_id,platform,platform_user_id'
-      });
+      })
+      .select();
+    
+    if (upsertError) {
+      console.error('❌ Database upsert error:', upsertError);
+      throw upsertError;
+    }
+    
+    console.log('✅ Twitter account upserted:', upsertResult);
+    
+    // Verify the account is actually active (force update if needed)
+    if (upsertResult && upsertResult.length > 0) {
+      const accountId = upsertResult[0].id;
+      const { error: verifyError } = await supabaseAdmin
+        .from('user_accounts')
+        .update({ status: 'active' })
+        .eq('id', accountId);
+      
+      if (verifyError) {
+        console.error('❌ Status update error:', verifyError);
+      } else {
+        console.log('✅ Status verified as active for account:', accountId);
+      }
+    }
     
     console.log(`✅ Twitter account connected for user ${userId}`);
     res.redirect('/dashboard?connected=twitter&success=true');
