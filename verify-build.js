@@ -20,23 +20,51 @@ if (!fs.existsSync(assetsPath)) {
 const files = fs.readdirSync(assetsPath);
 const jsFiles = files.filter(f => f.endsWith('.js'));
 
-console.log('Checking', jsFiles.length, 'JavaScript files...');
+console.log('Checking', jsFiles.length, 'JavaScript bundles for YouTube code...');
 
-let found = false;
+let foundYoutube = false;
+let foundText = false;
+
 for (const file of jsFiles) {
-  const content = fs.readFileSync(path.join(assetsPath, file), 'utf8');
-  if (content.includes('Connect YouTube') || content.includes('youtube')) {
-    console.log('✅ YouTube button found in', file);
-    found = true;
-    break;
+  const filePath = path.join(assetsPath, file);
+  const content = fs.readFileSync(filePath, 'utf8');
+  const fileSize = (content.length / 1024).toFixed(2);
+  
+  console.log(\`  Checking \${file} (\${fileSize} KB)...\`);
+  
+  // Check for various YouTube-related strings
+  if (content.includes('Connect YouTube')) {
+    console.log('    ✅ Found "Connect YouTube" text');
+    foundText = true;
+  }
+  
+  if (content.includes('connectYouTube')) {
+    console.log('    ✅ Found connectYouTube function');
+    foundYoutube = true;
+  }
+  
+  if (content.includes('/auth/youtube/url')) {
+    console.log('    ✅ Found YouTube OAuth URL');
+    foundYoutube = true;
+  }
+  
+  if (content.includes('youtube')) {
+    console.log('    ✅ Found youtube references');
+    foundYoutube = true;
   }
 }
 
-if (found) {
-  console.log('✅ Build verification PASSED!');
+console.log('\n📊 Results:');
+console.log('  YouTube function found:', foundYoutube ? '✅' : '❌');
+console.log('  YouTube button text found:', foundText ? '✅' : '❌');
+
+if (foundYoutube || foundText) {
+  console.log('\n✅ BUILD VERIFICATION PASSED!');
+  console.log('   YouTube integration is in the build.');
   process.exit(0);
 } else {
-  console.log('❌ YouTube button NOT found in any JS files');
-  console.log('   Build may be using old source code');
+  console.log('\n❌ BUILD VERIFICATION FAILED!');
+  console.log('   YouTube code NOT found in JavaScript bundles.');
+  console.log('   This means the build is using old source code.');
   process.exit(1);
 }
