@@ -778,7 +778,8 @@ async function getUserCredentialsForPosting(userId) {
       twitter: [],
       instagram: [],
       telegram: [],
-      facebook: []
+      facebook: [],
+      youtube: []
     };
     
     accounts?.forEach(account => {
@@ -879,7 +880,13 @@ async function getUserCredentialsForPosting(userId) {
         credentials.facebook.push({
           accessToken: account.access_token,
           pageId: account.platform_user_id
+        } else if (account.platform === 'youtube') {
+        credentials.youtube.push({
+          access_token: account.access_token,
+          refresh_token: account.refresh_token,
+          platform_user_id: account.platform_user_id
         });
+      });
       }
     });
     
