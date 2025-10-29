@@ -150,22 +150,31 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000  // 24 hours
   }
 }));
-// Serve static files for landing page and auth
-app.use(express.static(__dirname, {
-  index: false // Don't serve index.html automatically
-}));
-
-// In production, serve the React app from the dashboard/dist directory
+// IMPORTANT: Serve dashboard static files FIRST in production (with correct MIME types)
 if (process.env.NODE_ENV === 'production') {
-  const dashboardPath = path.join(__dirname, 'dashboard', 'dist');
+  const dashboardPath = path.join(__dirname, 'dashboard/dist');
+  const fs = require('fs');
   
-  // Serve static files from the React app
-  app.use(express.static(dashboardPath));
-  
-  // Handle React routing, return all requests to index.html
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(dashboardPath, 'index.html'));
-  });
+  if (fs.existsSync(dashboardPath)) {
+    // Serve ALL static files from dashboard/dist with correct MIME types
+    app.use(express.static(dashboardPath, {
+      index: false, // Don't auto-serve index.html
+      setHeaders: (res, filePath) => {
+        // Ensure correct MIME types
+        if (filePath.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript');
+        } else if (filePath.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css');
+        }
+      }
+    }));
+    console.log('✅ Production: Static files configured with MIME types from', dashboardPath);
+  }
+} else {
+  // Development: Serve static files for landing page and auth
+  app.use(express.static(__dirname, {
+    index: false // Don't serve index.html automatically
+  }));
 }
 
 // Configure Multer for file uploads
@@ -2275,20 +2284,6 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
     });
   }
 });
-
-// ============================================
-// PRODUCTION STATIC FILES SERVING
-// ============================================
-if (process.env.NODE_ENV === 'production') {
-  const dashboardPath = path.join(__dirname, 'dashboard/dist');
-  const fs = require('fs');
-  
-  if (fs.existsSync(dashboardPath)) {
-    // Serve ALL static files from dashboard/dist FIRST
-    app.use(express.static(dashboardPath));
-    console.log('✅ Production: Serving static files from', dashboardPath);
-  }
-}
 
 // ============================================
 // CATCH-ALL ROUTE FOR REACT SPA (must be last)
