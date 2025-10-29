@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('\n🔍 Verifying dashboard build...');
+console.log('');
+console.log('🔍 Verifying dashboard build...');
 
 const distPath = path.join(__dirname, 'dashboard', 'dist');
 const assetsPath = path.join(distPath, 'assets');
@@ -20,7 +21,7 @@ if (!fs.existsSync(assetsPath)) {
 const files = fs.readdirSync(assetsPath);
 const jsFiles = files.filter(f => f.endsWith('.js'));
 
-console.log('Checking', jsFiles.length, 'JavaScript bundles for YouTube code...');
+console.log('Checking ' + jsFiles.length + ' JavaScript bundles for YouTube code...');
 
 let foundYoutube = false;
 let foundText = false;
@@ -30,7 +31,7 @@ for (const file of jsFiles) {
   const content = fs.readFileSync(filePath, 'utf8');
   const fileSize = (content.length / 1024).toFixed(2);
   
-  console.log(\`  Checking \${file} (\${fileSize} KB)...\`);
+  console.log('  Checking ' + file + ' (' + fileSize + ' KB)...');
   
   // Check for various YouTube-related strings
   if (content.includes('Connect YouTube')) {
@@ -54,16 +55,19 @@ for (const file of jsFiles) {
   }
 }
 
-console.log('\n📊 Results:');
+console.log('');
+console.log('📊 Results:');
 console.log('  YouTube function found:', foundYoutube ? '✅' : '❌');
 console.log('  YouTube button text found:', foundText ? '✅' : '❌');
 
 if (foundYoutube || foundText) {
-  console.log('\n✅ BUILD VERIFICATION PASSED!');
+  console.log('');
+  console.log('✅ BUILD VERIFICATION PASSED!');
   console.log('   YouTube integration is in the build.');
   process.exit(0);
 } else {
-  console.log('\n❌ BUILD VERIFICATION FAILED!');
+  console.log('');
+  console.log('❌ BUILD VERIFICATION FAILED!');
   console.log('   YouTube code NOT found in JavaScript bundles.');
   console.log('   This means the build is using old source code.');
   process.exit(1);
