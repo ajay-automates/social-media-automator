@@ -4,7 +4,7 @@
   "description": "Automate social media posting across multiple platforms",
   "main": "server.js",
   "scripts": {
-    "build": "echo 'Dashboard already built, skipping...'",
+    "build": "cd dashboard && npm install && npm run build && cd ..",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
