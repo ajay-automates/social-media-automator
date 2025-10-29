@@ -275,6 +275,14 @@ export default function Settings() {
               >
                 <span>📘</span> Connect Facebook
               </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectYouTube}
+                className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition flex items-center gap-2"
+              >
+                <span>🎬</span> Connect YouTube
+              </motion.button>
             </div>
           </div>
         ) : (
