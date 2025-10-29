@@ -25,9 +25,12 @@ function generateOAuthSignature(method, url, params, consumerSecret, tokenSecret
  * Generate OAuth 1.0a header for Twitter API
  */
 function generateOAuthHeader(method, url, credentials, additionalParams = {}) {
+  // Use OAuth 1.0a access token if available, otherwise fall back to OAuth 2.0 token
+  const oauthToken = credentials.accessTokenOAuth1 || credentials.accessToken;
+  
   const oauthParams = {
     oauth_consumer_key: credentials.apiKey,
-    oauth_token: credentials.accessToken,
+    oauth_token: oauthToken,
     oauth_signature_method: 'HMAC-SHA1',
     oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
     oauth_nonce: crypto.randomBytes(32).toString('base64').replace(/\W/g, ''),
