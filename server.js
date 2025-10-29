@@ -1373,7 +1373,7 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     }, 10 * 60 * 1000);
     
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
-    const scope = 'tweet.read tweet.write users.read offline.access';
+    const scope = 'tweet.read tweet.write users.read offline.access tweet.moderate.write';
     
     console.log('🐦 Twitter OAuth URL generation:');
     console.log('  - Client ID:', clientId ? 'exists' : 'missing');
