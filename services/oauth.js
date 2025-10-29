@@ -798,7 +798,17 @@ async function getUserCredentialsForPosting(userId) {
           accessToken: account.access_token
         };
         
-        // Check if OAuth 1.0a credentials are available (for media uploads)
+        // Get OAuth 1.0a API Key and Secret from environment variables (app-level credentials)
+        const apiKey = process.env.TWITTER_API_KEY;
+        const apiSecret = process.env.TWITTER_API_SECRET;
+        
+        if (apiKey && apiSecret) {
+          twitterCreds.apiKey = apiKey;
+          twitterCreds.apiSecret = apiSecret;
+          console.log('   ✅ OAuth 1.0a API credentials found from environment - media uploads enabled');
+        }
+        
+        // Check if OAuth 1.0a credentials are available in additional_credentials field
         if (account.additional_credentials) {
           try {
             const additional = typeof account.additional_credentials === 'string' 
@@ -806,7 +816,7 @@ async function getUserCredentialsForPosting(userId) {
               : account.additional_credentials;
             
             if (additional.apiKey && additional.apiSecret) {
-              console.log('   ✅ OAuth 1.0a credentials found - media uploads enabled');
+              console.log('   ✅ OAuth 1.0a credentials found in additional_credentials - media uploads enabled');
               twitterCreds.apiKey = additional.apiKey;
               twitterCreds.apiSecret = additional.apiSecret;
             }
@@ -816,20 +826,24 @@ async function getUserCredentialsForPosting(userId) {
         }
         
         // Check if OAuth 1.0a access token/secret are in refresh_token field
-        // (Twitter sometimes stores OAuth 1.0a token there)
+        // Format: access_token:access_secret
         if (account.refresh_token && account.refresh_token.includes(':')) {
           try {
             const [oauth1AccessToken, oauth1AccessSecret] = account.refresh_token.split(':');
             twitterCreds.accessTokenOAuth1 = oauth1AccessToken;
             twitterCreds.accessSecret = oauth1AccessSecret;
-            console.log('   ✅ OAuth 1.0a access token found');
+            console.log('   ✅ OAuth 1.0a access token found in refresh_token');
           } catch (e) {
-            // Not OAuth 1.0a format, ignore
+            console.log('   ⚠️  Failed to parse OAuth 1.0a tokens from refresh_token');
           }
         }
         
         if (!twitterCreds.apiKey) {
-          console.log('   ⚠️  OAuth 2.0 only - media uploads will fail');
+          console.log('   ⚠️  OAuth 2.0 only - media uploads will fail (missing API Key/Secret)');
+        }
+        
+        if (!twitterCreds.accessTokenOAuth1) {
+          console.log('   ⚠️  OAuth 2.0 only - media uploads will fail (missing OAuth 1.0a access token)');
         }
         
         credentials.twitter.push(twitterCreds);
