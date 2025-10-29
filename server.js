@@ -2467,6 +2467,7 @@ app.get('/auth/youtube/callback', async (req, res) => {
     
     const tokenData = await exchangeYouTubeCode(code);
     const channelInfo = await getChannelInfo(tokenData.accessToken);
+    console.log('📺 Channel info result:', channelInfo);
     
     if (!channelInfo) {
       throw new Error('Could not retrieve channel information');
