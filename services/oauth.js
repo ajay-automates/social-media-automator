@@ -790,9 +790,11 @@ async function getUserCredentialsForPosting(userId) {
         });
       } else if (account.platform === 'twitter') {
         // Twitter: Use OAuth 2.0 credentials from database (multi-tenant safe)
-        // Each user's Twitter account has its own access token from the database
+        // NOTE: Media uploads require OAuth 1.0a (API Key/Secret) which we don't have
+        // For now, only bearerToken (OAuth 2.0) is available for posting text tweets
         console.log('🔐 Loading Twitter credentials for user');
         console.log('   Using OAuth 2.0 from database');
+        console.log('   WARNING: Media uploads may not work without OAuth 1.0a credentials');
         
         credentials.twitter.push({
           bearerToken: account.access_token,
