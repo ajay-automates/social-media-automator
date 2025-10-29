@@ -1751,8 +1751,94 @@ app.get('/auth/facebook/callback', async (req, res) => {
 });
 
 /**
+ * POST /api/auth/twitter/oauth1
+ * Add OAuth 1.0a Access Token/Secret for media uploads (authenticated endpoint)
+ */
+app.post('/api/auth/twitter/oauth1', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { accessToken, accessSecret } = req.body;
+    
+    console.log('🔑 Adding Twitter OAuth 1.0a credentials for user:', userId);
+    
+    if (!accessToken || !accessSecret) {
+      return res.status(400).json({
+        success: false,
+        error: 'Access Token and Secret are required'
+      });
+    }
+    
+    // Update existing Twitter account with OAuth 1.0a credentials
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
+    
+    // Get existing Twitter account
+    const { data: existingAccount } = await supabaseAdmin
+      .from('user_accounts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('platform', 'twitter')
+      .single();
+    
+    if (!existingAccount) {
+      return res.status(404).json({
+        success: false,
+        error: 'Twitter account not found. Please connect Twitter first.'
+      });
+    }
+    
+    // Parse existing additional_credentials
+    let additionalCreds = {};
+    if (existingAccount.additional_credentials) {
+      try {
+        additionalCreds = typeof existingAccount.additional_credentials === 'string'
+          ? JSON.parse(existingAccount.additional_credentials)
+          : existingAccount.additional_credentials;
+      } catch (e) {
+        console.log('Failed to parse existing additional_credentials');
+      }
+    }
+    
+    // Add OAuth 1.0a access token and secret
+    additionalCreds.accessTokenOAuth1 = accessToken;
+    additionalCreds.accessSecret = accessSecret;
+    
+    // Update account
+    const { error } = await supabaseAdmin
+      .from('user_accounts')
+      .update({
+        additional_credentials: JSON.stringify(additionalCreds)
+      })
+      .eq('id', existingAccount.id);
+    
+    if (error) {
+      console.error('❌ Database error:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    }
+    
+    console.log('✅ Twitter OAuth 1.0a credentials added for user', userId);
+    res.json({
+      success: true,
+      message: 'OAuth 1.0a credentials added successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error adding Twitter OAuth 1.0a credentials:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * POST /api/auth/telegram/connect
- * Connect Telegram bot (user provides bot token)
+ * Connect Telegram bot (userencia provides bot token)
  */
 app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
   try {
