@@ -138,6 +138,20 @@ export default function Settings() {
     }
   };
 
+  const connectYouTube = async () => {
+    try {
+      const response = await api.post('/auth/youtube/url');
+      if (response.data?.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      } else {
+        showError('Failed to generate YouTube OAuth URL');
+      }
+    } catch (err) {
+      console.error('YouTube connection error:', err);
+      showError('Failed to connect YouTube');
+    }
+  };
+
   const handleTelegramConnect = async () => {
     try {
       await api.post('/auth/telegram/connect', {
@@ -345,7 +359,7 @@ export default function Settings() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => window.location.href = '/api/auth/youtube/url'}
+              onClick={connectYouTube}
               className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
             >
               + Connect YouTube
