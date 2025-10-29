@@ -95,9 +95,13 @@ async function uploadMediaToTwitter(imageUrl, credentials, isOAuth2 = false) {
       };
     }
     
+    // Use URLSearchParams for proper encoding
+    const formData = new URLSearchParams();
+    formData.append('media_data', mediaData);
+    
     const response = await axios.post(
       url,
-      `media_data=${encodeURIComponent(mediaData)}`,
+      formData.toString(),
       { headers }
     );
     
