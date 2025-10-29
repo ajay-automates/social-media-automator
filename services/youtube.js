@@ -97,11 +97,13 @@ async function exchangeYouTubeCode(code) {
 
 async function getChannelInfo(accessToken) {
   try {
+    console.log('📺 Fetching YouTube channel info...');
     const response = await axios.get(`${YOUTUBE_API_BASE}/channels?part=id,snippet,statistics,contentDetails`, { params: { mine: true }, headers: { 'Authorization': `Bearer ${accessToken}` } });
     if (!response.data.items || response.data.items.length === 0) throw new Error('Channel not found');
     const channel = response.data.items[0];
     return { channelId: channel.id, title: channel.snippet.title, description: channel.snippet.description, profileImageUrl: channel.snippet.thumbnails.default.url, subscriberCount: channel.statistics.subscriberCount, videoCount: channel.statistics.videoCount, viewCount: channel.statistics.viewCount, canUploadContent: channel.snippet.country !== null };
   } catch (error) {
+    console.error('❌ Error fetching channel info:', error.response?.data || error.message);
     return null;
   }
 }
