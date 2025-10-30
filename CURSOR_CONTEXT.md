@@ -20,33 +20,53 @@
 | Instagram| N/A  | ✅     | ✅     | Needs Setup |
 | Facebook | ✅   | ✅     | ❌     | Needs Setup |
 
-### Recent Changes & Production Updates
-1. **YouTube Integration**
+### Recent Changes & Production Updates (January 2025)
+
+1. **Post URL Generation & Analytics Fixes** ✅ LATEST
+   - ✅ Twitter, LinkedIn, and Telegram services now return post URLs
+   - ✅ Platform links in Recent Posts now redirect correctly to actual posts
+   - ✅ Handles multi-account results (array format)
+   - ✅ Backward compatibility for old posts without URLs
+   - ✅ Fixed analytics to always save posts (even failed ones)
+   - ✅ Fixed RLS issues by using `supabaseAdmin` for all backend operations
+   - ✅ Improved result parsing when retrieving from database
+
+2. **Code Cleanup & Optimization** ✅ LATEST
+   - ✅ Removed excessive debug logging (100+ lines cleaned)
+   - ✅ Consolidated duplicate `updatePostStatus` function
+   - ✅ Removed duplicate Supabase client initialization
+   - ✅ Optimized imports and removed unused code
+   - ✅ Production-ready logging (only essential logs remain)
+
+3. **YouTube Integration**
    - ✅ Token auto-refresh with proactive expiration check
    - ✅ Resumable upload API for videos
    - ✅ #Shorts auto-tagging
    - ✅ Multi-account support
 
-2. **Video Handling**
+4. **Video Handling**
    - ✅ Video attach workflow with preview in CreatePost.jsx
    - ✅ Cloudinary video upload support
    - ✅ Video detection: `imageUrl.includes('/video/upload/')`
 
-3. **OAuth Improvements**
+5. **OAuth Improvements**
    - ✅ Database-backed PKCE storage for Twitter OAuth
    - ✅ Token expiration tracking (`token_expires_at`)
    - ✅ Multi-account OAuth flows
+   - ✅ Standardized Supabase client usage (all use `supabaseAdmin`)
 
-4. **Analytics & UX**
+6. **Analytics & UX**
    - ✅ Auto-refresh every 30 seconds
    - ✅ Window focus refresh
-   - ✅ Real-time post history
+   - ✅ Real-time post history with clickable platform links
    - ✅ Platform statistics
+   - ✅ All posts saved to database for complete history
 
-5. **Scheduler**
+7. **Scheduler**
    - ✅ Multi-tenant queue processing
    - ✅ Instagram/Facebook/YouTube support
    - ✅ Post status tracking (queued/posted/failed/partial)
+   - ✅ Consolidated database operations
 
 ### Key Files Structure
 ```
@@ -188,7 +208,8 @@ SESSION_SECRET=
 - `platforms` - JSON array of platforms
 - `schedule_time` - When to post
 - `status` - queued | posted | failed | partial
-- `results` - JSON object with platform results
+- `results` - JSON object with platform results (includes `url` for each platform)
+  - Format: `{ linkedin: [{ success: true, url: '...', id: '...', postId: '...' }], ... }`
 
 **oauth_states** table:
 - Stores PKCE code_verifier for Twitter OAuth
@@ -202,24 +223,33 @@ SESSION_SECRET=
 - **Build**: `npm run build` (builds React dashboard)
 - **Environment**: Production config in Railway dashboard
 
-### Code Inconsistencies Found
-⚠️ **SUPABASE_SERVICE_KEY vs SUPABASE_SERVICE_ROLE_KEY**
-- Global `supabaseAdmin` (line 96-99) uses `SUPABASE_SERVICE_ROLE_KEY`
-- OAuth callbacks (lines 1327, 1559, 1876, 1963, 2525) create new clients with `SUPABASE_SERVICE_KEY`
-- **Action**: Verify production env vars - may need both set to same value, or standardize to `SUPABASE_SERVICE_ROLE_KEY`
+### Code Improvements Completed ✅
+✅ **Supabase Client Standardization**
+- All database operations now use `supabaseAdmin` from `database.js`
+- OAuth callbacks use global `supabaseAdmin` client (fixed inconsistency)
+- Removed duplicate `updatePostStatus` function in `scheduler.js`
+- All backend operations properly bypass RLS for multi-tenant support
+
+✅ **Post URL Generation**
+- Twitter, LinkedIn, Telegram services return `url` field
+- Analytics page constructs URLs from `postId` if `url` not available
+- Handles both single and array results (multi-account support)
+- LinkedIn URN format extraction for URL construction
 
 ### Testing Checklist
-- [ ] LinkedIn OAuth flow
-- [ ] Twitter OAuth flow (PKCE)
-- [ ] Telegram bot connection
-- [ ] YouTube OAuth + token refresh
+- [x] LinkedIn OAuth flow ✅
+- [x] Twitter OAuth flow (PKCE) ✅
+- [x] Telegram bot connection ✅
+- [x] YouTube OAuth + token refresh ✅
 - [ ] Instagram OAuth (requires Facebook Page)
 - [ ] Facebook OAuth (requires Facebook Page)
-- [ ] Post to all platforms
-- [ ] Video upload to Cloudinary
-- [ ] YouTube Short upload
-- [ ] Analytics auto-refresh
-- [ ] Multi-account posting
+- [x] Post to all platforms ✅
+- [x] Video upload to Cloudinary ✅
+- [x] YouTube Short upload ✅
+- [x] Analytics auto-refresh ✅
+- [x] Multi-account posting ✅
+- [x] Platform links redirect correctly ✅ NEW
+- [x] Posts always saved to database ✅ NEW
 - [ ] Template system
 - [ ] Billing/usage limits
 
