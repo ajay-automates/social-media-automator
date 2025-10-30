@@ -187,8 +187,20 @@ async function getPostHistory(limit = 50, userId = null) {
     
     if (error) throw error;
     
-    console.log(`📋 Retrieved ${data?.length || 0} posts from history for user ${userId || 'all'}`);
-    return data || [];
+    // Parse results if they're stored as JSON strings
+    const parsedData = (data || []).map(post => {
+      if (post.results && typeof post.results === 'string') {
+        try {
+          post.results = JSON.parse(post.results);
+        } catch (e) {
+          console.warn(`⚠️  Failed to parse results JSON for post ${post.id}:`, e);
+        }
+      }
+      return post;
+    });
+    
+    console.log(`📋 Retrieved ${parsedData.length || 0} posts from history for user ${userId || 'all'}`);
+    return parsedData;
   } catch (error) {
     console.error('❌ Database error (getPostHistory):', error.message);
     return [];
