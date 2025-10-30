@@ -20,6 +20,7 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
  * Add a post to the queue (with user_id for multi-tenant)
+ * Uses supabaseAdmin to bypass RLS for backend operations
  */
 async function addPost(postData) {
   try {
@@ -37,7 +38,8 @@ async function addPost(postData) {
       insertData.user_id = postData.userId;
     }
     
-    const { data, error } = await supabase
+    // Use supabaseAdmin to bypass RLS for backend operations
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .insert([insertData])
       .select()
@@ -97,6 +99,7 @@ async function getAllQueuedPosts() {
 
 /**
  * Update post status after posting
+ * Uses supabaseAdmin to bypass RLS for backend operations
  */
 async function updatePostStatus(postId, status, results = null) {
   try {
@@ -109,7 +112,8 @@ async function updatePostStatus(postId, status, results = null) {
       updateData.results = results;
     }
     
-    const { data, error } = await supabase
+    // Use supabaseAdmin to bypass RLS for backend operations
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .update(updateData)
       .eq('id', postId)
@@ -145,10 +149,11 @@ async function deletePost(postId) {
 
 /**
  * Get post history (last N posts) - multi-tenant aware
+ * Uses supabaseAdmin to bypass RLS for backend queries
  */
 async function getPostHistory(limit = 50, userId = null) {
   try {
-    let query = supabase
+    let query = supabaseAdmin
       .from('posts')
       .select('*')
       .order('created_at', { ascending: false })
@@ -162,6 +167,8 @@ async function getPostHistory(limit = 50, userId = null) {
     const { data, error } = await query;
     
     if (error) throw error;
+    
+    console.log(`📋 Retrieved ${data?.length || 0} posts from history for user ${userId || 'all'}`);
     return data || [];
   } catch (error) {
     console.error('❌ Database error (getPostHistory):', error.message);

@@ -431,45 +431,60 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     
     const platformResults = await postNow(text, finalImageUrl || null, platforms, credentials);
     
-    // Check if all platforms succeeded
-    const allSuccess = Object.values(platformResults).every(r => r.success);
-    const anySuccess = Object.values(platformResults).some(r => r.success);
+    // Check if all platforms succeeded (handle array results per platform)
+    const platformArray = Object.values(platformResults);
+    const flattenResults = platformArray.flat().filter(r => r && typeof r === 'object');
     
-    // Save the post to database
-    if (anySuccess) {
-      try {
-        // Determine final status
-        let status;
-        if (allSuccess) {
-          status = 'posted';
-        } else if (anySuccess && !allSuccess) {
-          status = 'partial';
-        } else {
-          status = 'failed';
-        }
-        
-        // Save post to database
-        const savedPost = await addPost({
-          text,
-          imageUrl: imageUrl || null,
-          platforms,
-          scheduleTime: new Date(), // For "post now", use current time
-          credentials,
-          userId
-        });
-        
-        // Update post status with results
-        if (savedPost && savedPost.id) {
-          await updatePostStatus(savedPost.id, status, platformResults);
-        }
-        
-        console.log(`✅ Post saved to database with status: ${status}`);
-      } catch (dbError) {
-        console.error('⚠️  Error saving post to database:', dbError);
-        // Don't fail the request if DB save fails
+    const allSuccess = flattenResults.length > 0 && flattenResults.every(r => r.success !== false);
+    const anySuccess = flattenResults.length > 0 && flattenResults.some(r => r.success === true);
+    
+    console.log('📊 Post results summary:', {
+      platforms: Object.keys(platformResults),
+      allSuccess,
+      anySuccess,
+      totalResults: flattenResults.length
+    });
+    
+    // ALWAYS save the post to database, even if all platforms failed
+    // This ensures we have a record of all posting attempts
+    try {
+      // Determine final status
+      let status;
+      if (flattenResults.length === 0) {
+        status = 'failed';
+      } else if (allSuccess) {
+        status = 'posted';
+      } else if (anySuccess) {
+        status = 'partial';
+      } else {
+        status = 'failed';
       }
       
-      // Increment usage count
+      // Save post to database
+      const savedPost = await addPost({
+        text,
+        imageUrl: imageUrl || null,
+        platforms,
+        scheduleTime: new Date(), // For "post now", use current time
+        credentials,
+        userId
+      });
+      
+      // Update post status with results
+      if (savedPost && savedPost.id) {
+        await updatePostStatus(savedPost.id, status, platformResults);
+        console.log(`✅ Post saved to database (ID: ${savedPost.id}) with status: ${status}`);
+      } else {
+        console.error('⚠️  Failed to save post - no ID returned');
+      }
+    } catch (dbError) {
+      console.error('⚠️  Error saving post to database:', dbError);
+      console.error('⚠️  Database error details:', JSON.stringify(dbError, null, 2));
+      // Don't fail the request if DB save fails, but log it
+    }
+    
+    // Increment usage count only if any platform succeeded
+    if (anySuccess) {
       await incrementUsage(userId, 'posts');
     }
     
