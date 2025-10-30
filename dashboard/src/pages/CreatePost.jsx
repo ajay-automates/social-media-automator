@@ -296,7 +296,9 @@ export default function CreatePost() {
                       });
                       
                       if (response.data.success) {
-                        setImage(response.data.videoUrl || response.data.url);
+                        const uploadedUrl = response.data.videoUrl || response.data.url || response.data.imageUrl;
+                        setImage(uploadedUrl);
+                        console.log('✅ Video uploaded, URL set:', uploadedUrl);
                         showSuccess('Video uploaded successfully!');
                       } else {
                         showError('Failed to upload video');

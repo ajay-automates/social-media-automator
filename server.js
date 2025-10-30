@@ -929,7 +929,9 @@ app.post('/api/upload/image', verifyAuth, upload.single('file'), async (req, res
       
       return res.json({
         success: true,
-        imageUrl: result.url,
+        url: result.url,           // Standard field name
+        imageUrl: result.url,       // Backward compatibility
+        videoUrl: result.url,       // For video uploads
         publicId: result.publicId,
         width: result.width,
         height: result.height,
