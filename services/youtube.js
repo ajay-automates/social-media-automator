@@ -128,13 +128,12 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     const videoMetadata = {
       snippet: {
         title: finalTitle,
-        description: description.substring(0, 5000),
-        tags: tags.slice(0, 30),
-        categoryId: '22' // People & Blogs - widely compatible
+        description: description.substring(0, 5000)
+        // Removed tags and categoryId - trying minimal metadata
       },
       status: {
         privacyStatus: 'public',
-        selfDeclaredMadeForKids: forKids
+        selfDeclaredMadeForKids: false
       }
     };
     
