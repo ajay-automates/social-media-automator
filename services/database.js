@@ -123,7 +123,6 @@ async function updatePostStatus(postId, status, results = null) {
         updateData.results = results;
       }
       
-      console.log(`💾 Updating post ${postId} with results:`, JSON.stringify(updateData.results, null, 2));
     }
     
     // Use supabaseAdmin to bypass RLS for backend operations
@@ -131,7 +130,7 @@ async function updatePostStatus(postId, status, results = null) {
       .from('posts')
       .update(updateData)
       .eq('id', postId)
-      .select('id, status, results')
+      .select()
       .single();
     
     if (error) {
@@ -139,7 +138,6 @@ async function updatePostStatus(postId, status, results = null) {
       throw error;
     }
     
-    console.log(`✅ Post ${postId} updated successfully with results`);
     return data;
   } catch (error) {
     console.error(`❌ Database error (updatePostStatus):`, error.message);

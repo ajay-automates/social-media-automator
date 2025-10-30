@@ -323,9 +323,6 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const { text, imageUrl } = req.body;
     let platforms = req.body.platforms;
-    console.log('📋 Request body imageUrl:', imageUrl);
-    console.log('📤 Post Now - User:', userId);
-    console.log('📤 Platforms:', platforms);
     
     if (!text) {
       return res.status(400).json({ 
@@ -347,12 +344,6 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     
     // Get user's credentials from database
     const credentials = await getUserCredentialsForPosting(userId);
-    console.log('🔑 Credentials loaded:', {
-      linkedin: credentials.linkedin.length,
-      twitter: credentials.twitter.length,
-      telegram: credentials.telegram.length
-    });
-    console.log('🔑 Full credentials:', JSON.stringify(credentials, null, 2));
     
     // Check if video is being posted to unsupported platforms
     if (imageUrl && imageUrl.includes('/video/') && platforms.includes('linkedin')) {
@@ -376,9 +367,6 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
         });
       }
       if (platform === 'telegram') {
-        console.log('🔍 Checking Telegram credentials for platform:', platform);
-        console.log('  - credentials.telegram:', credentials.telegram);
-        console.log('  - accounts count:', credentials.telegram.length);
         if (credentials.telegram.length === 0) {
           return res.status(400).json({
             success: false,
@@ -445,7 +433,12 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       totalResults: flattenResults.length
     });
     
-    // ALWAYS save the post to database, even if all platforms failed
+    console.log('📊 Post results summary:', {
+      platforms: Object.keys(platformResults),
+      allSuccess,
+      anySuccess,
+      totalResults: flattenResults.length
+    });
     // This ensures we have a record of all posting attempts
     try {
       // Determine final status
@@ -472,22 +465,8 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       
       // Update post status with results
       if (savedPost && savedPost.id) {
-        console.log('📊 Saving results to database:', JSON.stringify(platformResults, null, 2));
         await updatePostStatus(savedPost.id, status, platformResults);
         console.log(`✅ Post saved to database (ID: ${savedPost.id}) with status: ${status}`);
-        
-        // Verify results were saved
-        const { data: verifyPost } = await supabaseAdmin
-          .from('posts')
-          .select('results')
-          .eq('id', savedPost.id)
-          .single();
-        
-        if (verifyPost) {
-          console.log('✅ Verified results saved:', JSON.stringify(verifyPost.results, null, 2));
-        } else {
-          console.error('⚠️  Could not verify saved results');
-        }
       } else {
         console.error('⚠️  Failed to save post - no ID returned');
       }

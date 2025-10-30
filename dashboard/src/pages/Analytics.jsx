@@ -44,11 +44,6 @@ export default function Analytics() {
         api.get('/analytics/platforms').catch(() => ({ data: null }))
       ]);
       
-      console.log('📊 Analytics API responses:', {
-        overview: overviewResponse.data,
-        timeline: timelineResponse.data,
-        platforms: platformsResponse.data
-      });
       
       // Get overview data
       let overviewData = overviewResponse.data;
@@ -101,8 +96,6 @@ export default function Analytics() {
         platforms: formattedPlatforms.length > 0 ? formattedPlatforms : undefined
       };
       
-      console.log('📊 Combined analytics data:', analyticsData);
-      
       setAnalytics(analyticsData);
     } catch (err) {
       console.error('Error loading analytics:', err);
@@ -115,11 +108,8 @@ export default function Analytics() {
   const loadHistory = async () => {
     try {
       const response = await api.get('/history');
-      console.log('📋 History API response:', response.data);
       // The API returns { success: true, history: [...], count: N }
       const historyData = response.data?.history || response.data || [];
-      console.log('📋 History data:', historyData);
-      console.log('📋 First post platforms:', historyData[0]?.platforms);
       setHistory(Array.isArray(historyData) ? historyData : []);
     } catch (err) {
       console.error('Error loading history:', err);
@@ -323,39 +313,22 @@ export default function Analytics() {
                 // Helper function to get post URL from results
                 // Handles both single results and array results (multi-account)
                 const getPostUrl = (platform) => {
-                  // Debug logging
-                  console.log(`🔍 Getting URL for platform: ${platform}`);
-                  console.log(`🔍 Post results:`, post.results);
-                  
-                  if (!post.results) {
-                    console.log(`⚠️  No results object found for post`);
-                    return null;
-                  }
-                  
-                  if (!post.results[platform]) {
-                    console.log(`⚠️  No results for platform: ${platform}`);
+                  if (!post.results || !post.results[platform]) {
                     return null;
                   }
                   
                   const platformResults = post.results[platform];
-                  console.log(`🔍 Platform results:`, platformResults);
-                  
                   // Handle array results (multiple accounts per platform)
                   const resultsArray = Array.isArray(platformResults) ? platformResults : [platformResults];
-                  console.log(`🔍 Results array:`, resultsArray);
                   
                   // Find first successful result
                   const successfulResult = resultsArray.find(r => r && r.success === true);
-                  console.log(`🔍 Successful result:`, successfulResult);
-                  
                   if (!successfulResult) {
-                    console.log(`⚠️  No successful result found for platform: ${platform}`);
                     return null;
                   }
                   
                   // First try: Direct URL from result
                   if (successfulResult.url) {
-                    console.log(`✅ Found URL:`, successfulResult.url);
                     return successfulResult.url;
                   }
                   
@@ -363,29 +336,19 @@ export default function Analytics() {
                   if (successfulResult.postId) {
                     const platformLower = platform.toLowerCase();
                     if (platformLower === 'linkedin') {
-                      const url = `https://www.linkedin.com/feed/update/${successfulResult.postId}`;
-                      console.log(`✅ Constructed LinkedIn URL:`, url);
-                      return url;
+                      return `https://www.linkedin.com/feed/update/${successfulResult.postId}`;
                     } else if (platformLower === 'twitter' || platformLower === 'x') {
-                      const url = `https://twitter.com/i/web/status/${successfulResult.postId}`;
-                      console.log(`✅ Constructed Twitter URL:`, url);
-                      return url;
+                      return `https://twitter.com/i/web/status/${successfulResult.postId}`;
                     } else if (platformLower === 'telegram') {
                       if (successfulResult.chatId && successfulResult.messageId) {
-                        // Remove minus sign from chatId for URL (Telegram channels/groups use negative IDs)
                         const chatIdForUrl = successfulResult.chatId.toString().replace(/^-/, '');
-                        const url = `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
-                        console.log(`✅ Constructed Telegram URL:`, url);
-                        return url;
+                        return `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
                       } else if (successfulResult.url) {
                         return successfulResult.url;
                       }
                     } else if (platformLower === 'instagram') {
-                      // Instagram posts URL construction
                       if (successfulResult.id) {
-                        const url = `https://www.instagram.com/p/${successfulResult.id}/`;
-                        console.log(`✅ Constructed Instagram URL:`, url);
-                        return url;
+                        return `https://www.instagram.com/p/${successfulResult.id}/`;
                       }
                     }
                   }
@@ -393,20 +356,14 @@ export default function Analytics() {
                   // Third try: Construct from id (for backward compatibility)
                   if (successfulResult.id) {
                     const platformLower = platform.toLowerCase();
-                    // Extract numeric ID from LinkedIn URN format
                     if (platformLower === 'linkedin' && successfulResult.id.includes(':')) {
                       const postId = successfulResult.id.split(':').pop();
-                      const url = `https://www.linkedin.com/feed/update/${postId}`;
-                      console.log(`✅ Constructed LinkedIn URL from URN:`, url);
-                      return url;
+                      return `https://www.linkedin.com/feed/update/${postId}`;
                     } else if (platformLower === 'twitter' || platformLower === 'x') {
-                      const url = `https://twitter.com/i/web/status/${successfulResult.id}`;
-                      console.log(`✅ Constructed Twitter URL from ID:`, url);
-                      return url;
+                      return `https://twitter.com/i/web/status/${successfulResult.id}`;
                     }
                   }
                   
-                  console.log(`❌ No URL found for platform: ${platform}`);
                   return null;
                 };
 

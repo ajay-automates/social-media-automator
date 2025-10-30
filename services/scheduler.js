@@ -1,5 +1,4 @@
 const cron = require('node-cron');
-const { createClient } = require('@supabase/supabase-js');
 const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
@@ -7,11 +6,13 @@ const { postToInstagram } = require('./instagram');
 const { postToFacebookPage } = require('./facebook');
 const { postToYouTube } = require('./youtube');
 const { getUserCredentialsForPosting } = require('./oauth');
+const { updatePostStatus } = require('./database');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL?.trim() || process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+// Use shared Supabase admin client from database.js
+const { createClient } = require('@supabase/supabase-js');
+const supabaseUrl = process.env.SUPABASE_URL?.trim();
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 let isProcessing = false;
 
@@ -270,11 +271,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
     });
 
     const status = hasErrors ? 'failed' : 'posted';
-    const message = JSON.stringify(results);
 
     // Only update post status if this is a scheduled post (has id)
     if (id) {
-      await updatePostStatus(id, status, message);
+      await updatePostStatus(id, status, results);
       console.log(`✅ Post [${id}] completed - Status: ${status}`);
     }
     
@@ -286,30 +286,14 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
     
     // Only update post status if this is a scheduled post (has id)
     if (id) {
-      await updatePostStatus(id, 'failed', error.message);
+      await updatePostStatus(id, 'failed', { error: error.message });
     }
     
     throw error; // Re-throw for immediate posts
   }
 }
 
-async function updatePostStatus(postId, status, message = null) {
-  try {
-    const update = { status, updated_at: new Date().toISOString() };
-    if (message) update.result = message;
-
-    const { error } = await supabase
-      .from('posts')
-      .update(update)
-      .eq('id', postId);
-
-    if (error) {
-      console.error('Error updating post status:', error);
-    }
-  } catch (error) {
-    console.error('Error in updatePostStatus:', error);
-  }
-}
+// Note: updatePostStatus is now imported from database.js to avoid duplication
 
 async function schedulePost(postData) {
   try {
