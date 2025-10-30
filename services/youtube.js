@@ -84,15 +84,16 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     
     let accessToken = credentials.accessToken || credentials.access_token;
     const refreshToken = credentials.refreshToken || credentials.refresh_token;
+    const userId = credentials.userId || credentials.user_id;
     
     // Check if token is expired or missing
     if (!accessToken && refreshToken) {
       console.log('🔄 No access token, refreshing...');
-      const refreshed = await refreshYouTubeToken(refreshToken);
+      const refreshed = await refreshYouTubeToken(refreshToken, userId);
       accessToken = refreshed.accessToken;
     } else if (accessToken && refreshToken && isTokenExpired(credentials)) {
       console.log('🔄 Token expired, refreshing proactively...');
-      const refreshed = await refreshYouTubeToken(refreshToken);
+      const refreshed = await refreshYouTubeToken(refreshToken, userId);
       accessToken = refreshed.accessToken;
     }
     
