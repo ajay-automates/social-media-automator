@@ -898,20 +898,22 @@ app.get('/api/analytics/timeline', verifyAuth, async (req, res) => {
  * POST /api/upload/image
  * Upload image file to Cloudinary (protected)
  */
-app.post('/api/upload/image', verifyAuth, upload.single('image'), async (req, res) => {
+app.post('/api/upload/image', verifyAuth, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        error: 'No image file provided'
+        error: 'No file provided'
       });
     }
 
+    const isVideo = req.file.mimetype.startsWith('video/');
+
     const userId = req.user.id;
-    console.log(`📤 Uploading image for user ${userId}...`);
+    console.log(`📤 Uploading ${isVideo ? 'video' : 'image'} for user ${userId}...`);
 
     // Upload to Cloudinary
-    const result = await uploadImage(req.file.path, userId);
+    const result = isVideo ? await uploadVideo(req.file.path, userId) : await uploadImage(req.file.path, userId);
 
     // Delete temporary file
     await fs.unlink(req.file.path).catch(err => {

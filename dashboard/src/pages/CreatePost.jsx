@@ -286,9 +286,9 @@ export default function CreatePost() {
                     setUploadingMedia(true);
                     try {
                       const formData = new FormData();
-                      formData.append('video', file);
+                      formData.append('file', file);
                       
-                      const response = await api.post('/api/upload/video', formData, {
+                      const response = await api.post('/api/upload/image', formData, {
                         headers: { 'Content-Type': 'multipart/form-data' }
                       });
                       
