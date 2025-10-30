@@ -130,3 +130,4 @@ async function postToYouTube(content, credentials) {
 }
 
 module.exports = { uploadYouTubeShort, createCommunityPost, generateYouTubeOAuthUrl, exchangeYouTubeCode, getChannelInfo, postToYouTube, YOUTUBE_API_BASE, YOUTUBE_AUTH_ENDPOINT };
+// Force redeploy Wed Oct 29 23:32:34 EDT 2025
