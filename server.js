@@ -1322,10 +1322,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
     const expiresAt = new Date(Date.now() + (expires_in * 1000));
     
     // Store in database using supabaseAdmin (bypasses RLS)
-    const supabaseAdmin = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    );
+    // Use global supabaseAdmin instead of creating new client
     
     await supabaseAdmin
       .from('user_accounts')
@@ -1553,12 +1550,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
     const profile = profileResponse.data.data;
     const expiresAt = expires_in ? new Date(Date.now() + (expires_in * 1000)) : null;
     
-    // Store in database using supabaseAdmin
-    const supabaseAdmin = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    );
-    
+    // Store in database using global supabaseAdmin (bypasses RLS)
     // Check if we have OAuth 1.0a credentials in environment (API Key/Secret)
     // These are app-level credentials that all users can use for media uploads
     const oauth1Credentials = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET 
@@ -1871,10 +1863,7 @@ app.post('/api/auth/twitter/oauth1', verifyAuth, async (req, res) => {
     }
     
     // Update existing Twitter account with OAuth 1.0a credentials
-    const supabaseAdmin = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    );
+    // Use global supabaseAdmin instead of creating new client
     
     // Get existing Twitter account
     const { data: existingAccount } = await supabaseAdmin
@@ -1956,12 +1945,7 @@ app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
       });
     }
     
-    // Store in database using supabaseAdmin
-    const { createClient } = require('@supabase/supabase-js');
-    const supabaseAdmin = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    );
+    // Store in database using global supabaseAdmin (bypasses RLS)
     
     const insertData = {
       user_id: userId,
@@ -2520,10 +2504,7 @@ app.get('/auth/youtube/callback', async (req, res) => {
       throw new Error('Could not retrieve channel information');
     }
     
-    const supabaseAdmin = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY
-    );
+    // Use global supabaseAdmin instead of creating new client
     
     const expiresAt = new Date(Date.now() + (tokenData.expiresIn * 1000));
     
