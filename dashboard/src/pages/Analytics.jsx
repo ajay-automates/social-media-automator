@@ -321,31 +321,55 @@ export default function Analytics() {
                 };
 
                 // Helper function to get post URL from results
+                // Handles both single results and array results (multi-account)
                 const getPostUrl = (platform) => {
-                  // First try: Direct URL from results
-                  if (post.results && post.results[platform] && post.results[platform].url) {
-                    return post.results[platform].url;
+                  if (!post.results || !post.results[platform]) {
+                    return null;
+                  }
+                  
+                  const platformResults = post.results[platform];
+                  // Handle array results (multiple accounts per platform)
+                  const resultsArray = Array.isArray(platformResults) ? platformResults : [platformResults];
+                  
+                  // Find first successful result
+                  const successfulResult = resultsArray.find(r => r && r.success === true);
+                  if (!successfulResult) {
+                    return null;
+                  }
+                  
+                  // First try: Direct URL from result
+                  if (successfulResult.url) {
+                    return successfulResult.url;
                   }
                   
                   // Second try: Construct from postId
-                  if (post.results && post.results[platform] && post.results[platform].postId) {
+                  if (successfulResult.postId) {
                     const platformLower = platform.toLowerCase();
-                    let url = null;
-                    
                     if (platformLower === 'linkedin') {
-                      url = `https://www.linkedin.com/feed/update/${post.results[platform].postId}`;
+                      return `https://www.linkedin.com/feed/update/${successfulResult.postId}`;
                     } else if (platformLower === 'twitter' || platformLower === 'x') {
-                      url = `https://twitter.com/i/web/status/${post.results[platform].postId}`;
+                      return `https://twitter.com/i/web/status/${successfulResult.postId}`;
                     } else if (platformLower === 'telegram') {
-                      url = `https://t.me/c/${post.results[platform].chatId}/${post.results[platform].messageId}`;
+                      if (successfulResult.chatId && successfulResult.messageId) {
+                        return `https://t.me/c/${successfulResult.chatId}/${successfulResult.messageId}`;
+                      }
                     } else if (platformLower === 'instagram') {
-                      // Instagram posts use shortcode (need to construct from id)
-                      // For now, return null as we'd need to fetch the shortcode
-                      url = null; // Instagram Graph API doesn't provide direct post URLs easily
+                      // Instagram posts URL construction
+                      if (successfulResult.id) {
+                        return `https://www.instagram.com/p/${successfulResult.id}/`;
+                      }
                     }
-                    
-                    if (url) {
-                      return url;
+                  }
+                  
+                  // Third try: Construct from id (for backward compatibility)
+                  if (successfulResult.id) {
+                    const platformLower = platform.toLowerCase();
+                    // Extract numeric ID from LinkedIn URN format
+                    if (platformLower === 'linkedin' && successfulResult.id.includes(':')) {
+                      const postId = successfulResult.id.split(':').pop();
+                      return `https://www.linkedin.com/feed/update/${postId}`;
+                    } else if (platformLower === 'twitter' || platformLower === 'x') {
+                      return `https://twitter.com/i/web/status/${successfulResult.id}`;
                     }
                   }
                   
@@ -371,8 +395,8 @@ export default function Analytics() {
                                 onClick={(e) => {
                                   if (!isClickable) {
                                     e.preventDefault();
-                                    // Show toast notification
-                                    alert(`Link not available for this ${platformInfo.name} post. The post was successful but the URL wasn't saved in the database.`);
+                                    // Show toast notification with helpful message
+                                    showError(`Link not available for this ${platformInfo.name} post. The post was successful but the URL wasn't saved. This will be fixed for future posts.`);
                                   }
                                 }}
                                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full ${platformInfo.color} transition ${

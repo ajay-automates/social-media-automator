@@ -40,9 +40,16 @@ async function postTextToLinkedIn(text, accessToken, urn, type = 'person') {
 
     console.log('✅ LinkedIn: Posted successfully');
     console.log('   Post ID:', response.data.id);
+    
+    // Extract post ID from LinkedIn URN format (e.g., "urn:li:ugcPost:123456")
+    const postId = response.data.id.split(':').pop();
+    const postUrl = `https://www.linkedin.com/feed/update/${postId}`;
+    
     return { 
       success: true, 
       id: response.data.id,
+      postId: postId, // Extracted numeric ID for URL construction
+      url: postUrl,
       platform: 'linkedin'
     };
   } catch (error) {
@@ -138,9 +145,16 @@ async function postImageToLinkedIn(text, imageUrl, accessToken, urn, type = 'per
     );
 
     console.log('✅ LinkedIn: Posted image successfully');
+    
+    // Extract post ID from LinkedIn URN format (e.g., "urn:li:ugcPost:123456")
+    const postId = postResponse.data.id.split(':').pop();
+    const postUrl = `https://www.linkedin.com/feed/update/${postId}`;
+    
     return { 
       success: true, 
       id: postResponse.data.id,
+      postId: postId, // Extracted numeric ID for URL construction
+      url: postUrl,
       platform: 'linkedin'
     };
   } catch (error) {

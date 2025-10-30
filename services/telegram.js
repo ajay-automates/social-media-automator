@@ -56,9 +56,20 @@ async function sendTextMessage(botToken, chatId, text) {
     
     if (response.data.ok) {
       console.log('✅ Telegram: Text posted successfully');
+      const messageId = response.data.result.message_id;
+      const chatId = response.data.result.chat.id;
+      // Telegram URL format: https://t.me/c/CHAT_ID/MESSAGE_ID
+      // Note: For channels/groups, CHAT_ID should be negative (remove minus sign for URL)
+      // Format: -1001234567890 becomes 1001234567890 in URL
+      const chatIdForUrl = chatId.toString().replace(/^-/, '');
+      const postUrl = `https://t.me/c/${chatIdForUrl}/${messageId}`;
+      
       return {
         success: true,
-        id: response.data.result.message_id,
+        id: messageId,
+        messageId: messageId,
+        chatId: chatId.toString(),
+        url: postUrl,
         platform: 'telegram'
       };
     }
@@ -96,9 +107,17 @@ async function sendPhoto(botToken, chatId, photoUrl, caption = '') {
     
     if (response.data.ok) {
       console.log('✅ Telegram: Photo posted successfully');
+      const messageId = response.data.result.message_id;
+      const chatId = response.data.result.chat.id;
+      const chatIdForUrl = chatId.toString().replace(/^-/, '');
+      const postUrl = `https://t.me/c/${chatIdForUrl}/${messageId}`;
+      
       return {
         success: true,
-        id: response.data.result.message_id,
+        id: messageId,
+        messageId: messageId,
+        chatId: chatId.toString(),
+        url: postUrl,
         platform: 'telegram'
       };
     }
@@ -137,9 +156,17 @@ async function sendVideo(botToken, chatId, videoUrl, caption = '') {
     
     if (response.data.ok) {
       console.log('✅ Telegram: Video posted successfully');
+      const messageId = response.data.result.message_id;
+      const chatId = response.data.result.chat.id;
+      const chatIdForUrl = chatId.toString().replace(/^-/, '');
+      const postUrl = `https://t.me/c/${chatIdForUrl}/${messageId}`;
+      
       return {
         success: true,
-        id: response.data.result.message_id,
+        id: messageId,
+        messageId: messageId,
+        chatId: chatId.toString(),
+        url: postUrl,
         platform: 'telegram'
       };
     }
@@ -177,9 +204,17 @@ async function sendDocument(botToken, chatId, documentUrl, caption = '') {
     
     if (response.data.ok) {
       console.log('✅ Telegram: Document posted successfully');
+      const messageId = response.data.result.message_id;
+      const chatId = response.data.result.chat.id;
+      const chatIdForUrl = chatId.toString().replace(/^-/, '');
+      const postUrl = `https://t.me/c/${chatIdForUrl}/${messageId}`;
+      
       return {
         success: true,
-        id: response.data.result.message_id,
+        id: messageId,
+        messageId: messageId,
+        chatId: chatId.toString(),
+        url: postUrl,
         platform: 'telegram'
       };
     }

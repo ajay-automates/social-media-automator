@@ -338,9 +338,14 @@ async function postToTwitter(text, credentials, imageUrl = null) {
     console.log('   Tweet ID:', response.data.data.id);
     console.log('   Full response:', JSON.stringify(response.data, null, 2));
     
+    const tweetId = response.data.data.id;
+    const postUrl = `https://twitter.com/i/web/status/${tweetId}`;
+    
     return {
       success: true,
-      id: response.data.data.id,
+      id: tweetId,
+      postId: tweetId, // For backward compatibility
+      url: postUrl,
       platform: 'twitter'
     };
   } catch (error) {
