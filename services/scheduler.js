@@ -171,14 +171,23 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
           if (credentials.instagram && Array.isArray(credentials.instagram)) {
             for (const account of credentials.instagram) {
               try {
-                const result = await postToInstagram(text, image_url, account.access_token, account.platform_user_id);
+                // Credentials structure: { accessToken, igUserId }
+                const result = await postToInstagram(text, image_url, account.accessToken, account.igUserId);
                 results.instagram = results.instagram || [];
                 results.instagram.push(result);
-                console.log(`    ✅ Posted to Instagram (${account.platform_username})`);
+                if (result.success) {
+                  console.log(`    ✅ Posted to Instagram`);
+                } else {
+                  console.log(`    ❌ Instagram error: ${result.error}`);
+                }
               } catch (err) {
                 console.error(`    ❌ Instagram error:`, err.message);
                 results.instagram = results.instagram || [];
-                results.instagram.push({ error: err.message });
+                results.instagram.push({ 
+                  success: false,
+                  error: err.message,
+                  platform: 'instagram'
+                });
               }
             }
           }
@@ -188,17 +197,26 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
           if (credentials.facebook && Array.isArray(credentials.facebook)) {
             for (const account of credentials.facebook) {
               try {
+                // Credentials structure: { accessToken, pageId }
                 const result = await postToFacebookPage(text, image_url, {
-                  pageId: account.platform_user_id,
-                  accessToken: account.access_token
+                  pageId: account.pageId,
+                  accessToken: account.accessToken
                 });
                 results.facebook = results.facebook || [];
                 results.facebook.push(result);
-                console.log(`    ✅ Posted to Facebook (${account.platform_username})`);
+                if (result.success) {
+                  console.log(`    ✅ Posted to Facebook`);
+                } else {
+                  console.log(`    ❌ Facebook error: ${result.error}`);
+                }
               } catch (err) {
                 console.error(`    ❌ Facebook error:`, err.message);
                 results.facebook = results.facebook || [];
-                results.facebook.push({ error: err.message });
+                results.facebook.push({ 
+                  success: false,
+                  error: err.message,
+                  platform: 'facebook'
+                });
               }
             }
           }

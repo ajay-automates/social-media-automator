@@ -43,10 +43,14 @@ async function postToFacebookPage(text, mediaUrl, credentials) {
     }
 
     console.log('✅ Facebook post successful:', result.id);
+    const postUrl = result.permalink_url || `https://www.facebook.com/${pageId}/posts/${result.id}`;
     return {
       success: true,
       postId: result.id,
-      permalink: result.permalink_url || `https://www.facebook.com/${pageId}/posts/${result.id}`,
+      id: result.id, // For backward compatibility
+      permalink: postUrl,
+      url: postUrl, // For consistency with other platforms
+      platform: 'facebook',
       message: text
     };
 
@@ -54,12 +58,21 @@ async function postToFacebookPage(text, mediaUrl, credentials) {
     console.error('❌ Facebook posting error:', error.message);
     
     // Handle specific Facebook API errors
+    let errorMessage = error.message;
     if (error.response?.data?.error) {
       const fbError = error.response.data.error;
-      throw new Error(`Facebook error: ${fbError.message} (${fbError.type})`);
+      errorMessage = `Facebook error: ${fbError.message} (${fbError.type})`;
+    } else {
+      errorMessage = 'Failed to post to Facebook: ' + error.message;
     }
     
-    throw new Error('Failed to post to Facebook: ' + error.message);
+    return {
+      success: false,
+      error: errorMessage,
+      platform: 'facebook',
+      errorCode: error.response?.status,
+      errorReason: error.response?.data?.error?.type
+    };
   }
 }
 

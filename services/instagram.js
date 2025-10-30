@@ -56,7 +56,10 @@ async function postToInstagram(caption, mediaUrl, accessToken, igUserId) {
     }
     
     // Determine media type (video for Reels, image otherwise)
-    const isVideo = /\.(mp4|mov|avi)$/i.test(mediaUrl);
+    // Check for video file extensions OR Cloudinary video URL pattern
+    const isVideo = /\.(mp4|mov|avi|webm)$/i.test(mediaUrl) || 
+                    mediaUrl.includes('/video/upload/') || 
+                    mediaUrl.includes('/video/');
     const mediaType = isVideo ? 'REELS' : 'IMAGE';
     
     console.log(`   📸 Creating ${mediaType} container...`);
@@ -108,9 +111,17 @@ async function postToInstagram(caption, mediaUrl, accessToken, igUserId) {
     console.log('✅ Instagram: Posted successfully');
     console.log('   Post ID:', publishResponse.data.id);
     
+    // Construct Instagram post URL
+    // Instagram Business API doesn't return permalink, but we can construct it
+    // Format: https://www.instagram.com/p/{shortcode}/ or we use the post ID
+    const postId = publishResponse.data.id;
+    const postUrl = `https://www.instagram.com/p/${postId}/`; // Note: May need to fetch shortcode separately
+    
     return {
       success: true,
-      id: publishResponse.data.id,
+      id: postId,
+      postId: postId, // For backward compatibility
+      url: postUrl,
       platform: 'instagram',
       mediaType: mediaType
     };
