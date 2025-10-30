@@ -2624,3 +2624,4 @@ app.listen(PORT, async () => {
   console.log(`   POST /api/ai/image/generate - Generate AI images`);
   console.log('\n' + '='.repeat(50) + '\n');
 });
+// Force redeploy
