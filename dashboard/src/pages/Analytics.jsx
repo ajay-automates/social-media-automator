@@ -351,7 +351,11 @@ export default function Analytics() {
                       return `https://twitter.com/i/web/status/${successfulResult.postId}`;
                     } else if (platformLower === 'telegram') {
                       if (successfulResult.chatId && successfulResult.messageId) {
-                        return `https://t.me/c/${successfulResult.chatId}/${successfulResult.messageId}`;
+                        // Remove minus sign from chatId for URL (Telegram channels/groups use negative IDs)
+                        const chatIdForUrl = successfulResult.chatId.toString().replace(/^-/, '');
+                        return `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
+                      } else if (successfulResult.url) {
+                        return successfulResult.url;
                       }
                     } else if (platformLower === 'instagram') {
                       // Instagram posts URL construction
