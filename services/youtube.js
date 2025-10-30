@@ -139,6 +139,13 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     };
     
     console.log('📤 Starting upload to YouTube...');
+    console.log('📋 Final metadata being sent:');
+    console.log(JSON.stringify(videoMetadata, null, 2));
+    console.log('📊 Video info:');
+    console.log('   - Size:', videoSizeMB, 'MB');
+    console.log('   - Title length:', finalTitle.length);
+    console.log('   - Has #Shorts:', finalTitle.toLowerCase().includes('#shorts'));
+    
     // Try upload with current token, retry with refreshed token on 401
     let uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title);
     
@@ -225,9 +232,13 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
   } catch (error) {
     const errorCode = error.response?.status || error.response?.data?.error?.code;
     const errorMsg = error.response?.data?.error?.message || error.message;
+    const fullError = error.response?.data?.error;
     
     console.error('❌ YouTube upload error:', errorMsg);
     if (errorCode) console.error('   Error code:', errorCode);
+    if (fullError?.errors) {
+      console.error('   Full error details:', JSON.stringify(fullError.errors, null, 2));
+    }
     
     return {
       success: false,
