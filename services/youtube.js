@@ -1,9 +1,22 @@
 const axios = require('axios');
+const { createClient } = require('@supabase/supabase-js');
+
+// Lazy initialization for token persistence
+let supabaseAdmin = null;
+function getSupabaseAdmin() {
+  if (!supabaseAdmin && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    supabaseAdmin = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
+  }
+  return supabaseAdmin;
+}
 
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
 const YOUTUBE_AUTH_ENDPOINT = 'https://oauth2.googleapis.com/token';
 
-async function refreshYouTubeToken(refreshToken) {
+async function refreshYouTubeToken(refreshToken, userId = null) {
   try {
     console.log('🔄 Refreshing YouTube access token...');
     const clientId = process.env.YOUTUBE_CLIENT_ID;
@@ -20,9 +33,28 @@ async function refreshYouTubeToken(refreshToken) {
       grant_type: 'refresh_token'
     });
 
+    const newAccessToken = response.data.access_token;
     console.log('✅ Token refreshed successfully');
+    
+    // Save refreshed token to database
+    if (userId && getSupabaseAdmin()) {
+      try {
+        await getSupabaseAdmin()
+          .from('user_accounts')
+          .update({ 
+            access_token: newAccessToken,
+            token_expires_at: new Date(Date.now() + response.data.expires_in * 1000).toISOString()
+          })
+          .eq('user_id', userId)
+          .eq('platform', 'youtube');
+      } catch (dbError) {
+        // Non-critical, just log
+        console.warn('Could not save refreshed token:', dbError.message);
+      }
+    }
+    
     return {
-      accessToken: response.data.access_token,
+      accessToken: newAccessToken,
       expiresIn: response.data.expires_in
     };
   } catch (error) {
@@ -66,12 +98,18 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
       throw new Error(`Video too large (${videoSizeMB}MB). Max 256MB for YouTube Shorts`);
     }
     
+    // Ensure #Shorts in title for proper categorization
+    let finalTitle = title.substring(0, 93); // Leave room for #Shorts
+    if (!finalTitle.toLowerCase().includes('#shorts')) {
+      finalTitle = finalTitle + ' #Shorts';
+    }
+    
     const videoMetadata = {
       snippet: {
-        title: title.substring(0, 100),
+        title: finalTitle,
         description: description.substring(0, 5000),
         tags: tags.slice(0, 30),
-        categoryId: '24'
+        categoryId: '22' // People & Blogs - widely compatible
       },
       status: {
         privacyStatus: 'public',
@@ -164,11 +202,15 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
       videoId: uploadDataResponse.data.id
     };
   } catch (error) {
-    console.error('   ❌ Resumable upload error:', error.response?.data || error.message);
     const errorCode = error.response?.status || error.response?.data?.error?.code;
+    const errorMsg = error.response?.data?.error?.message || error.message;
+    
+    console.error('❌ YouTube upload error:', errorMsg);
+    if (errorCode) console.error('   Error code:', errorCode);
+    
     return {
       success: false,
-      error: error.response?.data?.error?.message || error.message,
+      error: errorMsg,
       errorCode: errorCode,
       is401: errorCode === 401
     };
