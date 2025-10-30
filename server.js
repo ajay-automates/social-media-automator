@@ -385,12 +385,6 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
         });
       }
     }
-      if (platform === 'youtube' && credentials.youtube.length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'YouTube account not connected. Please connect your YouTube channel first.'
-        });
-      }
 
     // Instagram requires an image
     if (requestedPlatforms.includes('instagram') && !imageUrl) {
