@@ -1376,10 +1376,26 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     const pkceData = { codeVerifier, userId, timestamp: Date.now() };
     pkceStore.set(state, pkceData);
     sessionPkceStore.set(state, pkceData);
+    
+    // Also store in database for persistence across server restarts
+    try {
+      await supabaseAdmin
+        .from('oauth_states')
+        .insert({
+          state: state,
+          code_verifier: codeVerifier,
+          user_id: userId,
+          platform: 'twitter',
+          expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
+        });
+    } catch (dbError) {
+      console.warn('Could not save PKCE to database:', dbError.message);
+    }
+    
     setTimeout(() => {
       pkceStore.delete(state);
       sessionPkceStore.delete(state);
-    }, 10 * 60 * 1000);
+    }, 30 * 60 * 1000);
     
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
     const scope = 'tweet.read tweet.write users.read offline.access tweet.moderate.write';
