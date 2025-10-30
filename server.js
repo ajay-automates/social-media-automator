@@ -92,6 +92,12 @@ if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
   console.warn('⚠️  Supabase Auth not configured - API protection disabled');
 }
 
+// Create admin client for server operations (bypasses RLS)
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
 // Auth middleware
 async function verifyAuth(req, res, next) {
   // Skip auth check if Supabase not configured (development mode)
@@ -1463,6 +1469,33 @@ app.get('/auth/twitter/callback', async (req, res) => {
         console.log('  - Found in session store! (server may have restarted)');
         // Restore to in-memory store
         pkceStore.set(state, pkceData);
+      }
+    }
+    
+    // If still not found, try database as last resort
+    if (!pkceData) {
+      console.log('  - Not found in memory, checking database...');
+      try {
+        const { data: dbState } = await supabaseAdmin
+          .from('oauth_states')
+          .select('*')
+          .eq('state', state)
+          .eq('platform', 'twitter')
+          .gte('expires_at', new Date().toISOString())
+          .single();
+        
+        if (dbState) {
+          console.log('  - ✅ Found PKCE in database!');
+          pkceData = {
+            codeVerifier: dbState.code_verifier,
+            userId: dbState.user_id,
+            timestamp: Date.now()
+          };
+          // Clean up from database
+          await supabaseAdmin.from('oauth_states').delete().eq('state', state);
+        }
+      } catch (dbErr) {
+        console.error('  - Database lookup failed:', dbErr.message);
       }
     }
     
