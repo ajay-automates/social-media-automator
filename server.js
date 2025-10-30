@@ -315,7 +315,8 @@ app.get('/api/accounts', verifyAuth, async (req, res) => {
 app.post('/api/post/now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { text, imageUrl, platforms } = req.body;
+    const { text, imageUrl } = req.body;
+    let platforms = req.body.platforms;
     console.log('📋 Request body imageUrl:', imageUrl);
     console.log('📤 Post Now - User:', userId);
     console.log('📤 Platforms:', platforms);

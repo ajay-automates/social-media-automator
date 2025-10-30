@@ -80,7 +80,25 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     };
     
     console.log('📤 Starting upload to YouTube...');
-    const uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title);
+    // Try upload with current token, retry with refreshed token on 401
+    let uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title);
+    
+    // If 401 error and we have refresh token, refresh and retry
+    if (!uploadResponse.success && refreshToken) {
+      console.log('⚠️  Upload failed, checking if token refresh needed...');
+      if (uploadResponse.is401 || (uploadResponse.error && uploadResponse.error.includes('401'))) {
+        console.log('🔄 Token expired, refreshing...');
+        try {
+          const refreshed = await refreshYouTubeToken(refreshToken);
+          accessToken = refreshed.accessToken;
+          console.log('✅ Token refreshed, retrying upload...');
+          uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title);
+        } catch (refreshError) {
+          console.error('❌ Token refresh failed:', refreshError.message);
+        }
+      }
+    }
+    
     
     if (!uploadResponse.success) {
       throw new Error(uploadResponse.error || 'Upload failed');
@@ -147,9 +165,12 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
     };
   } catch (error) {
     console.error('   ❌ Resumable upload error:', error.response?.data || error.message);
+    const errorCode = error.response?.status || error.response?.data?.error?.code;
     return {
       success: false,
-      error: error.response?.data?.error?.message || error.message
+      error: error.response?.data?.error?.message || error.message,
+      errorCode: errorCode,
+      is401: errorCode === 401
     };
   }
 }
