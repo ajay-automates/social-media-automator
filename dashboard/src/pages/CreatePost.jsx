@@ -27,6 +27,8 @@ export default function CreatePost() {
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [billingInfo, setBillingInfo] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [pendingVideoFile, setPendingVideoFile] = useState(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
 
   useEffect(() => {
     loadBillingInfo();
@@ -147,6 +149,42 @@ export default function CreatePost() {
 
   const useExample = (exampleText) => {
     setAiImagePrompt(exampleText);
+  };
+
+  const handleAttachVideo = async () => {
+    if (!pendingVideoFile) {
+      showError('No video selected');
+      return;
+    }
+
+    setUploadingMedia(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', pendingVideoFile);
+      
+      console.log('📤 Uploading video to Cloudinary...');
+      const response = await api.post('/upload/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (response.data.success) {
+        const uploadedUrl = response.data.videoUrl || response.data.url || response.data.imageUrl;
+        setImage(uploadedUrl);
+        console.log('✅ Video uploaded and attached, URL:', uploadedUrl);
+        showSuccess('Video attached successfully! Ready to post.');
+        
+        // Clear pending video
+        setPendingVideoFile(null);
+        // Keep preview URL for display
+      } else {
+        showError('Failed to upload video');
+      }
+    } catch (err) {
+      console.error('Video upload error:', err);
+      showError('Video upload failed: ' + err.message);
+    } finally {
+      setUploadingMedia(false);
+    }
   };
 
   const handlePost = async () => {
@@ -285,29 +323,11 @@ export default function CreatePost() {
                   setMediaType(isVideo ? 'video' : 'image');
                   
                   if (isVideo) {
-                    // Upload video to Cloudinary
-                    setUploadingMedia(true);
-                    try {
-                      const formData = new FormData();
-                      formData.append('file', file);
-                      
-                      const response = await api.post('/upload/image', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' }
-                      });
-                      
-                      if (response.data.success) {
-                        const uploadedUrl = response.data.videoUrl || response.data.url || response.data.imageUrl;
-                        setImage(uploadedUrl);
-                        console.log('✅ Video uploaded, URL set:', uploadedUrl);
-                        showSuccess('Video uploaded successfully!');
-                      } else {
-                        showError('Failed to upload video');
-                      }
-                    } catch (err) {
-                      showError('Video upload failed: ' + err.message);
-                    } finally {
-                      setUploadingMedia(false);
-                    }
+                    // Store video file and show preview
+                    setPendingVideoFile(file);
+                    const previewUrl = URL.createObjectURL(file);
+                    setVideoPreviewUrl(previewUrl);
+                    showSuccess('Video ready to attach! Click "Attach Video" to upload.');
                   } else {
                     // Handle image as before
                     const reader = new FileReader();
@@ -319,6 +339,56 @@ export default function CreatePost() {
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
+
+          {/* Video Preview and Attach Button */}
+          {pendingVideoFile && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="text-4xl">🎬</div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{pendingVideoFile.name}</p>
+                    <p className="text-sm text-gray-600">
+                      {(pendingVideoFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleAttachVideo}
+                  disabled={uploadingMedia}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  {uploadingMedia ? 'Uploading...' : 'Attach Video'}
+                </button>
+              </div>
+              {videoPreviewUrl && (
+                <div className="mt-4">
+                  <video 
+                    src={videoPreviewUrl} 
+                    controls 
+                    className="w-full max-h-64 rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Attached Media Confirmation */}
+          {image && !pendingVideoFile && (
+            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">✅</div>
+                <div>
+                  <p className="font-semibold text-green-900">
+                    {mediaType === 'video' ? 'Video' : 'Image'} attached and ready to post!
+                  </p>
+                  <p className="text-sm text-green-700">
+                    Click &quot;Post Now&quot; to share across platforms
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Platform Selection */}
           <div>
