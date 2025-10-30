@@ -2166,11 +2166,8 @@ app.get('/api/templates/:id', verifyAuth, async (req, res) => {
  * POST /api/templates
  * Create a new template
  */
-// TODO: Re-enable auth after testing
-// app.post('/api/templates', verifyAuth, async (req, res) => {
-app.post('/api/templates', async (req, res) => {
-  // Mock user for testing
-  req.user = { id: 'test-user-id' };
+// Re-enabled auth - fixed!
+app.post('/api/templates', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateData = req.body;

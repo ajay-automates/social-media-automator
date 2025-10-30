@@ -14,6 +14,25 @@ export default function Analytics() {
   useEffect(() => {
     loadAnalytics();
     loadHistory();
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      loadAnalytics();
+      loadHistory();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Also refresh when window gains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      loadAnalytics();
+      loadHistory();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const loadAnalytics = async () => {
@@ -121,9 +140,24 @@ export default function Analytics() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics</h1>
-        <p className="text-gray-600">Track your social media performance</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics</h1>
+          <p className="text-gray-600">Track your social media performance • Auto-refreshes every 30s</p>
+        </div>
+        <button
+          onClick={() => {
+            setLoading(true);
+            loadAnalytics();
+            loadHistory();
+          }}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh Now
+        </button>
       </div>
 
       {/* Stats Overview */}

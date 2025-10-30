@@ -88,6 +88,12 @@ async function getTemplateById(templateId, userId) {
  */
 async function createTemplate(userId, templateData) {
   try {
+    // Validate userId is a proper UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!userId || !uuidRegex.test(userId)) {
+      throw new Error('Invalid user ID. Please log in again.');
+    }
+    
     // Validate input
     if (!templateData) {
       throw new Error('Template data is required');
