@@ -43,7 +43,10 @@ async function createCommunityPost(text, imageUrl, credentials) {
     if (!channelResponse.data.items || channelResponse.data.items.length === 0) throw new Error('Channel not found');
     
     const channelId = channelResponse.data.items[0].id;
-    return { success: true, postId: 'community_' + Date.now(), url: `https://www.youtube.com/channel/${channelId}/community`, platform: 'youtube', type: 'community_post' };
+    // NOTE: YouTube Data API v3 does not support creating Community Posts
+    // Community Posts can only be created through YouTube Studio UI
+    // For now, we return a helpful message
+    throw new Error('YouTube Community Posts are not supported via API. Please post directly in YouTube Studio or upload a video instead.');
   } catch (error) {
     console.error('❌ Community post error:', error.message);
     return { success: false, error: error.message, platform: 'youtube' };
