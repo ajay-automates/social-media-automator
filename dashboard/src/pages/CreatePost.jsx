@@ -14,6 +14,8 @@ export default function CreatePost() {
   const [caption, setCaption] = useState('');
   const [platforms, setPlatforms] = useState(['twitter']);
   const [image, setImage] = useState(null);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [mediaType, setMediaType] = useState(null); // 'image' or 'video'
   const [showAIModal, setShowAIModal] = useState(false);
   const [niche, setNiche] = useState('');
   const [generating, setGenerating] = useState(false);
@@ -273,12 +275,40 @@ export default function CreatePost() {
             <input
               type="file"
               accept="image/*,video/*"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (e) => setImage(e.target.result);
-                  reader.readAsDataURL(file);
+                  const isVideo = file.type.startsWith('video/');
+                  setMediaType(isVideo ? 'video' : 'image');
+                  
+                  if (isVideo) {
+                    // Upload video to Cloudinary
+                    setUploadingMedia(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append('video', file);
+                      
+                      const response = await api.post('/api/upload/video', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                      });
+                      
+                      if (response.data.success) {
+                        setImage(response.data.videoUrl || response.data.url);
+                        showSuccess('Video uploaded successfully!');
+                      } else {
+                        showError('Failed to upload video');
+                      }
+                    } catch (err) {
+                      showError('Video upload failed: ' + err.message);
+                    } finally {
+                      setUploadingMedia(false);
+                    }
+                  } else {
+                    // Handle image as before
+                    const reader = new FileReader();
+                    reader.onload = (e) => setImage(e.target.result);
+                    reader.readAsDataURL(file);
+                  }
                 }
               }}
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
