@@ -426,19 +426,7 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     const allSuccess = flattenResults.length > 0 && flattenResults.every(r => r.success !== false);
     const anySuccess = flattenResults.length > 0 && flattenResults.some(r => r.success === true);
     
-    console.log('📊 Post results summary:', {
-      platforms: Object.keys(platformResults),
-      allSuccess,
-      anySuccess,
-      totalResults: flattenResults.length
-    });
-    
-    console.log('📊 Post results summary:', {
-      platforms: Object.keys(platformResults),
-      allSuccess,
-      anySuccess,
-      totalResults: flattenResults.length
-    });
+    // ALWAYS save the post to database, even if all platforms failed
     // This ensures we have a record of all posting attempts
     try {
       // Determine final status
