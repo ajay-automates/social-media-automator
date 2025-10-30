@@ -114,6 +114,8 @@ async function getChannelInfo(accessToken) {
 async function postToYouTube(content, credentials) {
   try {
     console.log('🎬 Posting to YouTube');
+    console.log('📋 Content received:', JSON.stringify(content, null, 2));
+    console.log('🔑 Credentials:', { hasAccessToken: !!credentials.access_token, hasRefreshToken: !!credentials.refresh_token });
     let result;
     const videoUrl = content.videoUrl || (content.imageUrl && content.imageUrl.includes('/video/upload/') ? content.imageUrl : null);
     if (videoUrl) {
