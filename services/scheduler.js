@@ -207,26 +207,52 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
             results.youtube = [];
             for (const account of credentials.youtube) {
               try {
+                // Only post if we have a video URL
+                const videoUrl = image_url && image_url.includes('/video/') ? image_url : null;
+                
+                if (!videoUrl) {
+                  console.log(`    ⚠️  Skipping YouTube - no video URL provided`);
+                  results.youtube.push({
+                    success: false,
+                    error: 'YouTube requires a video URL (Shorts only). Community Posts not supported.',
+                    platform: 'youtube'
+                  });
+                  continue;
+                }
+                
                 const content = {
                   text: text,
-                  videoUrl: image_url && image_url.includes('/video/') ? image_url : null,
-                  imageUrl: image_url && !image_url.includes('/video/') ? image_url : null,
+                  videoUrl: videoUrl,
+                  imageUrl: null,
                   title: text.substring(0, 100),
                   description: text.substring(0, 5000),
                   tags: [],
-                  type: image_url && image_url.includes('/video/') ? 'short' : 'community'
+                  type: 'short'
                 };
-
-                const result = await postToYouTube(content, {
+                
+                // Match the format that youtube.js expects
+                const ytCredentials = {
                   accessToken: account.access_token,
-                  refreshToken: account.refresh_token
-                });
-
+                  refreshToken: account.refresh_token,
+                  access_token: account.access_token,
+                  refresh_token: account.refresh_token
+                };
+                
+                const result = await postToYouTube(content, ytCredentials);
                 results.youtube.push(result);
-                console.log(`    ✅ Posted to YouTube (${account.platform_username})`);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to YouTube (${account.platform_user_id})`);
+                } else {
+                  console.log(`    ❌ YouTube error: ${result.error}`);
+                }
               } catch (err) {
                 console.error(`    ❌ YouTube error:`, err.message);
-                results.youtube.push({ error: err.message });
+                results.youtube.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'youtube'
+                });
               }
             }
           }
