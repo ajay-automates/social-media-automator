@@ -472,8 +472,22 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       
       // Update post status with results
       if (savedPost && savedPost.id) {
+        console.log('📊 Saving results to database:', JSON.stringify(platformResults, null, 2));
         await updatePostStatus(savedPost.id, status, platformResults);
         console.log(`✅ Post saved to database (ID: ${savedPost.id}) with status: ${status}`);
+        
+        // Verify results were saved
+        const { data: verifyPost } = await supabaseAdmin
+          .from('posts')
+          .select('results')
+          .eq('id', savedPost.id)
+          .single();
+        
+        if (verifyPost) {
+          console.log('✅ Verified results saved:', JSON.stringify(verifyPost.results, null, 2));
+        } else {
+          console.error('⚠️  Could not verify saved results');
+        }
       } else {
         console.error('⚠️  Failed to save post - no ID returned');
       }

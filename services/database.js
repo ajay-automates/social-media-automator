@@ -109,7 +109,21 @@ async function updatePostStatus(postId, status, results = null) {
     };
     
     if (results) {
-      updateData.results = results;
+      // Ensure results is properly formatted (object, not string)
+      // If it's already an object, use it directly
+      // If it's a string, try to parse it
+      if (typeof results === 'string') {
+        try {
+          updateData.results = JSON.parse(results);
+        } catch (e) {
+          console.warn('⚠️  Results is a string but not valid JSON, saving as object:', results);
+          updateData.results = results;
+        }
+      } else {
+        updateData.results = results;
+      }
+      
+      console.log(`💾 Updating post ${postId} with results:`, JSON.stringify(updateData.results, null, 2));
     }
     
     // Use supabaseAdmin to bypass RLS for backend operations
@@ -117,10 +131,15 @@ async function updatePostStatus(postId, status, results = null) {
       .from('posts')
       .update(updateData)
       .eq('id', postId)
-      .select()
+      .select('id, status, results')
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error(`❌ Database update error:`, error);
+      throw error;
+    }
+    
+    console.log(`✅ Post ${postId} updated successfully with results`);
     return data;
   } catch (error) {
     console.error(`❌ Database error (updatePostStatus):`, error.message);
