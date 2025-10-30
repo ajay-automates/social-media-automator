@@ -175,6 +175,9 @@ export default function CreatePost() {
     startLoading('twitter');
     
     try {
+      console.log('📤 About to post - image state:', image);
+      console.log('📤 Caption:', caption);
+      console.log('📤 Platforms:', platforms);
       const response = await api.post('/post/now', {
         text: caption,
         platforms: platforms,
