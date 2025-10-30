@@ -115,8 +115,9 @@ async function postToYouTube(content, credentials) {
   try {
     console.log('🎬 Posting to YouTube');
     let result;
-    if (content.videoUrl && content.videoUrl.includes('/video/')) {
-      result = await uploadYouTubeShort(content.videoUrl, credentials, content.title || 'New Short', content.description || '', content.tags || [], content.forKids || false);
+    const videoUrl = content.videoUrl || (content.imageUrl && content.imageUrl.includes('/video/upload/') ? content.imageUrl : null);
+    if (videoUrl) {
+      result = await uploadYouTubeShort(videoUrl, credentials, content.title || content.text?.substring(0, 100) || 'New Short', content.description || '', content.tags || [], content.forKids || false);
     } else {
       result = await createCommunityPost(content.text, content.imageUrl, credentials);
     }
