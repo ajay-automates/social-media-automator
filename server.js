@@ -960,6 +960,7 @@ app.post('/api/upload/image', verifyAuth, upload.single('image'), async (req, re
  * Upload video file to Cloudinary (protected)
  */
 app.post('/api/upload/video', verifyAuth, upload.single('video'), async (req, res) => {
+  console.log('📹 Video upload endpoint hit!');
   try {
     if (!req.file) {
       return res.status(400).json({
