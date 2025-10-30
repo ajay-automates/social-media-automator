@@ -12,6 +12,21 @@ function getSupabaseAdmin() {
   }
   return supabaseAdmin;
 }
+// Check if access token is expired or about to expire
+function isTokenExpired(credentials) {
+  // If we have a token_expires_at timestamp, check it
+  if (credentials.token_expires_at) {
+    const expiresAt = new Date(credentials.token_expires_at);
+    const now = new Date();
+    // Consider expired if less than 5 minutes remaining
+    const bufferMs = 5 * 60 * 1000;
+    return (expiresAt.getTime() - now.getTime()) < bufferMs;
+  }
+  // If no expiration info, assume it might be expired after 1 hour
+  return false;
+}
+
+
 
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
 const YOUTUBE_AUTH_ENDPOINT = 'https://oauth2.googleapis.com/token';
@@ -70,7 +85,13 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     let accessToken = credentials.accessToken || credentials.access_token;
     const refreshToken = credentials.refreshToken || credentials.refresh_token;
     
+    // Check if token is expired or missing
     if (!accessToken && refreshToken) {
+      console.log('🔄 No access token, refreshing...');
+      const refreshed = await refreshYouTubeToken(refreshToken);
+      accessToken = refreshed.accessToken;
+    } else if (accessToken && refreshToken && isTokenExpired(credentials)) {
+      console.log('🔄 Token expired, refreshing proactively...');
       const refreshed = await refreshYouTubeToken(refreshToken);
       accessToken = refreshed.accessToken;
     }

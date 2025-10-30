@@ -766,7 +766,7 @@ async function getUserCredentialsForPosting(userId) {
     // Use supabaseAdmin to bypass RLS
     const { data: accounts, error } = await supabaseAdmin
       .from('user_accounts')
-      .select('platform, access_token, refresh_token, platform_user_id')
+      .select('platform, access_token, refresh_token, platform_user_id, token_expires_at')
       .eq('user_id', userId)
       .eq('status', 'active');
     
@@ -885,7 +885,8 @@ async function getUserCredentialsForPosting(userId) {
         credentials.youtube.push({
           access_token: account.access_token,
           refresh_token: account.refresh_token,
-          platform_user_id: account.platform_user_id
+          platform_user_id: account.platform_user_id,
+          token_expires_at: account.token_expires_at
         });
       }
     });
