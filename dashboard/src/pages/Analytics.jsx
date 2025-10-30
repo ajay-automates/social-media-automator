@@ -37,26 +37,71 @@ export default function Analytics() {
 
   const loadAnalytics = async () => {
     try {
-      const response = await api.get('/analytics/overview');
-      console.log('📊 Analytics API response:', response.data);
+      // Fetch all analytics data in parallel
+      const [overviewResponse, timelineResponse, platformsResponse] = await Promise.all([
+        api.get('/analytics/overview').catch(() => ({ data: null })),
+        api.get('/analytics/timeline').catch(() => ({ data: null })),
+        api.get('/analytics/platforms').catch(() => ({ data: null }))
+      ]);
       
-      // API returns { success: true, totalPosts: X, postsToday: X, ... }
-      // or just the data directly
-      let analyticsData = response.data;
+      console.log('📊 Analytics API responses:', {
+        overview: overviewResponse.data,
+        timeline: timelineResponse.data,
+        platforms: platformsResponse.data
+      });
       
-      // Extract data if wrapped in success object
-      if (analyticsData.success && analyticsData.totalPosts !== undefined) {
-        // Data is already in response.data
-        analyticsData = analyticsData;
-      } else if (analyticsData.success) {
-        // Data might be nested, extract it
-        const { success, ...data } = analyticsData;
-        analyticsData = data;
+      // Get overview data
+      let overviewData = overviewResponse.data;
+      if (overviewData && overviewData.success) {
+        const { success, ...data } = overviewData;
+        overviewData = data;
       }
       
-      console.log('📊 Analytics data being set:', analyticsData);
-      console.log('📊 totalPosts:', analyticsData.totalPosts);
-      console.log('📊 postsToday:', analyticsData.postsToday);
+      // Get timeline data
+      let timelineData = timelineResponse.data;
+      if (timelineData && timelineData.success) {
+        const { success, ...data } = timelineData;
+        timelineData = data;
+      }
+      
+      // Format timeline for chart (convert dates array to array of objects)
+      let formattedTimeline = [];
+      if (timelineData && timelineData.dates && Array.isArray(timelineData.dates)) {
+        formattedTimeline = timelineData.dates.map((date, index) => ({
+          date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          posts: (timelineData.successful?.[index] || 0) + (timelineData.failed?.[index] || 0)
+        }));
+      }
+      
+      // Get platform distribution data
+      let platformsData = platformsResponse.data;
+      if (platformsData && platformsData.success) {
+        platformsData = platformsData.platforms || [];
+      } else if (platformsData && Array.isArray(platformsData.platforms)) {
+        platformsData = platformsData.platforms;
+      }
+      
+      // Format platform data for pie chart (convert to percentage)
+      let formattedPlatforms = [];
+      if (Array.isArray(platformsData) && platformsData.length > 0) {
+        const total = platformsData.reduce((sum, p) => sum + (p.total || 0), 0);
+        formattedPlatforms = platformsData.map(p => ({
+          name: p.platform.charAt(0).toUpperCase() + p.platform.slice(1),
+          value: total > 0 ? Math.round((p.total / total) * 100) : 0,
+          total: p.total,
+          successful: p.successful,
+          failed: p.failed
+        }));
+      }
+      
+      // Combine all analytics data
+      const analyticsData = {
+        ...overviewData,
+        timeline: formattedTimeline.length > 0 ? formattedTimeline : undefined,
+        platforms: formattedPlatforms.length > 0 ? formattedPlatforms : undefined
+      };
+      
+      console.log('📊 Combined analytics data:', analyticsData);
       
       setAnalytics(analyticsData);
     } catch (err) {
@@ -120,17 +165,15 @@ export default function Analytics() {
     );
   }
 
-  const lineData = analytics.timeline || [
-    { date: '2024-01-01', posts: 5 },
-    { date: '2024-01-02', posts: 8 },
-    { date: '2024-01-03', posts: 12 },
-  ];
+  // Use timeline data from analytics, or show empty state
+  const lineData = analytics.timeline && analytics.timeline.length > 0 
+    ? analytics.timeline 
+    : [{ date: 'No data', posts: 0 }];
 
-  const pieData = analytics.platforms || [
-    { name: 'Twitter', value: 40 },
-    { name: 'LinkedIn', value: 35 },
-    { name: 'Telegram', value: 25 },
-  ];
+  // Use platform data from analytics, or show empty state
+  const pieData = analytics.platforms && analytics.platforms.length > 0
+    ? analytics.platforms
+    : [{ name: 'No data', value: 100 }];
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -182,48 +225,70 @@ export default function Analytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Timeline Chart */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Posts Timeline</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={lineData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="posts" stroke="#3B82F6" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Posts Timeline (Last 30 Days)</h2>
+          {lineData.length > 0 && lineData[0].date !== 'No data' ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={lineData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" angle={-45} textAnchor="end" height={80} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="posts" stroke="#3B82F6" strokeWidth={2} name="Posts" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[300px] text-gray-400">
+              <p>No timeline data available yet</p>
+            </div>
+          )}
         </div>
 
         {/* Platform Distribution */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Platform Distribution</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, value }) => `${name}: ${value}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          {pieData.length > 0 && pieData[0].name !== 'No data' ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value, total }) => `${name}: ${total || value} posts`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  formatter={(value, name, props) => [
+                    `${props.payload.total || value} posts (${value}%)`,
+                    props.payload.name
+                  ]}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[300px] text-gray-400">
+              <p>No platform data available yet</p>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Post History Table */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Recent Posts</h2>
-        <div className="overflow-x-auto">
+        {history.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <p>No posts yet. Create your first post to see it here!</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -372,6 +437,7 @@ export default function Analytics() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </motion.div>
   );

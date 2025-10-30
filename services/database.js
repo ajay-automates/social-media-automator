@@ -192,7 +192,22 @@ async function getPlatformStats(userId = null) {
     const stats = {};
     
     data.forEach(post => {
-      post.platforms.forEach(platform => {
+      // Handle platforms as JSON string or array
+      let platforms = post.platforms;
+      if (typeof platforms === 'string') {
+        try {
+          platforms = JSON.parse(platforms);
+        } catch (e) {
+          console.warn('Failed to parse platforms JSON:', platforms);
+          platforms = [];
+        }
+      }
+      
+      if (!Array.isArray(platforms)) {
+        platforms = [];
+      }
+      
+      platforms.forEach(platform => {
         if (!stats[platform]) {
           stats[platform] = { total: 0, successful: 0, failed: 0 };
         }
