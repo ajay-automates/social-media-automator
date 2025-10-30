@@ -350,6 +350,11 @@ export default function Analytics() {
                       if (successfulResult.id) {
                         return `https://www.instagram.com/p/${successfulResult.id}/`;
                       }
+                    } else if (platformLower === 'youtube') {
+                      if (successfulResult.videoId || successfulResult.postId || successfulResult.id) {
+                        const videoId = successfulResult.videoId || successfulResult.postId || successfulResult.id;
+                        return `https://www.youtube.com/shorts/${videoId}`;
+                      }
                     }
                   }
                   

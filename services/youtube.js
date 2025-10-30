@@ -146,15 +146,17 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     console.log('   - Has #Shorts:', finalTitle.toLowerCase().includes('#shorts'));
     
     // Try upload with current token, retry with refreshed token on 401
-    let uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title);
+    // Pass userId in credentials for token refresh callback
+    const uploadCredentials = { ...credentials, userId };
+    let uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title, uploadCredentials);
     
     // If 401 error and we have refresh token, refresh and retry
-    if (!uploadResponse.success && refreshToken) {
+    if (!uploadResponse.success && refreshToken && !uploadResponse.isUploadLimit) {
       console.log('⚠️  Upload failed, checking if token refresh needed...');
       if (uploadResponse.is401 || (uploadResponse.error && uploadResponse.error.includes('401'))) {
         console.log('🔄 Token expired, refreshing...');
         try {
-          const refreshed = await refreshYouTubeToken(refreshToken);
+          const refreshed = await refreshYouTubeToken(refreshToken, credentials.userId);
           accessToken = refreshed.accessToken;
           console.log('✅ Token refreshed, retrying upload...');
           uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title);
@@ -162,6 +164,11 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
           console.error('❌ Token refresh failed:', refreshError.message);
         }
       }
+    }
+    
+    // Handle upload limit error specifically
+    if (uploadResponse.isUploadLimit) {
+      throw new Error('Daily upload limit exceeded. YouTube allows 6 uploads per day by default. Please try again tomorrow or request a quota increase in Google Cloud Console.');
     }
     
     
@@ -174,21 +181,37 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     return {
       success: true,
       videoId: uploadResponse.videoId,
+      id: uploadResponse.videoId, // For backward compatibility
+      postId: uploadResponse.videoId, // For URL construction
       url: `https://www.youtube.com/shorts/${uploadResponse.videoId}`,
       platform: 'youtube',
       type: 'short'
     };
   } catch (error) {
     console.error('❌ YouTube upload error:', error.message);
+    
+    // Handle specific YouTube API errors
+    let userFriendlyError = error.message;
+    
+    if (error.message?.includes('uploadLimitExceeded') || error.message?.includes('exceeded the number of videos')) {
+      userFriendlyError = 'Daily upload limit exceeded. YouTube allows 6 uploads per day by default. Please try again tomorrow or request a quota increase in Google Cloud Console.';
+    } else if (error.message?.includes('quotaExceeded')) {
+      userFriendlyError = 'YouTube API quota exceeded. Please wait a few minutes and try again.';
+    } else if (error.message?.includes('invalidCredentials') || error.message?.includes('401')) {
+      userFriendlyError = 'YouTube authentication failed. Please reconnect your YouTube account.';
+    }
+    
     return {
       success: false,
-      error: error.message,
-      platform: 'youtube'
+      error: userFriendlyError,
+      platform: 'youtube',
+      errorCode: error.response?.status,
+      errorReason: error.response?.data?.error?.errors?.[0]?.reason
     };
   }
 }
 
-async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTitle) {
+async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTitle, credentials = {}) {
   try {
     const createSessionResponse = await axios.post(
       `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`,
@@ -232,9 +255,11 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
     const errorCode = error.response?.status || error.response?.data?.error?.code;
     const errorMsg = error.response?.data?.error?.message || error.message;
     const fullError = error.response?.data?.error;
+    const errorReason = fullError?.errors?.[0]?.reason;
     
     console.error('❌ YouTube upload error:', errorMsg);
     if (errorCode) console.error('   Error code:', errorCode);
+    if (errorReason) console.error('   Error reason:', errorReason);
     if (fullError?.errors) {
       console.error('   Full error details:', JSON.stringify(fullError.errors, null, 2));
     }
@@ -243,7 +268,9 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
       success: false,
       error: errorMsg,
       errorCode: errorCode,
-      is401: errorCode === 401
+      errorReason: errorReason,
+      is401: errorCode === 401,
+      isUploadLimit: errorReason === 'uploadLimitExceeded' || errorMsg?.includes('exceeded the number of videos')
     };
   }
 }
@@ -365,9 +392,15 @@ async function postToYouTube(content, credentials) {
       };
     }
     
+    // Add userId to credentials for token refresh
+    const credentialsWithUserId = {
+      ...credentials,
+      userId: credentials.userId || credentials.user_id
+    };
+    
     const result = await uploadYouTubeShort(
       videoUrl,
-      credentials,
+      credentialsWithUserId,
       content.title || content.text?.substring(0, 100) || 'New Short',
       content.description || content.text || '',
       content.tags || [],
@@ -377,9 +410,16 @@ async function postToYouTube(content, credentials) {
     return result;
   } catch (error) {
     console.error('❌ YouTube posting error:', error.message);
+    
+    // Handle upload limit error
+    let userFriendlyError = error.message;
+    if (error.message?.includes('uploadLimitExceeded') || error.message?.includes('exceeded the number of videos')) {
+      userFriendlyError = 'Daily upload limit exceeded. YouTube allows 6 uploads per day by default. Please try again tomorrow or request a quota increase in Google Cloud Console.';
+    }
+    
     return {
       success: false,
-      error: error.message,
+      error: userFriendlyError,
       platform: 'youtube'
     };
   }
