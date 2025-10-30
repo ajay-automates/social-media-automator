@@ -209,7 +209,8 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
             for (const account of credentials.youtube) {
               try {
                 // Only post if we have a video URL
-                const videoUrl = image_url && image_url.includes('/video/') ? image_url : null;
+                // Check both /video/upload/ (Cloudinary) and /video/ (generic) patterns
+                const videoUrl = image_url && (image_url.includes('/video/upload/') || image_url.includes('/video/')) ? image_url : null;
                 
                 if (!videoUrl) {
                   console.log(`    ⚠️  Skipping YouTube - no video URL provided`);
@@ -232,11 +233,13 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
                 };
                 
                 // Match the format that youtube.js expects
+                // Include token_expires_at for proactive refresh
                 const ytCredentials = {
                   accessToken: account.access_token,
                   refreshToken: account.refresh_token,
                   access_token: account.access_token,
-                  refresh_token: account.refresh_token
+                  refresh_token: account.refresh_token,
+                  token_expires_at: account.token_expires_at
                 };
                 
                 const result = await postToYouTube(content, ytCredentials);
