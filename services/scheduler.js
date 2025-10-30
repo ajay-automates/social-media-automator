@@ -263,14 +263,21 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
         }
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);
-        results[platform] = { error: error.message };
+        results[platform] = { 
+          success: false,
+          error: error.message,
+          platform: platform
+        };
       }
     }
 
     // Check if all platforms succeeded
+    // A result is considered failed if success === false OR if it has an error
     const hasErrors = Object.values(results).some(r => {
-      if (Array.isArray(r)) return r.some(item => item.error);
-      return r.error;
+      if (Array.isArray(r)) {
+        return r.some(item => item.success === false || item.error);
+      }
+      return r.success === false || r.error;
     });
 
     const status = hasErrors ? 'failed' : 'posted';

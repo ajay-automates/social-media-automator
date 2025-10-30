@@ -223,15 +223,52 @@ export default function CreatePost() {
         imageUrl: image // Send the Cloudinary URL to the server
       });
       
-      celebrateSuccess();
-      showSuccess('Post created successfully! 🎉');
+      // Check actual results from posting
+      const results = response.data?.results || {};
+      const allSuccess = response.data?.success === true;
+      const partialSuccess = response.data?.partial === true;
       
-      // Reset form
-      setCaption('');
-      setImage(null);
+      // Flatten results to check individual platform success
+      const platformResults = Object.values(results).flat().filter(r => r && typeof r === 'object');
+      const failedPlatforms = platformResults.filter(r => r.success === false || r.error);
+      const succeededPlatforms = platformResults.filter(r => r.success === true);
       
-      // Redirect after success
-      setTimeout(() => navigate('/dashboard'), 2000);
+      if (allSuccess) {
+        // All platforms succeeded
+        celebrateSuccess();
+        showSuccess('Post created successfully! 🎉');
+        
+        // Reset form
+        setCaption('');
+        setImage(null);
+        
+        // Redirect after success
+        setTimeout(() => navigate('/dashboard'), 2000);
+      } else if (partialSuccess && succeededPlatforms.length > 0) {
+        // Some platforms succeeded, some failed
+        const successNames = succeededPlatforms.map(r => r.platform || 'Unknown').join(', ');
+        const failedNames = failedPlatforms.map(r => r.platform || 'Unknown').join(', ');
+        const failedErrors = failedPlatforms.map(r => r.error || 'Unknown error').join('; ');
+        
+        celebrateSuccess();
+        showSuccess(`Partially posted! ✓ ${successNames.toUpperCase()} succeeded`);
+        showError(`Failed: ${failedNames.toUpperCase()} - ${failedErrors}`);
+        
+        // Reset form but don't redirect immediately
+        setCaption('');
+        setImage(null);
+        
+        // Redirect after delay
+        setTimeout(() => navigate('/dashboard'), 3000);
+      } else {
+        // All platforms failed
+        const errorMessages = failedPlatforms
+          .map(r => `${r.platform || 'Platform'}: ${r.error || 'Unknown error'}`)
+          .join('; ');
+        
+        showError(`All platforms failed: ${errorMessages}`);
+        // Don't reset form, let user try again
+      }
       
     } catch (err) {
       // Check if it's an authentication error

@@ -423,8 +423,11 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     const platformArray = Object.values(platformResults);
     const flattenResults = platformArray.flat().filter(r => r && typeof r === 'object');
     
-    const allSuccess = flattenResults.length > 0 && flattenResults.every(r => r.success !== false);
+    // IMPORTANT: Only treat as success if explicitly success === true
+    // This prevents undefined/missing success fields from being treated as success
+    const allSuccess = flattenResults.length > 0 && flattenResults.every(r => r.success === true);
     const anySuccess = flattenResults.length > 0 && flattenResults.some(r => r.success === true);
+    const allFailed = flattenResults.length > 0 && flattenResults.every(r => r.success === false || r.error);
     
     // ALWAYS save the post to database, even if all platforms failed
     // This ensures we have a record of all posting attempts
