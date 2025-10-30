@@ -257,7 +257,7 @@ export default function CreatePost() {
           {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Image (Optional)
+              Image or Video (Optional)
             </label>
             {image && (
               <div className="mb-3">
@@ -272,7 +272,7 @@ export default function CreatePost() {
             )}
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               onChange={(e) => {
                 const file = e.target.files[0];
                 if (file) {
