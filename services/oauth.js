@@ -743,7 +743,7 @@ async function handleFacebookCallback(code, state) {
       }
       
       savedAccounts.push(account);
-      console.log(`✅ Saved Facebook Page: ${pageInfo.name}`);
+      console.log(`✅ Saved Facebook Page: ${pageName}`);
     }
     
     return {
