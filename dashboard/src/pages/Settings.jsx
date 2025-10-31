@@ -150,6 +150,18 @@ export default function Settings() {
       console.error('YouTube connection error:', err);
       showError('Failed to connect YouTube');
     }
+
+  const connectTikTok = async () => {
+    try {
+      const response = await api.post("/auth/tiktok/url");
+      if (response.data.success) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error("TikTok connection error:", error);
+      toast.error("Failed to connect TikTok");
+    }
+  };
   };
 
   const handleTelegramConnect = async () => {
@@ -284,6 +296,14 @@ export default function Settings() {
                 <span>🎬</span> Connect YouTube
               </motion.button>
             </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectTikTok}
+                className="bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition flex items-center gap-2"
+              >
+                <span>🎵</span> Connect TikTok
+              </motion.button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -299,6 +319,8 @@ export default function Settings() {
                     {account?.platform === 'telegram' && '📱'}
                     {account?.platform === 'instagram' && '📷'}
                     {account?.platform === 'facebook' && '📘'}
+                    {account?.platform === "youtube" && "🎬"}
+                    {account?.platform === "tiktok" && "🎵"}
                     {!account?.platform && '📱'}
                   </div>
                   <div>

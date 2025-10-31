@@ -196,6 +196,17 @@ export default function CreatePost() {
     // Validate Instagram requires image
     if (platforms.includes('instagram') && !image) {
       showError('Instagram requires an image. Please upload or generate an image first.');
+          )}
+
+          {/* TikTok Video Requirement Warning */}
+          {platforms.includes("tiktok") && !videoUrl && (
+            <div className="border border-amber-400 bg-amber-50 rounded-lg p-3 flex items-center gap-2">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <div className="font-semibold text-amber-800">Video Required for TikTok</div>
+                <div className="text-sm text-amber-700">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
+              </div>
+            </div>
       return;
     }
 
@@ -440,6 +451,7 @@ export default function CreatePost() {
                 { id: 'telegram', name: 'Telegram', icon: '💬', color: 'bg-indigo-600' },
                 { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500' },
                 { id: 'youtube', name: 'YouTube', icon: '🎬', color: 'bg-red-600' }
+                { id: "tiktok", name: "TikTok", icon: "🎵", color: "bg-black" }
               ].map(platform => (
                 <motion.button
                   key={platform.id}
@@ -465,6 +477,17 @@ export default function CreatePost() {
               <div>
                 <div className="font-semibold text-yellow-800">Image Required</div>
                 <div className="text-sm text-yellow-700">Instagram requires an image or video. Please upload or generate one above.</div>
+          )}
+
+          {/* TikTok Video Requirement Warning */}
+          {platforms.includes("tiktok") && !videoUrl && (
+            <div className="border border-amber-400 bg-amber-50 rounded-lg p-3 flex items-center gap-2">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <div className="font-semibold text-amber-800">Video Required for TikTok</div>
+                <div className="text-sm text-amber-700">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
+              </div>
+            </div>
               </div>
             </div>
           )}
