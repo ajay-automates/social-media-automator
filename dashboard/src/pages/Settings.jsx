@@ -162,7 +162,6 @@ export default function Settings() {
       toast.error("Failed to connect TikTok");
     }
   };
-  };
 
   const handleTelegramConnect = async () => {
     try {
