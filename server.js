@@ -2472,7 +2472,7 @@ const tiktokService = require('./services/tiktok');
 app.post('/api/auth/tiktok/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const redirectUri = \`\${process.env.APP_URL}/auth/tiktok/callback\`;
+    const redirectUri = `${process.env.APP_URL}/auth/tiktok/callback`;
     
     // Generate random state for CSRF protection
     const state = crypto.randomBytes(32).toString('hex');
@@ -2507,7 +2507,7 @@ app.get('/auth/tiktok/callback', async (req, res) => {
     
     if (error) {
       console.error('❌ TikTok OAuth error:', error, error_description);
-      return res.redirect(\`/dashboard?error=\${encodeURIComponent(error_description || error)}\`);
+      return res.redirect(`/dashboard?error=${encodeURIComponent(error_description || error)}`);
     }
     
     if (!code || !state) {
@@ -2521,7 +2521,7 @@ app.get('/auth/tiktok/callback', async (req, res) => {
     }
     
     const userId = stateData.user_id;
-    const redirectUri = \`\${process.env.APP_URL}/auth/tiktok/callback\`;
+    const redirectUri = `${process.env.APP_URL}/auth/tiktok/callback`;
     
     // Exchange code for tokens
     const tokenData = await tiktokService.exchangeCodeForToken(code, redirectUri);
@@ -2548,12 +2548,12 @@ app.get('/auth/tiktok/callback', async (req, res) => {
       }
     });
     
-    console.log(\`✅ TikTok account connected for user \${userId}: @\${userInfo.username}\`);
+    console.log(`✅ TikTok account connected for user ${userId}: @${userInfo.username}`);
     
     res.redirect('/dashboard#settings?success=TikTok account connected successfully');
   } catch (error) {
     console.error('❌ TikTok OAuth callback error:', error);
-    res.redirect(\`/dashboard?error=\${encodeURIComponent(error.message)}\`);
+    res.redirect(`/dashboard?error=${encodeURIComponent(error.message)}`);
   }
 });
 
@@ -2659,7 +2659,7 @@ async function postToTikTok(credentials, postData) {
       message: result.message
     };
   } catch (error) {
-    console.error(\`❌ Failed to post to TikTok account \${credentials.account_id}:\`, error.message);
+    console.error(`❌ Failed to post to TikTok account ${credentials.account_id}:`, error.message);
     return {
       success: false,
       platform: 'tiktok',
