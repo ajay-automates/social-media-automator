@@ -716,8 +716,8 @@ async function handleFacebookCallback(code, state) {
       // Calculate expiry (use page token expiry or default 60 days)
       const expiresAt = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000));
       
-      // Save to database
-      const { data: account, error } = await supabase
+      // Save to database (use supabaseAdmin to bypass RLS for backend operations)
+      const { data: account, error } = await supabaseAdmin
         .from('user_accounts')
         .upsert({
           user_id: userId,
