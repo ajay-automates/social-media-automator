@@ -2458,6 +2458,217 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
 
 // ============================================
 // YOUTUBE OAUTH ROUTES
+
+// ============================================================================
+// TIKTOK OAUTH & POSTING
+// ============================================================================
+
+const tiktokService = require('./services/tiktok');
+
+/**
+ * POST /api/auth/tiktok/url
+ * Generate TikTok OAuth authorization URL
+ */
+app.post('/api/auth/tiktok/url', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const redirectUri = \`\${process.env.APP_URL}/auth/tiktok/callback\`;
+    
+    // Generate random state for CSRF protection
+    const state = crypto.randomBytes(32).toString('hex');
+    
+    // Store state in database for verification
+    await storeOAuthState(userId, 'tiktok', state);
+    
+    const authUrl = tiktokService.generateAuthUrl(redirectUri, state);
+    
+    console.log('🎵 TikTok OAuth URL generated');
+    
+    res.json({
+      success: true,
+      url: authUrl
+    });
+  } catch (error) {
+    console.error('❌ Error generating TikTok OAuth URL:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /auth/tiktok/callback
+ * Handle TikTok OAuth callback
+ */
+app.get('/auth/tiktok/callback', async (req, res) => {
+  try {
+    const { code, state, error, error_description } = req.query;
+    
+    if (error) {
+      console.error('❌ TikTok OAuth error:', error, error_description);
+      return res.redirect(\`/dashboard?error=\${encodeURIComponent(error_description || error)}\`);
+    }
+    
+    if (!code || !state) {
+      return res.redirect('/dashboard?error=Missing authorization code or state');
+    }
+    
+    // Verify state and get user ID
+    const stateData = await verifyOAuthState(state, 'tiktok');
+    if (!stateData) {
+      return res.redirect('/dashboard?error=Invalid state parameter');
+    }
+    
+    const userId = stateData.user_id;
+    const redirectUri = \`\${process.env.APP_URL}/auth/tiktok/callback\`;
+    
+    // Exchange code for tokens
+    const tokenData = await tiktokService.exchangeCodeForToken(code, redirectUri);
+    
+    // Get user info
+    const userInfo = await tiktokService.getUserInfo(tokenData.accessToken);
+    
+    // Store credentials in database
+    await saveUserCredentials(userId, 'tiktok', {
+      access_token: tokenData.accessToken,
+      refresh_token: tokenData.refreshToken,
+      expires_at: new Date(Date.now() + tokenData.expiresIn * 1000),
+      refresh_expires_at: new Date(Date.now() + tokenData.refreshExpiresIn * 1000),
+      open_id: tokenData.openId,
+      account_id: userInfo.openId,
+      username: userInfo.username,
+      display_name: userInfo.displayName,
+      profile_image_url: userInfo.avatarUrl,
+      metadata: {
+        follower_count: userInfo.followerCount,
+        following_count: userInfo.followingCount,
+        is_verified: userInfo.isVerified,
+        scope: tokenData.scope
+      }
+    });
+    
+    console.log(\`✅ TikTok account connected for user \${userId}: @\${userInfo.username}\`);
+    
+    res.redirect('/dashboard#settings?success=TikTok account connected successfully');
+  } catch (error) {
+    console.error('❌ TikTok OAuth callback error:', error);
+    res.redirect(\`/dashboard?error=\${encodeURIComponent(error.message)}\`);
+  }
+});
+
+/**
+ * POST /api/tiktok/check-status
+ * Check the status of a TikTok video upload
+ */
+app.post('/api/tiktok/check-status', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { publishId, accountId } = req.body;
+    
+    if (!publishId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Publish ID is required'
+      });
+    }
+    
+    // Get TikTok credentials
+    const credentials = await getUserCredentials(userId, 'tiktok', accountId);
+    if (!credentials || credentials.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'TikTok account not connected'
+      });
+    }
+    
+    const cred = credentials[0];
+    let accessToken = cred.access_token;
+    
+    // Refresh token if needed
+    if (new Date(cred.expires_at) <= new Date()) {
+      const newTokens = await tiktokService.refreshAccessToken(cred.refresh_token);
+      accessToken = newTokens.accessToken;
+    }
+    
+    // Check status
+    const status = await tiktokService.checkPublishStatus(accessToken, publishId);
+    
+    res.json({
+      success: true,
+      ...status
+    });
+  } catch (error) {
+    console.error('❌ Error checking TikTok status:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Internal function for posting to TikTok (used by scheduler)
+ */
+async function postToTikTok(credentials, postData) {
+  try {
+    const { access_token, refresh_token, expires_at } = credentials;
+    
+    // Check if token needs refresh
+    let accessToken = access_token;
+    if (new Date(expires_at) <= new Date()) {
+      console.log('🔄 TikTok access token expired, refreshing...');
+      const newTokens = await tiktokService.refreshAccessToken(refresh_token);
+      accessToken = newTokens.accessToken;
+      
+      // Update credentials in database
+      await updateCredentials(credentials.id, {
+        access_token: newTokens.accessToken,
+        refresh_token: newTokens.refreshToken,
+        expires_at: new Date(Date.now() + newTokens.expiresIn * 1000),
+        refresh_expires_at: new Date(Date.now() + newTokens.refreshExpiresIn * 1000)
+      });
+    }
+    
+    // Validate video URL if provided
+    if (postData.videoUrl) {
+      const isValid = await tiktokService.validateVideoUrl(postData.videoUrl);
+      if (!isValid) {
+        throw new Error('Video URL is not accessible or not a valid video file');
+      }
+    } else {
+      throw new Error('TikTok requires a video URL. Text-only posts are not supported.');
+    }
+    
+    // Post to TikTok
+    const result = await tiktokService.postVideo(accessToken, {
+      videoUrl: postData.videoUrl,
+      caption: postData.text || '',
+      privacyLevel: postData.privacy || 'PUBLIC_TO_EVERYONE',
+      disableComment: postData.disableComment || false,
+      disableDuet: postData.disableDuet || false,
+      disableStitch: postData.disableStitch || false
+    });
+    
+    return {
+      success: true,
+      platform: 'tiktok',
+      accountId: credentials.account_id,
+      publishId: result.publishId,
+      status: result.status,
+      message: result.message
+    };
+  } catch (error) {
+    console.error(\`❌ Failed to post to TikTok account \${credentials.account_id}:\`, error.message);
+    return {
+      success: false,
+      platform: 'tiktok',
+      accountId: credentials.account_id,
+      error: error.message
+    };
+  }
+}
+
 // ============================================
 
 app.post('/api/auth/youtube/url', verifyAuth, async (req, res) => {

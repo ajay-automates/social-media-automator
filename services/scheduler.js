@@ -278,7 +278,72 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
               }
             }
           }
+        }        
+        else if (platform === 'tiktok') {
+          // TikTok - post to all connected accounts
+          if (credentials.tiktok && Array.isArray(credentials.tiktok)) {
+            results.tiktok = [];
+            for (const account of credentials.tiktok) {
+              try {
+                // TikTok requires video URL
+                const videoUrl = image_url && (image_url.includes('/video/upload/') || image_url.includes('/video/')) ? image_url : null;
+                
+                if (!videoUrl) {
+                  console.log(\`    ⚠️  Skipping TikTok - no video URL provided\`);
+                  results.tiktok.push({
+                    success: false,
+                    error: 'TikTok requires a video URL. Text-only posts not supported.',
+                    platform: 'tiktok'
+                  });
+                  continue;
+                }
+                
+                // Post to TikTok using postToTikTok from server.js (via require)
+                const tiktokService = require('./tiktok');
+                
+                // Check token expiry and refresh if needed
+                let accessToken = account.access_token;
+                if (new Date(account.expires_at) <= new Date()) {
+                  const newTokens = await tiktokService.refreshAccessToken(account.refresh_token);
+                  accessToken = newTokens.accessToken;
+                }
+                
+                // Validate video URL
+                const isValid = await tiktokService.validateVideoUrl(videoUrl);
+                if (!isValid) {
+                  throw new Error('Video URL is not accessible');
+                }
+                
+                // Post video
+                const result = await tiktokService.postVideo(accessToken, {
+                  videoUrl: videoUrl,
+                  caption: text || '',
+                  privacyLevel: 'PUBLIC_TO_EVERYONE'
+                });
+                
+                results.tiktok.push({
+                  success: true,
+                  platform: 'tiktok',
+                  accountId: account.account_id,
+                  publishId: result.publishId,
+                  message: result.message
+                });
+                
+                console.log(\`    ✅ Posted to TikTok (@\${account.username}) - Publish ID: \${result.publishId}\`);
+                console.log(\`    📱 Video sent to TikTok inbox - user will receive notification\`);
+              } catch (err) {
+                console.error(\`    ❌ TikTok error:\`, err.message);
+                results.tiktok.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'tiktok',
+                  accountId: account.account_id
+                });
+              }
+            }
+          }
         }
+
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);
         results[platform] = { 
