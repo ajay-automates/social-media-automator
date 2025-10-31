@@ -161,7 +161,7 @@ export default function Settings() {
       }
     } catch (error) {
       console.error('TikTok connection error:', error);
-      toast.error('Failed to connect TikTok');
+      showError('Failed to connect TikTok');
     }
   };
 
@@ -394,6 +394,14 @@ export default function Settings() {
               className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
             >
               + Connect YouTube
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={connectTikTok}
+              className="bg-black text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-800 transition"
+            >
+              + Connect TikTok
             </motion.button>
           </div>
         )}
