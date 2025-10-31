@@ -289,7 +289,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
                 const videoUrl = image_url && (image_url.includes('/video/upload/') || image_url.includes('/video/')) ? image_url : null;
                 
                 if (!videoUrl) {
-                  console.log(\`    ⚠️  Skipping TikTok - no video URL provided\`);
+                  console.log(`    ⚠️  Skipping TikTok - no video URL provided`);
                   results.tiktok.push({
                     success: false,
                     error: 'TikTok requires a video URL. Text-only posts not supported.',
@@ -329,10 +329,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
                   message: result.message
                 });
                 
-                console.log(\`    ✅ Posted to TikTok (@\${account.username}) - Publish ID: \${result.publishId}\`);
-                console.log(\`    📱 Video sent to TikTok inbox - user will receive notification\`);
+                console.log(`    ✅ Posted to TikTok (@${account.username}) - Publish ID: ${result.publishId}`);
+                console.log(`    📱 Video sent to TikTok inbox - user will receive notification`);
               } catch (err) {
-                console.error(\`    ❌ TikTok error:\`, err.message);
+                console.error(`    ❌ TikTok error:`, err.message);
                 results.tiktok.push({
                   success: false,
                   error: err.message,
