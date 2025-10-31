@@ -150,16 +150,18 @@ export default function Settings() {
       console.error('YouTube connection error:', err);
       showError('Failed to connect YouTube');
     }
+  };
+
 
   const connectTikTok = async () => {
     try {
-      const response = await api.post("/auth/tiktok/url");
+      const response = await api.post('/auth/tiktok/url');
       if (response.data.success) {
         window.location.href = response.data.url;
       }
     } catch (error) {
-      console.error("TikTok connection error:", error);
-      toast.error("Failed to connect TikTok");
+      console.error('TikTok connection error:', error);
+      toast.error('Failed to connect TikTok');
     }
   };
 
@@ -294,7 +296,6 @@ export default function Settings() {
               >
                 <span>🎬</span> Connect YouTube
               </motion.button>
-            </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -303,6 +304,7 @@ export default function Settings() {
               >
                 <span>🎵</span> Connect TikTok
               </motion.button>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
@@ -318,8 +320,8 @@ export default function Settings() {
                     {account?.platform === 'telegram' && '📱'}
                     {account?.platform === 'instagram' && '📷'}
                     {account?.platform === 'facebook' && '📘'}
-                    {account?.platform === "youtube" && "🎬"}
-                    {account?.platform === "tiktok" && "🎵"}
+                    {account?.platform === 'youtube' && '🎬'}
+                    {account?.platform === 'tiktok' && '🎵'}
                     {!account?.platform && '📱'}
                   </div>
                   <div>
