@@ -635,7 +635,12 @@ function initiateFacebookOAuth(userId) {
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'pages_show_list,pages_manage_posts'); // Try requesting manage_posts
+  // Request permissions for Facebook Pages
+  // pages_show_list: List pages (works without app review)
+  // pages_manage_posts: Post to pages (may require app review)
+  // pages_read_engagement: Required for posting (Facebook API requirement)
+  // Note: May require app review for production use
+  authUrl.searchParams.append('scope', 'pages_show_list,pages_manage_posts,pages_read_engagement');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
