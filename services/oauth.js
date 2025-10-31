@@ -627,12 +627,15 @@ function initiateFacebookOAuth(userId) {
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
   
-  // Facebook OAuth - request minimal permissions first
-  // pages_show_list is the only Pages permission available without app review
+  // Facebook OAuth - request permissions for Pages
+  // pages_show_list: List pages you manage
+  // pages_manage_posts: Post to pages you manage (may require app review for public pages)
+  // pages_read_engagement: Read page insights (may require app review)
+  // Note: For pages you own, page access token from /me/accounts should have publish permission
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'pages_show_list'); // Minimal permission that works
+  authUrl.searchParams.append('scope', 'pages_show_list,pages_manage_posts'); // Try requesting manage_posts
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
