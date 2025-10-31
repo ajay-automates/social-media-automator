@@ -1,0 +1,705 @@
+# Social Media Automator - Cursor AI Rules
+
+You are an expert full-stack developer specializing in Node.js, Express.js, React, PostgreSQL (Supabase), OAuth integrations, and SaaS platforms.
+
+## Project Context
+
+This is a **multi-tenant social media automation SaaS platform** that posts content to 7 platforms (LinkedIn, Twitter, Telegram, Instagram, Facebook, YouTube, TikTok) with AI-powered caption and image generation.
+
+### Tech Stack
+- **Backend**: Node.js 20+, Express.js, Supabase (PostgreSQL), JWT auth
+- **Frontend**: React 18, Vite, React Router v6, Tailwind CSS, Framer Motion
+- **Scheduling**: node-cron (every minute queue processor)
+- **File Storage**: Cloudinary (images/videos)
+- **AI Services**: Anthropic Claude Sonnet 4, Stability AI
+- **Billing**: Stripe (3 pricing tiers)
+- **Platforms**: LinkedIn OAuth 2.0, Twitter OAuth 1.0a, Telegram Bot API, Instagram/Facebook Graph API, YouTube Data API v3, TikTok Content API
+
+### Architecture Patterns
+- Multi-tenant with Row Level Security (RLS)
+- Service-oriented architecture (services/*.js)
+- OAuth state management with PKCE
+- Centralized error handling
+- Token refresh logic for expiring tokens
+
+---
+
+## Core Principles
+
+### 1. SAFETY FIRST - NO BREAKING CHANGES
+- **NEVER** remove or modify existing working code without explicit instruction
+- **NEVER** change existing logic unless specifically requested
+- **ALWAYS** extend functionality by adding new code
+- **ALWAYS** preserve existing OAuth flows, API integrations, and database schemas
+- If unsure about impact, ask before making changes
+
+### 2. CONSISTENCY - MATCH EXISTING PATTERNS
+- **ALWAYS** scan related files before writing new code
+- Follow the exact structure of existing service files (e.g., linkedin.js, twitter.js)
+- Match naming conventions already established in the codebase
+- Use the same error handling patterns as existing services
+- Replicate the multi-account posting pattern used across platforms
+
+### 3. SECURITY & BEST PRACTICES
+- **NEVER** expose API keys or tokens in logs or responses
+- Always validate user input before database operations
+- Use parameterized queries to prevent SQL injection
+- Implement proper JWT verification on all protected endpoints
+- Store sensitive credentials encrypted in Supabase
+- Use environment variables for all secrets
+
+### 4. DATABASE OPERATIONS
+- **ALWAYS** respect Row Level Security (RLS) policies
+- Use `supabaseAdmin` (service role) for server operations that bypass RLS
+- Use regular `supabase` client only for auth verification
+- Include proper `user_id` filtering in all queries
+- Handle database errors gracefully with meaningful messages
+
+### 5. CODE QUALITY
+- Write concise, functional JavaScript (prefer functions over classes)
+- Use async/await instead of promise chains
+- Implement proper error handling with try-catch
+- Add descriptive comments for complex business logic
+- Use early returns for error conditions (guard clauses)
+- Keep functions focused and under 50 lines when possible
+
+---
+
+## Code Style & Structure
+
+### Backend (Node.js/Express)
+
+#### File Organization
+```
+server.js                    # Main entry point, routes, middleware
+services/
+  ├── scheduler.js           # Core posting engine with cron
+  ├── oauth.js               # OAuth flows for all platforms
+  ├── database.js            # Centralized DB operations
+  ├── ai.js                  # Claude caption generation
+  ├── ai-image.js            # Stability AI image generation
+  ├── cloudinary.js          # File upload management
+  ├── billing.js             # Stripe integration
+  ├── accounts.js            # Account management utilities
+  ├── templates.js           # Template CRUD operations
+  └── [platform].js          # Platform-specific posting (linkedin.js, twitter.js, etc.)
+config/
+  └── plans.js               # Billing plan definitions
+migrations/
+  └── *.sql                  # Database migrations
+```
+
+#### Naming Conventions
+- Use `camelCase` for variables and functions: `getUserCredentials`, `postToLinkedIn`
+- Use `SCREAMING_SNAKE_CASE` for constants: `MAX_RETRIES`, `API_VERSION`
+- Use descriptive names with auxiliary verbs: `isProcessing`, `hasExpired`, `canPost`
+- Prefix async functions with action verbs: `async function fetchUser()`, `async function createPost()`
+
+#### API Route Structure
+```javascript
+// Protected endpoint pattern
+app.post('/api/endpoint', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // 1. Validate input
+    if (!requiredField) {
+      return res.status(400).json({ success: false, error: 'Missing field' });
+    }
+    
+    // 2. Check usage limits
+    const usageCheck = await checkUsage(userId, 'type');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({ 
+        success: false, 
+        error: usageCheck.message,
+        limitReached: true 
+      });
+    }
+    
+    // 3. Perform operation
+    const result = await performOperation(data);
+    
+    // 4. Increment usage
+    await incrementUsage(userId, 'type');
+    
+    // 5. Return success
+    res.json({ success: true, data: result });
+    
+  } catch (error) {
+    console.error('Error in /api/endpoint:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+```
+
+#### Service File Pattern (for new platforms)
+```javascript
+// services/newplatform.js
+
+/**
+ * Posts content to NewPlatform
+ * @param {string} text - Post caption
+ * @param {string} imageUrl - Optional image URL
+ * @param {Object} credentials - OAuth credentials
+ * @returns {Object} - { success, postId, error }
+ */
+async function postToNewPlatform(text, imageUrl, credentials) {
+  try {
+    // 1. Validate credentials
+    if (!credentials.accessToken) {
+      throw new Error('Missing access token');
+    }
+    
+    // 2. Check token expiry and refresh if needed
+    if (needsRefresh(credentials.token_expires_at)) {
+      credentials.accessToken = await refreshToken(credentials.refreshToken);
+    }
+    
+    // 3. Prepare request
+    const postData = {
+      text,
+      ...(imageUrl && { media_url: imageUrl })
+    };
+    
+    // 4. Make API call
+    const response = await axios.post(
+      'https://api.newplatform.com/v1/posts',
+      postData,
+      {
+        headers: {
+          'Authorization': `Bearer ${credentials.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    // 5. Return result
+    return {
+      success: true,
+      postId: response.data.id,
+      platform: 'newplatform'
+    };
+    
+  } catch (error) {
+    console.error('NewPlatform posting error:', error.message);
+    return {
+      success: false,
+      error: error.response?.data?.error || error.message,
+      platform: 'newplatform'
+    };
+  }
+}
+
+module.exports = { postToNewPlatform };
+```
+
+#### OAuth Flow Pattern
+```javascript
+// 1. Initiate OAuth
+app.get('/api/oauth/platform/authorize', verifyAuth, (req, res) => {
+  const userId = req.user.id;
+  
+  // Generate PKCE code_verifier and code_challenge
+  const codeVerifier = crypto.randomBytes(32).toString('hex');
+  const codeChallenge = base64url(crypto.createHash('sha256').update(codeVerifier).digest());
+  
+  // Store verifier for callback
+  sessionPkceStore.set(userId, { codeVerifier, timestamp: Date.now() });
+  
+  // Create encrypted state
+  const state = encryptState(JSON.stringify({ userId, nonce: crypto.randomBytes(16).toString('hex') }));
+  
+  // Redirect to OAuth provider
+  const authUrl = `https://oauth.platform.com/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+  res.redirect(authUrl);
+});
+
+// 2. Handle OAuth callback
+app.get('/api/oauth/platform/callback', async (req, res) => {
+  try {
+    const { code, state } = req.query;
+    
+    // Decrypt and validate state
+    const stateData = JSON.parse(decryptState(state));
+    const userId = stateData.userId;
+    
+    // Retrieve PKCE verifier
+    const pkceData = sessionPkceStore.get(userId);
+    
+    // Exchange code for tokens
+    const tokenResponse = await axios.post('https://oauth.platform.com/token', {
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: REDIRECT_URI,
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      code_verifier: pkceData.codeVerifier
+    });
+    
+    const { access_token, refresh_token, expires_in } = tokenResponse.data;
+    
+    // Get user info from platform
+    const userInfo = await axios.get('https://api.platform.com/me', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    });
+    
+    // Store in database
+    const { error } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'platform',
+        access_token,
+        refresh_token,
+        token_expires_at: new Date(Date.now() + expires_in * 1000).toISOString(),
+        platform_user_id: userInfo.data.id,
+        platform_username: userInfo.data.username,
+        status: 'active'
+      });
+    
+    // Redirect to settings
+    res.redirect('/dashboard/settings?success=platform');
+    
+  } catch (error) {
+    console.error('OAuth callback error:', error);
+    res.redirect('/dashboard/settings?error=oauth_failed');
+  }
+});
+```
+
+#### Multi-Account Posting Pattern
+```javascript
+// In scheduler.js - always follow this pattern for new platforms
+if (platform === 'newplatform') {
+  if (credentials.newplatform && Array.isArray(credentials.newplatform)) {
+    results.newplatform = [];
+    for (const account of credentials.newplatform) {
+      try {
+        const result = await postToNewPlatform(text, image_url, account);
+        results.newplatform.push(result);
+        
+        if (result.success) {
+          console.log(`    ✅ Posted to NewPlatform (${account.platform_username})`);
+        } else {
+          console.log(`    ❌ NewPlatform error: ${result.error}`);
+        }
+      } catch (err) {
+        console.error(`    ❌ NewPlatform error:`, err.message);
+        results.newplatform.push({
+          success: false,
+          error: err.message,
+          platform: 'newplatform'
+        });
+      }
+    }
+  }
+}
+```
+
+### Frontend (React)
+
+#### File Organization
+```
+dashboard/src/
+  ├── main.jsx                 # Entry point
+  ├── App.jsx                  # Routes & navigation
+  ├── pages/
+  │   ├── Dashboard.jsx        # Overview
+  │   ├── CreatePost.jsx       # Post creation
+  │   ├── Templates.jsx        # Template management
+  │   ├── Analytics.jsx        # Stats & charts
+  │   ├── Settings.jsx         # Account connections
+  │   └── Pricing.jsx          # Plan selection
+  ├── components/
+  │   ├── ui/                  # Reusable UI components
+  │   │   ├── LoadingSkeleton.jsx
+  │   │   ├── ErrorBoundary.jsx
+  │   │   ├── Toast.jsx
+  │   │   └── EmptyState.jsx
+  │   ├── ProtectedRoute.jsx
+  │   ├── UpgradeModal.jsx
+  │   └── BillingSettings.jsx
+  ├── contexts/
+  │   └── AuthContext.jsx      # Auth state management
+  ├── hooks/
+  │   └── useLoadingState.js   # Custom hooks
+  ├── lib/
+  │   ├── supabase.js          # Supabase client
+  │   └── api.js               # Axios instance
+  └── utils/
+      ├── animations.js
+      └── errorHandler.js
+```
+
+#### Component Structure
+```javascript
+// Functional component pattern
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../lib/api';
+import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import ErrorMessage from '../components/ui/ErrorMessage';
+
+function ComponentName() {
+  // 1. Hooks
+  const { user } = useAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // 2. Effects
+  useEffect(() => {
+    fetchData();
+  }, []);
+  
+  // 3. Event handlers
+  async function fetchData() {
+    try {
+      setLoading(true);
+      const response = await api.get('/api/endpoint');
+      setData(response.data);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to fetch data');
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  async function handleAction() {
+    try {
+      await api.post('/api/action', { data });
+      toast.success('Action completed!');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Action failed');
+    }
+  }
+  
+  // 4. Early returns for loading/error states
+  if (loading) return <LoadingSkeleton />;
+  if (error) return <ErrorMessage message={error} />;
+  if (!data) return <EmptyState />;
+  
+  // 5. Main render
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-6">Component Title</h1>
+      {/* Content */}
+    </div>
+  );
+}
+
+export default ComponentName;
+```
+
+#### Tailwind CSS Usage
+- Use utility-first approach: `className="flex items-center gap-4 p-6 bg-white rounded-lg shadow"`
+- Responsive prefixes: `className="w-full md:w-1/2 lg:w-1/3"`
+- State variants: `className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"`
+- Dark mode (if needed): `className="bg-white dark:bg-gray-800"`
+
+#### API Calls
+```javascript
+// Always use the configured api instance from lib/api.js
+import api from '../lib/api';
+
+// GET request
+const response = await api.get('/api/endpoint');
+const data = response.data;
+
+// POST request
+const response = await api.post('/api/endpoint', { 
+  key: value 
+});
+
+// With query parameters
+const response = await api.get('/api/endpoint', {
+  params: { filter: 'active', page: 1 }
+});
+
+// Error handling
+try {
+  const response = await api.post('/api/endpoint', data);
+  if (response.data.success) {
+    toast.success('Success!');
+  }
+} catch (error) {
+  const message = error.response?.data?.error || 'Something went wrong';
+  toast.error(message);
+}
+```
+
+---
+
+## Platform-Specific Guidelines
+
+### LinkedIn
+- URN format: `urn:li:person:XXXXX` (personal) or `urn:li:organization:XXXXX` (company)
+- Two account types: `person` and `organization`
+- Rate limit: 125 posts/day per token
+- Image upload: Register → Upload binary → Create post with asset URN
+
+### Twitter/X
+- OAuth 1.0a with signature generation
+- Rate limit: 300 tweets/3 hours
+- Video uploads require Elevated API access
+- Media upload separate from tweet creation
+
+### Telegram
+- Bot API with token from @BotFather
+- Chat ID can be username (@channel) or numeric ID (-100123456789)
+- No OAuth needed, just bot token + chat ID
+
+### Instagram/Facebook
+- Same OAuth flow (Facebook Graph API)
+- Pending app review for `pages_read_engagement` permission
+- Instagram requires image (no text-only posts)
+- Facebook posts to Pages, not personal profiles
+
+### YouTube
+- OAuth 2.0 with PKCE
+- Access tokens expire in 1 hour → implement proactive refresh
+- Only video uploads supported (no Community Posts via API)
+- Quota: 10,000 units/day (video upload = 1,600 units)
+
+### TikTok
+- OAuth 2.0 with scopes: `video.upload`, `video.publish`
+- Requires video (no images/text)
+- Access tokens expire in 24 hours
+
+---
+
+## Database Schema Reference
+
+### Key Tables
+```sql
+posts (
+  id, user_id, text, image_url, platforms[], 
+  status, schedule_time, posted_at, results JSONB
+)
+
+user_accounts (
+  id, user_id, platform, access_token, refresh_token,
+  token_expires_at, platform_user_id, platform_username, status
+)
+
+subscriptions (
+  user_id, stripe_customer_id, plan, status, current_period_end
+)
+
+usage (
+  user_id, month, posts_count, ai_count, accounts_count
+)
+
+post_templates (
+  id, user_id, name, content, category, tags[], is_favorite, use_count
+)
+```
+
+### RLS Policies
+- All queries automatically filter by `user_id = auth.uid()`
+- Use `supabaseAdmin` to bypass RLS when needed
+
+---
+
+## Error Handling
+
+### Backend Error Responses
+```javascript
+// Standard error format
+res.status(statusCode).json({
+  success: false,
+  error: 'Human-readable error message',
+  ...(details && { details })
+});
+
+// Usage limit error
+res.status(402).json({
+  success: false,
+  error: 'Post limit reached. Upgrade to continue.',
+  limitReached: true,
+  upgradePlan: 'pro'
+});
+```
+
+### Frontend Error Display
+```javascript
+// Use toast notifications for transient errors
+toast.error('Failed to connect account. Please try again.');
+
+// Use ErrorMessage component for persistent errors
+<ErrorMessage message={error} />
+
+// Use EmptyState for no data scenarios
+<EmptyState 
+  icon="📝"
+  title="No posts yet"
+  description="Create your first post to get started"
+  action={<button onClick={goToCreate}>Create Post</button>}
+/>
+```
+
+---
+
+## Testing & Debugging
+
+### Console Logging Standards
+```javascript
+// Use emoji prefixes for visibility
+console.log('✅ Success:', message);
+console.log('⚠️  Warning:', message);
+console.error('❌ Error:', message);
+console.log('🔍 Debug:', message);
+console.log('📤 Posting to:', platforms.join(', '));
+
+// Log full objects with JSON.stringify for better readability
+console.log('📊 Response:', JSON.stringify(response, null, 2));
+
+// Production: Minimize console output
+if (process.env.NODE_ENV === 'production') {
+  // Only log errors and critical events
+}
+```
+
+### Environment-Specific Behavior
+```javascript
+// Development
+if (process.env.NODE_ENV !== 'production') {
+  console.log('🔧 Dev mode: Detailed logging enabled');
+  // Include stack traces
+  // Enable debug features
+}
+
+// Production
+if (process.env.NODE_ENV === 'production') {
+  // Minimal logging
+  // Use error tracking service
+  // Enable caching
+}
+```
+
+---
+
+## Performance Optimization
+
+### Database Queries
+- Use indexes on frequently queried columns
+- Limit result sets with `.limit()`
+- Use `.select()` to fetch only needed columns
+- Avoid N+1 queries with eager loading
+
+### API Efficiency
+- Implement pagination for large datasets
+- Cache frequently accessed data
+- Use connection pooling (Supabase handles this)
+- Batch operations when possible
+
+### Frontend Performance
+- Use React.memo for components with stable props
+- Implement lazy loading: `const Component = lazy(() => import('./Component'))`
+- Optimize images with Cloudinary transformations
+- Use Suspense with fallback for code splitting
+
+---
+
+## Common Tasks & Patterns
+
+### Adding a New Platform
+
+1. **Create service file**: `services/newplatform.js`
+   - Implement `postToNewPlatform(text, imageUrl, credentials)`
+   - Add token refresh logic if needed
+   - Return standardized result object
+
+2. **Add OAuth routes in server.js**:
+   - GET `/api/oauth/newplatform/authorize` - Initiate OAuth
+   - GET `/api/oauth/newplatform/callback` - Handle callback
+   - POST `/api/oauth/newplatform/disconnect` - Disconnect account
+
+3. **Update scheduler.js**:
+   - Add platform case in `postNow()` function
+   - Follow multi-account posting pattern
+   - Handle platform-specific requirements (e.g., video-only)
+
+4. **Update frontend Settings.jsx**:
+   - Add "Connect NewPlatform" button
+   - Add platform to connected accounts list
+   - Handle OAuth redirect flow
+
+5. **Update CreatePost.jsx**:
+   - Add platform checkbox
+   - Add any platform-specific warnings
+   - Update validation logic
+
+6. **Update database migration**:
+   - Add platform to CHECK constraint if needed
+   - Add to platform enum in user_accounts table
+
+### Implementing a New Feature
+
+1. **Plan before coding**: Write pseudocode or outline
+2. **Check existing patterns**: Look for similar features
+3. **Backend first**: Implement API endpoint
+4. **Frontend integration**: Add UI and connect to API
+5. **Test thoroughly**: Test all edge cases
+6. **Update documentation**: Add comments and update README
+
+---
+
+## Response Style
+
+### When Writing Code
+- Provide complete, working code (no placeholders or TODOs)
+- Include proper error handling
+- Add comments for complex logic
+- Follow the exact patterns shown in this file
+
+### When Explaining
+- Be concise but thorough
+- Use bullet points for clarity
+- Include code examples when helpful
+- Reference existing files: "See `services/linkedin.js` for similar pattern"
+
+### When Fixing Bugs
+- First understand the problem fully
+- Identify root cause, not just symptoms
+- Propose minimal, safe fix
+- Explain potential side effects
+
+### When Unclear
+- Ask specific clarifying questions
+- Suggest alternatives
+- Explain trade-offs
+
+---
+
+## Critical Reminders
+
+1. **NEVER break existing OAuth flows** - they're complex and working
+2. **ALWAYS test platform integrations** with actual accounts
+3. **RESPECT rate limits** - implement proper delays and retries
+4. **PROTECT user data** - never log sensitive tokens
+5. **MAINTAIN multi-account support** - users can have multiple accounts per platform
+6. **IMPLEMENT proper token refresh** - prevent auth failures
+7. **USE RLS correctly** - understand when to use admin vs regular client
+8. **FOLLOW the scheduler pattern** - it's the core of the app
+9. **KEEP responses consistent** - return same structure across endpoints
+10. **DOCUMENT breaking changes** - always explain impacts
+
+---
+
+## When in Doubt
+
+- Check similar files in the codebase for patterns
+- Ask before making structural changes
+- Prefer extending over modifying
+- Test with real API calls when possible
+- Verify database changes won't break RLS
+- Consider edge cases (token expiry, rate limits, missing data)
+
+---
+
+**This project is production-ready with real users. Changes must be safe, tested, and maintainable.**
