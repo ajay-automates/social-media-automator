@@ -627,12 +627,13 @@ function initiateFacebookOAuth(userId) {
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
   
-  // Facebook OAuth - request minimal permissions first
-  // pages_show_list is the only Pages permission available without app review
+  // Facebook OAuth - request permissions needed for Pages
+  // pages_show_list: List pages user manages
+  // pages_read_engagement: Read page insights (helpful for getting page info)
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'pages_show_list'); // Minimal permission that works
+  authUrl.searchParams.append('scope', 'pages_show_list,pages_read_engagement'); // Permissions for Pages
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
@@ -679,15 +680,23 @@ async function handleFacebookCallback(code, state) {
       `https://graph.facebook.com/v18.0/me/accounts`,
       {
         params: {
-          access_token: userAccessToken
+          access_token: userAccessToken,
+          fields: 'id,name,access_token,username,picture'
         }
       }
     );
     
-    const pages = pagesResponse.data.data;
+    console.log('📘 Pages API response:', JSON.stringify(pagesResponse.data, null, 2));
+    
+    const pages = pagesResponse.data?.data;
     
     if (!pages || pages.length === 0) {
-      throw new Error('No Facebook Pages found. Please create a Facebook Page first.');
+      console.log('⚠️  No pages found in response. Response structure:', {
+        hasData: !!pagesResponse.data?.data,
+        dataLength: pagesResponse.data?.data?.length,
+        fullResponse: pagesResponse.data
+      });
+      throw new Error('No Facebook Pages found. Please create a Facebook Page first and make sure you are an admin of the page.');
     }
     
     console.log(`✅ Found ${pages.length} Facebook Pages`);
@@ -754,6 +763,21 @@ async function handleFacebookCallback(code, state) {
     
   } catch (error) {
     console.error('❌ Facebook OAuth error:', error.message);
+    
+    // Log full error details for debugging
+    if (error.response) {
+      console.error('❌ Facebook API error response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data
+      });
+    }
+    
+    // Provide more helpful error messages
+    if (error.message.includes('No Facebook Pages')) {
+      throw new Error('No Facebook Pages found. Please:\n1. Create a Facebook Page at https://www.facebook.com/pages/create\n2. Make sure you are an admin of the page\n3. Try connecting again');
+    }
+    
     throw new Error('Failed to connect Facebook account: ' + error.message);
   }
 }
