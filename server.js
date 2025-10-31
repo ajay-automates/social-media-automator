@@ -1668,32 +1668,15 @@ app.get('/api/user/accounts', verifyAuth, async (req, res) => {
 app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const clientId = process.env.INSTAGRAM_APP_ID;
-    
-    if (!clientId) {
-      return res.status(500).json({
-        success: false,
-        error: 'Instagram OAuth not configured'
-      });
-    }
-    
-    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/instagram/callback`;
-    const state = encryptState(userId);
+    const { initiateInstagramOAuth } = require('./services/oauth');
     
     console.log('📱 Instagram OAuth URL generation (Facebook Login):');
-    console.log('  - Client ID:', clientId ? 'exists' : 'missing');
-    console.log('  - Redirect URI:', redirectUri);
     console.log('  - User ID:', userId);
     
-    // Instagram Basic Display API
-    const authUrl = new URL('https://api.instagram.com/oauth/authorize');
-    authUrl.searchParams.append('client_id', clientId);
-    authUrl.searchParams.append('redirect_uri', redirectUri);
-    authUrl.searchParams.append('scope', 'user_profile,user_media');
-    authUrl.searchParams.append('response_type', 'code');
-    authUrl.searchParams.append('state', state);
+    // Use the fixed Instagram OAuth function (uses Facebook Login)
+    const authUrl = initiateInstagramOAuth(userId);
     
-    console.log('  - OAuth URL:', authUrl.toString());
+    console.log('  - OAuth URL:', authUrl);
     
     res.json({
       success: true,
@@ -1775,6 +1758,8 @@ app.post('/api/auth/facebook/url', verifyAuth, async (req, res) => {
     console.log('📘 Facebook OAuth URL request from user:', userId);
     
     const oauthUrl = initiateFacebookOAuth(userId);
+    
+    console.log('  - OAuth URL:', oauthUrl);
     
     res.json({
       success: true,
