@@ -83,6 +83,9 @@ You've successfully built a **production-ready multi-tenant SaaS application** w
 - ✅ **LinkedIn** - Full posting capability (LIVE & WORKING)
 - ✅ **Twitter/X** - Full posting capability (LIVE & WORKING)
 - ✅ **Telegram** - Full posting capability (LIVE & WORKING) 📱
+- ✅ **YouTube** - Video posting (Shorts) - OAuth & posting implemented
+- 🟡 **Facebook** - OAuth connected, posting requires app review (waiting for `pages_read_engagement` permission)
+- 🟡 **Instagram** - OAuth implemented, posting requires app review (waiting for `pages_read_engagement` permission)
 - ✅ **Multi-account support** - Post to ALL connected accounts per platform
 - ✅ OAuth account connection flow
 - ✅ Individual account disconnection
@@ -185,7 +188,16 @@ You've successfully built a **production-ready multi-tenant SaaS application** w
 
 ---
 
-## 🎯 **Latest Updates (December 2024)**
+## 🎯 **Latest Updates (October 2024)**
+
+### **Phase 4: Facebook & Instagram Integration** 🟡
+- ✅ Facebook OAuth connection flow (uses Facebook Login)
+- ✅ Instagram OAuth connection flow (uses Facebook Login)
+- ✅ Facebook page connection and token storage
+- ✅ Instagram Business account detection and connection
+- ✅ Facebook platform button added to Create Post page
+- 🟡 App Review submitted for `pages_read_engagement` & `pages_manage_posts` permissions
+- ⏳ Waiting for Facebook approval to enable posting
 
 ### **Phase 3: UX Polish & Analytics Fixes** ✅
 - ✅ Loading states with skeleton loaders
@@ -233,8 +245,11 @@ You've successfully built a **production-ready multi-tenant SaaS application** w
 - Individual account disconnection
 - Dashboard stats auto-refresh
 
+### **🟡 Awaiting App Review**
+- **Facebook Posting** - Connected but requires `pages_read_engagement` & `pages_manage_posts` permissions (submitted for review)
+- **Instagram Posting** - Connected but requires `pages_read_engagement` permission (submitted for review)
+
 ### **🟡 Ready to Configure**
-- Instagram OAuth (needs app credentials)
 - Stripe payment processing (needs live keys)
 
 ---
@@ -271,7 +286,9 @@ social-media-automator/
 │   ├── ai-image.js             # Stability AI ✅
 │   ├── billing.js              # Stripe ✅
 │   ├── database.js             # Supabase ✅
-│   ├── instagram.js            # Instagram API
+│   ├── instagram.js            # Instagram API 🟡
+│   ├── facebook.js             # Facebook API 🟡
+│   ├── youtube.js              # YouTube API ✅
 │   ├── linkedin.js             # LinkedIn API ✅
 │   ├── oauth.js                # OAuth flows ✅
 │   ├── scheduler.js            # Cron + Multi-account posting ✅
@@ -290,6 +307,7 @@ social-media-automator/
 │
 ├── docs/
 │   ├── AI_GENERATION_SETUP.md
+│   ├── FACEBOOK_INSTAGRAM_SETUP.md
 │   ├── INSTAGRAM_SETUP.md
 │   ├── LINKEDIN_SETUP.md
 │   ├── SUPABASE_SETUP.md
@@ -371,6 +389,9 @@ APP_URL=https://your-domain.com
 ✅ **LinkedIn Posting** - All connected accounts  
 ✅ **Twitter Posting** - All connected accounts  
 ✅ **Telegram Posting** - Bot integration  
+✅ **YouTube Posting** - Video uploads (Shorts)  
+🟡 **Facebook** - OAuth connected, posting pending app review  
+🟡 **Instagram** - OAuth connected, posting pending app review  
 ✅ **AI Captions** - Claude with 3 variations  
 ✅ **AI Images** - Stability AI generation  
 ✅ **Analytics** - Real-time post tracking  
@@ -469,8 +490,19 @@ The dashboard was building locally but Railway couldn't serve the files because 
 
 ---
 
-**Current Version:** v3.1 with Fixed Deployment & Asset Handling  
+**Current Version:** v3.2 with Facebook & Instagram Integration  
 **Last Updated:** October 2024  
 **Production URL:** https://capable-motivation-production-7a75.up.railway.app  
 **GitHub:** https://github.com/ajay-automates/social-media-automator  
-**Status:** ✅ Live and fully functional
+**Status:** ✅ Live and fully functional (Facebook/Instagram posting pending app review)
+
+---
+
+## ⚠️ **Current Limitations**
+
+### **Facebook & Instagram Posting**
+- **Status:** OAuth connection works ✅, Posting requires app review ⏳
+- **Issue:** Missing `pages_read_engagement` and `pages_manage_posts` permissions
+- **Action:** App review submitted, waiting for Facebook approval (~7-14 days)
+- **Impact:** Users can connect accounts but cannot post until permissions are approved
+- **Workaround:** For testing, use Graph API Explorer to generate tokens with permissions manually
