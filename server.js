@@ -1781,21 +1781,27 @@ app.post('/api/auth/facebook/url', verifyAuth, async (req, res) => {
  */
 app.get('/auth/facebook/callback', async (req, res) => {
   try {
-    const { code, state, error } = req.query;
+    const { code, state, error, error_code, error_message, error_reason } = req.query;
     
     console.log('📘 Facebook OAuth callback received');
     console.log('  - Code:', code ? code.substring(0, 20) + '...' : 'missing');
     console.log('  - State:', state ? state.substring(0, 20) + '...' : 'missing');
     console.log('  - Error:', error || 'none');
+    console.log('  - Error Code:', error_code || 'none');
+    console.log('  - Error Message:', error_message || 'none');
+    console.log('  - Error Reason:', error_reason || 'none');
+    console.log('  - Full Query:', JSON.stringify(req.query, null, 2));
     
     if (error) {
       console.log('  ❌ Facebook denied access:', error);
-      return res.redirect('/dashboard?error=facebook_denied');
+      console.log('  ❌ Error details:', { error_code, error_message, error_reason });
+      return res.redirect(`/dashboard/settings?error=facebook_denied&message=${encodeURIComponent(error_message || error)}`);
     }
     
     if (!code || !state) {
       console.log('  ❌ Missing code or state');
-      return res.redirect('/dashboard?error=facebook_failed');
+      console.log('  ❌ Query params:', req.query);
+      return res.redirect('/dashboard/settings?error=facebook_failed&message=Missing+authorization+code');
     }
     
     const { handleFacebookCallback } = require('./services/oauth');
@@ -1809,22 +1815,29 @@ app.get('/auth/facebook/callback', async (req, res) => {
       
       if (result.success && result.accounts && result.accounts.length > 0) {
         console.log('  ✅ Facebook connected successfully:', result.accounts.length, 'Pages');
-        return res.redirect('/dashboard?facebook=connected');
+        return res.redirect('/dashboard/settings?facebook=connected');
       } else {
         console.log('  ⚠️  No Pages saved');
-        return res.redirect('/dashboard?error=facebook_no_pages');
+        return res.redirect('/dashboard/settings?error=facebook_no_pages&message=No+Facebook+Pages+found.+Please+create+a+Facebook+Page+first.');
       }
       
     } catch (callbackError) {
       console.error('  ❌ Facebook callback error:', callbackError.message);
       console.error('  ❌ Full error:', callbackError);
-      return res.redirect(`/dashboard?error=facebook_failed&message=${encodeURIComponent(callbackError.message)}`);
+      
+      // Extract detailed error message
+      let errorMsg = callbackError.message;
+      if (callbackError.response?.data?.error) {
+        errorMsg = callbackError.response.data.error.message || errorMsg;
+      }
+      
+      return res.redirect(`/dashboard/settings?error=facebook_failed&message=${encodeURIComponent(errorMsg)}`);
     }
     
   } catch (error) {
     console.error('Error handling Facebook callback:', error);
     console.error('Full error:', error);
-    return res.redirect('/dashboard?error=facebook_failed');
+    return res.redirect(`/dashboard/settings?error=facebook_failed&message=${encodeURIComponent(error.message || 'Unknown error')}`);
   }
 });
 
