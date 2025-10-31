@@ -452,22 +452,24 @@ async function getUserConnectedAccounts(userId) {
  * @returns {string} Authorization URL
  */
 function initiateInstagramOAuth(userId) {
-  const clientId = process.env.INSTAGRAM_APP_ID;
+  // Instagram uses Facebook Login OAuth flow, not Instagram Basic Display
+  // Use the same FACEBOOK_APP_ID (which has Instagram Graph API enabled)
+  const clientId = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
   const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
   
   if (!clientId) {
-    throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID in environment variables.');
+    throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID or FACEBOOK_APP_ID in environment variables.');
   }
   
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
   
-  // Instagram Basic Display API - only works with Basic Display App ID
-  // This is read-only, cannot post to Instagram
-  const authUrl = new URL('https://api.instagram.com/oauth/authorize');
+  // Use Facebook Login OAuth (required for Instagram Graph API posting)
+  // Request permissions needed for Instagram Business account posting
+  const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'user_profile,user_media');
+  authUrl.searchParams.append('scope', 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
@@ -486,12 +488,13 @@ async function handleInstagramCallback(code, state) {
     // Decode state to get userId
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
     
-    const clientId = process.env.INSTAGRAM_APP_ID;
-    const clientSecret = process.env.INSTAGRAM_APP_SECRET;
+    // Instagram uses same App ID/Secret as Facebook (same app with Instagram Graph API enabled)
+    const clientId = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
+    const clientSecret = process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET;
     const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
     
     if (!clientId || !clientSecret) {
-      throw new Error('Instagram OAuth not configured');
+      throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID/INSTAGRAM_APP_SECRET or FACEBOOK_APP_ID/FACEBOOK_APP_SECRET');
     }
     
     // Step 1: Exchange code for access token (Facebook Graph API)
