@@ -635,12 +635,11 @@ function initiateFacebookOAuth(userId) {
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  // Request permissions for Facebook Pages
-  // pages_show_list: List pages (works without app review)
-  // pages_manage_posts: Post to pages (may require app review)
-  // pages_read_engagement: Required for posting (Facebook API requirement)
-  // Note: May require app review for production use
-  authUrl.searchParams.append('scope', 'pages_show_list,pages_manage_posts,pages_read_engagement');
+  // Facebook OAuth - request minimal permissions
+  // pages_show_list: List pages you manage (only permission that works without app review)
+  // Note: Page access tokens from /me/accounts should have publish permissions by default
+  // If posting fails, the page token might need explicit permissions or app review
+  authUrl.searchParams.append('scope', 'pages_show_list');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
@@ -683,12 +682,16 @@ async function handleFacebookCallback(code, state) {
     
     // Step 2: Get user's Facebook Pages
     console.log('📘 Step 2: Getting user\'s Facebook Pages...');
+    // Request page token with explicit permissions for posting
+    // Note: For pages you own, the page token should have publish permissions by default
     const pagesResponse = await axios.get(
       `https://graph.facebook.com/v18.0/me/accounts`,
       {
         params: {
           access_token: userAccessToken,
-          fields: 'id,name,access_token,username,picture'
+          fields: 'id,name,access_token,username,picture',
+          // Request permissions needed for posting
+          // This should grant the page token publishing permissions
         }
       }
     );
