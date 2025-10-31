@@ -704,22 +704,14 @@ async function handleFacebookCallback(code, state) {
     const savedAccounts = [];
     
     for (const page of pages) {
-      // Get Page access token and info
+      // Use page data directly from /me/accounts response
+      // No need for extra API call - we already have name, username, etc.
       const pageId = page.id;
       const pageAccessToken = page.access_token;
+      const pageName = page.name || 'Facebook Page';
+      const pageUsername = page.username || page.name || pageId;
       
-      // Get page details
-      const pageInfoResponse = await axios.get(
-        `https://graph.facebook.com/v18.0/${pageId}`,
-        {
-          params: {
-            fields: 'name,username,picture',
-            access_token: pageAccessToken
-          }
-        }
-      );
-      
-      const pageInfo = pageInfoResponse.data;
+      console.log(`📘 Processing page: ${pageName} (ID: ${pageId})`);
       
       // Calculate expiry (use page token expiry or default 60 days)
       const expiresAt = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000));
@@ -730,13 +722,13 @@ async function handleFacebookCallback(code, state) {
         .upsert({
           user_id: userId,
           platform: 'facebook',
-          platform_name: `Facebook (${pageInfo.name})`,
+          platform_name: `Facebook (${pageName})`,
           oauth_provider: 'facebook',
           access_token: pageAccessToken,
           refresh_token: userAccessToken, // Store user token as refresh
           token_expires_at: expiresAt.toISOString(),
           platform_user_id: pageId,
-          platform_username: pageInfo.username || pageInfo.name,
+          platform_username: pageUsername,
           status: 'active',
           connected_at: new Date().toISOString()
         }, {
