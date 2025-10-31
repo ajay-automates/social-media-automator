@@ -468,5 +468,3 @@ export default function Settings() {
 }
 // Force rebuild - YouTube button added
 // Build timestamp: 1761762481
-
-export default Settings;
