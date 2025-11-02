@@ -4,7 +4,7 @@ Complete technical overview of the Social Media Automator SaaS platform.
 
 ## 🎯 What Is This?
 
-A **production-ready multi-tenant SaaS** that automates social media posting across 7+ platforms with AI-powered content generation.
+A **production-ready multi-tenant SaaS** that automates social media posting across 10 platforms with AI-powered content generation.
 
 **Core Value Proposition:**
 - Post to all platforms simultaneously

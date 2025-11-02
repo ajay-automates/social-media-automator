@@ -13,13 +13,17 @@ Welcome to the complete documentation for the Social Media Automator SaaS platfo
 - **[LinkedIn](platforms/linkedin.md)** - OAuth and posting setup
 - **[Twitter/X](platforms/twitter.md)** - OAuth 2.0 and media uploads
 - **[Telegram](platforms/telegram.md)** - Bot API integration
+- **[Slack](platforms/slack.md)** - Webhook integration
+- **[Discord](platforms/discord.md)** - Webhook integration
+- **[Reddit](platforms/reddit.md)** - OAuth & subreddit posting
 - **[Instagram](platforms/instagram.md)** - Facebook Graph API setup
 - **[Facebook](platforms/facebook.md)** - Page posting configuration
 - **[YouTube](platforms/youtube.md)** - Video upload (Shorts)
 - **[TikTok](platforms/tiktok.md)** - Video posting integration
 
 ### ✨ Features
-- **[AI Generation](features/ai-generation.md)** - Claude AI captions and Stability AI images
+- **[AI Generation](features/ai-generation.md)** - Claude AI & Gemini captions + Stability AI images
+- **[URL Content Generation](features/url-content-generation.md)** - Generate posts from any URL
 - **[Post Templates](features/templates.md)** - Save and reuse content
 - **[Billing & Pricing](features/billing-pricing.md)** - Stripe integration and usage limits
 - **[OAuth Configuration](features/oauth.md)** - Multi-platform authentication
@@ -55,36 +59,43 @@ Welcome to the complete documentation for the Social Media Automator SaaS platfo
 
 | Platform | Text | Images | Videos | Status |
 |----------|------|--------|--------|--------|
-| LinkedIn | ✅ | ✅ | ❌ | Live |
-| Twitter | ✅ | ✅ | ⚠️ | Partial |
-| Telegram | ✅ | ✅ | ✅ | Live |
-| YouTube | ⏳ | ⏳ | ✅ | Ready |
-| Instagram | ✅ | ✅ | ✅ | Live |
-| Facebook | ✅ | ✅ | ✅ | Live |
-| TikTok | ❌ | ❌ | ✅ | Beta |
+| **LinkedIn** | ✅ | ✅ | ❌ | Live |
+| **Twitter/X** | ✅ | ✅ | ⚠️ | Partial |
+| **Telegram** | ✅ | ✅ | ✅ | Live |
+| **Slack** | ✅ | ✅ | 🔗 | Live |
+| **Discord** | ✅ | ✅ | 🔗 | Live |
+| **Reddit** | ✅ | ✅ | ✅ | Live |
+| **Instagram** | ✅ | ✅ | ✅ | Live |
+| **Facebook** | ✅ | ✅ | ✅ | Live |
+| **YouTube** | ⏳ | ⏳ | ✅ | Ready |
+| **TikTok** | ❌ | ❌ | ✅ | Beta |
 
 **Legend:**
 - ✅ Fully Working
 - ⚠️ Partial Support
 - ⏳ Ready (awaiting quota/approval)
+- 🔗 Link only (webhooks)
 - ❌ Not Supported
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Node.js, Express.js
-- **Frontend**: React 19, Vite, TailwindCSS
-- **Database**: Supabase (PostgreSQL)
-- **Auth**: Supabase Auth, OAuth 2.0
-- **AI**: Anthropic Claude, Stability AI
-- **Storage**: Cloudinary
-- **Payments**: Stripe
+- **Backend**: Node.js 20+, Express.js
+- **Frontend**: React 19, Vite, TailwindCSS, Framer Motion
+- **Database**: Supabase (PostgreSQL) with Row Level Security
+- **Auth**: Supabase Auth, OAuth 2.0, OAuth 1.0a
+- **AI**: Anthropic Claude Sonnet 4, Google Gemini, Stability AI
+- **Storage**: Cloudinary (images/videos)
+- **Payments**: Stripe (3-tier SaaS)
 - **Deployment**: Railway
+- **Scheduling**: node-cron (every minute)
 
 ---
 
-**Last Updated**: January 2025  
-**Version**: 3.2  
-**Status**: Production Ready ✅
+**Last Updated**: November 2025  
+**Version**: 4.0  
+**Status**: Production Ready ✅  
+**Platforms**: 10  
+**Lines of Code**: 10,000+
 
