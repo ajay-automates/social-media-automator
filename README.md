@@ -14,7 +14,7 @@ Automate your social media posting across 10+ platforms with AI-generated conten
 
 **Key Features:**
 - 🌐 **10 Platforms**: LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, YouTube, Instagram, Facebook, TikTok
-- 🤖 **AI-Powered**: Claude AI captions + Stability AI images
+- 🤖 **AI-Powered**: Claude + Gemini AI captions + Stability AI images
 - 📅 **Smart Scheduling**: Post immediately or schedule for later
 - 👥 **Multi-Account**: Connect multiple accounts per platform
 - 📊 **Analytics**: Track performance across all platforms
@@ -108,6 +108,9 @@ Comprehensive documentation is organized in the `docs/` folder:
 - **[LinkedIn](docs/platforms/linkedin.md)** - OAuth & posting
 - **[Twitter/X](docs/platforms/twitter.md)** - OAuth 2.0 setup
 - **[Telegram](docs/platforms/telegram.md)** - Bot integration
+- **[Slack](docs/platforms/slack.md)** - Webhook integration
+- **[Discord](docs/platforms/discord.md)** - Webhook integration
+- **[Reddit](docs/platforms/reddit.md)** - OAuth & subreddit posting
 - **[Instagram](docs/platforms/instagram.md)** - Facebook Graph API
 - **[Facebook](docs/platforms/facebook.md)** - Page posting
 - **[YouTube](docs/platforms/youtube.md)** - Video uploads (Shorts)
@@ -146,11 +149,12 @@ Comprehensive documentation is organized in the `docs/` folder:
 - **Routing**: React Router v7
 
 ### External Services
-- **AI**: Anthropic Claude, Stability AI
+- **AI**: Anthropic Claude, Google Gemini, Stability AI
 - **Storage**: Cloudinary
 - **Payments**: Stripe
 - **Deployment**: Railway
-- **OAuth**: LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok
+- **OAuth**: LinkedIn, Twitter, Reddit, Instagram, Facebook, YouTube, TikTok
+- **Webhooks**: Telegram, Slack, Discord
 
 ---
 
@@ -270,10 +274,10 @@ Built with:
 
 ## 📊 Project Stats
 
-- **Total Files**: 50+
-- **Lines of Code**: 8,000+
-- **Platforms Supported**: 7
-- **API Endpoints**: 25+
+- **Total Files**: 60+
+- **Lines of Code**: 10,000+
+- **Platforms Supported**: 10
+- **API Endpoints**: 30+
 - **Database Tables**: 8
 - **React Components**: 15+
 
