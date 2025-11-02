@@ -31,6 +31,10 @@ const {
 const { generateCaption } = require('./services/ai');
 const aiImageService = require('./services/ai-image');
 const { 
+  extractTranscript, 
+  generateCaptionFromTranscript 
+} = require('./services/youtube-transcript');
+const { 
   getAllAccountsWithStatus, 
   getAllCredentials 
 } = require('./services/accounts');
@@ -1093,14 +1097,69 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
 /**
  * POST /api/ai/youtube-caption
  * Generate AI captions from YouTube video transcript (protected)
- * DISABLED: YouTube transcript feature temporarily removed due to ESM compatibility issues
  */
-// app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
-//   res.status(503).json({ 
-//     success: false, 
-//     error: 'YouTube caption generation temporarily unavailable' 
-//   });
-// });
+app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { videoUrl, instructions, platform } = req.body;
+    
+    // Validate inputs
+    if (!videoUrl || videoUrl.trim() === '') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'YouTube video URL is required' 
+      });
+    }
+    
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+    
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+      });
+    }
+    
+    console.log(`\n📺 YouTube caption request: url="${videoUrl}", platform="${platform}"`);
+    
+    // Step 1: Extract transcript from YouTube
+    const transcript = await extractTranscript(videoUrl);
+    
+    // Step 2: Generate captions from transcript
+    const variations = await generateCaptionFromTranscript(
+      transcript,
+      instructions || '',
+      platform || 'linkedin'
+    );
+    
+    // Increment AI usage count
+    await incrementUsage(userId, 'ai');
+    
+    res.json({ 
+      success: true,
+      variations,
+      count: variations.length,
+      transcriptLength: transcript.length
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/ai/youtube-caption:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to generate captions from YouTube video'
+    });
+  }
+});
 
 // ============================================
 // AI IMAGE GENERATION ENDPOINTS
