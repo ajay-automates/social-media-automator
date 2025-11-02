@@ -809,6 +809,7 @@ async function getUserCredentialsForPosting(userId) {
       twitter: [],
       instagram: [],
       telegram: [],
+      slack: [],
       facebook: [],
       youtube: []
     };
@@ -906,6 +907,11 @@ async function getUserCredentialsForPosting(userId) {
         credentials.telegram.push({
           botToken: account.access_token,
           chatId: account.platform_user_id
+        });
+      } else if (account.platform === 'slack') {
+        credentials.slack.push({
+          webhookUrl: account.access_token,
+          channelName: account.platform_username
         });
       } else if (account.platform === 'facebook') {
         credentials.facebook.push({

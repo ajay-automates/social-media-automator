@@ -10,6 +10,9 @@ export default function Settings() {
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [telegramBotToken, setTelegramBotToken] = useState('');
   const [telegramChatId, setTelegramChatId] = useState('');
+  const [showSlackModal, setShowSlackModal] = useState(false);
+  const [slackWebhookUrl, setSlackWebhookUrl] = useState('');
+  const [slackChannelName, setSlackChannelName] = useState('');
   const [activeTab, setActiveTab] = useState('accounts');
 
   useEffect(() => {
@@ -182,6 +185,27 @@ export default function Settings() {
     }
   };
 
+  const connectSlack = () => {
+    setShowSlackModal(true);
+  };
+
+  const handleSlackConnect = async () => {
+    try {
+      await api.post('/auth/slack/connect', {
+        webhookUrl: slackWebhookUrl,
+        channelName: slackChannelName
+      });
+      showSuccess('Slack connected successfully!');
+      setShowSlackModal(false);
+      setSlackWebhookUrl('');
+      setSlackChannelName('');
+      loadAccounts();
+    } catch (err) {
+      console.error('Slack connection error:', err);
+      showError(err.response?.data?.error || 'Failed to connect Slack');
+    }
+  };
+
   const disconnectAccount = async (account) => {
     try {
       await api.delete(`/user/accounts/${account.platform}/${account.id}`);
@@ -275,6 +299,14 @@ export default function Settings() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={connectSlack}
+                className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition flex items-center gap-2"
+              >
+                <span>💬</span> Connect Slack
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={connectInstagram}
                 className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
               >
@@ -318,6 +350,7 @@ export default function Settings() {
                     {account?.platform === 'linkedin' && '🔗'}
                     {account?.platform === 'twitter' && '🐦'}
                     {account?.platform === 'telegram' && '📱'}
+                    {account?.platform === 'slack' && '💬'}
                     {account?.platform === 'instagram' && '📷'}
                     {account?.platform === 'facebook' && '📘'}
                     {account?.platform === 'youtube' && '🎬'}
@@ -370,6 +403,14 @@ export default function Settings() {
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
               + Connect Telegram
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={connectSlack}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
+            >
+              + Connect Slack
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -457,6 +498,67 @@ export default function Settings() {
               <button
                 onClick={handleTelegramConnect}
                 className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+              >
+                Connect
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Slack Modal */}
+      {showSlackModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
+          >
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Slack Workspace</h3>
+            <p className="text-gray-600 mb-6">
+              Enter your Slack incoming webhook URL to connect a channel.
+            </p>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Webhook URL
+                </label>
+                <input
+                  type="text"
+                  value={slackWebhookUrl}
+                  onChange={(e) => setSlackWebhookUrl(e.target.value)}
+                  placeholder="https://hooks.slack.com/services/T00/B00/XXX"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Get this from Slack: Apps → Incoming Webhooks → Add New Webhook
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Channel Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={slackChannelName}
+                  onChange={(e) => setSlackChannelName(e.target.value)}
+                  placeholder="#general"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSlackModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSlackConnect}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition"
               >
                 Connect
               </button>

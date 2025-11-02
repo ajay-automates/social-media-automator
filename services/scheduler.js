@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
+const { sendToSlack } = require('./slack');
 const { postToInstagram } = require('./instagram');
 const { postToFacebookPage } = require('./facebook');
 const { postToYouTube } = require('./youtube');
@@ -164,6 +165,25 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
           } else {
             console.log(`⚠️  No Telegram credentials found or invalid format`);
             console.log(`⚠️  Credentials structure:`, JSON.stringify(credentials.telegram, null, 2));
+          }
+        }
+        else if (platform === 'slack') {
+          // Slack - post to all connected webhooks
+          if (credentials.slack && Array.isArray(credentials.slack) && credentials.slack.length > 0) {
+            results.slack = [];
+            for (const account of credentials.slack) {
+              try {
+                console.log(`    💬 Posting to Slack - Webhook: ${account.webhookUrl ? 'exists' : 'missing'}`);
+                const result = await sendToSlack(account.webhookUrl, text, image_url);
+                results.slack.push(result);
+                console.log(`    ✅ Posted to Slack - Result:`, JSON.stringify(result, null, 2));
+              } catch (err) {
+                console.error(`    ❌ Slack error:`, err.message);
+                results.slack.push({ error: err.message, platform: 'slack' });
+              }
+            }
+          } else {
+            console.log(`⚠️  No Slack credentials found`);
           }
         } 
         else if (platform === 'instagram') {
