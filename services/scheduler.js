@@ -67,17 +67,18 @@ async function processDueQueue() {
   }
 }
 
-async function postNow(text, imageUrl, platforms, providedCredentials) {
+async function postNow(text, imageUrl, platforms, providedCredentials, post_metadata) {
   try {
-    let id, user_id, image_url, platformsArray, credentials;
+    let id, user_id, image_url, platformsArray, credentials, postMetadata;
     
     // Support both signatures:
-    // 1. postNow({id, user_id, text, image_url, platforms}) - for scheduled posts
-    // 2. postNow(text, imageUrl, platforms, credentials) - for immediate posts
+    // 1. postNow({id, user_id, text, image_url, platforms, post_metadata}) - for scheduled posts
+    // 2. postNow(text, imageUrl, platforms, credentials, post_metadata) - for immediate posts
     if (typeof text === 'object' && text.text) {
       // Signature 1: Scheduled post object
-      ({ id, user_id, text, image_url, platforms } = text);
+      ({ id, user_id, text, image_url, platforms, post_metadata } = text);
       platformsArray = platforms;
+      postMetadata = post_metadata;
       if (typeof platforms === 'string') {
         platformsArray = JSON.parse(platforms);
       }
@@ -88,6 +89,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
       platformsArray = platforms;
       image_url = imageUrl;
       credentials = providedCredentials;
+      postMetadata = post_metadata;
       user_id = 'immediate';
     }
 
@@ -233,8 +235,8 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
                 }
                 
                 // Get target subreddit and title from post metadata
-                const subreddit = post_metadata?.reddit_subreddit || account.moderatedSubreddits[0];
-                const title = post_metadata?.reddit_title || text.substring(0, 300); // Reddit title limit
+                const subreddit = postMetadata?.reddit_subreddit || account.moderatedSubreddits[0];
+                const title = postMetadata?.reddit_title || text.substring(0, 300); // Reddit title limit
                 
                 if (!subreddit) {
                   console.log(`    ⚠️  No subreddit specified for Reddit post`);

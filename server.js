@@ -340,7 +340,7 @@ app.get('/api/accounts', verifyAuth, async (req, res) => {
 app.post('/api/post/now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { text, imageUrl } = req.body;
+    const { text, imageUrl, post_metadata } = req.body;
     let platforms = req.body.platforms;
     
     if (!text) {
@@ -436,7 +436,7 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       }
     }
     
-    const platformResults = await postNow(text, finalImageUrl || null, platforms, credentials);
+    const platformResults = await postNow(text, finalImageUrl || null, platforms, credentials, post_metadata);
     
     // Check if all platforms succeeded (handle array results per platform)
     const platformArray = Object.values(platformResults);
@@ -1493,6 +1493,9 @@ app.get('/auth/reddit/callback', async (req, res) => {
     const { code, state, error } = req.query;
     
     console.log('🔴 Reddit callback received');
+    console.log('   Code:', code ? 'exists' : 'missing');
+    console.log('   State:', state ? 'exists' : 'missing');
+    console.log('   Error:', error || 'none');
     
     if (error) {
       console.error('Reddit OAuth error:', error);
@@ -1505,18 +1508,24 @@ app.get('/auth/reddit/callback', async (req, res) => {
     }
     
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/reddit/callback`;
+    console.log('   Redirect URI:', redirectUri);
     
     const result = await handleRedditCallback(code, state, redirectUri);
+    
+    console.log('   Result:', JSON.stringify(result, null, 2));
     
     if (result.success) {
       console.log('✅ Reddit OAuth callback successful');
       res.redirect('/settings?success=reddit');
     } else {
+      console.error('❌ Reddit callback result was not success');
       res.redirect('/settings?error=reddit_failed');
     }
   } catch (error) {
-    console.error('Reddit callback error:', error);
-    res.redirect('/settings?error=reddit_failed');
+    console.error('❌ Reddit callback error:', error);
+    console.error('   Error details:', error.message);
+    console.error('   Stack trace:', error.stack);
+    res.redirect('/settings?error=reddit_callback_failed');
   }
 });
 

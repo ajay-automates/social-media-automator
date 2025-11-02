@@ -172,7 +172,7 @@ async function refreshLinkedInToken(accountId) {
  */
 function initiateRedditOAuth(userId, redirectUri) {
   const clientId = process.env.REDDIT_CLIENT_ID;
-  const scope = 'identity submit read modposts';
+  const scope = 'identity submit read mysubreddits';
   
   if (!clientId) {
     throw new Error('Reddit OAuth not configured. Set REDDIT_CLIENT_ID in environment variables.');
