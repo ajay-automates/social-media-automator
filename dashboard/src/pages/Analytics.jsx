@@ -318,66 +318,56 @@ export default function Analytics() {
                   }
                   
                   const platformResults = post.results[platform];
-                  // Handle array results (multiple accounts per platform)
                   const resultsArray = Array.isArray(platformResults) ? platformResults : [platformResults];
-                  
-                  // Find first successful result
                   const successfulResult = resultsArray.find(r => r && r.success === true);
+                  
                   if (!successfulResult) {
                     return null;
                   }
                   
-                  // First try: Direct URL from result
+                  const platformLower = platform.toLowerCase();
+                  
+                  if (platformLower === 'slack' || platformLower === 'discord') {
+                    return 'webhook';
+                  }
+                  
                   if (successfulResult.url) {
                     return successfulResult.url;
                   }
                   
-                  // Second try: Construct from postId
                   if (successfulResult.postId) {
-                    const platformLower = platform.toLowerCase();
                     if (platformLower === 'linkedin') {
-                      return `https://www.linkedin.com/feed/update/${successfulResult.postId}`;
+                      return 'https://www.linkedin.com/feed/update/urn:li:ugcPost:' + successfulResult.postId;
                     } else if (platformLower === 'twitter' || platformLower === 'x') {
-                      return `https://twitter.com/i/web/status/${successfulResult.postId}`;
+                      return 'https://twitter.com/i/web/status/' + successfulResult.postId;
                     } else if (platformLower === 'telegram') {
                       if (successfulResult.chatId && successfulResult.messageId) {
                         const chatIdForUrl = successfulResult.chatId.toString().replace(/^-/, '');
-                        return `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
-                      } else if (successfulResult.url) {
-                        return successfulResult.url;
+                        return 'https://t.me/c/' + chatIdForUrl + '/' + successfulResult.messageId;
                       }
                     } else if (platformLower === 'instagram') {
-                      if (successfulResult.id) {
-                        return `https://www.instagram.com/p/${successfulResult.id}/`;
-                      }
+                      return 'https://www.instagram.com/p/' + successfulResult.postId + '/';
                     } else if (platformLower === 'youtube') {
-                      if (successfulResult.videoId || successfulResult.postId || successfulResult.id) {
-                        const videoId = successfulResult.videoId || successfulResult.postId || successfulResult.id;
-                        return `https://www.youtube.com/shorts/${videoId}`;
-                      }
+                      return 'https://www.youtube.com/shorts/' + successfulResult.postId;
+                    } else if (platformLower === 'reddit') {
+                      return successfulResult.url;
+                    } else if (platformLower === 'facebook') {
+                      return 'https://www.facebook.com/' + successfulResult.postId;
                     }
                   }
                   
-                  // Third try: Construct from id (for backward compatibility)
                   if (successfulResult.id) {
-                    const platformLower = platform.toLowerCase();
                     if (platformLower === 'linkedin' && successfulResult.id.includes(':')) {
-                      const postId = successfulResult.id.split(':').pop();
-                      return `https://www.linkedin.com/feed/update/${postId}`;
+                      return 'https://www.linkedin.com/feed/update/' + successfulResult.id;
                     } else if (platformLower === 'twitter' || platformLower === 'x') {
-                      return `https://twitter.com/i/web/status/${successfulResult.id}`;
+                      return 'https://twitter.com/i/web/status/' + successfulResult.id;
+                    } else if (platformLower === 'instagram') {
+                      return 'https://www.instagram.com/p/' + successfulResult.id + '/';
                     }
                   }
                   
                   return null;
                 };
-
-                return (
-                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      {platforms.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {platforms.map((platform, pIdx) => {
                             const platformInfo = platformIcons[platform.toLowerCase()] || { emoji: '📱', color: 'bg-gray-100 text-gray-800', name: platform };
                             const postUrl = getPostUrl(platform);
                             const isClickable = postUrl !== null;
