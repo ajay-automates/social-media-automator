@@ -45,8 +45,16 @@ const {
 const {
   initiateLinkedInOAuth,
   handleLinkedInCallback,
+  refreshLinkedInToken,
+  initiateRedditOAuth,
+  handleRedditCallback,
+  refreshRedditToken,
   initiateTwitterOAuth,
   handleTwitterCallback,
+  initiateInstagramOAuth,
+  handleInstagramCallback,
+  initiateFacebookOAuth,
+  handleFacebookCallback,
   disconnectAccount,
   disconnectAccountById,
   getUserConnectedAccounts,
@@ -55,6 +63,7 @@ const {
 const { validateBotToken } = require('./services/telegram');
 const { validateWebhook, sendToSlack } = require('./services/slack');
 const { validateWebhook: validateDiscordWebhook, sendToDiscord } = require('./services/discord');
+const { postToReddit, getModeratedSubreddits } = require('./services/reddit');
 const {
   createCheckoutSession,
   createPortalSession,
@@ -1418,6 +1427,117 @@ app.get('/auth/linkedin/callback', async (req, res) => {
   } catch (error) {
     console.error('Error in LinkedIn callback:', error.message);
     res.redirect('/dashboard?error=linkedin_failed');
+  }
+});
+
+/**
+ * POST /api/auth/reddit/url
+ * Generate Reddit OAuth URL (authenticated endpoint)
+ */
+app.post('/api/auth/reddit/url', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const clientId = process.env.REDDIT_CLIENT_ID;
+    
+    if (!clientId) {
+      return res.status(500).json({
+        success: false,
+        error: 'Reddit OAuth not configured. Please add REDDIT_CLIENT_ID to environment variables.'
+      });
+    }
+    
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/reddit/callback`;
+    const oauthUrl = initiateRedditOAuth(userId, redirectUri);
+    
+    console.log('🔴 Reddit OAuth URL generated for user:', userId);
+    
+    res.json({
+      success: true,
+      oauthUrl: oauthUrl
+    });
+  } catch (error) {
+    console.error('Error generating Reddit OAuth URL:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /auth/reddit/callback
+ * Handle Reddit OAuth callback
+ */
+app.get('/auth/reddit/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+    
+    console.log('🔴 Reddit callback received');
+    
+    if (error) {
+      console.error('Reddit OAuth error:', error);
+      return res.redirect('/settings?error=reddit_denied');
+    }
+    
+    if (!code || !state) {
+      console.error('Missing code or state parameter');
+      return res.redirect('/settings?error=reddit_missing_params');
+    }
+    
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/reddit/callback`;
+    
+    const result = await handleRedditCallback(code, state, redirectUri);
+    
+    if (result.success) {
+      console.log('✅ Reddit OAuth callback successful');
+      res.redirect('/settings?success=reddit');
+    } else {
+      res.redirect('/settings?error=reddit_failed');
+    }
+  } catch (error) {
+    console.error('Reddit callback error:', error);
+    res.redirect('/settings?error=reddit_failed');
+  }
+});
+
+/**
+ * GET /api/reddit/subreddits
+ * Get user's moderated subreddits (authenticated endpoint)
+ */
+app.get('/api/reddit/subreddits', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get Reddit account from database
+    const { data: account, error } = await supabaseAdmin
+      .from('user_accounts')
+      .select('platform_metadata, access_token')
+      .eq('user_id', userId)
+      .eq('platform', 'reddit')
+      .eq('status', 'active')
+      .single();
+    
+    if (error || !account) {
+      return res.status(404).json({
+        success: false,
+        error: 'No Reddit account connected'
+      });
+    }
+    
+    // Parse moderated subreddits from metadata
+    const subreddits = account.platform_metadata ? JSON.parse(account.platform_metadata) : [];
+    
+    res.json({
+      success: true,
+      subreddits: subreddits
+    });
+    
+  } catch (error) {
+    console.error('Error fetching Reddit subreddits:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
 

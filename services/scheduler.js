@@ -4,10 +4,11 @@ const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
 const { sendToSlack } = require('./slack');
 const { sendToDiscord } = require('./discord');
+const { postToReddit } = require('./reddit');
 const { postToInstagram } = require('./instagram');
 const { postToFacebookPage } = require('./facebook');
 const { postToYouTube } = require('./youtube');
-const { getUserCredentialsForPosting } = require('./oauth');
+const { getUserCredentialsForPosting, refreshRedditToken } = require('./oauth');
 const { updatePostStatus } = require('./database');
 
 // Use shared Supabase admin client from database.js
@@ -204,6 +205,63 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
             }
           } else {
             console.log(`⚠️  No Discord credentials found`);
+          }
+        }
+        else if (platform === 'reddit') {
+          // Reddit - post to moderated subreddits
+          if (credentials.reddit && Array.isArray(credentials.reddit) && credentials.reddit.length > 0) {
+            results.reddit = [];
+            for (const account of credentials.reddit) {
+              try {
+                // Check if token expired (Reddit tokens expire in 1 hour)
+                let accessToken = account.accessToken;
+                if (new Date(account.tokenExpiresAt) <= new Date()) {
+                  console.log('    🔄 Refreshing Reddit token...');
+                  const newToken = await refreshRedditToken(account.refreshToken);
+                  accessToken = newToken.access_token;
+                  
+                  // Update token in database
+                  const { supabaseAdmin } = require('./database');
+                  await supabaseAdmin
+                    .from('user_accounts')
+                    .update({
+                      access_token: newToken.access_token,
+                      token_expires_at: newToken.expires_at
+                    })
+                    .eq('platform', 'reddit')
+                    .eq('access_token', account.accessToken);
+                }
+                
+                // Get target subreddit and title from post metadata
+                const subreddit = post_metadata?.reddit_subreddit || account.moderatedSubreddits[0];
+                const title = post_metadata?.reddit_title || text.substring(0, 300); // Reddit title limit
+                
+                if (!subreddit) {
+                  console.log(`    ⚠️  No subreddit specified for Reddit post`);
+                  results.reddit.push({ 
+                    success: false, 
+                    error: 'No subreddit specified', 
+                    platform: 'reddit' 
+                  });
+                  continue;
+                }
+                
+                console.log(`    🔴 Posting to Reddit r/${subreddit}`);
+                const result = await postToReddit(subreddit, title, text, image_url, accessToken);
+                results.reddit.push(result);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to Reddit - URL: ${result.url}`);
+                } else {
+                  console.log(`    ❌ Reddit error: ${result.error}`);
+                }
+              } catch (err) {
+                console.error(`    ❌ Reddit error:`, err.message);
+                results.reddit.push({ error: err.message, platform: 'reddit' });
+              }
+            }
+          } else {
+            console.log(`⚠️  No Reddit credentials found`);
           }
         }
         else if (platform === 'instagram') {

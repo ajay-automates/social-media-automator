@@ -28,6 +28,9 @@ export default function CreatePost() {
   const [billingInfo, setBillingInfo] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [pendingVideoFile, setPendingVideoFile] = useState(null);
+  const [redditSubreddit, setRedditSubreddit] = useState('');
+  const [redditTitle, setRedditTitle] = useState('');
+  const [moderatedSubreddits, setModeratedSubreddits] = useState([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
   const [showYoutubeModal, setShowYoutubeModal] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -39,12 +42,35 @@ export default function CreatePost() {
     loadBillingInfo();
   }, []);
 
+  // Load moderated subreddits when Reddit is selected
+  useEffect(() => {
+    if (platforms.includes('reddit')) {
+      loadModeratedSubreddits();
+    }
+  }, [platforms]);
+
   const loadBillingInfo = async () => {
     try {
       const response = await api.get('/billing/usage');
       setBillingInfo(response.data);
     } catch (err) {
       console.error('Error loading billing info:', err);
+    }
+  };
+
+  const loadModeratedSubreddits = async () => {
+    try {
+      const response = await api.get('/reddit/subreddits');
+      if (response.data?.success) {
+        setModeratedSubreddits(response.data.subreddits || []);
+        // Set first subreddit as default
+        if (response.data.subreddits && response.data.subreddits.length > 0) {
+          setRedditSubreddit(response.data.subreddits[0]);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading Reddit subreddits:', err);
+      // Silently fail if Reddit not connected
     }
   };
 
@@ -241,6 +267,18 @@ export default function CreatePost() {
       return;
     }
 
+    // Validate Reddit-specific fields if Reddit is selected
+    if (platforms.includes('reddit')) {
+      if (!redditTitle.trim()) {
+        showError('Reddit requires a post title. Please enter one.');
+        return;
+      }
+      if (!redditSubreddit) {
+        showError('Please select a subreddit for Reddit posting.');
+        return;
+      }
+    }
+
     // Validate Instagram requires image
     if (platforms.includes('instagram') && !image) {
       showError('Instagram requires an image. Please upload or generate an image first.');
@@ -264,11 +302,20 @@ export default function CreatePost() {
       console.log('📤 About to post - image state:', image);
       console.log('📤 Caption:', caption);
       console.log('📤 Platforms:', platforms);
+      
+      // Prepare post metadata for platform-specific requirements
+      const postMetadata = {};
+      if (platforms.includes('reddit')) {
+        postMetadata.reddit_subreddit = redditSubreddit;
+        postMetadata.reddit_title = redditTitle;
+      }
+      
       const response = await api.post('/post/now', {
         text: caption,
         platforms: platforms,
         accountId: 1, // Will be replaced with actual account selection
-        imageUrl: image // Send the Cloudinary URL to the server
+        imageUrl: image, // Send the Cloudinary URL to the server
+        post_metadata: Object.keys(postMetadata).length > 0 ? postMetadata : undefined
       });
       
       // Check actual results from posting
@@ -357,6 +404,56 @@ export default function CreatePost() {
         <p className="text-gray-600 mb-8">Share your message across multiple platforms</p>
         
         <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+          {/* Reddit-Specific Fields */}
+          {platforms.includes('reddit') && (
+            <div className="space-y-4 bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-orange-700 font-semibold">
+                <span>🔴</span>
+                <span>Reddit Settings</span>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Post Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={redditTitle}
+                  onChange={(e) => setRedditTitle(e.target.value)}
+                  placeholder="Enter post title (required for Reddit, max 300 chars)"
+                  maxLength={300}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {redditTitle.length}/300 characters
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subreddit <span className="text-red-500">*</span>
+                </label>
+                {moderatedSubreddits.length > 0 ? (
+                  <select
+                    value={redditSubreddit}
+                    onChange={(e) => setRedditSubreddit(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    {moderatedSubreddits.map(sub => (
+                      <option key={sub} value={sub}>
+                        r/{sub}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-3">
+                    ⚠️ No moderated subreddits found. You can only post to subreddits where you're a moderator.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Caption Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -499,6 +596,7 @@ export default function CreatePost() {
                 { id: 'telegram', name: 'Telegram', icon: '💬', color: 'bg-indigo-600' },
                 { id: 'slack', name: 'Slack', icon: '💼', color: 'bg-purple-600' },
                 { id: 'discord', name: 'Discord', icon: '🎮', color: 'bg-indigo-700' },
+                { id: 'reddit', name: 'Reddit', icon: '🔴', color: 'bg-orange-600' },
                 { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500' },
                 { id: 'youtube', name: 'YouTube', icon: '🎬', color: 'bg-red-600' },                { id: 'tiktok', name: 'TikTok', icon: '🎵', color: 'bg-black' }
               ].map(platform => (

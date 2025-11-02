@@ -10,10 +10,10 @@
 
 ## 📖 Overview
 
-Automate your social media posting across 9+ platforms with AI-generated content, intelligent scheduling, and multi-account management.
+Automate your social media posting across 10+ platforms with AI-generated content, intelligent scheduling, and multi-account management.
 
 **Key Features:**
-- 🌐 **9 Platforms**: LinkedIn, Twitter, Telegram, Slack, Discord, YouTube, Instagram, Facebook, TikTok
+- 🌐 **10 Platforms**: LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, YouTube, Instagram, Facebook, TikTok
 - 🤖 **AI-Powered**: Claude AI captions + Stability AI images
 - 📅 **Smart Scheduling**: Post immediately or schedule for later
 - 👥 **Multi-Account**: Connect multiple accounts per platform
@@ -31,6 +31,7 @@ Automate your social media posting across 9+ platforms with AI-generated content
 | **Telegram** | ✅ | ✅ | ✅ | Live |
 | **Slack** | ✅ | ✅ | 🔗 | Live |
 | **Discord** | ✅ | ✅ | 🔗 | Live |
+| **Reddit** | ✅ | ✅ | ✅ | Live |
 | **YouTube** | ⏳ | ⏳ | ✅ | Ready |
 | **Instagram** | ✅ | ✅ | ✅ | Live |
 | **Facebook** | ✅ | ✅ | ✅ | Live |

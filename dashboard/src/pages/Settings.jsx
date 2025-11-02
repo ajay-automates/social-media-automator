@@ -116,6 +116,20 @@ export default function Settings() {
     setShowTelegramModal(true);
   };
 
+  const connectReddit = async () => {
+    try {
+      const response = await api.post('/auth/reddit/url');
+      if (response.data?.success && response.data?.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      } else {
+        showError('Failed to generate Reddit OAuth URL');
+      }
+    } catch (err) {
+      console.error('Reddit connection error:', err);
+      showError(err.response?.data?.error || 'Failed to connect Reddit');
+    }
+  };
+
   const connectInstagram = async () => {
     try {
       const response = await api.post('/auth/instagram/url');
@@ -339,6 +353,14 @@ export default function Settings() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={connectReddit}
+                className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition flex items-center gap-2"
+              >
+                <span>🔴</span> Connect Reddit
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={connectInstagram}
                 className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
               >
@@ -384,6 +406,7 @@ export default function Settings() {
                     {account?.platform === 'telegram' && '📱'}
                     {account?.platform === 'slack' && '💬'}
                     {account?.platform === 'discord' && '🎮'}
+                    {account?.platform === 'reddit' && '🔴'}
                     {account?.platform === 'instagram' && '📷'}
                     {account?.platform === 'facebook' && '📘'}
                     {account?.platform === 'youtube' && '🎬'}
@@ -452,6 +475,14 @@ export default function Settings() {
                 className="bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition"
               >
                 + Connect Discord
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectReddit}
+                className="bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-700 transition"
+              >
+                + Connect Reddit
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}

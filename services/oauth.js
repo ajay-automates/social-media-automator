@@ -161,6 +161,183 @@ async function refreshLinkedInToken(accountId) {
 }
 
 // ============================================
+// REDDIT OAUTH
+// ============================================
+
+/**
+ * Initiate Reddit OAuth flow
+ * @param {string} userId - User ID from Supabase auth
+ * @param {string} redirectUri - Callback URL
+ * @returns {string} Authorization URL
+ */
+function initiateRedditOAuth(userId, redirectUri) {
+  const clientId = process.env.REDDIT_CLIENT_ID;
+  const scope = 'identity submit read modposts';
+  
+  if (!clientId) {
+    throw new Error('Reddit OAuth not configured. Set REDDIT_CLIENT_ID in environment variables.');
+  }
+  
+  // Generate state parameter for security
+  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
+  
+  const authUrl = new URL('https://www.reddit.com/api/v1/authorize');
+  authUrl.searchParams.append('client_id', clientId);
+  authUrl.searchParams.append('response_type', 'code');
+  authUrl.searchParams.append('state', state);
+  authUrl.searchParams.append('redirect_uri', redirectUri);
+  authUrl.searchParams.append('duration', 'permanent'); // Get refresh_token
+  authUrl.searchParams.append('scope', scope);
+  
+  return authUrl.toString();
+}
+
+/**
+ * Handle Reddit OAuth callback
+ * @param {string} code - Authorization code from Reddit
+ * @param {string} state - State parameter (contains userId)
+ * @param {string} redirectUri - Callback URL (must match)
+ * @returns {object} Account info with moderated subreddits
+ */
+async function handleRedditCallback(code, state, redirectUri) {
+  try {
+    // Decode state to get userId
+    const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
+    
+    const clientId = process.env.REDDIT_CLIENT_ID;
+    const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+    
+    // Exchange code for access token (Reddit requires Basic Auth)
+    const authString = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    
+    const tokenResponse = await axios.post(
+      'https://www.reddit.com/api/v1/access_token',
+      new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: redirectUri
+      }),
+      {
+        headers: {
+          'Authorization': `Basic ${authString}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': process.env.REDDIT_USER_AGENT || 'SocialMediaAutomator/1.0'
+        }
+      }
+    );
+    
+    const { access_token, refresh_token, expires_in } = tokenResponse.data;
+    
+    // Get user profile
+    const profileResponse = await axios.get('https://oauth.reddit.com/api/v1/me', {
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'User-Agent': process.env.REDDIT_USER_AGENT || 'SocialMediaAutomator/1.0'
+      }
+    });
+    
+    const profile = profileResponse.data;
+    
+    // Get moderated subreddits
+    const { getModeratedSubreddits } = require('./reddit');
+    let moderatedSubreddits = [];
+    try {
+      moderatedSubreddits = await getModeratedSubreddits(access_token);
+    } catch (error) {
+      console.log('⚠️  Could not fetch moderated subreddits:', error.message);
+    }
+    
+    // Calculate token expiry (Reddit tokens expire in 1 hour)
+    const expiresAt = new Date(Date.now() + (expires_in * 1000));
+    
+    // Store in database
+    const { data: account, error } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'reddit',
+        platform_name: 'Reddit',
+        oauth_provider: 'reddit',
+        access_token: access_token,
+        refresh_token: refresh_token,
+        token_expires_at: expiresAt.toISOString(),
+        platform_user_id: profile.id,
+        platform_username: profile.name,
+        platform_metadata: JSON.stringify(moderatedSubreddits),
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log(`✅ Reddit account connected for user ${userId} (u/${profile.name})`);
+    console.log(`   📋 Moderates ${moderatedSubreddits.length} subreddit(s)`);
+    
+    return {
+      success: true,
+      account: {
+        id: account.id,
+        platform: 'reddit',
+        username: profile.name,
+        moderatedSubreddits: moderatedSubreddits,
+        connected: true
+      }
+    };
+    
+  } catch (error) {
+    console.error('❌ Reddit OAuth error:', error.response?.data || error.message);
+    throw new Error('Failed to connect Reddit account: ' + error.message);
+  }
+}
+
+/**
+ * Refresh Reddit access token
+ * Reddit tokens expire in 1 hour, so refresh is required frequently
+ * @param {string} refreshToken - Refresh token from database
+ * @returns {object} New access token and expiry
+ */
+async function refreshRedditToken(refreshToken) {
+  try {
+    const clientId = process.env.REDDIT_CLIENT_ID;
+    const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+    
+    const authString = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    
+    const response = await axios.post(
+      'https://www.reddit.com/api/v1/access_token',
+      new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken
+      }),
+      {
+        headers: {
+          'Authorization': `Basic ${authString}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': process.env.REDDIT_USER_AGENT || 'SocialMediaAutomator/1.0'
+        }
+      }
+    );
+    
+    const { access_token, expires_in } = response.data;
+    const expiresAt = new Date(Date.now() + (expires_in * 1000));
+    
+    console.log('✅ Reddit token refreshed');
+    
+    return {
+      access_token,
+      expires_at: expiresAt.toISOString()
+    };
+  } catch (error) {
+    console.error('❌ Reddit token refresh error:', error.response?.data || error.message);
+    throw new Error('Failed to refresh Reddit token: ' + error.message);
+  }
+}
+
+// ============================================
 // TWITTER OAUTH (OAuth 1.0a)
 // ============================================
 
@@ -811,6 +988,7 @@ async function getUserCredentialsForPosting(userId) {
     telegram: [],
     slack: [],
     discord: [],
+    reddit: [],
     facebook: [],
     youtube: []
     };
@@ -919,6 +1097,14 @@ async function getUserCredentialsForPosting(userId) {
           webhookUrl: account.access_token,
           serverName: account.platform_username
         });
+      } else if (account.platform === 'reddit') {
+        credentials.reddit.push({
+          accessToken: account.access_token,
+          refreshToken: account.refresh_token,
+          tokenExpiresAt: account.token_expires_at,
+          username: account.platform_username,
+          moderatedSubreddits: account.platform_metadata ? JSON.parse(account.platform_metadata) : []
+        });
       } else if (account.platform === 'facebook') {
         credentials.facebook.push({
           accessToken: account.access_token,
@@ -953,6 +1139,11 @@ module.exports = {
   initiateLinkedInOAuth,
   handleLinkedInCallback,
   refreshLinkedInToken,
+  
+  // Reddit
+  initiateRedditOAuth,
+  handleRedditCallback,
+  refreshRedditToken,
   
   // Twitter
   initiateTwitterOAuth,
