@@ -54,6 +54,7 @@ const {
 } = require('./services/oauth');
 const { validateBotToken } = require('./services/telegram');
 const { validateWebhook, sendToSlack } = require('./services/slack');
+const { validateWebhook: validateDiscordWebhook, sendToDiscord } = require('./services/discord');
 const {
   createCheckoutSession,
   createPortalSession,
@@ -2127,6 +2128,79 @@ app.post('/api/auth/slack/connect', verifyAuth, async (req, res) => {
     
   } catch (error) {
     console.error('Error connecting Slack:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/auth/discord/connect
+ * Connect Discord server via incoming webhook
+ */
+app.post('/api/auth/discord/connect', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { webhookUrl, serverName } = req.body;
+    
+    console.log('🎮 Connecting Discord webhook for user:', userId);
+    
+    if (!webhookUrl) {
+      return res.status(400).json({
+        success: false,
+        error: 'Webhook URL is required'
+      });
+    }
+    
+    // Validate webhook
+    const validation = await validateDiscordWebhook(webhookUrl);
+    
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        error: validation.error || 'Invalid webhook URL'
+      });
+    }
+    
+    // Store in database using global supabaseAdmin (bypasses RLS)
+    const insertData = {
+      user_id: userId,
+      platform: 'discord',
+      platform_name: serverName || 'Discord',
+      oauth_provider: 'webhook',
+      access_token: webhookUrl,
+      platform_user_id: webhookUrl.substring(0, 50), // Use truncated webhook as ID
+      platform_username: serverName || 'Discord Server',
+      status: 'active',
+      connected_at: new Date().toISOString()
+    };
+    
+    console.log('📝 Inserting Discord webhook:', JSON.stringify({ ...insertData, access_token: '***' }, null, 2));
+    
+    const { data: insertResult, error: insertError } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert(insertData, {
+        onConflict: 'user_id,platform,platform_user_id'
+      });
+    
+    if (insertError) {
+      console.error('❌ Database error:', insertError);
+      return res.status(500).json({
+        success: false,
+        error: insertError.message
+      });
+    }
+    
+    console.log('✅ Discord webhook connected for user', userId);
+    res.json({
+      success: true,
+      message: 'Discord connected successfully',
+      server: serverName || 'Discord'
+    });
+    
+  } catch (error) {
+    console.error('Error connecting Discord:', error);
     res.status(500).json({
       success: false,
       error: error.message

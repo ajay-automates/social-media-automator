@@ -13,6 +13,9 @@ export default function Settings() {
   const [showSlackModal, setShowSlackModal] = useState(false);
   const [slackWebhookUrl, setSlackWebhookUrl] = useState('');
   const [slackChannelName, setSlackChannelName] = useState('');
+  const [showDiscordModal, setShowDiscordModal] = useState(false);
+  const [discordWebhookUrl, setDiscordWebhookUrl] = useState('');
+  const [discordServerName, setDiscordServerName] = useState('');
   const [activeTab, setActiveTab] = useState('accounts');
 
   useEffect(() => {
@@ -206,6 +209,27 @@ export default function Settings() {
     }
   };
 
+  const connectDiscord = () => {
+    setShowDiscordModal(true);
+  };
+
+  const handleDiscordConnect = async () => {
+    try {
+      await api.post('/auth/discord/connect', {
+        webhookUrl: discordWebhookUrl,
+        serverName: discordServerName
+      });
+      showSuccess('Discord connected successfully!');
+      setShowDiscordModal(false);
+      setDiscordWebhookUrl('');
+      setDiscordServerName('');
+      loadAccounts();
+    } catch (err) {
+      console.error('Discord connection error:', err);
+      showError(err.response?.data?.error || 'Failed to connect Discord');
+    }
+  };
+
   const disconnectAccount = async (account) => {
     try {
       await api.delete(`/user/accounts/${account.platform}/${account.id}`);
@@ -307,6 +331,14 @@ export default function Settings() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={connectDiscord}
+                className="bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-800 transition flex items-center gap-2"
+              >
+                <span>🎮</span> Connect Discord
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={connectInstagram}
                 className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
               >
@@ -351,6 +383,7 @@ export default function Settings() {
                     {account?.platform === 'twitter' && '🐦'}
                     {account?.platform === 'telegram' && '📱'}
                     {account?.platform === 'slack' && '💬'}
+                    {account?.platform === 'discord' && '🎮'}
                     {account?.platform === 'instagram' && '📷'}
                     {account?.platform === 'facebook' && '📘'}
                     {account?.platform === 'youtube' && '🎬'}
@@ -404,18 +437,26 @@ export default function Settings() {
             >
               + Connect Telegram
             </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectSlack}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
-            >
-              + Connect Slack
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectInstagram}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectSlack}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
+              >
+                + Connect Slack
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectDiscord}
+                className="bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition"
+              >
+                + Connect Discord
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connectInstagram}
               className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition"
             >
               + Connect Instagram
@@ -559,6 +600,67 @@ export default function Settings() {
               <button
                 onClick={handleSlackConnect}
                 className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition"
+              >
+                Connect
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Discord Modal */}
+      {showDiscordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
+          >
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Discord Server</h3>
+            <p className="text-gray-600 mb-6">
+              Enter your Discord incoming webhook URL to connect a channel.
+            </p>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Webhook URL
+                </label>
+                <input
+                  type="text"
+                  value={discordWebhookUrl}
+                  onChange={(e) => setDiscordWebhookUrl(e.target.value)}
+                  placeholder="https://discord.com/api/webhooks/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-700 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Get this from Discord: Server Settings → Integrations → Webhooks → New Webhook
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Server/Channel Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={discordServerName}
+                  onChange={(e) => setDiscordServerName(e.target.value)}
+                  placeholder="My Discord Server"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-700 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDiscordModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDiscordConnect}
+                className="flex-1 px-4 py-2 bg-indigo-700 text-white rounded-lg font-medium hover:bg-indigo-800 transition"
               >
                 Connect
               </button>

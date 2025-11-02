@@ -807,11 +807,12 @@ async function getUserCredentialsForPosting(userId) {
     const credentials = {
       linkedin: [],
       twitter: [],
-      instagram: [],
-      telegram: [],
-      slack: [],
-      facebook: [],
-      youtube: []
+    instagram: [],
+    telegram: [],
+    slack: [],
+    discord: [],
+    facebook: [],
+    youtube: []
     };
     
     accounts?.forEach(account => {
@@ -912,6 +913,11 @@ async function getUserCredentialsForPosting(userId) {
         credentials.slack.push({
           webhookUrl: account.access_token,
           channelName: account.platform_username
+        });
+      } else if (account.platform === 'discord') {
+        credentials.discord.push({
+          webhookUrl: account.access_token,
+          serverName: account.platform_username
         });
       } else if (account.platform === 'facebook') {
         credentials.facebook.push({

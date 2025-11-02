@@ -3,6 +3,7 @@ const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
 const { sendToSlack } = require('./slack');
+const { sendToDiscord } = require('./discord');
 const { postToInstagram } = require('./instagram');
 const { postToFacebookPage } = require('./facebook');
 const { postToYouTube } = require('./youtube');
@@ -185,7 +186,26 @@ async function postNow(text, imageUrl, platforms, providedCredentials) {
           } else {
             console.log(`⚠️  No Slack credentials found`);
           }
-        } 
+        }
+        else if (platform === 'discord') {
+          // Discord - post to all connected webhooks
+          if (credentials.discord && Array.isArray(credentials.discord) && credentials.discord.length > 0) {
+            results.discord = [];
+            for (const account of credentials.discord) {
+              try {
+                console.log(`    🎮 Posting to Discord - Webhook: ${account.webhookUrl ? 'exists' : 'missing'}`);
+                const result = await sendToDiscord(account.webhookUrl, text, image_url);
+                results.discord.push(result);
+                console.log(`    ✅ Posted to Discord - Result:`, JSON.stringify(result, null, 2));
+              } catch (err) {
+                console.error(`    ❌ Discord error:`, err.message);
+                results.discord.push({ error: err.message, platform: 'discord' });
+              }
+            }
+          } else {
+            console.log(`⚠️  No Discord credentials found`);
+          }
+        }
         else if (platform === 'instagram') {
           // ✅ FIXED: Use database credentials instead of process.env
           if (credentials.instagram && Array.isArray(credentials.instagram)) {

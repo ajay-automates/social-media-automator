@@ -498,6 +498,7 @@ export default function CreatePost() {
                 { id: 'facebook', name: 'Facebook', icon: '📘', color: 'bg-blue-700' },
                 { id: 'telegram', name: 'Telegram', icon: '💬', color: 'bg-indigo-600' },
                 { id: 'slack', name: 'Slack', icon: '💼', color: 'bg-purple-600' },
+                { id: 'discord', name: 'Discord', icon: '🎮', color: 'bg-indigo-700' },
                 { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500' },
                 { id: 'youtube', name: 'YouTube', icon: '🎬', color: 'bg-red-600' },                { id: 'tiktok', name: 'TikTok', icon: '🎵', color: 'bg-black' }
               ].map(platform => (
