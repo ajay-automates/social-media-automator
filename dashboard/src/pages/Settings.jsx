@@ -295,359 +295,85 @@ export default function Settings() {
       {/* Tab Content */}
       {activeTab === 'accounts' && (
         <>
-        {/* Connected Accounts Section */}
+        {/* Connected Accounts Section - Professional Design */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Connected Accounts</h2>
-        <p className="text-gray-600 mb-6">Connect your social media accounts to get started.</p>
-        
+        <p className="text-gray-600 mb-6">Manage your connected social media accounts.</p>
+                
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading accounts...</p>
           </div>
         ) : accounts.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="text-center py-12">
             <div className="text-6xl mb-4">🔗</div>
-            <p className="text-gray-600 mb-4">No accounts connected yet</p>
-            <div className="flex gap-3 justify-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectLinkedIn}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2"
-              >
-                <span>🔗</span> Connect LinkedIn
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectTwitter}
-                className="bg-sky-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-sky-600 transition flex items-center gap-2"
-              >
-                <span>🐦</span> Connect Twitter
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectTelegram}
-                className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
-              >
-                <span>📱</span> Connect Telegram
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectSlack}
-                className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition flex items-center gap-2"
-              >
-                <span>💬</span> Connect Slack
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectDiscord}
-                className="bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-800 transition flex items-center gap-2"
-              >
-                <span>🎮</span> Connect Discord
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectReddit}
-                className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition flex items-center gap-2"
-              >
-                <span>🔴</span> Connect Reddit
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectInstagram}
-                className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
-              >
-                <span>📷</span> Connect Instagram
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectFacebook}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2"
-              >
-                <span>📘</span> Connect Facebook
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectYouTube}
-                className="bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition flex items-center gap-2"
-              >
-                <span>🎬</span> Connect YouTube
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectTikTok}
-                className="bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition flex items-center gap-2"
-              >
-                <span>🎵</span> Connect TikTok
-              </motion.button>
-            </div>
+            <p className="text-gray-600 mb-2 text-lg font-medium">No accounts connected yet</p>
+            <p className="text-gray-500 text-sm">Connect your first platform below to get started</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {accounts && Array.isArray(accounts) && accounts.map((account, index) => (
-              <div
-                key={account?.id || `account-${index}`}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="text-3xl">
-                    {account?.platform === 'linkedin' && '🔗'}
-                    {account?.platform === 'twitter' && '🐦'}
-                    {account?.platform === 'telegram' && '📱'}
-                    {account?.platform === 'slack' && '💬'}
-                    {account?.platform === 'discord' && '🎮'}
-                    {account?.platform === 'reddit' && '🔴'}
-                    {account?.platform === 'instagram' && '📷'}
-                    {account?.platform === 'facebook' && '📘'}
-                    {account?.platform === 'youtube' && '🎬'}
-                    {account?.platform === 'tiktok' && '🎵'}
-                    {!account?.platform && '📱'}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900">
-                      {account?.platform_name || (account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account')}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {accounts.map((account, idx) => {
+              const platformConfig = {
+                linkedin: { name: 'LinkedIn', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: '💼' },
+                twitter: { name: 'Twitter', bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-200', icon: '🐦' },
+                telegram: { name: 'Telegram', bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-200', icon: '✈️' },
+                slack: { name: 'Slack', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', icon: '💬' },
+                discord: { name: 'Discord', bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', icon: '🎮' },
+                reddit: { name: 'Reddit', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', icon: '🔴' },
+                instagram: { name: 'Instagram', bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200', icon: '📷' },
+                facebook: { name: 'Facebook', bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', icon: '📘' },
+                youtube: { name: 'YouTube', bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-200', icon: '🎬' },
+                tiktok: { name: 'TikTok', bg: 'bg-gray-50', text: 'text-gray-900', border: 'border-gray-300', icon: '🎵' }
+              };
+              const config = platformConfig[account?.platform] || { name: 'Account', bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200', icon: '📱' };
+              
+              return (
+                <div key={idx} className={"border-2 " + config.border + " " + config.bg + " rounded-xl p-6 hover:shadow-md transition-shadow"}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl">{config.icon}</div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900 text-lg">{config.name}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{account?.platform_username || account?.username || 'Connected'}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                            Active
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">{account?.platform_username || account?.username || account?.email || 'Connected'}</div>
+                    {account?.id && (
+                      <button onClick={() => disconnectAccount(account)} className="text-red-600 hover:text-red-700 font-medium text-sm px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">
+                        Disconnect
+                      </button>
+                    )}
                   </div>
                 </div>
-                {account?.id && (
-                  <button
-                    onClick={() => disconnectAccount(account)}
-                    className="text-red-600 hover:text-red-700 font-medium transition"
-                  >
-                    Disconnect
-                  </button>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
-
-        {/* Connect Buttons */}
-        {accounts && Array.isArray(accounts) && accounts.length > 0 && (
-          <div className="mt-6 flex gap-3">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectLinkedIn}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
-            >
-              + Connect LinkedIn
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectTwitter}
-              className="bg-sky-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-sky-600 transition"
-            >
-              + Connect Twitter
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectTelegram}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
-            >
-              + Connect Telegram
-            </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectSlack}
-                className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition"
-              >
-                + Connect Slack
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectDiscord}
-                className="bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition"
-              >
-                + Connect Discord
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectReddit}
-                className="bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-700 transition"
-              >
-                + Connect Reddit
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={connectInstagram}
-              className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition"
-            >
-              + Connect Instagram
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectFacebook}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
-            >
-              + Connect Facebook
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectYouTube}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
-            >
-              + Connect YouTube
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={connectTikTok}
-              className="bg-black text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-800 transition"
-            >
-              + Connect TikTok
-            </motion.button>
+        
+        {/* Connect New Platform Section */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Connect New Platform</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <button onClick={connectLinkedIn} className="flex flex-col items-center gap-2 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:shadow-md transition-all"><span className="text-3xl">💼</span><span className="font-semibold text-sm">LinkedIn</span></button>
+            <button onClick={connectTwitter} className="flex flex-col items-center gap-2 p-4 bg-sky-50 border-2 border-sky-200 rounded-lg hover:border-sky-400 hover:shadow-md transition-all"><span className="text-3xl">🐦</span><span className="font-semibold text-sm">Twitter</span></button>
+            <button onClick={connectTelegram} className="flex flex-col items-center gap-2 p-4 bg-cyan-50 border-2 border-cyan-200 rounded-lg hover:border-cyan-400 hover:shadow-md transition-all"><span className="text-3xl">✈️</span><span className="font-semibold text-sm">Telegram</span></button>
+            <button onClick={connectSlack} className="flex flex-col items-center gap-2 p-4 bg-purple-50 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:shadow-md transition-all"><span className="text-3xl">💬</span><span className="font-semibold text-sm">Slack</span></button>
+            <button onClick={connectDiscord} className="flex flex-col items-center gap-2 p-4 bg-indigo-50 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 hover:shadow-md transition-all"><span className="text-3xl">🎮</span><span className="font-semibold text-sm">Discord</span></button>
+            <button onClick={connectReddit} className="flex flex-col items-center gap-2 p-4 bg-orange-50 border-2 border-orange-200 rounded-lg hover:border-orange-400 hover:shadow-md transition-all"><span className="text-3xl">🔴</span><span className="font-semibold text-sm">Reddit</span></button>
+            <button onClick={connectInstagram} className="flex flex-col items-center gap-2 p-4 bg-pink-50 border-2 border-pink-200 rounded-lg hover:border-pink-400 hover:shadow-md transition-all"><span className="text-3xl">📷</span><span className="font-semibold text-sm">Instagram</span></button>
+            <button onClick={connectFacebook} className="flex flex-col items-center gap-2 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:shadow-md transition-all"><span className="text-3xl">📘</span><span className="font-semibold text-sm">Facebook</span></button>
+            <button onClick={connectYouTube} className="flex flex-col items-center gap-2 p-4 bg-red-50 border-2 border-red-200 rounded-lg hover:border-red-400 hover:shadow-md transition-all"><span className="text-3xl">🎬</span><span className="font-semibold text-sm">YouTube</span></button>
+            <button onClick={connectTikTok} className="flex flex-col items-center gap-2 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg hover:border-gray-900 hover:shadow-md transition-all"><span className="text-3xl">🎵</span><span className="font-semibold text-sm">TikTok</span></button>
           </div>
-        )}
-      </div>
-
-      {/* Telegram Modal */}
-      {showTelegramModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
-          >
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Telegram Bot</h3>
-            <p className="text-gray-600 mb-6">
-              Enter your Telegram bot token and chat ID to connect.
-            </p>
-            
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bot Token
-                </label>
-                <input
-                  type="text"
-                  value={telegramBotToken}
-                  onChange={(e) => setTelegramBotToken(e.target.value)}
-                  placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Chat ID
-                </label>
-                <input
-                  type="text"
-                  value={telegramChatId}
-                  onChange={(e) => setTelegramChatId(e.target.value)}
-                  placeholder="123456789"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowTelegramModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleTelegramConnect}
-                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
-              >
-                Connect
-              </button>
-            </div>
-          </motion.div>
         </div>
-      )}
-
-      {/* Slack Modal */}
-      {showSlackModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
-          >
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Slack Workspace</h3>
-            <p className="text-gray-600 mb-6">
-              Enter your Slack incoming webhook URL to connect a channel.
-            </p>
-            
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Webhook URL
-                </label>
-                <input
-                  type="text"
-                  value={slackWebhookUrl}
-                  onChange={(e) => setSlackWebhookUrl(e.target.value)}
-                  placeholder="https://hooks.slack.com/services/T00/B00/XXX"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Get this from Slack: Apps → Incoming Webhooks → Add New Webhook
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Channel Name (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={slackChannelName}
-                  onChange={(e) => setSlackChannelName(e.target.value)}
-                  placeholder="#general"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSlackModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSlackConnect}
-                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition"
-              >
-                Connect
-              </button>
-            </div>
-          </motion.div>
         </div>
-      )}
 
-      {/* Discord Modal */}
-      {showDiscordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
-          >
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Discord Server</h3>
             <p className="text-gray-600 mb-6">
               Enter your Discord incoming webhook URL to connect a channel.
             </p>
