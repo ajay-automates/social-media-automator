@@ -29,6 +29,11 @@ export default function CreatePost() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [pendingVideoFile, setPendingVideoFile] = useState(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
+  const [showYoutubeModal, setShowYoutubeModal] = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [youtubeInstructions, setYoutubeInstructions] = useState('');
+  const [generatingFromYoutube, setGeneratingFromYoutube] = useState(false);
+  const [youtubeVariations, setYoutubeVariations] = useState([]);
 
   useEffect(() => {
     loadBillingInfo();
@@ -83,6 +88,49 @@ export default function CreatePost() {
     setSelectedVariation(index);
     setCaption(variation);
     setShowAIModal(false);
+    showSuccess('Caption added! ✨');
+  };
+
+  const generateFromYoutube = async () => {
+    if (!youtubeUrl.trim()) {
+      showError('Please enter a YouTube URL');
+      return;
+    }
+
+    setGeneratingFromYoutube(true);
+    setYoutubeVariations([]);
+    
+    try {
+      const response = await api.post('/ai/youtube-caption', {
+        videoUrl: youtubeUrl,
+        instructions: youtubeInstructions,
+        platform: platforms[0] || 'linkedin'
+      });
+      
+      const variations = response.data.variations || [];
+      
+      if (variations.length === 0) {
+        showError('No variations generated');
+        return;
+      }
+      
+      setYoutubeVariations(variations);
+      showSuccess('Generated 3 caption variations from YouTube! ✨');
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to generate caption from YouTube';
+      showError(errorMessage);
+      console.error('YouTube caption error:', err);
+    } finally {
+      setGeneratingFromYoutube(false);
+    }
+  };
+
+  const selectYoutubeVariation = (variation) => {
+    setCaption(variation);
+    setShowYoutubeModal(false);
+    setYoutubeUrl('');
+    setYoutubeInstructions('');
+    setYoutubeVariations([]);
     showSuccess('Caption added! ✨');
   };
 
@@ -324,15 +372,26 @@ export default function CreatePost() {
             <div className="mt-2 text-sm text-gray-500">{caption.length} characters</div>
           </div>
           
-          {/* AI Generate Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setShowAIModal(true)}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
-          >
-            ✨ Generate with AI
-          </motion.button>
+          {/* AI Generate Buttons */}
+          <div className="flex gap-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowAIModal(true)}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            >
+              ✨ Generate with AI
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowYoutubeModal(true)}
+              className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            >
+              📺 Generate from YouTube
+            </motion.button>
+          </div>
           
           {/* Image Upload */}
           <div>
@@ -712,6 +771,136 @@ export default function CreatePost() {
                       setShowAIModal(false);
                       setAiVariations([]);
                       setSelectedVariation(null);
+                    }}
+                    className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* YouTube Modal */}
+      {showYoutubeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">📺 Generate from YouTube</h2>
+              <button
+                onClick={() => {
+                  setShowYoutubeModal(false);
+                  setYoutubeUrl('');
+                  setYoutubeInstructions('');
+                  setYoutubeVariations([]);
+                }}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* If variations exist, show them */}
+            {youtubeVariations.length > 0 ? (
+              <div>
+                <p className="text-gray-600 mb-4">Choose one of the generated captions:</p>
+                <div className="space-y-3 mb-6">
+                  {youtubeVariations.map((variation, index) => (
+                    <motion.button
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => selectYoutubeVariation(variation)}
+                      className="w-full p-4 rounded-lg border-2 text-left transition border-gray-200 hover:border-red-300 bg-white"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold bg-gray-100 text-gray-600">
+                          {index + 1}
+                        </div>
+                        <p className="text-gray-700 flex-1">{variation}</p>
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setYoutubeVariations([]);
+                    setYoutubeUrl('');
+                    setYoutubeInstructions('');
+                  }}
+                  className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                >
+                  ← Back to Input
+                </motion.button>
+              </div>
+            ) : (
+              /* If no variations, show the generation form */
+              <div>
+                <p className="text-gray-600 mb-4">
+                  Enter a YouTube video URL and optional instructions to generate captions based on the video&apos;s transcript.
+                </p>
+                
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    YouTube Video URL *
+                  </label>
+                  <input
+                    type="text"
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste any YouTube video URL. The video must have captions/transcripts enabled.
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Special Instructions (Optional)
+                  </label>
+                  <textarea
+                    value={youtubeInstructions}
+                    onChange={(e) => setYoutubeInstructions(e.target.value)}
+                    placeholder="E.g., Focus on the marketing tips, make it more casual, emphasize the key takeaways..."
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    rows={3}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Optional: Add specific instructions for how to create the caption
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={generateFromYoutube}
+                    disabled={generatingFromYoutube || !youtubeUrl.trim()}
+                    className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    {generatingFromYoutube ? 'Generating...' : '🎬 Generate'}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => {
+                      setShowYoutubeModal(false);
+                      setYoutubeUrl('');
+                      setYoutubeInstructions('');
+                      setYoutubeVariations([]);
                     }}
                     className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
                   >
