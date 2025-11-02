@@ -18,6 +18,12 @@ export default function Settings() {
   const [discordServerName, setDiscordServerName] = useState('');
   const [activeTab, setActiveTab] = useState('accounts');
 
+  
+  // Check if platform is already connected
+  const isPlatformConnected = (platformName) => {
+    return accounts.some(acc => acc.platform === platformName);
+  };
+
   useEffect(() => {
     loadAccounts();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -289,10 +295,37 @@ export default function Settings() {
           >
             Billing & Usage
           </button>
-        </nav>
+
+  // Helper function to check if platform is already connected
+  const isPlatformConnected = (platformName) => {
+    return accounts.some(acc => acc.platform === platformName);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-7xl mx-auto p-8"
+    >
+      <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+      <p className="text-gray-600 mb-8">Manage your account and platform connections.</p>
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-8 border-b">
+        <button
+          onClick={() => setActiveTab('accounts')}
+          className={'pb-4 px-2 font-medium transition-colors ' + (activeTab === 'accounts' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')}
+        >
+          Connected Accounts
+        </button>
+        <button
+          onClick={() => setActiveTab('billing')}
+          className={'pb-4 px-2 font-medium transition-colors ' + (activeTab === 'billing' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')}
+        >
+          Billing & Usage
+        </button>
       </div>
 
-      {/* Tab Content */}
       {activeTab === 'accounts' && (
         <>
         {/* Connected Accounts Section */}
@@ -307,14 +340,15 @@ export default function Settings() {
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔗</div>
             <p className="text-gray-600 mb-2 text-lg font-medium">No accounts connected yet</p>
+            <p className="text-sm text-gray-500">Connect your first platform below to get started</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {accounts.map((account, idx) => (
-              <div key={idx} className="border-2 border-gray-200 bg-gray-50 rounded-xl p-6 hover:shadow-md transition-shadow">
+              <div key={idx} className="border-2 border-gray-200 bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="text-4xl">
+                    <div className="text-5xl drop-shadow-sm">
                       {account?.platform === 'linkedin' && '💼'}
                       {account?.platform === 'twitter' && '🐦'}
                       {account?.platform === 'telegram' && '✈️'}
@@ -327,15 +361,22 @@ export default function Settings() {
                       {account?.platform === 'tiktok' && '🎵'}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900 text-lg">
+                      <h4 className="font-bold text-gray-900 text-lg">
                         {account?.platform_name || (account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account')}
                       </h4>
-                      <p className="text-sm text-gray-600 mt-1">{account?.platform_username || account?.username || 'Connected'}</p>
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-2">Active</span>
+                      <p className="text-sm text-gray-600 mt-1 font-medium">{account?.platform_username || account?.username || 'Connected'}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300">
+                          <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                          </svg>
+                          Active
+                        </span>
+                      </div>
                     </div>
                   </div>
                   {account?.id && (
-                    <button onClick={() => disconnectAccount(account)} className="text-red-600 hover:text-red-700 font-medium text-sm px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">
+                    <button onClick={() => disconnectAccount(account)} className="text-red-600 hover:text-white hover:bg-red-600 font-semibold text-sm px-4 py-2 rounded-lg border-2 border-red-200 hover:border-red-600 transition-all duration-200">
                       Disconnect
                     </button>
                   )}
@@ -345,68 +386,75 @@ export default function Settings() {
           </div>
         )}
         
+        {/* Connect New Platform Section */}
         <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Connect New Platform</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Connect New Platform</h3>
+          <p className="text-sm text-gray-600 mb-4">Add more platforms to expand your reach.</p>
+          
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <button onClick={connectLinkedIn} className="flex flex-col items-center gap-2 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:shadow-md transition-all">
-              <span className="text-3xl">💼</span>
+            {!isPlatformConnected('linkedin') && (
+            <button onClick={connectLinkedIn} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl hover:border-blue-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">💼</span>
               <span className="font-semibold text-sm">LinkedIn</span>
             </button>
-            <button onClick={connectTwitter} className="flex flex-col items-center gap-2 p-4 bg-sky-50 border-2 border-sky-200 rounded-lg hover:border-sky-400 hover:shadow-md transition-all">
-              <span className="text-3xl">🐦</span>
+            )}
+            {!isPlatformConnected('twitter') && (
+            <button onClick={connectTwitter} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-sky-50 to-sky-100 border-2 border-sky-300 rounded-xl hover:border-sky-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">🐦</span>
               <span className="font-semibold text-sm">Twitter</span>
             </button>
-            <button onClick={connectTelegram} className="flex flex-col items-center gap-2 p-4 bg-cyan-50 border-2 border-cyan-200 rounded-lg hover:border-cyan-400 hover:shadow-md transition-all">
-              <span className="text-3xl">✈️</span>
+            )}
+            {!isPlatformConnected('telegram') && (
+            <button onClick={connectTelegram} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-cyan-50 to-cyan-100 border-2 border-cyan-300 rounded-xl hover:border-cyan-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">✈️</span>
               <span className="font-semibold text-sm">Telegram</span>
             </button>
-            <button onClick={connectSlack} className="flex flex-col items-center gap-2 p-4 bg-purple-50 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:shadow-md transition-all">
-              <span className="text-3xl">💬</span>
+            )}
+            {!isPlatformConnected('slack') && (
+            <button onClick={connectSlack} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-xl hover:border-purple-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">💬</span>
               <span className="font-semibold text-sm">Slack</span>
             </button>
-            <button onClick={connectDiscord} className="flex flex-col items-center gap-2 p-4 bg-indigo-50 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 hover:shadow-md transition-all">
-              <span className="text-3xl">🎮</span>
+            )}
+            {!isPlatformConnected('discord') && (
+            <button onClick={connectDiscord} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-300 rounded-xl hover:border-indigo-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">🎮</span>
               <span className="font-semibold text-sm">Discord</span>
             </button>
-            <button onClick={connectReddit} className="flex flex-col items-center gap-2 p-4 bg-orange-50 border-2 border-orange-200 rounded-lg hover:border-orange-400 hover:shadow-md transition-all">
-              <span className="text-3xl">🔴</span>
+            )}
+            {!isPlatformConnected('reddit') && (
+            <button onClick={connectReddit} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-300 rounded-xl hover:border-orange-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">🔴</span>
               <span className="font-semibold text-sm">Reddit</span>
             </button>
-            <button onClick={connectInstagram} className="flex flex-col items-center gap-2 p-4 bg-pink-50 border-2 border-pink-200 rounded-lg hover:border-pink-400 hover:shadow-md transition-all">
-              <span className="text-3xl">📷</span>
+            )}
+            {!isPlatformConnected('instagram') && (
+            <button onClick={connectInstagram} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-300 rounded-xl hover:border-pink-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">📷</span>
               <span className="font-semibold text-sm">Instagram</span>
             </button>
-            <button onClick={connectFacebook} className="flex flex-col items-center gap-2 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:shadow-md transition-all">
-              <span className="text-3xl">📘</span>
+            )}
+            {!isPlatformConnected('facebook') && (
+            <button onClick={connectFacebook} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-xl hover:border-blue-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">📘</span>
               <span className="font-semibold text-sm">Facebook</span>
             </button>
-            <button onClick={connectYouTube} className="flex flex-col items-center gap-2 p-4 bg-red-50 border-2 border-red-200 rounded-lg hover:border-red-400 hover:shadow-md transition-all">
-              <span className="text-3xl">🎬</span>
+            )}
+            {!isPlatformConnected('youtube') && (
+            <button onClick={connectYouTube} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300 rounded-xl hover:border-red-500 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">🎬</span>
               <span className="font-semibold text-sm">YouTube</span>
             </button>
-            <button onClick={connectTikTok} className="flex flex-col items-center gap-2 p-4 bg-gray-50 border-2 border-gray-300 rounded-lg hover:border-gray-900 hover:shadow-md transition-all">
-              <span className="text-3xl">🎵</span>
+            )}
+            {!isPlatformConnected('tiktok') && (
+            <button onClick={connectTikTok} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-xl hover:border-gray-900 hover:shadow-lg hover:scale-105 transition-all duration-200">
+              <span className="text-4xl">🎵</span>
               <span className="font-semibold text-sm">TikTok</span>
             </button>
+            )}
           </div>
         </div>
         </div>
-
-      {showDiscordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg p-8 max-w-md w-full mx-4"
-          >
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">Connect Discord Server</h3>
-            <p className="text-gray-600 mb-6">
-              Enter your Discord incoming webhook URL to connect a channel.
-            </p>
-            
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Webhook URL
                 </label>
                 <input
@@ -459,9 +507,3 @@ export default function Settings() {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <BillingSettings />
         </div>
-      )}
-    </motion.div>
-  );
-}
-// Force rebuild - YouTube button added
-// Build timestamp: 1761762481
