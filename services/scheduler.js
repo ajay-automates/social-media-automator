@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const { postTextToLinkedIn, postImageToLinkedIn } = require('./linkedin');
+const { postTextToLinkedIn, postImageToLinkedIn, postToLinkedIn } = require('./linkedin');
 const { postToTwitter } = require('./twitter');
 const { sendToTelegram } = require('./telegram');
 const { sendToSlack } = require('./slack');
@@ -108,23 +108,20 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
         console.log(`  → Posting to ${platform}...`);
 
         if (platform === 'linkedin') {
-          // LinkedIn - post to all connected accounts
           if (credentials.linkedin && Array.isArray(credentials.linkedin)) {
+            results.linkedin = [];
             for (const account of credentials.linkedin) {
               try {
-                let result;
-                if (image_url) {
-                  result = await postImageToLinkedIn(text, image_url, account.accessToken, account.urn, account.type);
-                } else {
-                  result = await postTextToLinkedIn(text, account.accessToken, account.urn, account.type);
-                }
-                results.linkedin = results.linkedin || [];
+                const result = await postToLinkedIn(text, image_url, account);
                 results.linkedin.push(result);
-                console.log(`    ✅ Posted to LinkedIn`);
+                if (result.success) {
+                  console.log('    ✅ Posted to LinkedIn');
+                } else {
+                  console.log('    ❌ LinkedIn error: ' + result.error);
+                }
               } catch (err) {
-                console.error(`    ❌ LinkedIn error:`, err.message);
-                results.linkedin = results.linkedin || [];
-                results.linkedin.push({ error: err.message });
+                console.error('    ❌ LinkedIn error:', err.message);
+                results.linkedin.push({ success: false, error: err.message, platform: 'linkedin' });
               }
             }
           }
