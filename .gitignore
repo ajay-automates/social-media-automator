@@ -27,3 +27,5 @@ coverage/
 
 # Build
 build/
+uploads/
+.DS_Store
