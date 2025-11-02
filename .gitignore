@@ -30,3 +30,9 @@ build/
 
 # Uploads
 uploads/
+
+# Crawlee storage
+storage/
+crawlee_storage/
+.crawlee/
+.playwright/

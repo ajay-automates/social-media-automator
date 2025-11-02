@@ -1,0 +1,38 @@
+# Nodemon ignore file
+# Prevent nodemon from restarting when these files/directories change
+
+# Crawlee storage
+crawlee_storage/
+storage/
+.crawlee/
+
+# Playwright
+.playwright/
+playwright-state/
+
+# Node modules
+node_modules/
+
+# Dashboard build output
+dashboard/dist/
+dashboard/node_modules/
+
+# Uploads and temp files
+uploads/
+*.tmp
+*.temp
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Git
+.git/

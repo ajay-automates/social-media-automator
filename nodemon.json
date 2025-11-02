@@ -1,0 +1,22 @@
+{
+  "watch": [
+    "server.js",
+    "services/**/*.js",
+    "utilities/**/*.js",
+    "config/**/*.js"
+  ],
+  "ignore": [
+    "node_modules/**",
+    "dashboard/**",
+    "uploads/**",
+    "storage/**",
+    "crawlee_storage/**",
+    ".crawlee/**",
+    "*.log",
+    "*.tmp",
+    "*.temp"
+  ],
+  "ext": "js,json",
+  "delay": 2000,
+  "verbose": false
+}

@@ -35,6 +35,10 @@ const {
   generateCaptionFromTranscript 
 } = require('./services/youtube-transcript');
 const { 
+  scrapeWebContent,
+  isYouTubeUrl
+} = require('./services/web-scraper');
+const { 
   getAllAccountsWithStatus, 
   getAllCredentials 
 } = require('./services/accounts');
@@ -1070,10 +1074,10 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
     }
     
     // Check if API key is configured
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({
         success: false,
-        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+        error: 'AI service not configured. Please add GEMINI_API_KEY to your environment variables.'
       });
     }
     
@@ -1106,7 +1110,7 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
 
 /**
  * POST /api/ai/youtube-caption
- * Generate AI captions from YouTube video transcript (protected)
+ * Generate AI captions from URL (YouTube video or general web page) (protected)
  */
 app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
   try {
@@ -1117,7 +1121,7 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
     if (!videoUrl || videoUrl.trim() === '') {
       return res.status(400).json({ 
         success: false, 
-        error: 'YouTube video URL is required' 
+        error: 'URL is required' 
       });
     }
     
@@ -1133,21 +1137,36 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
     }
     
     // Check if API key is configured
-    if (!process.env.ANTHROPIC_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({
         success: false,
-        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+        error: 'AI service not configured. Please add GEMINI_API_KEY to your environment variables.'
       });
     }
     
-    console.log(`\n📺 YouTube caption request: url="${videoUrl}", platform="${platform}"`);
+    let content = '';
+    let contentType = '';
     
-    // Step 1: Extract transcript from YouTube
-    const transcript = await extractTranscript(videoUrl);
+    // Check if URL is YouTube or general web page
+    if (isYouTubeUrl(videoUrl)) {
+      console.log(`\n📺 YouTube caption request: url="${videoUrl}", platform="${platform}"`);
+      contentType = 'YouTube video';
+      
+      // Step 1: Extract transcript from YouTube
+      content = await extractTranscript(videoUrl);
+    } else {
+      console.log(`\n🌐 Web scrape caption request: url="${videoUrl}", platform="${platform}"`);
+      contentType = 'web page';
+      
+      // Step 1: Scrape content from web page
+      content = await scrapeWebContent(videoUrl);
+    }
     
-    // Step 2: Generate captions from transcript
+    console.log(`✅ Content extracted from ${contentType}: ${content.length} characters`);
+    
+    // Step 2: Generate captions from content
     const variations = await generateCaptionFromTranscript(
-      transcript,
+      content,
       instructions || '',
       platform || 'linkedin'
     );
@@ -1159,14 +1178,15 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
       success: true,
       variations,
       count: variations.length,
-      transcriptLength: transcript.length
+      contentLength: content.length,
+      contentType
     });
     
   } catch (error) {
     console.error('Error in /api/ai/youtube-caption:', error);
     res.status(500).json({ 
       success: false, 
-      error: error.message || 'Failed to generate captions from YouTube video'
+      error: error.message || 'Failed to generate captions from URL'
     });
   }
 });
@@ -3143,7 +3163,7 @@ app.listen(PORT, async () => {
   console.log(`   GET  /api/history - View post history`);
   console.log(`   GET  /api/analytics/platforms - Platform statistics`);
   console.log(`   POST /api/ai/generate - Generate AI captions`);
-  console.log(`   POST /api/ai/youtube-caption - Generate captions from YouTube video`);
+  console.log(`   POST /api/ai/youtube-caption - Generate captions from URL (YouTube or web page)`);
   console.log(`   GET  /api/ai/image/styles - Get AI image styles`);
   console.log(`   GET  /api/ai/image/platforms - Get platform options`);
   console.log(`   GET  /api/ai/image/examples - Get example prompts`);

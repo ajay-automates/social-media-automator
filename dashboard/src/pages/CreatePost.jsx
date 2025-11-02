@@ -119,7 +119,7 @@ export default function CreatePost() {
 
   const generateFromYoutube = async () => {
     if (!youtubeUrl.trim()) {
-      showError('Please enter a YouTube URL');
+      showError('Please enter a URL');
       return;
     }
 
@@ -141,11 +141,11 @@ export default function CreatePost() {
       }
       
       setYoutubeVariations(variations);
-      showSuccess('Generated 3 caption variations from YouTube! ✨');
+      showSuccess('Generated 3 caption variations from URL! ✨');
     } catch (err) {
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to generate caption from YouTube';
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to generate caption from URL';
       showError(errorMessage);
-      console.error('YouTube caption error:', err);
+      console.error('URL caption error:', err);
     } finally {
       setGeneratingFromYoutube(false);
     }
@@ -486,7 +486,7 @@ export default function CreatePost() {
               onClick={() => setShowYoutubeModal(true)}
               className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
             >
-              📺 Generate from YouTube
+              � Generate from URL
             </motion.button>
           </div>
           
@@ -892,7 +892,7 @@ export default function CreatePost() {
             className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">📺 Generate from YouTube</h2>
+              <h2 className="text-2xl font-bold text-gray-900">� Generate from URL</h2>
               <button
                 onClick={() => {
                   setShowYoutubeModal(false);
@@ -948,22 +948,22 @@ export default function CreatePost() {
               /* If no variations, show the generation form */
               <div>
                 <p className="text-gray-600 mb-4">
-                  Enter a YouTube video URL and optional instructions to generate captions based on the video&apos;s transcript.
+                  Enter any URL to generate captions. YouTube videos will use transcripts, other URLs will be scraped for content.
                 </p>
                 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    YouTube Video URL *
+                    URL *
                   </label>
                   <input
                     type="text"
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=..."
+                    placeholder="https://www.youtube.com/watch?v=... or any article URL"
                     className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Paste any YouTube video URL. The video must have captions/transcripts enabled.
+                    YouTube videos must have captions/transcripts enabled. Other URLs will be scraped for content.
                   </p>
                 </div>
 
@@ -991,7 +991,7 @@ export default function CreatePost() {
                     disabled={generatingFromYoutube || !youtubeUrl.trim()}
                     className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                   >
-                    {generatingFromYoutube ? 'Generating...' : '🎬 Generate'}
+                    {generatingFromYoutube ? 'Generating...' : '🔗 Generate'}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
