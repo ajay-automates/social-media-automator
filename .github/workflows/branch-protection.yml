@@ -1,0 +1,64 @@
+name: Branch Protection Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-direct-push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Check for direct push to main
+        run: |
+          echo "⚠️ WARNING: Direct push detected to main branch!"
+          echo "This should have been done via feature branch + merge"
+          echo ""
+          echo "Recommended workflow:"
+          echo "1. Create feature branch: ./scripts/new-feature.sh your-feature"
+          echo "2. Make changes on feature branch"
+          echo "3. Merge via: ./scripts/merge-feature.sh"
+          echo ""
+          echo "Next time, use the proper workflow to ensure testing!"
+          exit 0  # Don't fail, just warn
+
+  test-before-merge:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd dashboard && npm ci && cd ..
+          
+      - name: Build dashboard
+        run: |
+          cd dashboard && npm run build && cd ..
+          
+      - name: Check for syntax errors
+        run: |
+          node -c server.js
+          echo "✅ No syntax errors in server.js"
+          
+      - name: Verify key files exist
+        run: |
+          test -f server.js && echo "✅ server.js exists"
+          test -f package.json && echo "✅ package.json exists"
+          test -d services && echo "✅ services/ directory exists"
+          test -d dashboard/dist && echo "✅ dashboard/dist/ built successfully"
+          
+      - name: Success
+        run: |
+          echo "✅ All checks passed!"
+          echo "Code is ready for production"
+

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Git Pre-Push Hook
+# Warns before pushing to main branch
+
+while read local_ref local_sha remote_ref remote_sha
+do
+    if [ "$remote_ref" = "refs/heads/main" ]; then
+        echo ""
+        echo "╔══════════════════════════════════════════════════════════════╗"
+        echo "║              ⚠️  PUSHING TO MAIN BRANCH                     ║"
+        echo "╚══════════════════════════════════════════════════════════════╝"
+        echo ""
+        echo "⚠️  You're about to push to the main branch!"
+        echo ""
+        echo "🔍 Pre-push checklist:"
+        echo "   ☐ Did you test all existing features?"
+        echo "   ☐ Did you test your new feature?"
+        echo "   ☐ Are you ready for production deployment?"
+        echo "   ☐ Do you have a rollback plan?"
+        echo ""
+        read -p "Continue pushing to main? (y/n) " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "❌ Push cancelled"
+            exit 1
+        fi
+        echo "✅ Pushing to main..."
+    fi
+done
+
+exit 0
+
