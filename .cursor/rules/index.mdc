@@ -4,7 +4,7 @@ You are an expert full-stack developer specializing in Node.js, Express.js, Reac
 
 ## Project Context
 
-This is a **multi-tenant social media automation SaaS platform** that posts content to 7 platforms (LinkedIn, Twitter, Telegram, Instagram, Facebook, YouTube, TikTok) with AI-powered caption and image generation.
+This is a **multi-tenant social media automation SaaS platform** that posts content to 8 platforms (LinkedIn, Twitter, Telegram, Slack, Instagram, Facebook, YouTube, TikTok) with AI-powered caption and image generation.
 
 ### Tech Stack
 - **Backend**: Node.js 20+, Express.js, Supabase (PostgreSQL), JWT auth
@@ -13,7 +13,7 @@ This is a **multi-tenant social media automation SaaS platform** that posts cont
 - **File Storage**: Cloudinary (images/videos)
 - **AI Services**: Anthropic Claude Sonnet 4, Stability AI
 - **Billing**: Stripe (3 pricing tiers)
-- **Platforms**: LinkedIn OAuth 2.0, Twitter OAuth 1.0a, Telegram Bot API, Instagram/Facebook Graph API, YouTube Data API v3, TikTok Content API
+- **Platforms**: LinkedIn OAuth 2.0, Twitter OAuth 1.0a, Telegram Bot API, Slack Incoming Webhooks, Instagram/Facebook Graph API, YouTube Data API v3, TikTok Content API
 
 ### Architecture Patterns
 - Multi-tenant with Row Level Security (RLS)
@@ -691,6 +691,239 @@ if (process.env.NODE_ENV === 'production') {
 
 ---
 
+## Deployment & Production Safety
+
+### Pre-Deployment Checklist
+
+**CRITICAL: Follow this checklist for EVERY deployment to avoid production failures!**
+
+#### 1. When Deleting Files
+
+```bash
+# NEVER just delete a file - ALWAYS follow this process:
+# Step 1: Identify the file to delete
+rm services/oldfile.js
+
+# Step 2: Search for ALL imports/references
+grep -r "oldfile" .
+grep -r "require.*oldfile" .
+grep -r "import.*oldfile" .
+
+# Step 3: Remove ALL imports in files that used it
+# Edit server.js, scheduler.js, or any file that imported it
+
+# Step 4: Remove ALL function calls
+# Search for functions exported from deleted file
+grep -r "functionName" .
+
+# Step 5: Remove/comment out routes that used it
+# Check server.js for any endpoints using the deleted functions
+
+# Step 6: Verify syntax
+node -c server.js
+node -c services/*.js
+
+# Step 7: Test locally (if possible)
+node server.js  # Should start without errors
+
+# Step 8: Commit & push
+git add -A
+git commit -m "Remove oldfile and all references"
+git push
+```
+
+**Real Example from Production Issue:**
+```javascript
+// ❌ MISTAKE: Deleted services/youtube-transcript.js
+// BUT forgot to remove:
+// - require('./services/youtube-transcript') in server.js (line 33-36)
+// - app.post('/api/ai/youtube-caption') route (line 1097-1158)
+// Result: MODULE_NOT_FOUND error on Railway
+
+// ✅ CORRECT: Delete file + remove all references in one commit
+```
+
+#### 2. When Creating New Files with Dependencies
+
+```bash
+# ALWAYS follow this checklist when creating new service files:
+
+# Step 1: Write the code
+# Create services/newfeature.js
+
+# Step 2: Install required packages
+npm install package-name
+
+# Step 3: VERIFY package.json was updated!
+git diff package.json  # Should show the new dependency
+
+# Step 4: Check syntax
+node -c services/newfeature.js
+node -c server.js
+
+# Step 5: Commit BOTH code AND package.json
+git add services/newfeature.js package.json
+git commit -m "Add new feature with required dependencies"
+
+# Step 6: Push
+git push origin main
+```
+
+**Real Example from Production Issue:**
+```javascript
+// ❌ MISTAKE: Created services/youtube-transcript.js
+// Used: const Anthropic = require('@anthropic-ai/sdk')
+// BUT package.json didn't have @anthropic-ai/sdk!
+// Result: Error: Cannot find module '@anthropic-ai/sdk'
+
+// ✅ CORRECT: npm install @anthropic-ai/sdk
+// Then verify package.json includes it before pushing
+```
+
+#### 3. ESM vs CommonJS Module Handling
+
+```javascript
+// PROBLEM: Some npm packages are ES Modules (ESM)
+// Our project uses CommonJS (require/module.exports)
+// Can't use require() for ES Modules!
+
+// ❌ WRONG (causes ERR_REQUIRE_ESM):
+const youtubei = require('youtubei.js');  // youtubei.js is ESM!
+
+// ✅ CORRECT (use dynamic import):
+async function extractTranscript(url) {
+  const { Innertube } = await import('youtubei.js');  // Dynamic import!
+  const youtube = await Innertube.create();
+  // ... rest of code
+}
+
+// Rule: If you see ERR_REQUIRE_ESM, convert to dynamic import()
+```
+
+#### 4. Consistency in Configuration
+
+```javascript
+// ALWAYS use the same configuration across ALL files
+
+// ❌ WRONG: Different model names in different files
+// File 1: model: 'claude-3-5-sonnet-20241022'  (doesn't exist)
+// File 2: model: 'claude-sonnet-4-20250514'     (works)
+// Result: 404 not_found_error
+
+// ✅ CORRECT: Search existing files for working config
+grep -r "model:" services/
+// Then use the SAME model name everywhere
+```
+
+**Checklist Before Creating New Files:**
+- [ ] Check what other files use (API endpoints, model names, etc.)
+- [ ] Use the SAME configuration
+- [ ] Don't guess - copy working patterns
+
+#### 5. Local Syntax Validation
+
+```bash
+# BEFORE every git push, run these checks:
+
+# Check syntax of modified files
+node -c server.js
+node -c services/newfile.js
+
+# Try to start server (will catch import errors)
+# Kill after 3 seconds with Ctrl+C
+node server.js
+
+# If it starts without errors, you're good to push!
+```
+
+#### 6. Complete Deployment Workflow
+
+```bash
+# MANDATORY workflow for every feature/fix:
+
+# 1. Make changes locally
+vim services/feature.js
+
+# 2. Install any new dependencies
+npm install new-package
+
+# 3. Search for any references if deleting/modifying
+grep -r "oldFunction" .
+
+# 4. Update all related files
+vim server.js scheduler.js  # Add imports, routes, etc.
+
+# 5. Verify package.json has all dependencies
+cat package.json | grep new-package
+
+# 6. Check syntax
+node -c server.js
+node -c services/*.js
+
+# 7. Verify no linter errors (if applicable)
+npm run lint 2>/dev/null || true
+
+# 8. Commit with descriptive message
+git add -A
+git commit -m "Add feature: description of changes"
+
+# 9. Push to production
+git push origin main
+
+# 10. Watch Railway deployment logs
+# If errors appear, fix immediately using this checklist again
+```
+
+### Common Deployment Errors & Fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `MODULE_NOT_FOUND` | Deleted file still imported | Remove all require() statements |
+| `Cannot find module '@pkg'` | package.json missing dependency | `npm install @pkg` + commit package.json |
+| `ERR_REQUIRE_ESM` | Using require() for ES Module | Change to `await import()` |
+| `404 not_found_error` (API) | Wrong endpoint/model name | Check working files, use same config |
+| `ReferenceError: X is not defined` | Function deleted but still called | Remove all function calls |
+
+### Railway-Specific Notes
+
+```bash
+# Railway deploys in this order:
+1. git pull          # Gets your code
+2. npm install       # Reads package.json
+3. npm run build     # Builds dashboard
+4. node server.js    # Starts server
+5. Health check      # Hits /api/health
+
+# If ANY step fails, deployment fails!
+# Health check timeout = 5 minutes of retries
+
+# Fix deployment failures:
+# 1. Check Railway logs (NOT GitHub)
+# 2. Find the exact error
+# 3. Fix locally with checklist above
+# 4. Push fix
+# 5. Wait 2-3 minutes for new deployment
+```
+
+### Emergency Rollback
+
+```bash
+# If production is broken and you need to rollback:
+
+# Option 1: Revert last commit
+git revert HEAD
+git push origin main
+
+# Option 2: Reset to last working commit
+git reset --hard <commit-hash>
+git push --force origin main  # Only in emergencies!
+
+# Option 3: Railway dashboard
+# Go to deployments → Redeploy previous successful build
+```
+
+---
+
 ## When in Doubt
 
 - Check similar files in the codebase for patterns
@@ -699,6 +932,7 @@ if (process.env.NODE_ENV === 'production') {
 - Test with real API calls when possible
 - Verify database changes won't break RLS
 - Consider edge cases (token expiry, rate limits, missing data)
+- **ALWAYS follow the deployment checklist above before pushing**
 
 ---
 
