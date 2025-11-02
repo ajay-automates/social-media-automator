@@ -17,6 +17,7 @@
   "author": "Aj (ajay-automates)",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
     "@supabase/supabase-js": "^2.76.1",
     "axios": "^1.12.2",
     "cloudinary": "^2.8.0",
