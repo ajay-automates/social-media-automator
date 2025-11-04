@@ -7,6 +7,8 @@ import { useLoadingState } from '../hooks/useLoadingState';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { celebrateSuccess } from '../utils/animations';
 import UpgradeModal from '../components/UpgradeModal';
+import PlatformChip from '../components/ui/PlatformChip';
+import AnimatedBackground from '../components/ui/AnimatedBackground';
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -398,12 +400,23 @@ export default function CreatePost() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-5xl mx-auto px-6 py-8"
+        className="relative w-full max-w-5xl mx-auto px-6 py-8"
       >
-        <h1 className="text-4xl font-bold mb-4">Create Post</h1>
-        <p className="text-gray-600 mb-8">Share your message across multiple platforms</p>
+        {/* Animated Background */}
+        <AnimatedBackground variant="purple" />
+
+        <div className="mb-8 relative z-10">
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-4xl font-bold text-white mb-2"
+          >
+            Create Post
+          </motion.h1>
+          <p className="text-gray-400">Share your message across 25+ platforms</p>
+        </div>
         
-        <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <div className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
           {/* Reddit-Specific Fields */}
           {platforms.includes('reddit') && (
             <div className="space-y-4 bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -583,38 +596,35 @@ export default function CreatePost() {
             </div>
           )}
           
-          {/* Platform Selection */}
+          {/* Platform Selection with 3D Chips */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-white mb-4">
               Select Platforms
             </label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-4">
               {[
-                { id: 'twitter', name: 'Twitter', icon: '🐦', color: 'bg-sky-500' },
-                { id: 'linkedin', name: 'LinkedIn', icon: '🔗', color: 'bg-blue-600' },
-                { id: 'facebook', name: 'Facebook', icon: '📘', color: 'bg-blue-700' },
-                { id: 'telegram', name: 'Telegram', icon: '💬', color: 'bg-indigo-600' },
-                { id: 'slack', name: 'Slack', icon: '💼', color: 'bg-purple-600' },
-                { id: 'discord', name: 'Discord', icon: '🎮', color: 'bg-indigo-700' },
-                { id: 'reddit', name: 'Reddit', icon: '🔴', color: 'bg-orange-600' },
-                { id: 'instagram', name: 'Instagram', icon: '📷', color: 'bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500' },
-                { id: 'youtube', name: 'YouTube', icon: '🎬', color: 'bg-red-600' },                { id: 'tiktok', name: 'TikTok', icon: '🎵', color: 'bg-black' }
-              ].map(platform => (
-                <motion.button
-                  key={platform.id}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => togglePlatform(platform.id)}
-                  className={`px-6 py-3 rounded-lg font-medium transition ${
-                    platforms.includes(platform.id)
-                      ? `${platform.color} text-white shadow-lg ${platform.id === 'instagram' ? '' : ''}`
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  {platform.icon} {platform.name}
-                </motion.button>
+                'twitter', 'linkedin', 'facebook', 'telegram', 
+                'slack', 'discord', 'reddit', 'instagram', 
+                'youtube', 'tiktok'
+              ].map(platformId => (
+                <PlatformChip
+                  key={platformId}
+                  platform={platformId}
+                  selected={platforms.includes(platformId)}
+                  onClick={() => togglePlatform(platformId)}
+                  size="md"
+                />
               ))}
             </div>
+            {platforms.length > 0 && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-sm text-gray-400 mt-3"
+              >
+                ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
+              </motion.p>
+            )}
           </div>
 
           {/* Instagram Image Requirement Warning */}

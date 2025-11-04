@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -17,32 +18,92 @@ function Navigation() {
   const { user, signOut } = useAuth();
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
   
+  const navItems = [
+    { path: '/', label: 'Dashboard', icon: '📊' },
+    { path: '/create', label: 'Create Post', icon: '✨' },
+    { path: '/templates', label: 'Templates', icon: '📝' },
+    { path: '/analytics', label: 'Analytics', icon: '📈' },
+    { path: '/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/pricing', label: 'Pricing', icon: '💎' },
+  ];
+  
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <motion.nav 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-white/10 shadow-2xl"
+    >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">🚀 Social Media Automator</h1>
-            </div>
-            <div className="ml-10 flex items-center space-x-4">
-              <Link to="/" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Dashboard</Link>
-              <Link to="/create" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/create') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Create Post</Link>
-              <Link to="/templates" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/templates') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Templates</Link>
-              <Link to="/analytics" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/analytics') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Analytics</Link>
-              <Link to="/settings" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/settings') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Settings</Link>
-              <Link to="/pricing" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/pricing') ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:text-blue-600'}`}>Pricing</Link>
+            {/* Logo */}
+            <motion.div 
+              className="flex-shrink-0 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+            >
+              <motion.span
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="text-3xl"
+              >
+                🚀
+              </motion.span>
+              <h1 className="text-xl font-bold text-white">Social Media Automator</h1>
+            </motion.div>
+            
+            {/* Nav Items */}
+            <div className="ml-10 flex items-center space-x-2">
+              {navItems.map((item) => (
+                <Link 
+                  key={item.path}
+                  to={item.path} 
+                  className="relative group px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                >
+                  <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}>
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </span>
+                  
+                  {/* Gradient underline */}
+                  {isActive(item.path) && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  
+                  {/* Hover glow */}
+                  <motion.div
+                    className="absolute inset-0 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                </Link>
+              ))}
             </div>
           </div>
+          
+          {/* User Section */}
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{user?.email}</span>
-            <button onClick={signOut} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
-              Logout
-            </button>
+            <span className="text-sm text-gray-400">{user?.email}</span>
+            <motion.button 
+              onClick={signOut}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium overflow-hidden group"
+            >
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10">Logout</span>
+            </motion.button>
           </div>
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 }
 
@@ -51,7 +112,7 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <BrowserRouter>
-          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
             <Navigation />
             
             <Routes>

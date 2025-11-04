@@ -244,9 +244,9 @@ if (fsSync.existsSync(landingPath)) {
   });
 } else {
   // Fallback to old landing page if React build doesn't exist
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-  });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 }
 
 // Auth page

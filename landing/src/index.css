@@ -5,9 +5,9 @@
 @layer base {
   * {
     @apply scroll-smooth;
-  }
+}
 
-  body {
+body {
     @apply bg-gray-950 text-white antialiased;
   }
 }
@@ -19,11 +19,11 @@
 
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
-  }
+}
 
   .glow-blue {
     box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
-  }
+}
 
   .glow-purple {
     box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
@@ -41,7 +41,7 @@
 
 ::-webkit-scrollbar-thumb {
   @apply bg-blue-600 rounded-full;
-}
+  }
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-blue-500;
