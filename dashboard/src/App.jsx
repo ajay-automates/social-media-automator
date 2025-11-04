@@ -49,7 +49,7 @@ function Navigation() {
               >
                 🚀
               </motion.span>
-              <h1 className="text-xl font-bold text-white">Social Media Automator</h1>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Social Media Automator</h1>
             </motion.div>
             
             {/* Nav Items */}
@@ -60,7 +60,7 @@ function Navigation() {
                   to={item.path} 
                   className="relative group px-4 py-2 rounded-lg text-sm font-medium transition-all"
                 >
-                  <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-white' : 'text-gray-400 group-hover:text-white'}`}>
+                  <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-blue-300' : 'text-gray-400 group-hover:text-blue-200'}`}>
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
                   </span>

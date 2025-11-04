@@ -147,7 +147,7 @@ export default function Dashboard() {
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-4xl font-bold text-white mb-2"
+          className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent mb-2"
         >
           Dashboard
         </motion.h1>
@@ -194,7 +194,7 @@ export default function Dashboard() {
           gradient="from-blue-400/80 via-blue-500/60 to-cyan-500/80"
           shadowColor="rgba(59, 130, 246, 0.5)"
         >
-          <div className="p-6 text-white">
+          <div className="p-6">
             <motion.div 
               className="text-5xl mb-2"
               animate={{ y: [0, -5, 0] }}
@@ -202,10 +202,10 @@ export default function Dashboard() {
             >
               📝
             </motion.div>
-            <div className="text-4xl font-bold">
+            <div className="text-4xl font-bold text-gray-50">
               <AnimatedNumber value={displayStats.postsToday || 0} />
             </div>
-            <div className="text-blue-100 mt-2 font-medium">Posts Today</div>
+            <div className="text-blue-200 mt-2 font-medium">Posts Today</div>
           </div>
         </Card3D>
         
@@ -213,7 +213,7 @@ export default function Dashboard() {
           gradient="from-green-400/80 via-emerald-500/60 to-teal-500/80"
           shadowColor="rgba(16, 185, 129, 0.5)"
         >
-          <div className="p-6 text-white">
+          <div className="p-6">
             <motion.div 
               className="text-5xl mb-2"
               animate={{ y: [0, -5, 0] }}
@@ -221,10 +221,10 @@ export default function Dashboard() {
             >
               🌐
             </motion.div>
-            <div className="text-4xl font-bold">
+            <div className="text-4xl font-bold text-gray-50">
               <AnimatedNumber value={displayStats.activePlatforms || 0} />
             </div>
-            <div className="text-green-100 mt-2 font-medium">Platforms</div>
+            <div className="text-green-200 mt-2 font-medium">Platforms</div>
           </div>
         </Card3D>
         
@@ -232,7 +232,7 @@ export default function Dashboard() {
           gradient="from-purple-400/80 via-purple-500/60 to-pink-500/80"
           shadowColor="rgba(168, 85, 247, 0.5)"
         >
-          <div className="p-6 text-white">
+          <div className="p-6">
             <motion.div 
               className="text-5xl mb-2"
               animate={{ y: [0, -5, 0] }}
@@ -240,10 +240,10 @@ export default function Dashboard() {
             >
               ✓
             </motion.div>
-            <div className="text-4xl font-bold">
+            <div className="text-4xl font-bold text-gray-50">
               <AnimatedNumber value={displayStats.successRate || 0} suffix="%" />
             </div>
-            <div className="text-purple-100 mt-2 font-medium">Success Rate</div>
+            <div className="text-purple-200 mt-2 font-medium">Success Rate</div>
           </div>
         </Card3D>
         
@@ -251,7 +251,7 @@ export default function Dashboard() {
           gradient="from-orange-400/80 via-amber-500/60 to-yellow-500/80"
           shadowColor="rgba(251, 146, 60, 0.5)"
         >
-          <div className="p-6 text-white">
+          <div className="p-6">
             <motion.div 
               className="text-5xl mb-2"
               animate={{ y: [0, -5, 0] }}
@@ -259,10 +259,10 @@ export default function Dashboard() {
             >
               📅
             </motion.div>
-            <div className="text-4xl font-bold">
+            <div className="text-4xl font-bold text-gray-50">
               <AnimatedNumber value={displayStats.scheduledCount || 0} />
             </div>
-            <div className="text-orange-100 mt-2 font-medium">Scheduled</div>
+            <div className="text-orange-200 mt-2 font-medium">Scheduled</div>
           </div>
         </Card3D>
       </motion.div>
@@ -281,7 +281,7 @@ export default function Dashboard() {
           hover3D={false}
         >
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
+            <h2 className="text-2xl font-bold text-gray-100 mb-4">Quick Actions</h2>
             <div className="flex gap-4 flex-wrap">
               <Link to="/create">
                 <motion.button
@@ -321,7 +321,7 @@ export default function Dashboard() {
         >
           <div className="p-6">
             <div className="text-5xl mb-4">📝</div>
-            <h2 className="text-2xl font-bold text-white mb-2">Posts</h2>
+            <h2 className="text-2xl font-bold text-gray-100 mb-2">Posts</h2>
             <p className="text-gray-300 mb-4">Manage your social media content</p>
             <Link to="/create" className="text-blue-400 hover:text-blue-300 font-semibold inline-flex items-center gap-1">
               Create Post →
@@ -335,7 +335,7 @@ export default function Dashboard() {
         >
           <div className="p-6">
             <div className="text-5xl mb-4">📊</div>
-            <h2 className="text-2xl font-bold text-white mb-2">Analytics</h2>
+            <h2 className="text-2xl font-bold text-gray-100 mb-2">Analytics</h2>
             <p className="text-gray-300 mb-4">Track performance metrics</p>
             <Link to="/analytics" className="text-purple-400 hover:text-purple-300 font-semibold inline-flex items-center gap-1">
               View Analytics →
@@ -349,7 +349,7 @@ export default function Dashboard() {
         >
           <div className="p-6">
             <div className="text-5xl mb-4">⚙️</div>
-            <h2 className="text-2xl font-bold text-white mb-2">Settings</h2>
+            <h2 className="text-2xl font-bold text-gray-100 mb-2">Settings</h2>
             <p className="text-gray-300 mb-4">Configure your accounts</p>
             <Link to="/settings" className="text-green-400 hover:text-green-300 font-semibold inline-flex items-center gap-1">
               Open Settings →

@@ -409,7 +409,7 @@ export default function CreatePost() {
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-bold text-white mb-2"
+            className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mb-2"
           >
             Create Post
           </motion.h1>
@@ -598,7 +598,7 @@ export default function CreatePost() {
           
           {/* Platform Selection with 3D Chips */}
           <div>
-            <label className="block text-sm font-medium text-white mb-4">
+            <label className="block text-sm font-medium text-gray-300 mb-4">
               Select Platforms
             </label>
             <div className="flex flex-wrap gap-4">
