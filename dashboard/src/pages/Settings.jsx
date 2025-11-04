@@ -295,35 +295,7 @@ export default function Settings() {
           >
             Billing & Usage
           </button>
-
-  // Helper function to check if platform is already connected
-  const isPlatformConnected = (platformName) => {
-    return accounts.some(acc => acc.platform === platformName);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="max-w-7xl mx-auto p-8"
-    >
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-      <p className="text-gray-600 mb-8">Manage your account and platform connections.</p>
-
-      {/* Tabs */}
-      <div className="flex gap-4 mb-8 border-b">
-        <button
-          onClick={() => setActiveTab('accounts')}
-          className={'pb-4 px-2 font-medium transition-colors ' + (activeTab === 'accounts' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')}
-        >
-          Connected Accounts
-        </button>
-        <button
-          onClick={() => setActiveTab('billing')}
-          className={'pb-4 px-2 font-medium transition-colors ' + (activeTab === 'billing' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900')}
-        >
-          Billing & Usage
-        </button>
+        </nav>
       </div>
 
       {activeTab === 'accounts' && (
@@ -455,6 +427,142 @@ export default function Settings() {
           </div>
         </div>
         </div>
+        </>
+      )}
+
+      {activeTab === 'billing' && (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <BillingSettings />
+        </div>
+      )}
+
+      {/* Telegram Modal */}
+      {showTelegramModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl p-6 max-w-md w-full"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Connect Telegram</h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bot Token
+                </label>
+                <input
+                  type="text"
+                  value={telegramBotToken}
+                  onChange={(e) => setTelegramBotToken(e.target.value)}
+                  placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Get this from @BotFather on Telegram
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chat ID
+                </label>
+                <input
+                  type="text"
+                  value={telegramChatId}
+                  onChange={(e) => setTelegramChatId(e.target.value)}
+                  placeholder="-1001234567890"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Your channel or group chat ID
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowTelegramModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTelegramConnect}
+                className="flex-1 px-4 py-2 bg-cyan-500 text-white rounded-lg font-medium hover:bg-cyan-600 transition"
+              >
+                Connect
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Slack Modal */}
+      {showSlackModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl p-6 max-w-md w-full"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Connect Slack</h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Webhook URL
+                </label>
+                <input
+                  type="text"
+                  value={slackWebhookUrl}
+                  onChange={(e) => setSlackWebhookUrl(e.target.value)}
+                  placeholder="https://hooks.slack.com/services/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Get this from Slack: Your Workspace → Apps → Incoming Webhooks
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Channel Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={slackChannelName}
+                  onChange={(e) => setSlackChannelName(e.target.value)}
+                  placeholder="#general"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSlackModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSlackConnect}
+                className="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg font-medium hover:bg-purple-600 transition"
+              >
+                Connect
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Discord Modal */}
+      {showDiscordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-xl p-6 max-w-md w-full"
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Connect Discord</h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Webhook URL
                 </label>
                 <input
@@ -499,11 +607,6 @@ export default function Settings() {
           </motion.div>
         </div>
       )}
-
-        </>
-      )}
-
-      {activeTab === 'billing' && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <BillingSettings />
-        </div>
+    </motion.div>
+  );
+}

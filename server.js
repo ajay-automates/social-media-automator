@@ -5,6 +5,7 @@ const path = require('path');
 const session = require('express-session');
 const multer = require('multer');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const crypto = require('crypto');
 const axios = require('axios');
 const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
@@ -182,7 +183,7 @@ if (process.env.NODE_ENV === 'production') {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
   const fs = require('fs');
   
-  if (fs.existsSync(dashboardPath)) {
+  if (fsSync.existsSync(dashboardPath)) {
     // Serve ALL static files from dashboard/dist with correct MIME types
     app.use(express.static(dashboardPath, {
       index: false, // Don't auto-serve index.html
@@ -234,10 +235,19 @@ startScheduler();
 // PAGE ROUTES (Unprotected)
 // ============================================
 
-// Landing page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Serve landing page from React build
+const landingPath = path.join(__dirname, 'landing-dist');
+if (fsSync.existsSync(landingPath)) {
+  app.use(express.static(landingPath, { index: false }));
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(landingPath, 'index.html'));
+  });
+} else {
+  // Fallback to old landing page if React build doesn't exist
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  });
+}
 
 // Auth page
 app.get('/auth', (req, res) => {
@@ -249,10 +259,10 @@ try {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
   const fs = require('fs');
   
-  if (fs.existsSync(dashboardPath)) {
+  if (fsSync.existsSync(dashboardPath)) {
     const indexHtmlPath = path.join(dashboardPath, 'index.html');
     
-    if (fs.existsSync(indexHtmlPath)) {
+    if (fsSync.existsSync(indexHtmlPath)) {
       // Serve static assets for React dashboard at root level
       app.use('/assets', express.static(path.join(dashboardPath, 'assets')));
       app.use('/vite.svg', express.static(path.join(dashboardPath, 'vite.svg')));
@@ -276,7 +286,7 @@ app.get('/dashboard/*', (req, res) => {
   const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
   const fs = require('fs');
   
-  if (fs.existsSync(dashboardIndex)) {
+  if (fsSync.existsSync(dashboardIndex)) {
     res.sendFile(dashboardIndex);
   } else {
     console.error('❌ Dashboard index.html not found at:', dashboardIndex);
@@ -3132,7 +3142,7 @@ app.get('*', (req, res, next) => {
   const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
   const fs = require('fs');
   
-  if (fs.existsSync(dashboardIndex)) {
+  if (fsSync.existsSync(dashboardIndex)) {
     console.log('🎯 Catch-all: Serving dashboard for path:', req.path);
     res.sendFile(dashboardIndex);
   } else {
