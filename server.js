@@ -1453,7 +1453,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       });
     
     console.log(`✅ LinkedIn account connected for user ${userId}`);
-    res.redirect('/dashboard?connected=linkedin&success=true');
+    res.redirect('/connect-accounts?connected=linkedin&success=true');
   } catch (error) {
     console.error('Error in LinkedIn callback:', error.message);
     res.redirect('/dashboard?error=linkedin_failed');
@@ -1858,7 +1858,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
     }
     
     console.log(`✅ Twitter account connected for user ${userId}`);
-    res.redirect('/dashboard?connected=twitter&success=true');
+    res.redirect('/connect-accounts?connected=twitter&success=true');
   } catch (error) {
     console.error('Error in Twitter callback:', error.message);
     res.redirect('/dashboard?error=twitter_failed');
@@ -1965,7 +1965,7 @@ app.get('/auth/instagram/callback', async (req, res) => {
       console.log('  ✅ Instagram account connected successfully');
       console.log('  - Account:', result.account);
       
-      return res.redirect('/dashboard?instagram=connected');
+      return res.redirect('/connect-accounts?instagram=connected');
       
     } catch (callbackError) {
       console.error('  ❌ Instagram callback error:', callbackError.message);
@@ -2027,13 +2027,13 @@ app.get('/auth/facebook/callback', async (req, res) => {
     if (error) {
       console.log('  ❌ Facebook denied access:', error);
       console.log('  ❌ Error details:', { error_code, error_message, error_reason });
-      return res.redirect(`/dashboard/settings?error=facebook_denied&message=${encodeURIComponent(error_message || error)}`);
+      return res.redirect(`/connect-accounts?error=facebook_denied&message=${encodeURIComponent(error_message || error)}`);
     }
     
     if (!code || !state) {
       console.log('  ❌ Missing code or state');
       console.log('  ❌ Query params:', req.query);
-      return res.redirect('/dashboard/settings?error=facebook_failed&message=Missing+authorization+code');
+      return res.redirect('/connect-accounts?error=facebook_failed&message=Missing+authorization+code');
     }
     
     const { handleFacebookCallback } = require('./services/oauth');
@@ -2047,10 +2047,10 @@ app.get('/auth/facebook/callback', async (req, res) => {
       
       if (result.success && result.accounts && result.accounts.length > 0) {
         console.log('  ✅ Facebook connected successfully:', result.accounts.length, 'Pages');
-        return res.redirect('/dashboard/settings?facebook=connected');
+        return res.redirect('/connect-accounts?facebook=connected');
       } else {
         console.log('  ⚠️  No Pages saved');
-        return res.redirect('/dashboard/settings?error=facebook_no_pages&message=No+Facebook+Pages+found.+Please+create+a+Facebook+Page+first.');
+        return res.redirect('/connect-accounts?error=facebook_no_pages&message=No+Facebook+Pages+found.+Please+create+a+Facebook+Page+first.');
       }
       
     } catch (callbackError) {
@@ -2063,13 +2063,13 @@ app.get('/auth/facebook/callback', async (req, res) => {
         errorMsg = callbackError.response.data.error.message || errorMsg;
       }
       
-      return res.redirect(`/dashboard/settings?error=facebook_failed&message=${encodeURIComponent(errorMsg)}`);
+      return res.redirect(`/connect-accounts?error=facebook_failed&message=${encodeURIComponent(errorMsg)}`);
     }
     
   } catch (error) {
     console.error('Error handling Facebook callback:', error);
     console.error('Full error:', error);
-    return res.redirect(`/dashboard/settings?error=facebook_failed&message=${encodeURIComponent(error.message || 'Unknown error')}`);
+    return res.redirect(`/connect-accounts?error=facebook_failed&message=${encodeURIComponent(error.message || 'Unknown error')}`);
   }
 });
 
@@ -2928,7 +2928,7 @@ app.get('/auth/tiktok/callback', async (req, res) => {
     
     console.log(`✅ TikTok account connected for user ${userId}: @${userInfo.username}`);
     
-    res.redirect('/dashboard#settings?success=TikTok account connected successfully');
+    res.redirect('/connect-accounts?connected=tiktok&success=true');
   } catch (error) {
     console.error('❌ TikTok OAuth callback error:', error);
     res.redirect(`/dashboard?error=${encodeURIComponent(error.message)}`);
@@ -3115,7 +3115,7 @@ app.get('/auth/youtube/callback', async (req, res) => {
     if (upsertError) throw upsertError;
     
     console.log(`✅ YouTube account connected for user ${userId}`);
-    res.redirect('/dashboard?connected=youtube&success=true');
+    res.redirect('/connect-accounts?connected=youtube&success=true');
     
   } catch (error) {
     console.error('Error in YouTube callback:', error.message);

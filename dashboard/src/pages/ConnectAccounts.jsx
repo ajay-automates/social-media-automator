@@ -51,38 +51,33 @@ export default function ConnectAccounts() {
   }, []);
 
   useEffect(() => {
-    // Check for Instagram and Facebook connection status in URL params
+    // Check for platform connection status in URL params
     const params = new URLSearchParams(window.location.search);
-    const instagram = params.get('instagram');
-    const facebook = params.get('facebook');
+    const connected = params.get('connected');
+    const success = params.get('success');
     const error = params.get('error');
+    const message = params.get('message');
     
-    if (instagram === 'connected') {
+    // Handle successful connections
+    if (connected && success) {
+      showSuccess(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
+      loadAccounts();
+      window.history.replaceState({}, '', '/connect-accounts');
+    } else if (params.get('instagram') === 'connected') {
       showSuccess('Instagram connected successfully!');
       loadAccounts();
-      // Clean URL
-      window.history.replaceState({}, '', '/dashboard/connect-accounts');
-    }
-    
-    if (facebook === 'connected') {
+      window.history.replaceState({}, '', '/connect-accounts');
+    } else if (params.get('facebook') === 'connected') {
       showSuccess('Facebook connected successfully!');
       loadAccounts();
-      // Clean URL
-      window.history.replaceState({}, '', '/dashboard/connect-accounts');
+      window.history.replaceState({}, '', '/connect-accounts');
     }
     
-    if (error && error.startsWith('instagram')) {
-      const message = params.get('message') || 'Failed to connect Instagram';
-      showError(message);
-      // Clean URL
-      window.history.replaceState({}, '', '/dashboard/connect-accounts');
-    }
-    
-    if (error && error.startsWith('facebook')) {
-      const message = params.get('message') || 'Failed to connect Facebook';
-      showError(message);
-      // Clean URL
-      window.history.replaceState({}, '', '/dashboard/connect-accounts');
+    // Handle errors
+    if (error) {
+      const errorMessage = message || `Failed to connect platform: ${error}`;
+      showError(errorMessage);
+      window.history.replaceState({}, '', '/connect-accounts');
     }
   }, []);
 
@@ -101,32 +96,102 @@ export default function ConnectAccounts() {
     }
   };
 
-  const connectLinkedIn = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/linkedin`;
+  const connectLinkedIn = async () => {
+    try {
+      const response = await api.post('/auth/linkedin/url');
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate LinkedIn auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting LinkedIn:', err);
+      showError(err.response?.data?.error || 'Failed to connect LinkedIn');
+    }
   };
 
-  const connectTwitter = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/twitter`;
+  const connectTwitter = async () => {
+    try {
+      const response = await api.post('/auth/twitter/url');
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate Twitter auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting Twitter:', err);
+      showError(err.response?.data?.error || 'Failed to connect Twitter');
+    }
   };
 
-  const connectInstagram = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/instagram`;
+  const connectInstagram = async () => {
+    try {
+      const response = await api.post('/auth/instagram/url');
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate Instagram auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting Instagram:', err);
+      showError(err.response?.data?.error || 'Failed to connect Instagram');
+    }
   };
 
-  const connectFacebook = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/facebook`;
+  const connectFacebook = async () => {
+    try {
+      const response = await api.post('/auth/facebook/url');
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate Facebook auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting Facebook:', err);
+      showError(err.response?.data?.error || 'Failed to connect Facebook');
+    }
   };
 
-  const connectReddit = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/reddit`;
+  const connectReddit = async () => {
+    try {
+      const response = await api.post('/auth/reddit/url');
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate Reddit auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting Reddit:', err);
+      showError(err.response?.data?.error || 'Failed to connect Reddit');
+    }
   };
 
-  const connectYouTube = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/youtube`;
+  const connectYouTube = async () => {
+    try {
+      const response = await api.post('/auth/youtube/url');
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate YouTube auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting YouTube:', err);
+      showError(err.response?.data?.error || 'Failed to connect YouTube');
+    }
   };
 
-  const connectTikTok = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/tiktok`;
+  const connectTikTok = async () => {
+    try {
+      const response = await api.post('/auth/tiktok/url');
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate TikTok auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting TikTok:', err);
+      showError(err.response?.data?.error || 'Failed to connect TikTok');
+    }
   };
 
   const connectTelegram = () => {
