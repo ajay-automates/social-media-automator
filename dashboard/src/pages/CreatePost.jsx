@@ -1355,7 +1355,14 @@ export default function CreatePost() {
                         <div className="relative">
                           {/* Template Header */}
                           <div className="flex items-start justify-between mb-3">
-                            <h3 className="text-lg font-bold text-white pr-2">{template.name}</h3>
+                            <div className="flex-1 pr-2">
+                              <h3 className="text-lg font-bold text-white mb-1">{template.name}</h3>
+                              {template.is_public && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500/30 to-purple-500/30 backdrop-blur-sm border border-blue-400/40 text-blue-200 rounded-full text-xs font-medium">
+                                  🌐 Public
+                                </span>
+                              )}
+                            </div>
                             {template.is_favorite && <span className="text-xl">⭐</span>}
                           </div>
 

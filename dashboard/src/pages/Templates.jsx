@@ -406,13 +406,22 @@ async function handleSaveTemplate() {
               <div className="p-6 relative">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white flex-1">{template.name}</h3>
-                  <button
-                    onClick={() => handleToggleFavorite(template.id)}
-                    className="text-2xl hover:scale-110 transition-transform"
-                  >
-                    {template.is_favorite ? '⭐' : '☆'}
-                  </button>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-white mb-1">{template.name}</h3>
+                    {template.is_public && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500/30 to-purple-500/30 backdrop-blur-sm border border-blue-400/40 text-blue-200 rounded-full text-xs font-medium">
+                        🌐 Public Template
+                      </span>
+                    )}
+                  </div>
+                  {template.can_edit && (
+                    <button
+                      onClick={() => handleToggleFavorite(template.id)}
+                      className="text-2xl hover:scale-110 transition-transform"
+                    >
+                      {template.is_favorite ? '⭐' : '☆'}
+                    </button>
+                  )}
                 </div>
 
                 {/* Description */}
@@ -450,27 +459,39 @@ async function handleSaveTemplate() {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEditTemplate(template)}
-                    className="group/btn relative flex-1 bg-blue-600/20 backdrop-blur-sm border border-blue-400/30 text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-600/30 text-sm font-medium transition-all overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative">✏️ Edit</span>
-                  </button>
-                  <button
-                    onClick={() => handleDuplicateTemplate(template.id)}
-                    className="group/btn relative flex-1 bg-green-600/20 backdrop-blur-sm border border-green-400/30 text-green-300 px-3 py-2 rounded-lg hover:bg-green-600/30 text-sm font-medium transition-all overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative">📋 Duplicate</span>
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTemplate(template.id)}
-                    className="group/btn relative bg-red-600/20 backdrop-blur-sm border border-red-400/30 text-red-300 px-3 py-2 rounded-lg hover:bg-red-600/30 text-sm font-medium transition-all overflow-hidden"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative">🗑️</span>
-                  </button>
+                  {template.can_edit ? (
+                    <>
+                      <button
+                        onClick={() => handleEditTemplate(template)}
+                        className="group/btn relative flex-1 bg-blue-600/20 backdrop-blur-sm border border-blue-400/30 text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-600/30 text-sm font-medium transition-all overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                        <span className="relative">✏️ Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDuplicateTemplate(template.id)}
+                        className="group/btn relative flex-1 bg-green-600/20 backdrop-blur-sm border border-green-400/30 text-green-300 px-3 py-2 rounded-lg hover:bg-green-600/30 text-sm font-medium transition-all overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                        <span className="relative">📋 Duplicate</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTemplate(template.id)}
+                        className="group/btn relative bg-red-600/20 backdrop-blur-sm border border-red-400/30 text-red-300 px-3 py-2 rounded-lg hover:bg-red-600/30 text-sm font-medium transition-all overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                        <span className="relative">🗑️</span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => handleDuplicateTemplate(template.id)}
+                      className="group/btn relative flex-1 bg-gradient-to-r from-purple-600/30 to-blue-600/30 backdrop-blur-sm border-2 border-purple-400/40 text-purple-200 px-4 py-2 rounded-lg hover:from-purple-600/40 hover:to-blue-600/40 text-sm font-semibold transition-all overflow-hidden shadow-lg hover:shadow-purple-500/30"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                      <span className="relative">✨ Clone to My Templates</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

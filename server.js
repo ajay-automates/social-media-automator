@@ -88,6 +88,7 @@ const {
   incrementTemplateUse,
   toggleTemplateFavorite,
   duplicateTemplate,
+  clonePublicTemplate,
   getTemplateCategories,
   getTemplateStats,
   processTemplateVariables
@@ -2678,6 +2679,31 @@ app.post('/api/templates/:id/duplicate', verifyAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error duplicating template:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/templates/:id/clone
+ * Clone a public template to user's account
+ */
+app.post('/api/templates/:id/clone', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const templateId = parseInt(req.params.id);
+    
+    const template = await clonePublicTemplate(templateId, userId);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Template cloned successfully! You can now customize it.',
+      template
+    });
+  } catch (error) {
+    console.error('❌ Error cloning template:', error);
     res.status(500).json({
       success: false,
       error: error.message

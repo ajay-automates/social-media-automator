@@ -18,19 +18,20 @@ const supabase = createClient(
  */
 async function getTemplates(userId, filters = {}) {
   try {
+    // Get user's personal templates AND public templates
     let query = supabase
       .from('post_templates')
       .select('*')
-      .eq('user_id', userId);
+      .or(`user_id.eq.${userId},is_public.eq.true`);
 
     // Filter by category
     if (filters.category && filters.category !== 'all') {
       query = query.eq('category', filters.category);
     }
 
-    // Filter by favorite
+    // Filter by favorite (only for user's own templates)
     if (filters.favorite === true) {
-      query = query.eq('is_favorite', true);
+      query = query.eq('is_favorite', true).eq('user_id', userId);
     }
 
     // Search by name, description, or text
@@ -40,16 +41,25 @@ async function getTemplates(userId, filters = {}) {
       );
     }
 
-    // Sort
+    // Sort: Public templates first, then by creation date
     const sortBy = filters.sort || 'created_at';
     const sortOrder = filters.order || 'desc';
-    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+    query = query.order('is_public', { ascending: false }) // Public templates first
+                 .order(sortBy, { ascending: sortOrder === 'asc' });
 
     const { data, error } = await query;
 
     if (error) throw error;
 
-    return data || [];
+    // Add a flag to indicate if user owns the template
+    const templates = (data || []).map(template => ({
+      ...template,
+      is_owned: template.user_id === userId,
+      can_edit: template.user_id === userId,
+      can_delete: template.user_id === userId
+    }));
+
+    return templates;
   } catch (error) {
     console.error('❌ Error fetching templates:', error);
     throw error;
@@ -301,10 +311,16 @@ async function toggleTemplateFavorite(templateId, userId) {
  */
 async function duplicateTemplate(templateId, userId) {
   try {
-    const original = await getTemplateById(templateId, userId);
+    // Try to get template (works for both owned and public templates)
+    const { data: original, error: fetchError } = await supabase
+      .from('post_templates')
+      .select('*')
+      .eq('id', templateId)
+      .or(`user_id.eq.${userId},is_public.eq.true`)
+      .single();
     
-    if (!original) {
-      throw new Error('Template not found');
+    if (fetchError || !original) {
+      throw new Error('Template not found or access denied');
     }
 
     // Create a copy with modified name
@@ -321,7 +337,8 @@ async function duplicateTemplate(templateId, userId) {
           category: original.category,
           tags: original.tags,
           use_count: 0,
-          is_favorite: false
+          is_favorite: false,
+          is_public: false // User's copy is private by default
         }
       ])
       .select()
@@ -334,6 +351,58 @@ async function duplicateTemplate(templateId, userId) {
     return data;
   } catch (error) {
     console.error('❌ Error duplicating template:', error);
+    throw error;
+  }
+}
+
+/**
+ * Clone a public template to user's account
+ * @param {number} templateId - Template ID to clone
+ * @param {string} userId - User ID
+ * @returns {Promise<object>} New template
+ */
+async function clonePublicTemplate(templateId, userId) {
+  try {
+    // Get the public template
+    const { data: original, error: fetchError } = await supabase
+      .from('post_templates')
+      .select('*')
+      .eq('id', templateId)
+      .eq('is_public', true)
+      .single();
+    
+    if (fetchError || !original) {
+      throw new Error('Public template not found');
+    }
+
+    // Create a private copy for the user
+    const { data, error } = await supabase
+      .from('post_templates')
+      .insert([
+        {
+          user_id: userId,
+          name: original.name, // Keep original name (user can edit)
+          description: original.description,
+          text: original.text,
+          image_url: original.image_url,
+          platforms: original.platforms,
+          category: original.category,
+          tags: original.tags,
+          use_count: 0,
+          is_favorite: false,
+          is_public: false
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    console.log(`✅ Public template cloned: ${data.name} (ID: ${data.id})`);
+
+    return data;
+  } catch (error) {
+    console.error('❌ Error cloning template:', error);
     throw error;
   }
 }
@@ -447,6 +516,7 @@ module.exports = {
   incrementTemplateUse,
   toggleTemplateFavorite,
   duplicateTemplate,
+  clonePublicTemplate,
   getTemplateCategories,
   getTemplateStats,
   processTemplateVariables
