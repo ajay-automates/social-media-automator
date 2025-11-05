@@ -560,96 +560,6 @@ export default function CreatePost() {
               � Generate from URL
             </motion.button>
           </div>
-          
-          {/* Platform Selection with 3D Chips */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-4">
-              Select Platforms
-            </label>
-            <div className="flex flex-wrap gap-4">
-              {[
-                'twitter', 'linkedin', 'facebook', 'telegram', 
-                'slack', 'discord', 'reddit', 'instagram', 
-                'youtube', 'tiktok'
-              ].map(platformId => (
-                <PlatformChip
-                  key={platformId}
-                  platform={platformId}
-                  selected={platforms.includes(platformId)}
-                  onClick={() => togglePlatform(platformId)}
-                  size="md"
-                />
-              ))}
-            </div>
-            {platforms.length > 0 && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-sm text-gray-400 mt-3"
-              >
-                ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
-              </motion.p>
-            )}
-          </div>
-
-          {/* Instagram Image Requirement Warning */}
-          {platforms.includes('instagram') && !image && (
-            <div className="border border-yellow-500/30 bg-yellow-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2">
-              <span className="text-2xl">⚠️</span>
-              <div>
-                <div className="font-semibold text-yellow-300">Image Required</div>
-                <div className="text-sm text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
-              </div>
-            </div>
-          )}
-          
-
-          {/* TikTok Video Requirement Warning */}
-          {platforms.includes("tiktok") && !videoUrl && (
-            <div className="border border-amber-500/30 bg-amber-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2">
-              <span className="text-2xl">⚠️</span>
-              <div>
-                <div className="font-semibold text-amber-300">Video Required for TikTok</div>
-                <div className="text-sm text-amber-400">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
-              </div>
-            </div>
-          )}
-          {/* Post Usage Info */}
-          {billingInfo && billingInfo.usage && billingInfo.usage.posts && (
-            <div className={`border rounded-lg p-3 backdrop-blur-sm ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-500/30 bg-yellow-900/20' : 'border-white/10 bg-gray-800/30'}`}>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-200">
-                  {billingInfo.usage.posts.limit === Infinity ? 'Unlimited posts' : `${billingInfo.usage.posts.limit - billingInfo.usage.posts.used} posts remaining`}
-                </span>
-                {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan && billingInfo.plan.name === 'free' && (
-                  <a href="/pricing" className="text-blue-600 hover:text-blue-700 font-medium">
-                    Upgrade →
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handlePost}
-              disabled={isLoading || !caption.trim() || platforms.length === 0}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              {isLoading ? 'Posting...' : 'Post Now'}
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
-            >
-              📅 Schedule
-            </motion.button>
-          </div>
         </div>
 
         {/* AI Image Generation */}
@@ -932,6 +842,97 @@ export default function CreatePost() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Platform Selection with 3D Chips */}
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+          <h3 className="text-xl font-bold text-white mb-4">🎯 Select Platforms</h3>
+          
+          <div>
+            <div className="flex flex-wrap gap-4">
+              {[
+                'twitter', 'linkedin', 'facebook', 'telegram', 
+                'slack', 'discord', 'reddit', 'instagram', 
+                'youtube', 'tiktok'
+              ].map(platformId => (
+                <PlatformChip
+                  key={platformId}
+                  platform={platformId}
+                  selected={platforms.includes(platformId)}
+                  onClick={() => togglePlatform(platformId)}
+                  size="md"
+                />
+              ))}
+            </div>
+            {platforms.length > 0 && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-sm text-gray-400 mt-3"
+              >
+                ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
+              </motion.p>
+            )}
+          </div>
+
+          {/* Instagram Image Requirement Warning */}
+          {platforms.includes('instagram') && !image && (
+            <div className="border border-yellow-500/30 bg-yellow-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 mt-4">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <div className="font-semibold text-yellow-300">Image Required</div>
+                <div className="text-sm text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
+              </div>
+            </div>
+          )}
+
+          {/* TikTok Video Requirement Warning */}
+          {platforms.includes("tiktok") && !videoUrl && (
+            <div className="border border-amber-500/30 bg-amber-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 mt-4">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <div className="font-semibold text-amber-300">Video Required for TikTok</div>
+                <div className="text-sm text-amber-400">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
+              </div>
+            </div>
+          )}
+
+          {/* Post Usage Info */}
+          {billingInfo && billingInfo.usage && billingInfo.usage.posts && (
+            <div className={`border rounded-lg p-3 backdrop-blur-sm mt-4 ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-500/30 bg-yellow-900/20' : 'border-white/10 bg-gray-800/30'}`}>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-200">
+                  {billingInfo.usage.posts.limit === Infinity ? 'Unlimited posts' : `${billingInfo.usage.posts.limit - billingInfo.usage.posts.used} posts remaining`}
+                </span>
+                {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan && billingInfo.plan.name === 'free' && (
+                  <a href="/pricing" className="text-blue-600 hover:text-blue-700 font-medium">
+                    Upgrade →
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-4 mt-6">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handlePost}
+              disabled={isLoading || !caption.trim() || platforms.length === 0}
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {isLoading ? 'Posting...' : 'Post Now'}
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
+            >
+              📅 Schedule
+            </motion.button>
+          </div>
         </div>
       </motion.div>
 
