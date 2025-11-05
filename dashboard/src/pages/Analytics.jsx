@@ -196,37 +196,63 @@ export default function Analytics() {
             loadAnalytics();
             loadHistory();
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+          className="group relative bg-blue-600/30 backdrop-blur-lg border-2 border-blue-400/30 text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/30 overflow-hidden"
         >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="relative flex items-center gap-2">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Refresh Now
+          </div>
         </button>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
-          <div className="text-3xl font-bold">{analytics.totalPosts}</div>
-          <div className="text-blue-100 mt-1">Total Posts</div>
-        </div>
+        <motion.div 
+          whileHover={{ y: -5, scale: 1.02 }}
+          className="group relative bg-gradient-to-br from-blue-600/20 to-blue-700/20 backdrop-blur-xl border-2 border-blue-400/30 rounded-xl shadow-xl p-6 text-white overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="relative">
+            <div className="text-3xl font-bold">{analytics.totalPosts}</div>
+            <div className="text-blue-200 mt-1">Total Posts</div>
+          </div>
+        </motion.div>
         
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
-          <div className="text-3xl font-bold">{analytics.successRate || 98}%</div>
-          <div className="text-green-100 mt-1">Success Rate</div>
-        </div>
+        <motion.div 
+          whileHover={{ y: -5, scale: 1.02 }}
+          className="group relative bg-gradient-to-br from-green-600/20 to-green-700/20 backdrop-blur-xl border-2 border-green-400/30 rounded-xl shadow-xl p-6 text-white overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="relative">
+            <div className="text-3xl font-bold">{analytics.successRate || 98}%</div>
+            <div className="text-green-200 mt-1">Success Rate</div>
+          </div>
+        </motion.div>
         
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-          <div className="text-3xl font-bold">{analytics.activePlatforms || 3}</div>
-          <div className="text-purple-100 mt-1">Active Platforms</div>
-        </div>
+        <motion.div 
+          whileHover={{ y: -5, scale: 1.02 }}
+          className="group relative bg-gradient-to-br from-purple-600/20 to-purple-700/20 backdrop-blur-xl border-2 border-purple-400/30 rounded-xl shadow-xl p-6 text-white overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="relative">
+            <div className="text-3xl font-bold">{analytics.activePlatforms || 3}</div>
+            <div className="text-purple-200 mt-1">Active Platforms</div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Timeline Chart */}
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6">
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="group relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="relative">
           <h2 className="text-xl font-bold text-white mb-4">Posts Timeline (Last 30 Days)</h2>
           {lineData.length > 0 && lineData[0].date !== 'No data' ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -244,10 +270,16 @@ export default function Analytics() {
               <p>No timeline data available yet</p>
             </div>
           )}
-        </div>
+          </div>
+        </motion.div>
 
         {/* Platform Distribution */}
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6">
+        <motion.div 
+          whileHover={{ y: -5 }}
+          className="group relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="relative">
           <h2 className="text-xl font-bold text-white mb-4">Platform Distribution</h2>
           {pieData.length > 0 && pieData[0].name !== 'No data' ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -279,11 +311,17 @@ export default function Analytics() {
               <p>No platform data available yet</p>
             </div>
           )}
-        </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Post History Table */}
-      <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6">
+      <motion.div 
+        whileHover={{ y: -5 }}
+        className="group relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+        <div className="relative">
         <h2 className="text-2xl font-bold text-white mb-4">Recent Posts</h2>
         {history.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
@@ -482,7 +520,8 @@ export default function Analytics() {
           </table>
         </div>
         )}
-      </div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

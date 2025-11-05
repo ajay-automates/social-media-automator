@@ -154,8 +154,8 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-20">
-      <div className="container mx-auto px-6 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-20 pt-32 overflow-x-hidden">
+      <div className="container mx-auto px-6 max-w-7xl overflow-visible">
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-white mb-4">
@@ -190,7 +190,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-20 overflow-visible">
           {Object.entries(plans).map(([key, plan], index) => {
             const isPopular = key === 'pro';
             const isCurrent = currentPlan === key;
@@ -203,25 +203,25 @@ export default function Pricing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                className={`group relative overflow-hidden ${
+                className={`group relative overflow-visible ${
                   isPopular
                     ? 'bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-xl border-2 border-blue-400/50 transform scale-105 shadow-2xl shadow-blue-500/30'
                     : 'bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 shadow-xl'
                 } p-8 rounded-2xl flex flex-col relative`}
               >
                 {/* Glossy shine overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
                 
                 {/* Popular Badge */}
                 {isPopular && (
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-10">
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-50">
                     ⭐ MOST POPULAR
                   </div>
                 )}
 
                 {/* Current Plan Badge */}
                 {isCurrent && !isPopular && (
-                  <div className="absolute -top-6 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30 z-10">
+                  <div className="absolute -top-6 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30 z-50">
                     ✓ Current Plan
                   </div>
                 )}

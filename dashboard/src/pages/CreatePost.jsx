@@ -39,6 +39,10 @@ export default function CreatePost() {
   const [youtubeInstructions, setYoutubeInstructions] = useState('');
   const [generatingFromYoutube, setGeneratingFromYoutube] = useState(false);
   const [youtubeVariations, setYoutubeVariations] = useState([]);
+  const [aiVideoPrompt, setAiVideoPrompt] = useState('');
+  const [generatingVideo, setGeneratingVideo] = useState(false);
+  const [generatedVideo, setGeneratedVideo] = useState(null);
+  const [showVideoGenPreview, setShowVideoGenPreview] = useState(false);
 
   useEffect(() => {
     loadBillingInfo();
@@ -225,6 +229,60 @@ export default function CreatePost() {
 
   const useExample = (exampleText) => {
     setAiImagePrompt(exampleText);
+  };
+
+  const useVideoExample = (exampleText) => {
+    setAiVideoPrompt(exampleText);
+  };
+
+  const generateVideo = async () => {
+    if (!aiVideoPrompt.trim()) {
+      showError('Please enter a video prompt');
+      return;
+    }
+
+    setGeneratingVideo(true);
+    try {
+      // Note: This would call a video generation API
+      // For now, showing a coming soon message
+      showError('🎬 AI Video Generation coming soon! Currently in development. For now, please upload videos manually.');
+      
+      // Future implementation:
+      // const response = await api.post('/ai/video/generate', {
+      //   prompt: aiVideoPrompt,
+      //   duration: 5, // seconds
+      //   aspect_ratio: '16:9'
+      // });
+      // 
+      // if (response.data.videoUrl) {
+      //   setGeneratedVideo(response.data.videoUrl);
+      //   setShowVideoGenPreview(true);
+      //   showSuccess('Video generated! Choose to attach or regenerate ✨');
+      // }
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to generate video';
+      showError(errorMessage);
+      console.error('AI Video error:', err);
+    } finally {
+      setGeneratingVideo(false);
+    }
+  };
+
+  const attachGeneratedVideo = () => {
+    if (generatedVideo) {
+      setImage(generatedVideo);
+      setMediaType('video');
+      setShowVideoGenPreview(false);
+      showSuccess('Video attached! 📎');
+    }
+  };
+
+  const regenerateVideo = () => {
+    if (generatedVideo) {
+      setGeneratedVideo(null);
+      setShowVideoGenPreview(false);
+      generateVideo();
+    }
   };
 
   const handleAttachVideo = async () => {
@@ -768,6 +826,102 @@ export default function CreatePost() {
                     setGeneratedImage(null);
                   }}
                   className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                >
+                  ✕
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* AI Video Generation */}
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+          <h3 className="text-xl font-bold text-white mb-4">🎬 AI Video Generator</h3>
+          
+          <div className="mb-4 p-4 bg-blue-900/20 backdrop-blur-sm border border-blue-500/30 rounded-lg">
+            <p className="text-sm text-blue-200 flex items-center gap-2">
+              <span className="text-xl">🚧</span>
+              <span><strong>Coming Soon:</strong> AI-powered video generation is currently in development. Stay tuned for exciting updates!</span>
+            </p>
+          </div>
+          
+          {/* Example Prompts */}
+          <div className="mb-4">
+            <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
+            <div className="flex flex-wrap gap-2">
+              {['product showcase animation', 'social media intro video', 'abstract motion graphics', 'text animation reveal'].map((example, idx) => (
+                <motion.button
+                  key={idx}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => useVideoExample(example)}
+                  className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
+                >
+                  {example}
+                </motion.button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Prompt Input */}
+          <textarea
+            value={aiVideoPrompt}
+            onChange={(e) => setAiVideoPrompt(e.target.value)}
+            placeholder="Describe the video you want to create... (5-10 seconds, 16:9 aspect ratio)"
+            className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 mb-4 placeholder:text-gray-400"
+            rows={3}
+          />
+          
+          {/* Generate Button */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={generateVideo}
+            disabled={generatingVideo || !aiVideoPrompt.trim()}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {generatingVideo ? 'Generating...' : '🎬 Generate Video'}
+          </motion.button>
+
+          {/* Generated Video Preview */}
+          {showVideoGenPreview && generatedVideo && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 p-4 bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg"
+            >
+              <p className="text-sm font-semibold text-gray-200 mb-3">Generated Video:</p>
+              <video 
+                src={generatedVideo} 
+                controls
+                className="w-full rounded-lg mb-4 border-2 border-gray-600"
+              />
+              <div className="flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={attachGeneratedVideo}
+                  className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+                >
+                  📎 Attach Video
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={regenerateVideo}
+                  disabled={generatingVideo}
+                  className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  🔄 Regenerate
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setShowVideoGenPreview(false);
+                    setGeneratedVideo(null);
+                  }}
+                  className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
                 >
                   ✕
                 </motion.button>
