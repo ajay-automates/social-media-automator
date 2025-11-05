@@ -561,99 +561,6 @@ export default function CreatePost() {
             </motion.button>
           </div>
           
-          {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Image or Video (Optional)
-            </label>
-            {image && (
-              <div className="mb-3">
-                <img src={image} alt="Preview" className="w-full max-h-64 object-contain rounded-lg border-2 border-gray-300" />
-                <button
-                  onClick={() => setImage(null)}
-                  className="mt-2 text-sm text-red-600 hover:text-red-700"
-                >
-                  Remove Image
-                </button>
-              </div>
-            )}
-            <input
-              type="file"
-              accept="image/*,video/*"
-              onChange={async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                  const isVideo = file.type.startsWith('video/');
-                  setMediaType(isVideo ? 'video' : 'image');
-                  
-                  if (isVideo) {
-                    // Store video file and show preview
-                    setPendingVideoFile(file);
-                    const previewUrl = URL.createObjectURL(file);
-                    setVideoPreviewUrl(previewUrl);
-                    showSuccess('Video ready to attach! Click "Attach Video" to upload.');
-                  } else {
-                    // Handle image as before
-                    const reader = new FileReader();
-                    reader.onload = (e) => setImage(e.target.result);
-                    reader.readAsDataURL(file);
-                  }
-                }
-              }}
-              className="w-full p-3 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Video Preview and Attach Button */}
-          {pendingVideoFile && (
-            <div className="bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="text-4xl">🎬</div>
-                  <div>
-                    <p className="font-semibold text-white">{pendingVideoFile.name}</p>
-                    <p className="text-sm text-gray-300">
-                      {(pendingVideoFile.size / (1024 * 1024)).toFixed(2)} MB
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleAttachVideo}
-                  disabled={uploadingMedia}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                >
-                  {uploadingMedia ? 'Uploading...' : 'Attach Video'}
-                </button>
-              </div>
-              {videoPreviewUrl && (
-                <div className="mt-4">
-                  <video 
-                    src={videoPreviewUrl} 
-                    controls 
-                    className="w-full max-h-64 rounded-lg"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Attached Media Confirmation */}
-          {image && !pendingVideoFile && (
-            <div className="bg-green-900/20 backdrop-blur-sm border-2 border-green-500/30 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <div className="text-2xl">✅</div>
-                <div>
-                  <p className="font-semibold text-green-300">
-                    {mediaType === 'video' ? 'Video' : 'Image'} attached and ready to post!
-                  </p>
-                  <p className="text-sm text-green-400">
-                    Click &quot;Post Now&quot; to share across platforms
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          
           {/* Platform Selection with 3D Chips */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-4">
@@ -927,6 +834,103 @@ export default function CreatePost() {
                 </motion.button>
               </div>
             </motion.div>
+          )}
+        </div>
+
+        {/* Image/Video Upload */}
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+          <h3 className="text-xl font-bold text-white mb-4">📁 Upload Media</h3>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Image or Video (Optional)
+            </label>
+            {image && (
+              <div className="mb-3">
+                <img src={image} alt="Preview" className="w-full max-h-64 object-contain rounded-lg border-2 border-gray-300" />
+                <button
+                  onClick={() => setImage(null)}
+                  className="mt-2 text-sm text-red-600 hover:text-red-700"
+                >
+                  Remove Image
+                </button>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*,video/*"
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const isVideo = file.type.startsWith('video/');
+                  setMediaType(isVideo ? 'video' : 'image');
+                  
+                  if (isVideo) {
+                    // Store video file and show preview
+                    setPendingVideoFile(file);
+                    const previewUrl = URL.createObjectURL(file);
+                    setVideoPreviewUrl(previewUrl);
+                    showSuccess('Video ready to attach! Click "Attach Video" to upload.');
+                  } else {
+                    // Handle image as before
+                    const reader = new FileReader();
+                    reader.onload = (e) => setImage(e.target.result);
+                    reader.readAsDataURL(file);
+                  }
+                }
+              }}
+              className="w-full p-3 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Video Preview and Attach Button */}
+          {pendingVideoFile && (
+            <div className="bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg p-4 mt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="text-4xl">🎬</div>
+                  <div>
+                    <p className="font-semibold text-white">{pendingVideoFile.name}</p>
+                    <p className="text-sm text-gray-300">
+                      {(pendingVideoFile.size / (1024 * 1024)).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleAttachVideo}
+                  disabled={uploadingMedia}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  {uploadingMedia ? 'Uploading...' : 'Attach Video'}
+                </button>
+              </div>
+              {videoPreviewUrl && (
+                <div className="mt-4">
+                  <video 
+                    src={videoPreviewUrl} 
+                    controls 
+                    className="w-full max-h-64 rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Attached Media Confirmation */}
+          {image && !pendingVideoFile && (
+            <div className="bg-green-900/20 backdrop-blur-sm border-2 border-green-500/30 rounded-lg p-4 mt-4">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">✅</div>
+                <div>
+                  <p className="font-semibold text-green-300">
+                    {mediaType === 'video' ? 'Video' : 'Image'} attached and ready to post!
+                  </p>
+                  <p className="text-sm text-green-400">
+                    Click &quot;Post Now&quot; to share across platforms
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </motion.div>
