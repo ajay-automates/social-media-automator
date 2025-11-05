@@ -19,31 +19,7 @@ import {
   FaVk,
   FaLine,
   FaWeixin,
-  FaMicrophone,
-  FaRocket,
-  FaRobot,
-  FaVideo,
-  FaPalette,
-  FaCalendar,
-  FaChartBar,
-  FaRecycle,
-  FaHashtag,
-  FaFileUpload,
-  FaCalendarAlt,
-  FaUsers,
-  FaFlask,
-  FaLink,
-  FaRss,
-  FaHeadphones,
-  FaComments,
-  FaBullseye,
-  FaTag,
-  FaCog,
-  FaCut,
-  FaMobileAlt,
-  FaImages,
-  FaStar,
-  FaDollarSign
+  FaMicrophone
 } from 'react-icons/fa';
 import { SiThreads, SiBluesky, SiMastodon, SiVimeo } from 'react-icons/si';
 

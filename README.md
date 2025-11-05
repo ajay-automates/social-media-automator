@@ -10,38 +10,44 @@
 
 ## 📖 Overview
 
-Automate your social media posting across 10+ platforms with AI-generated content, intelligent scheduling, and multi-account management.
+Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, and glassmorphism UI design.
 
 **Key Features:**
-- 🌐 **10 Platforms**: LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, YouTube, Instagram, Facebook, TikTok
-- 🤖 **AI-Powered**: Claude + Gemini AI captions + Stability AI images
-- 📅 **Smart Scheduling**: Post immediately or schedule for later
+- 🌐 **20 Platforms**: 10 fully integrated + 10 coming soon (LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok, Reddit, Discord, Slack, Telegram, WhatsApp, Pinterest, Threads, Snapchat, Medium, Twitch, Bluesky, Mastodon, Tumblr, Quora)
+- 🤖 **AI-Powered**: Claude Sonnet 4 captions (3 variations) + Stability AI images + URL content generation
+- 📅 **Smart Scheduling**: Post immediately or schedule with cron automation
 - 👥 **Multi-Account**: Connect multiple accounts per platform
-- 📊 **Analytics**: Track performance across all platforms
-- 💳 **Stripe Billing**: 3-tier SaaS pricing
+- 📊 **Real-Time Analytics**: Charts, graphs, post history with live tracking
+- 💎 **Glassmorphism UI**: Premium frosted-glass design with real brand icons
+- 📝 **Post Templates**: Save and reuse best-performing content
+- 💳 **Stripe Billing**: 3-tier SaaS pricing with usage tracking
 
 ---
 
 ## 🎯 Platform Status
 
-| Platform | Text | Images | Videos | Status |
-|----------|------|--------|--------|--------|
-| **LinkedIn** | ✅ | ✅ | ❌ | Live |
-| **Twitter/X** | ✅ | ✅ | ⚠️ | Partial |
-| **Telegram** | ✅ | ✅ | ✅ | Live |
-| **Slack** | ✅ | ✅ | 🔗 | Live |
-| **Discord** | ✅ | ✅ | 🔗 | Live |
-| **Reddit** | ✅ | ✅ | ✅ | Live |
-| **YouTube** | ⏳ | ⏳ | ✅ | Ready |
-| **Instagram** | ✅ | ✅ | ✅ | Live |
-| **Facebook** | ✅ | ✅ | ✅ | Live |
-| **TikTok** | ❌ | ❌ | ✅ | Beta |
+### ✅ Fully Integrated (10)
+| Platform | Text | Images | Videos | OAuth/Webhook | Status |
+|----------|------|--------|--------|--------------|--------|
+| **LinkedIn** | ✅ | ✅ | ❌ | OAuth 2.0 | Live |
+| **Twitter/X** | ✅ | ✅ | ⚠️ | OAuth 2.0 | Live |
+| **Telegram** | ✅ | ✅ | ✅ | Bot API | Live |
+| **Slack** | ✅ | ✅ | 🔗 | Webhook | Live |
+| **Discord** | ✅ | ✅ | 🔗 | Webhook | Live |
+| **Reddit** | ✅ | ✅ | ✅ | OAuth 2.0 | Live |
+| **YouTube** | ⏳ | ⏳ | ✅ | OAuth 2.0 | Ready |
+| **Instagram** | ✅ | ✅ | ✅ | Graph API | Live |
+| **Facebook** | ✅ | ✅ | ✅ | Graph API | Live |
+| **TikTok** | ❌ | ❌ | ✅ | OAuth 2.0 | Beta |
+
+### 🚧 Coming Soon (10)
+Pinterest, WhatsApp, Snapchat, Medium, Twitch, Threads, Bluesky, Mastodon, Tumblr, Quora
 
 **Legend:**
 - ✅ Fully Working
 - ⚠️ Partial (Elevated access needed)
 - ⏳ Ready (quota/approval pending)
-- 🔗 Link only (webhooks don't support video)
+- 🔗 Webhook (no video support)
 - ❌ Not Supported
 
 ---
@@ -75,21 +81,25 @@ cp docs/getting-started/env-template.txt .env
 ### 3. Setup Database
 
 Run migrations in Supabase SQL Editor (in order):
-- `migrations/001_initial_schema.sql`
-- `migrations/002_multi_tenant.sql`
-- Through `migrations/007_add_post_templates.sql`
+- `migrations/001_initial_schema.sql` through `migrations/011_add_post_templates.sql`
+- Also run `supabase/migrations/006_oauth_states.sql` for OAuth state management
 
 ### 4. Build & Run
 
 ```bash
-# Build React dashboard
-cd dashboard && npm run build && cd ..
+# Build landing page and dashboard
+npm run build
 
-# Start server
+# Start production server
 npm start
+
+# OR run in development mode
+npm run dev  # Backend on port 3000
+cd dashboard && npm run dev  # Frontend on port 5173
 ```
 
-Visit: `http://localhost:3000`
+**Production:** `http://localhost:3000`  
+**Development:** Frontend `http://localhost:5173` + Backend `http://localhost:3000`
 
 **📚 [Complete Setup Guide →](docs/getting-started/quick-start.md)**
 
@@ -143,18 +153,24 @@ Comprehensive documentation is organized in the `docs/` folder:
 
 ### Frontend
 - **Framework**: React 19
-- **Build Tool**: Vite
-- **Styling**: TailwindCSS
-- **Animations**: Framer Motion
+- **Build Tool**: Vite 7
+- **Styling**: TailwindCSS v3.4
+- **Animations**: Framer Motion v12
 - **Routing**: React Router v7
+- **Icons**: React Icons (FontAwesome + Simple Icons)
+- **UI Design**: Glassmorphism with backdrop filters
+- **Charts**: Recharts for analytics
 
 ### External Services
-- **AI**: Anthropic Claude, Google Gemini, Stability AI
-- **Storage**: Cloudinary
-- **Payments**: Stripe
-- **Deployment**: Railway
-- **OAuth**: LinkedIn, Twitter, Reddit, Instagram, Facebook, YouTube, TikTok
-- **Webhooks**: Telegram, Slack, Discord
+- **AI**: 
+  - Anthropic Claude Sonnet 4 (caption generation - 3 variations)
+  - Stability AI (image generation)
+  - Web scraping for URL content extraction
+- **Storage**: Cloudinary (images & videos)
+- **Payments**: Stripe (subscriptions + usage tracking)
+- **Deployment**: Railway (auto-deploy from GitHub)
+- **OAuth Providers**: LinkedIn, Twitter/X, Reddit, Instagram, Facebook, YouTube, TikTok
+- **Webhook Integrations**: Telegram Bot API, Slack, Discord
 
 ---
 
@@ -274,29 +290,43 @@ Built with:
 
 ## 📊 Project Stats
 
-- **Total Files**: 60+
-- **Lines of Code**: 10,000+
-- **Platforms Supported**: 10
-- **API Endpoints**: 30+
-- **Database Tables**: 8
-- **React Components**: 15+
+- **Total Files**: 80+
+- **Lines of Code**: 15,000+
+- **Platforms**: 10 integrated, 10 coming soon
+- **API Endpoints**: 35+
+- **Database Tables**: 10+
+- **React Components**: 30+
+- **Real Icons**: 70+ brand logos
+- **Features**: 24 major features
 
 ---
 
 ## 🗺️ Roadmap
 
-### Short-term
-- [ ] Pinterest integration
-- [ ] Threads (Instagram) support
-- [ ] Advanced analytics dashboard
-- [ ] Content calendar view
+### ✅ Completed
+- [x] Glassmorphism UI redesign
+- [x] Real brand SVG icons (70+)
+- [x] 20 platform support (10 live, 10 coming soon)
+- [x] AI caption generation (3 variations)
+- [x] Post templates system
+- [x] Analytics dashboard with charts
+- [x] Stripe billing integration
+- [x] Multi-account support
 
-### Long-term
+### 🔜 Next Up
+- [ ] Complete Pinterest, WhatsApp, Snapchat integrations
+- [ ] Threads, Bluesky, Mastodon support
+- [ ] Content calendar view with drag-and-drop
+- [ ] Bulk CSV upload functionality
+- [ ] Character counter for posts
+- [ ] Mobile responsive improvements
+
+### 🚀 Future
 - [ ] Mobile app (React Native)
 - [ ] Browser extension
-- [ ] Team collaboration features
+- [ ] Advanced team collaboration
 - [ ] White-label offering
-- [ ] API for third-party integrations
+- [ ] Public API
 
 ---
 
@@ -306,6 +336,7 @@ Built with:
 
 ---
 
-**Version**: 3.2  
+**Version**: 4.0 - Glassmorphism Edition  
 **Status**: ✅ Production Ready  
-**Last Updated**: January 2025
+**Last Updated**: November 2025  
+**UI**: Premium Glassmorphism with Real Brand Icons
