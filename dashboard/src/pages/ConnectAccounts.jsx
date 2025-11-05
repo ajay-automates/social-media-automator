@@ -112,15 +112,22 @@ export default function ConnectAccounts() {
 
   const connectTwitter = async () => {
     try {
+      console.log('🐦 Requesting Twitter auth URL...');
       const response = await api.post('/auth/twitter/url');
+      console.log('🐦 Response:', response.data);
+      
       if (response.data.authUrl) {
+        console.log('🐦 Redirecting to:', response.data.authUrl);
         window.location.href = response.data.authUrl;
       } else {
+        console.error('🐦 No authUrl in response:', response.data);
         showError('Failed to generate Twitter auth URL');
       }
     } catch (err) {
-      console.error('Error connecting Twitter:', err);
-      showError(err.response?.data?.error || 'Failed to connect Twitter');
+      console.error('🐦 Error connecting Twitter:', err);
+      console.error('🐦 Error response:', err.response?.data);
+      const errorMsg = err.response?.data?.error || err.message || 'Failed to connect Twitter';
+      showError(errorMsg);
     }
   };
 

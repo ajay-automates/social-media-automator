@@ -1351,7 +1351,7 @@ app.post('/api/auth/linkedin/url', verifyAuth, async (req, res) => {
     
     res.json({
       success: true,
-      oauthUrl: authUrl.toString()
+      authUrl: authUrl.toString()
     });
   } catch (error) {
     console.error('Error generating LinkedIn OAuth URL:', error);
@@ -1652,7 +1652,7 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     
     res.json({
       success: true,
-      oauthUrl: authUrl.toString()
+      authUrl: authUrl.toString()
     });
   } catch (error) {
     console.error('Error generating Twitter OAuth URL:', error);
@@ -1912,7 +1912,7 @@ app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
     
     res.json({
       success: true,
-      oauthUrl: authUrl.toString()
+      authUrl: authUrl.toString()
     });
     
   } catch (error) {
