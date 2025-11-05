@@ -105,22 +105,8 @@ function Feature3D({ feature, index }) {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className={`relative bg-gradient-to-br ${gradient.bg} backdrop-blur-2xl rounded-3xl p-6 border-2 border-white/30 shadow-2xl overflow-hidden`}
         >
-          {/* Enhanced glossy shine overlay */}
-          <motion.div
-            className="absolute inset-0"
-            animate={{
-              background: [
-                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.25) 0%, transparent 50%)',
-                'radial-gradient(circle at 100% 100%, rgba(255,255,255,0.25) 0%, transparent 50%)',
-                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.25) 0%, transparent 50%)',
-              ],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
+          {/* Static glossy shine - no animation for performance */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent"></div>
           
           {/* Additional glossy top shine */}
           <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-3xl"></div>
@@ -133,27 +119,9 @@ function Feature3D({ feature, index }) {
             transition={{ duration: 0.4 }}
             className="relative z-10"
           >
-            <motion.div
-              className="text-6xl mb-4"
-              animate={{
-                y: [0, -8, 0],
-                rotateZ: isHovered ? [0, 5, -5, 0] : 0,
-              }}
-              transition={{
-                y: {
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: index * 0.1,
-                },
-                rotateZ: {
-                  duration: 0.6,
-                  ease: "easeInOut",
-                }
-              }}
-            >
+            <div className="text-6xl mb-4">
               {feature.icon}
-            </motion.div>
+            </div>
 
             {/* Title Layer */}
             <h3 className="text-base font-bold text-white leading-tight mb-2">
@@ -177,26 +145,10 @@ function Feature3D({ feature, index }) {
               )}
             </AnimatePresence>
 
-            {/* 3D Depth Lines */}
-            <motion.div
-              style={{
-                transform: "translateZ(10px)",
-              }}
-              className="absolute bottom-3 right-3"
-            >
-              <motion.div
-                className="w-3 h-3 bg-white/60 rounded-full"
-                animate={{
-                  scale: isHovered ? [1, 1.5, 1] : 1,
-                  opacity: [0.6, 1, 0.6],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-            </motion.div>
+            {/* Static depth indicator */}
+            <div className="absolute bottom-3 right-3">
+              <div className="w-3 h-3 bg-white/60 rounded-full" />
+            </div>
           </motion.div>
 
           {/* Layered depth cards in 3D */}
@@ -235,20 +187,12 @@ function Feature3D({ feature, index }) {
 export default function Features() {
   return (
     <section id="features" className="relative py-40 bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-hidden">
-      {/* Smooth animated waves background */}
-      <div className="absolute inset-0 opacity-30">
-        <motion.div
+      {/* Static gradient background - no animation */}
+      <div className="absolute inset-0 opacity-20">
+        <div
           className="absolute w-full h-full"
           style={{
             background: 'radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)',
-          }}
-          animate={{
-            backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
           }}
         />
       </div>

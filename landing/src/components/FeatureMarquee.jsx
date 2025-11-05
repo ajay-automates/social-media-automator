@@ -36,40 +36,19 @@ export default function FeatureMarquee({ features, direction = 'left', speed = 4
         {duplicatedFeatures.map((feature, index) => (
           <motion.div
             key={`${feature.id}-${index}`}
-            whileHover={{ scale: 1.1, y: -5 }}
+            whileHover={{ scale: 1.05 }}
             className="flex-shrink-0 group cursor-pointer"
           >
             <div className="relative">
-              {/* Glow effect */}
-              <motion.div
-                className={`absolute inset-0 bg-gradient-to-r ${getGradientClass(index)} rounded-2xl blur-xl opacity-60 group-hover:opacity-100 transition-opacity`}
-                animate={{
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
+              {/* Static glow - no animation */}
+              <div className={`absolute inset-0 bg-gradient-to-r ${getGradientClass(index)} rounded-2xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity`} />
               
               {/* Main content */}
               <div className={`relative bg-gradient-to-br ${getGradientClass(index)} p-4 rounded-2xl shadow-2xl border border-white/20 min-w-[140px]`}>
                 <div className="flex flex-col items-center gap-2">
-                  <motion.span
-                    className="text-4xl"
-                    animate={{
-                      rotate: [0, 10, -10, 0],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: index * 0.1,
-                    }}
-                  >
+                  <span className="text-4xl">
                     {feature.icon}
-                  </motion.span>
+                  </span>
                   <span className="text-sm font-bold text-white text-center leading-tight">
                     {feature.title}
                   </span>

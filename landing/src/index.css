@@ -5,10 +5,23 @@
 @layer base {
   * {
     @apply scroll-smooth;
-}
+  }
 
-body {
+  body {
     @apply bg-gray-950 text-white antialiased;
+  }
+  
+  /* Performance optimizations */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* GPU acceleration for transforms and animations */
+  .motion-safe\:transform {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 }
 
@@ -19,14 +32,23 @@ body {
 
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
-}
+  }
 
   .glow-blue {
     box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
-}
+  }
 
   .glow-purple {
     box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+  }
+  
+  /* Performance: Reduce motion for accessibility and performance */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 

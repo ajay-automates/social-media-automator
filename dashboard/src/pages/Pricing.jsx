@@ -166,23 +166,23 @@ export default function Pricing() {
           </p>
 
           {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <span className={`text-lg ${billingCycle === 'monthly' ? 'text-white font-semibold' : 'text-gray-400'}`}>
+          <div className="inline-flex items-center gap-4 bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl p-2 shadow-xl">
+            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'monthly' ? 'text-white font-semibold bg-blue-500/30 backdrop-blur-sm border border-blue-400/30' : 'text-gray-400'}`}>
               Monthly
             </span>
             <button
               onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
-              className="relative inline-flex h-8 w-14 items-center rounded-full bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+              className="relative inline-flex h-8 w-14 items-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${
                   billingCycle === 'annual' ? 'translate-x-7' : 'translate-x-1'
                 }`}
               />
             </button>
-            <span className={`text-lg ${billingCycle === 'annual' ? 'text-white font-semibold' : 'text-gray-400'}`}>
+            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'annual' ? 'text-white font-semibold bg-purple-500/30 backdrop-blur-sm border border-purple-400/30' : 'text-gray-400'}`}>
               Annual
-              <span className="ml-2 text-sm bg-green-500 text-white px-2 py-0.5 rounded">
+              <span className="ml-2 text-sm bg-green-500/80 backdrop-blur-sm text-white px-2 py-1 rounded-lg border border-green-400/30">
                 Save 17%
               </span>
             </span>
@@ -203,53 +203,56 @@ export default function Pricing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                className={`${
+                className={`group relative overflow-hidden ${
                   isPopular
-                    ? 'bg-gradient-to-br from-blue-600/40 to-blue-700/40 backdrop-blur-lg border-2 border-blue-400/50 transform scale-105'
-                    : 'bg-gray-900/30 backdrop-blur-lg border-2 border-white/10'
-                } p-8 rounded-lg flex flex-col relative shadow-xl`}
+                    ? 'bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-xl border-2 border-blue-400/50 transform scale-105 shadow-2xl shadow-blue-500/30'
+                    : 'bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 shadow-xl'
+                } p-8 rounded-2xl flex flex-col relative`}
               >
+                {/* Glossy shine overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
                 {/* Popular Badge */}
                 {isPopular && (
-                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-gray-900 px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                    MOST POPULAR
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50">
+                    ⭐ MOST POPULAR
                   </div>
                 )}
 
                 {/* Current Plan Badge */}
                 {isCurrent && !isPopular && (
-                  <div className="absolute -top-5 right-4 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                    Current Plan
+                  <div className="absolute -top-5 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30">
+                    ✓ Current Plan
                   </div>
                 )}
 
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                  <div className={`text-5xl font-bold mb-2 ${isPopular ? '' : 'text-gray-400'}`}>
+                <div className="relative mb-6">
+                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                  <div className={`text-5xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-white'}`}>
                     ${isFree ? 0 : billingCycle === 'monthly' ? plan.price : Math.round(plan.annual / 12)}
-                    <span className={`text-lg ${isPopular ? 'opacity-80' : 'text-gray-400'}`}>
+                    <span className={`text-lg ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
                       /{billingCycle === 'monthly' ? 'month' : 'month'}
                     </span>
                   </div>
                   {!isFree && billingCycle === 'annual' && (
-                    <p className="text-sm opacity-80">
+                    <p className={`text-sm ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
                       or ${plan.annual}/year (save ${getAnnualSavings(plan)})
                     </p>
                   )}
-                  {isFree && <p className="text-gray-400">Great for getting started</p>}
+                  {isFree && <p className="text-gray-300">Great for getting started</p>}
                 </div>
 
-                <ul className="space-y-3 mb-8 flex-grow">
+                <ul className="relative space-y-3 mb-8 flex-grow">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className={`text-xl ${isPopular ? '' : 'text-green-400'}`}>✓</span>
-                      <span className={isPopular ? '' : 'text-gray-300'}>{feature}</span>
+                      <span className={`text-xl ${isPopular ? 'text-green-300' : 'text-green-400'}`}>✓</span>
+                      <span className={isPopular ? 'text-white' : 'text-gray-200'}>{feature}</span>
                     </li>
                   ))}
                   {plan.features_excluded?.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-red-400 text-xl">✗</span>
-                      <span className="text-gray-500 line-through">{feature}</span>
+                      <span className="text-gray-400 line-through">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -258,10 +261,10 @@ export default function Pricing() {
                   <button
                     onClick={handleManageSubscription}
                     disabled={isFree}
-                    className={`w-full py-4 rounded-lg font-bold transition ${
+                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all ${
                       isFree
-                        ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                        : 'bg-white text-blue-600 hover:bg-gray-100'
+                        ? 'bg-gray-800/50 backdrop-blur-sm border-2 border-gray-600 text-gray-400 cursor-not-allowed'
+                        : 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-xl hover:shadow-blue-500/30 border-2 border-white/50'
                     }`}
                   >
                     {isFree ? 'Current Plan' : 'Manage Subscription'}
@@ -270,13 +273,14 @@ export default function Pricing() {
                   <button
                     onClick={() => handleUpgrade(key)}
                     disabled={loading}
-                    className={`w-full py-4 rounded-lg font-bold transition ${
+                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all group/btn ${
                       isPopular
-                        ? 'bg-white text-blue-600 hover:bg-gray-100'
-                        : 'bg-gray-700 hover:bg-gray-600'
+                        ? 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-2xl hover:shadow-white/30 border-2 border-white/50'
+                        : 'bg-gray-800/50 backdrop-blur-sm text-white hover:bg-gray-700/50 border-2 border-white/20 hover:border-white/30'
                     } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    {loading ? 'Processing...' : isFree ? 'Get Started' : 'Start Free Trial'}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
+                    <span className="relative">{loading ? 'Processing...' : isFree ? 'Get Started' : 'Start Free Trial'}</span>
                   </button>
                 )}
               </motion.div>
