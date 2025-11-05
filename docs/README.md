@@ -22,7 +22,7 @@ Welcome to the complete documentation for the Social Media Automator SaaS platfo
 - **[TikTok](platforms/tiktok.md)** - Video posting integration
 
 ### ✨ Features
-- **[AI Generation](features/ai-generation.md)** - Claude AI & Gemini captions + Stability AI images
+- **[AI Generation](features/ai-generation.md)** - Claude Sonnet 4 captions + Stability AI images + URL content generation
 - **[URL Content Generation](features/url-content-generation.md)** - Generate posts from any URL
 - **[Post Templates](features/templates.md)** - Save and reuse content
 - **[Billing & Pricing](features/billing-pricing.md)** - Stripe integration and usage limits
@@ -85,7 +85,7 @@ Welcome to the complete documentation for the Social Media Automator SaaS platfo
 - **Frontend**: React 19, Vite, TailwindCSS, Framer Motion
 - **Database**: Supabase (PostgreSQL) with Row Level Security
 - **Auth**: Supabase Auth, OAuth 2.0, OAuth 1.0a
-- **AI**: Anthropic Claude Sonnet 4, Google Gemini, Stability AI
+- **AI**: Anthropic Claude Sonnet 4, Stability AI
 - **Storage**: Cloudinary (images/videos)
 - **Payments**: Stripe (3-tier SaaS)
 - **Deployment**: Railway

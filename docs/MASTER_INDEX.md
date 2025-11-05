@@ -22,7 +22,7 @@
 
 ### **What We Built**
 - ✅ **10 Social Media Platforms** (8 working, 2 pending)
-- ✅ **AI-Powered** (Claude Sonnet 4, Gemini, Stability AI)
+- ✅ **AI-Powered** (Claude Sonnet 4, Stability AI, YouTube transcripts)
 - ✅ **URL Content Generator** (Unique feature!)
 - ✅ **YouTube Transcript** (Unique feature!)
 - ✅ **Multi-tenant SaaS** (Stripe billing)
@@ -32,7 +32,7 @@
 - Backend: Node.js 20 + Express.js
 - Frontend: React 19 + Vite + Tailwind
 - Database: Supabase (PostgreSQL + Auth)
-- AI: Claude Sonnet 4 + Gemini + Stability AI
+- AI: Claude Sonnet 4 + Stability AI + Web Scraping
 - Payments: Stripe
 - Storage: Cloudinary
 - Deploy: Railway
@@ -129,10 +129,10 @@
 - TikTok: `/services/tiktok.js`
 
 **AI Features**:
-- Captions: `/services/ai.js` (Claude + Gemini)
+- Captions: `/services/ai.js` (Claude Sonnet 4)
 - Images: `/services/ai-image.js` (Stability AI)
-- URL extraction: `/services/web-scraper.js`
-- Video captions: `/services/youtube-transcript.js`
+- URL extraction: `/services/web-scraper-light.js` (cheerio)
+- YouTube captions: `/services/youtube-transcript.js` (Claude + youtubei.js)
 
 **API Endpoints**:
 - All routes: `/server.js` (3,182 lines)
@@ -229,7 +229,7 @@
 **What makes you BETTER than competitors:**
 
 1. **Most Platforms**: 10 (vs Buffer: 8, Later: 6)
-2. **AI Features**: Claude + Gemini + Stability (competitors: none)
+2. **AI Features**: Claude Sonnet 4 + Stability AI + Web Scraping (competitors: none)
 3. **Unique**: URL→Post generator (competitors: none)
 4. **Unique**: YouTube transcript extractor (competitors: none)
 5. **Webhooks**: Slack + Discord (competitors: limited)

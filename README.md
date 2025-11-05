@@ -14,13 +14,14 @@ Premium multi-platform social media automation SaaS with AI-powered content gene
 
 **Key Features:**
 - 🌐 **20 Platforms**: 10 fully integrated + 10 coming soon (LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok, Reddit, Discord, Slack, Telegram, WhatsApp, Pinterest, Threads, Snapchat, Medium, Twitch, Bluesky, Mastodon, Tumblr, Quora)
-- 🤖 **AI-Powered**: Claude Sonnet 4 captions (3 variations) + Stability AI images + URL content generation
+- 🤖 **AI-Powered**: Claude Sonnet 4 captions (3 variations) + Stability AI images + AI Video (coming soon) + URL/YouTube content generation
 - 📅 **Smart Scheduling**: Post immediately or schedule with cron automation
-- 👥 **Multi-Account**: Connect multiple accounts per platform
-- 📊 **Real-Time Analytics**: Charts, graphs, post history with live tracking
-- 💎 **Glassmorphism UI**: Premium frosted-glass design with real brand icons
-- 📝 **Post Templates**: Save and reuse best-performing content
-- 💳 **Stripe Billing**: 3-tier SaaS pricing with usage tracking
+- 👥 **Multi-Account**: Connect multiple accounts per platform with dedicated page
+- 📊 **Real-Time Analytics**: Interactive charts, success rates, platform distribution with auto-refresh
+- 💎 **Glassmorphism UI**: Premium frosted-glass design with real brand icons from react-icons
+- 📝 **Post Templates**: Save, reuse, and duplicate best-performing content
+- 💳 **Stripe Billing**: 3-tier SaaS pricing with usage tracking and upgrade flows
+- 🔗 **Connect Accounts**: Dedicated page for platform management and OAuth flows
 
 ---
 
@@ -163,9 +164,10 @@ Comprehensive documentation is organized in the `docs/` folder:
 
 ### External Services
 - **AI**: 
-  - Anthropic Claude Sonnet 4 (caption generation - 3 variations)
-  - Stability AI (image generation)
-  - Web scraping for URL content extraction
+  - Anthropic Claude Sonnet 4 (caption generation - 3 variations, platform-optimized)
+  - Stability AI (AI image generation)
+  - YouTube transcript extraction (youtubei.js)
+  - Web scraping with cheerio (lightweight HTML parsing)
 - **Storage**: Cloudinary (images & videos)
 - **Payments**: Stripe (subscriptions + usage tracking)
 - **Deployment**: Railway (auto-deploy from GitHub)
