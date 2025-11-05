@@ -1,4 +1,4 @@
-const { GoogleGenAI } = require('@google/genai');
+const Anthropic = require('@anthropic-ai/sdk');
 
 /**
  * Platform-specific prompt templates
@@ -36,7 +36,7 @@ Requirements:
 };
 
 /**
- * Generate AI caption using Gemini 2.5 Flash API
+ * Generate AI caption using Claude (Anthropic) API
  * @param {string} topic - The topic/subject of the post
  * @param {string} niche - The business niche (Restaurant Tools, E-commerce, etc)
  * @param {string} platform - Target platform (linkedin, twitter, instagram)
@@ -49,8 +49,8 @@ async function generateCaption(topic, niche, platform = 'linkedin') {
       throw new Error('Topic is required');
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY not configured in environment variables');
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured in environment variables');
     }
 
     // Normalize platform
@@ -62,38 +62,38 @@ async function generateCaption(topic, niche, platform = 'linkedin') {
     // Get platform-specific prompt
     const prompt = PLATFORM_PROMPTS[platform](topic, niche);
 
-    console.log(`\n🤖 Generating ${platform} caption for "${topic}" in ${niche} niche...`);
+    console.log(`\n🤖 Generating ${platform} caption for "${topic}" in ${niche} niche using Claude...`);
 
-    // Initialize Gemini client
-    const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY
+    // Initialize Anthropic client
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
     });
 
     // Generate 3 variations
     const variations = [];
     
     for (let i = 0; i < 3; i++) {
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp',
-        contents: `${prompt}\n\nGenerate variation ${i + 1} of 3. Make each variation unique in style and approach.`,
-        config: {
-          thinkingConfig: {
-            thinkingBudget: 0 // Disable thinking mode for faster generation
-          },
-          maxOutputTokens: 500,
-          temperature: 0.9 // Higher temperature for more creative variations
-        }
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        temperature: 0.9, // Higher temperature for more creative variations
+        messages: [
+          {
+            role: 'user',
+            content: `${prompt}\n\nGenerate variation ${i + 1} of 3. Make each variation unique in style and approach. Return ONLY the caption text, no additional commentary.`
+          }
+        ]
       });
 
-      if (response && response.text) {
-        const caption = response.text.trim();
+      if (message && message.content && message.content.length > 0) {
+        const caption = message.content[0].text.trim();
         variations.push(caption);
         console.log(`   ✅ Generated variation ${i + 1}`);
       }
     }
 
     if (variations.length === 0) {
-      throw new Error('No captions generated from Gemini API');
+      throw new Error('No captions generated from Claude API');
     }
 
     console.log(`✅ Successfully generated ${variations.length} caption variations\n`);
@@ -104,12 +104,12 @@ async function generateCaption(topic, niche, platform = 'linkedin') {
     console.error('❌ AI generation error:', error.message);
     
     // Provide helpful error messages
-    if (error.message?.includes('API key')) {
-      throw new Error('Invalid Gemini API key. Please check your GEMINI_API_KEY.');
+    if (error.message?.includes('API key') || error.message?.includes('authentication')) {
+      throw new Error('Invalid Anthropic API key. Please check your ANTHROPIC_API_KEY.');
     } else if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
       throw new Error('Rate limit exceeded. Please try again in a moment.');
-    } else if (error.message?.includes('500')) {
-      throw new Error('Gemini API error. Please try again.');
+    } else if (error.message?.includes('500') || error.message?.includes('overloaded')) {
+      throw new Error('Claude API error. Please try again.');
     } else {
       throw new Error(error.message || 'Failed to generate captions');
     }
@@ -141,4 +141,3 @@ module.exports = {
   generateCaption,
   generateMultiPlatformCaptions
 };
-

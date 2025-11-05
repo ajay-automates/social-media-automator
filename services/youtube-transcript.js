@@ -5,7 +5,7 @@
  * Uses dynamic import() to handle ESM modules in CommonJS environment
  */
 
-const { GoogleGenAI } = require('@google/genai');
+const Anthropic = require('@anthropic-ai/sdk');
 
 /**
  * Extract transcript from YouTube video
@@ -76,7 +76,7 @@ function extractVideoId(url) {
 }
 
 /**
- * Generate AI captions from transcript using Gemini 2.5 Flash
+ * Generate AI captions from transcript using Claude (Anthropic)
  * @param {string} transcript - Video transcript text
  * @param {string} instructions - User instructions for caption style
  * @param {string} platform - Target platform (linkedin, twitter, etc.)
@@ -84,16 +84,16 @@ function extractVideoId(url) {
  */
 async function generateCaptionFromTranscript(transcript, instructions = '', platform = 'linkedin') {
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY not configured in environment variables');
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured in environment variables');
     }
 
-    // Initialize Gemini client
-    const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY
+    // Initialize Anthropic client
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
     });
     
-    console.log(`🤖 Generating captions for ${platform}...`);
+    console.log(`🤖 Generating captions for ${platform} using Claude...`);
     
     // Platform-specific guidelines
     const platformGuidelines = {
@@ -109,7 +109,7 @@ async function generateCaptionFromTranscript(transcript, instructions = '', plat
     
     const guideline = platformGuidelines[platform] || platformGuidelines.linkedin;
     
-    // Truncate transcript if too long (Gemini has token limits)
+    // Truncate transcript if too long (Claude has token limits)
     const maxLength = 8000;
     const truncatedTranscript = transcript.length > maxLength 
       ? transcript.substring(0, maxLength) + '...' 
@@ -141,19 +141,19 @@ CAPTION 2:
 CAPTION 3:
 [your third caption here]`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
-      contents: prompt,
-      config: {
-        thinkingConfig: {
-          thinkingBudget: 0 // Disable thinking mode for faster generation
-        },
-        maxOutputTokens: 1024,
-        temperature: 0.9 // Higher temperature for more creative variations
-      }
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      temperature: 0.9, // Higher temperature for more creative variations
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
     });
     
-    const responseText = response.text;
+    const responseText = message.content[0].text;
     
     // Parse the response into separate captions
     const captions = parseCaptions(responseText);
@@ -168,8 +168,8 @@ CAPTION 3:
 }
 
 /**
- * Parse Gemini's response into separate caption strings
- * @param {string} response - Gemini API response
+ * Parse Claude's response into separate caption strings
+ * @param {string} response - Claude API response
  * @returns {Array<string>} - Array of caption strings
  */
 function parseCaptions(response) {

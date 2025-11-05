@@ -1084,10 +1084,10 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
     }
     
     // Check if API key is configured
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
         success: false,
-        error: 'AI service not configured. Please add GEMINI_API_KEY to your environment variables.'
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
     
@@ -1147,10 +1147,10 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
     }
     
     // Check if API key is configured
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
         success: false,
-        error: 'AI service not configured. Please add GEMINI_API_KEY to your environment variables.'
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
     
