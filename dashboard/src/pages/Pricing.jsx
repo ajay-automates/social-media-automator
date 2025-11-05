@@ -190,7 +190,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto pt-8">
           {Object.entries(plans).map(([key, plan], index) => {
             const isPopular = key === 'pro';
             const isCurrent = currentPlan === key;
