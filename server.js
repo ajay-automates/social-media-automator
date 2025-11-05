@@ -38,7 +38,7 @@ const {
 const { 
   scrapeWebContent,
   isYouTubeUrl
-} = require('./services/web-scraper');
+} = require('./services/web-scraper-light');
 const { 
   getAllAccountsWithStatus, 
   getAllCredentials 
