@@ -190,7 +190,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto pt-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-12">
           {Object.entries(plans).map(([key, plan], index) => {
             const isPopular = key === 'pro';
             const isCurrent = currentPlan === key;
@@ -214,14 +214,14 @@ export default function Pricing() {
                 
                 {/* Popular Badge */}
                 {isPopular && (
-                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50">
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-10">
                     ⭐ MOST POPULAR
                   </div>
                 )}
 
                 {/* Current Plan Badge */}
                 {isCurrent && !isPopular && (
-                  <div className="absolute -top-5 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30">
+                  <div className="absolute -top-6 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30 z-10">
                     ✓ Current Plan
                   </div>
                 )}
