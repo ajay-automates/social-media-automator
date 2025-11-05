@@ -44,10 +44,15 @@ export default function CreatePost() {
   const [generatingVideo, setGeneratingVideo] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState(null);
   const [showVideoGenPreview, setShowVideoGenPreview] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [templateSearch, setTemplateSearch] = useState('');
+  const [templateCategory, setTemplateCategory] = useState('all');
 
   useEffect(() => {
     loadBillingInfo();
     loadConnectedAccounts();
+    loadTemplates();
   }, []);
 
   const loadConnectedAccounts = async () => {
@@ -97,6 +102,38 @@ export default function CreatePost() {
       console.error('Error loading Reddit subreddits:', err);
       // Silently fail if Reddit not connected
     }
+  };
+
+  const loadTemplates = async () => {
+    try {
+      const response = await api.get('/templates');
+      const templatesData = Array.isArray(response.data) ? response.data : response.data?.templates || [];
+      setTemplates(templatesData);
+    } catch (err) {
+      console.error('Error loading templates:', err);
+      setTemplates([]);
+    }
+  };
+
+  const loadTemplateIntoForm = (template) => {
+    // Load caption
+    setCaption(template.text);
+    
+    // Load platforms (only select if they're connected)
+    const connectedPlatforms = connectedAccounts.map(acc => acc.platform);
+    const validPlatforms = template.platforms.filter(p => connectedPlatforms.includes(p));
+    setPlatforms(validPlatforms);
+    
+    // Load image if available
+    if (template.image_url) {
+      setImage(template.image_url);
+    }
+    
+    // Close modal
+    setShowTemplateModal(false);
+    
+    // Show success message
+    showSuccess(`Template "${template.name}" loaded! Replace {{variables}} with your content.`);
   };
 
   const generateCaption = async () => {
@@ -542,6 +579,26 @@ export default function CreatePost() {
               </div>
             </div>
           )}
+
+          {/* Load from Template Button */}
+          <div className="flex justify-between items-center mb-4">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowTemplateModal(true)}
+              className="group relative bg-purple-600/30 backdrop-blur-lg border-2 border-purple-400/30 text-white px-5 py-2.5 rounded-xl hover:bg-purple-600/40 font-medium transition-all shadow-lg hover:shadow-purple-500/30 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+              <span className="relative flex items-center gap-2">
+                📋 Load from Template
+                {templates.length > 0 && (
+                  <span className="bg-purple-500/50 px-2 py-0.5 rounded-full text-xs">
+                    {templates.length}
+                  </span>
+                )}
+              </span>
+            </motion.button>
+          </div>
 
           {/* Caption Input */}
           <div>
@@ -1212,12 +1269,160 @@ export default function CreatePost() {
       )}
 
       {/* Upgrade Modal */}
-      <UpgradeModal
+      <UpgradeModal 
         isOpen={showUpgrade}
         onClose={() => setShowUpgrade(false)}
         reason="posts_limit"
         currentPlan={billingInfo?.plan?.name || 'free'}
       />
+
+      {/* Template Selection Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gray-900/95 backdrop-blur-xl border-2 border-white/20 rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl"
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-lg border-b border-white/10 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">📋 Load from Template</h2>
+                  <p className="text-gray-300 text-sm mt-1">Select a template to get started quickly</p>
+                </div>
+                <button
+                  onClick={() => setShowTemplateModal(false)}
+                  className="text-gray-400 hover:text-white transition p-2"
+                >
+                  <span className="text-2xl">✕</span>
+                </button>
+              </div>
+
+              {/* Search and Filter */}
+              <div className="mt-4 flex gap-3">
+                <input
+                  type="text"
+                  value={templateSearch}
+                  onChange={(e) => setTemplateSearch(e.target.value)}
+                  placeholder="Search templates..."
+                  className="flex-1 px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400"
+                />
+                <select
+                  value={templateCategory}
+                  onChange={(e) => setTemplateCategory(e.target.value)}
+                  className="px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="promotional">🎯 Promotional</option>
+                  <option value="educational">📚 Educational</option>
+                  <option value="engagement">💬 Engagement</option>
+                  <option value="announcement">📢 Announcement</option>
+                  <option value="personal">👤 Personal</option>
+                  <option value="seasonal">🎄 Seasonal</option>
+                  <option value="general">✨ General</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Templates List */}
+            <div className="p-6 overflow-y-auto max-h-[calc(85vh-180px)]">
+              {templates.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">📋</div>
+                  <p className="text-gray-300 text-lg">No templates yet</p>
+                  <p className="text-gray-400 text-sm mt-2">Create templates from the Templates page</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {templates
+                    .filter(t => {
+                      const matchesSearch = !templateSearch || 
+                        t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
+                        t.text.toLowerCase().includes(templateSearch.toLowerCase());
+                      const matchesCategory = templateCategory === 'all' || t.category === templateCategory;
+                      return matchesSearch && matchesCategory;
+                    })
+                    .map(template => (
+                      <motion.div
+                        key={template.id}
+                        whileHover={{ scale: 1.02 }}
+                        className="group relative bg-gray-800/50 backdrop-blur-lg border-2 border-white/10 rounded-xl p-5 cursor-pointer hover:border-purple-400/50 transition-all"
+                        onClick={() => loadTemplateIntoForm(template)}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+                        
+                        <div className="relative">
+                          {/* Template Header */}
+                          <div className="flex items-start justify-between mb-3">
+                            <h3 className="text-lg font-bold text-white pr-2">{template.name}</h3>
+                            {template.is_favorite && <span className="text-xl">⭐</span>}
+                          </div>
+
+                          {/* Description */}
+                          {template.description && (
+                            <p className="text-sm text-gray-400 mb-3">{template.description}</p>
+                          )}
+
+                          {/* Content Preview */}
+                          <p className="text-sm text-gray-300 mb-3 line-clamp-2 bg-gray-700/30 p-2 rounded">
+                            {template.text}
+                          </p>
+
+                          {/* Metadata */}
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded border border-purple-400/30">
+                              {template.category}
+                            </span>
+                            <span className="text-gray-400">
+                              Used {template.use_count || 0}×
+                            </span>
+                          </div>
+
+                          {/* Platforms */}
+                          <div className="flex gap-1 mt-3 flex-wrap">
+                            {template.platforms.slice(0, 4).map(platform => (
+                              <span
+                                key={platform}
+                                className="px-2 py-0.5 bg-gray-700/50 text-gray-300 rounded text-xs border border-white/10"
+                              >
+                                {platform}
+                              </span>
+                            ))}
+                            {template.platforms.length > 4 && (
+                              <span className="px-2 py-0.5 bg-gray-700/50 text-gray-300 rounded text-xs border border-white/10">
+                                +{template.platforms.length - 4}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Click hint */}
+                          <div className="mt-3 text-center text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Click to load →
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                </div>
+              )}
+
+              {/* No Results */}
+              {templates.length > 0 && templates.filter(t => {
+                const matchesSearch = !templateSearch || 
+                  t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
+                  t.text.toLowerCase().includes(templateSearch.toLowerCase());
+                const matchesCategory = templateCategory === 'all' || t.category === templateCategory;
+                return matchesSearch && matchesCategory;
+              }).length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-3">🔍</div>
+                  <p className="text-gray-300">No templates match your search</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </>
   );
 }
