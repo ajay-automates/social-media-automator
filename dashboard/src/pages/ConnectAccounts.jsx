@@ -226,8 +226,8 @@ export default function ConnectAccounts() {
 
     try {
       const response = await api.post('/auth/telegram/connect', {
-        bot_token: telegramBotToken,
-        chat_id: telegramChatId
+        botToken: telegramBotToken,
+        chatId: telegramChatId
       });
       
       if (response.data.success) {
@@ -251,8 +251,8 @@ export default function ConnectAccounts() {
 
     try {
       const response = await api.post('/auth/slack/connect', {
-        webhook_url: slackWebhookUrl,
-        channel_name: slackChannelName || 'general'
+        webhookUrl: slackWebhookUrl,
+        channelName: slackChannelName || 'general'
       });
       
       if (response.data.success) {
@@ -276,8 +276,8 @@ export default function ConnectAccounts() {
 
     try {
       const response = await api.post('/auth/discord/connect', {
-        webhook_url: discordWebhookUrl,
-        server_name: discordServerName || 'My Server'
+        webhookUrl: discordWebhookUrl,
+        serverName: discordServerName || 'My Server'
       });
       
       if (response.data.success) {
