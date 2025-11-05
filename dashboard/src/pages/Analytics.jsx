@@ -120,7 +120,7 @@ export default function Analytics() {
   if (loading) {
     return (
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Analytics</h1>
+        <h1 className="text-4xl font-bold text-white mb-8">Analytics</h1>
         <AnalyticsSkeleton />
       </div>
     );
@@ -173,10 +173,10 @@ export default function Analytics() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
-      <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics</h1>
-          <p className="text-gray-600">Track your social media performance • Auto-refreshes every 30s</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Analytics</h1>
+          <p className="text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
         </div>
         <button
           onClick={() => {
@@ -214,8 +214,8 @@ export default function Analytics() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Timeline Chart */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Posts Timeline (Last 30 Days)</h2>
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-white mb-4">Posts Timeline (Last 30 Days)</h2>
           {lineData.length > 0 && lineData[0].date !== 'No data' ? (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={lineData}>
@@ -235,8 +235,8 @@ export default function Analytics() {
         </div>
 
         {/* Platform Distribution */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Platform Distribution</h2>
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold text-white mb-4">Platform Distribution</h2>
           {pieData.length > 0 && pieData[0].name !== 'No data' ? (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -271,24 +271,24 @@ export default function Analytics() {
       </div>
 
       {/* Post History Table */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Recent Posts</h2>
+      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-white mb-4">Recent Posts</h2>
         {history.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <p>No posts yet. Create your first post to see it here!</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-900/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Platform</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Caption</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Platform</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Caption</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-gray-800/30 divide-y divide-gray-700">
               {history.slice(0, 10).map((post, idx) => {
                 // Get platforms - handle both array and string formats
                 let platforms = [];
@@ -378,7 +378,7 @@ export default function Analytics() {
                 };
 
                 return (
-                  <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                  <tr key={idx} className="hover:bg-gray-700/30 transition-colors">
                     <td className="px-6 py-4">
                       {platforms.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
@@ -419,7 +419,7 @@ export default function Analytics() {
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-md">
+                      <div className="text-sm text-gray-200 max-w-md">
                         <div className="truncate">{post.text || post.caption || 'No caption'}</div>
                         {post.image_url && (
                           <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">

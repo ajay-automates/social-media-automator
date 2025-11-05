@@ -257,36 +257,36 @@ async function handleSaveTemplate() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Post Templates</h1>
-        <p className="text-gray-600 mt-2">Save and reuse your best-performing posts</p>
+        <h1 className="text-3xl font-bold text-white">Post Templates</h1>
+        <p className="text-gray-300 mt-2">Save and reuse your best-performing posts</p>
       </div>
 
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-blue-600">{stats.total}</div>
-            <div className="text-sm text-gray-600 mt-1">Total Templates</div>
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+            <div className="text-3xl font-bold text-blue-400">{stats.total}</div>
+            <div className="text-sm text-gray-300 mt-1">Total Templates</div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-yellow-600">{stats.favorites}</div>
-            <div className="text-sm text-gray-600 mt-1">Favorites</div>
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+            <div className="text-3xl font-bold text-yellow-400">{stats.favorites}</div>
+            <div className="text-sm text-gray-300 mt-1">Favorites</div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-green-600">{stats.totalUses}</div>
-            <div className="text-sm text-gray-600 mt-1">Total Uses</div>
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+            <div className="text-3xl font-bold text-green-400">{stats.totalUses}</div>
+            <div className="text-sm text-gray-300 mt-1">Total Uses</div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-purple-600">
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+            <div className="text-3xl font-bold text-purple-400">
               {stats.mostUsed && stats.mostUsed.length > 0 ? stats.mostUsed[0]?.use_count || 0 : 0}
             </div>
-            <div className="text-sm text-gray-600 mt-1">Most Used</div>
+            <div className="text-sm text-gray-300 mt-1">Most Used</div>
           </div>
         </div>
       )}
 
       {/* Controls */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
+      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
@@ -295,7 +295,7 @@ async function handleSaveTemplate() {
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full bg-gray-700/50 border border-gray-600 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-400"
             />
           </div>
 
@@ -333,10 +333,10 @@ async function handleSaveTemplate() {
       {loading ? (
         <LoadingSkeleton count={6} />
       ) : templates.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-12 text-center">
           <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No templates yet</h3>
-          <p className="text-gray-600 mb-6">Create your first template to get started!</p>
+          <h3 className="text-xl font-semibold text-white mb-2">No templates yet</h3>
+          <p className="text-gray-300 mb-6">Create your first template to get started!</p>
           <button
             onClick={() => {
               resetForm();
@@ -350,11 +350,11 @@ async function handleSaveTemplate() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map(template => (
-            <div key={template.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+            <div key={template.id} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow">
               <div className="p-6">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 flex-1">{template.name}</h3>
+                  <h3 className="text-lg font-semibold text-white flex-1">{template.name}</h3>
                   <button
                     onClick={() => handleToggleFavorite(template.id)}
                     className="text-2xl hover:scale-110 transition-transform"
@@ -365,11 +365,11 @@ async function handleSaveTemplate() {
 
                 {/* Description */}
                 {template.description && (
-                  <p className="text-sm text-gray-600 mb-3">{template.description}</p>
+                  <p className="text-sm text-gray-300 mb-3">{template.description}</p>
                 )}
 
                 {/* Content Preview */}
-                <p className="text-sm text-gray-700 mb-4 line-clamp-3 bg-gray-50 p-3 rounded">
+                <p className="text-sm text-gray-200 mb-4 line-clamp-3 bg-gray-700/50 p-3 rounded">
                   {template.text}
                 </p>
 
@@ -424,44 +424,44 @@ async function handleSaveTemplate() {
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-gray-800 border border-gray-700 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h2 className="text-2xl font-bold mb-6">
+              <h2 className="text-2xl font-bold text-white mb-6">
                 {editingTemplate ? 'Edit Template' : 'Create Template'}
               </h2>
 
               <div className="space-y-4">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Template Name *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Template Name *</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 placeholder:text-gray-400"
                     placeholder="e.g., Welcome Message"
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
                   <input
                     type="text"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 placeholder:text-gray-400"
                     placeholder="Optional description"
                   />
                 </div>
 
                 {/* Content */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Content *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Content *</label>
                   <textarea
                     value={formData.text}
                     onChange={(e) => setFormData({ ...formData, text: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2 h-32"
+                    className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 h-32 placeholder:text-gray-400"
                     placeholder="Template content... Use {{variable}} for dynamic values"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -471,7 +471,7 @@ async function handleSaveTemplate() {
 
                 {/* Platforms */}
                 <div>
-                  <label className="block text-sm font-medium mb-2">Platforms *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Platforms *</label>
                   <div className="flex gap-2 flex-wrap">
                     {Object.entries(PLATFORM_ICONS).map(([platform, config]) => (
                       <button
@@ -491,11 +491,11 @@ async function handleSaveTemplate() {
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2"
                   >
                     {CATEGORIES.filter(c => c.id !== 'all').map(cat => (
                       <option key={cat.id} value={cat.id}>
@@ -507,12 +507,12 @@ async function handleSaveTemplate() {
 
                 {/* Image URL */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Image URL (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Image URL (Optional)</label>
                   <input
                     type="url"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-3 py-2 placeholder:text-gray-400"
                     placeholder="https://..."
                   />
                 </div>

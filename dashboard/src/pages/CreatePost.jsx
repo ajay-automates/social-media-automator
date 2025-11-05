@@ -469,17 +469,17 @@ export default function CreatePost() {
 
           {/* Caption Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Caption
             </label>
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="What's on your mind?"
-              className="w-full p-4 border-2 border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full p-4 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-400"
               rows={6}
             />
-            <div className="mt-2 text-sm text-gray-500">{caption.length} characters</div>
+            <div className="mt-2 text-sm text-gray-400">{caption.length} characters</div>
           </div>
           
           {/* AI Generate Buttons */}
@@ -505,7 +505,7 @@ export default function CreatePost() {
           
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Image or Video (Optional)
             </label>
             {image && (
@@ -542,7 +542,7 @@ export default function CreatePost() {
                   }
                 }
               }}
-              className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -688,12 +688,12 @@ export default function CreatePost() {
         </div>
 
         {/* AI Image Generation */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">✨ AI Image Generator</h3>
+        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+          <h3 className="text-xl font-bold text-white mb-4">✨ AI Image Generator</h3>
           
           {/* Example Prompts */}
           <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-2">Quick examples:</p>
+            <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
             <div className="flex flex-wrap gap-2">
               {['city skyline at night', 'modern workspace setup', 'abstract tech design', 'coffee cup on desk'].map((example, idx) => (
                 <motion.button
@@ -701,7 +701,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => useExample(example)}
-                  className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition"
+                  className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
                 >
                   {example}
                 </motion.button>
@@ -714,7 +714,7 @@ export default function CreatePost() {
             value={aiImagePrompt}
             onChange={(e) => setAiImagePrompt(e.target.value)}
             placeholder="Describe the image you want to create..."
-            className="w-full p-4 border-2 border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4"
+            className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4 placeholder:text-gray-400"
             rows={3}
           />
           
@@ -783,10 +783,10 @@ export default function CreatePost() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
+            className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">AI Caption Generator</h2>
+              <h2 className="text-2xl font-bold text-white">AI Caption Generator</h2>
               <button
                 onClick={() => {
                   setShowAIModal(false);
@@ -802,7 +802,7 @@ export default function CreatePost() {
             {/* If variations exist, show them */}
             {aiVariations.length > 0 ? (
               <div>
-                <p className="text-gray-600 mb-4">Choose one of the generated captions:</p>
+                <p className="text-gray-300 mb-4">Choose one of the generated captions:</p>
                 <div className="space-y-3 mb-6">
                   {aiVariations.map((variation, index) => (
                     <motion.button
@@ -815,19 +815,19 @@ export default function CreatePost() {
                       onClick={() => selectVariation(variation, index)}
                       className={`w-full p-4 rounded-lg border-2 text-left transition ${
                         selectedVariation === index
-                          ? 'border-purple-500 bg-purple-50'
-                          : 'border-gray-200 hover:border-purple-300 bg-white'
+                          ? 'border-purple-500 bg-purple-900/50'
+                          : 'border-gray-600 hover:border-purple-400 bg-gray-700/50'
                       }`}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${
                           selectedVariation === index
                             ? 'bg-purple-600 text-white'
-                            : 'bg-gray-100 text-gray-600'
+                            : 'bg-gray-600 text-gray-200'
                         }`}>
                           {index + 1}
                         </div>
-                        <p className="text-gray-700 flex-1">{variation}</p>
+                        <p className="text-gray-200 flex-1">{variation}</p>
                       </div>
                     </motion.button>
                   ))}
@@ -848,12 +848,12 @@ export default function CreatePost() {
             ) : (
               /* If no variations, show the generation form */
               <div>
-                <p className="text-gray-600 mb-4">Select your niche and AI will create captivating captions.</p>
+                <p className="text-gray-300 mb-4">Select your niche and AI will create captivating captions.</p>
                 
                 <select
                   value={niche}
                   onChange={(e) => setNiche(e.target.value)}
-                  className="w-full p-3 border-2 border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg mb-4 focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">Select a niche...</option>
                   <option value="tech">💻 Technology</option>
@@ -899,10 +899,10 @@ export default function CreatePost() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
+            className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">� Generate from URL</h2>
+              <h2 className="text-2xl font-bold text-white">🔗 Generate from URL</h2>
               <button
                 onClick={() => {
                   setShowYoutubeModal(false);
@@ -919,7 +919,7 @@ export default function CreatePost() {
             {/* If variations exist, show them */}
             {youtubeVariations.length > 0 ? (
               <div>
-                <p className="text-gray-600 mb-4">Choose one of the generated captions:</p>
+                <p className="text-gray-300 mb-4">Choose one of the generated captions:</p>
                 <div className="space-y-3 mb-6">
                   {youtubeVariations.map((variation, index) => (
                     <motion.button
@@ -930,13 +930,13 @@ export default function CreatePost() {
                       whileHover={{ scale: 1.02, x: 5 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => selectYoutubeVariation(variation)}
-                      className="w-full p-4 rounded-lg border-2 text-left transition border-gray-200 hover:border-red-300 bg-white"
+                      className="w-full p-4 rounded-lg border-2 text-left transition border-gray-600 hover:border-red-400 bg-gray-700/50"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold bg-gray-100 text-gray-600">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold bg-gray-600 text-gray-200">
                           {index + 1}
                         </div>
-                        <p className="text-gray-700 flex-1">{variation}</p>
+                        <p className="text-gray-200 flex-1">{variation}</p>
                       </div>
                     </motion.button>
                   ))}
@@ -957,12 +957,12 @@ export default function CreatePost() {
             ) : (
               /* If no variations, show the generation form */
               <div>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-300 mb-4">
                   Enter any URL to generate captions. YouTube videos will use transcripts, other URLs will be scraped for content.
                 </p>
                 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     URL *
                   </label>
                   <input
@@ -970,7 +970,7 @@ export default function CreatePost() {
                     value={youtubeUrl}
                     onChange={(e) => setYoutubeUrl(e.target.value)}
                     placeholder="https://www.youtube.com/watch?v=... or any article URL"
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full p-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-gray-400"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     YouTube videos must have captions/transcripts enabled. Other URLs will be scraped for content.
@@ -978,14 +978,14 @@ export default function CreatePost() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
                     Special Instructions (Optional)
                   </label>
                   <textarea
                     value={youtubeInstructions}
                     onChange={(e) => setYoutubeInstructions(e.target.value)}
                     placeholder="E.g., Focus on the marketing tips, make it more casual, emphasize the key takeaways..."
-                    className="w-full p-3 border-2 border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    className="w-full p-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-gray-400"
                     rows={3}
                   />
                   <p className="text-xs text-gray-500 mt-1">
