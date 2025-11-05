@@ -154,20 +154,23 @@ export default function Stats() {
             Connect and post to all major social networks simultaneously
           </p>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-4">
-            {platforms.map((platform, index) => (
-              <motion.div
-                key={platform.name}
-                initial={{ opacity: 0, scale: 0 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.02 }}
-                whileHover={{ scale: 1.15, y: -5 }}
-                className={`flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer`}
-              >
-                <span className="text-3xl">{platform.icon}</span>
-                <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
-              </motion.div>
-            ))}
+            {platforms.map((platform, index) => {
+              const PlatformIcon = platform.Icon;
+              return (
+                <motion.div
+                  key={platform.name}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.02 }}
+                  whileHover={{ scale: 1.15, y: -5 }}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer`}
+                >
+                  <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
+                  <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
+                </motion.div>
+              );
+            })}
           </div>
           <motion.div
             initial={{ opacity: 0 }}

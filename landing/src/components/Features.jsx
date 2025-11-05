@@ -83,6 +83,7 @@ function Feature3D({ feature, index }) {
         <motion.div
           style={{
             transform: "translateZ(-50px)",
+            background: gradient.shadow,
           }}
           animate={{
             opacity: isHovered ? 0.8 : 0.4,
@@ -90,9 +91,6 @@ function Feature3D({ feature, index }) {
           }}
           transition={{ duration: 0.4 }}
           className="absolute inset-0 rounded-3xl blur-2xl"
-          style={{
-            background: gradient.shadow,
-          }}
         />
 
         {/* Main 3D Box - Expands on hover */}
@@ -105,16 +103,16 @@ function Feature3D({ feature, index }) {
             transform: isHovered ? "translateZ(50px)" : "translateZ(0px)",
           }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`relative bg-gradient-to-br ${gradient.bg} backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-2xl overflow-hidden`}
+          className={`relative bg-gradient-to-br ${gradient.bg} backdrop-blur-2xl rounded-3xl p-6 border-2 border-white/30 shadow-2xl overflow-hidden`}
         >
-          {/* Smooth flowing gradient overlay */}
+          {/* Enhanced glossy shine overlay */}
           <motion.div
             className="absolute inset-0"
             animate={{
               background: [
-                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.15) 0%, transparent 50%)',
-                'radial-gradient(circle at 100% 100%, rgba(255,255,255,0.15) 0%, transparent 50%)',
-                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.15) 0%, transparent 50%)',
+                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.25) 0%, transparent 50%)',
+                'radial-gradient(circle at 100% 100%, rgba(255,255,255,0.25) 0%, transparent 50%)',
+                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.25) 0%, transparent 50%)',
               ],
             }}
             transition={{
@@ -123,6 +121,9 @@ function Feature3D({ feature, index }) {
               ease: "easeInOut",
             }}
           />
+          
+          {/* Additional glossy top shine */}
+          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-3xl"></div>
 
           {/* 3D Icon Layer */}
           <motion.div

@@ -3,6 +3,27 @@ import { motion } from 'framer-motion';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import BillingSettings from '../components/BillingSettings';
+import { 
+  FaLinkedin, 
+  FaTwitter, 
+  FaInstagram, 
+  FaFacebook, 
+  FaTiktok, 
+  FaYoutube, 
+  FaReddit, 
+  FaDiscord, 
+  FaSlack, 
+  FaTelegram,
+  FaPinterest,
+  FaWhatsapp,
+  FaSnapchat,
+  FaMedium,
+  FaTwitch,
+  FaTumblr,
+  FaVk,
+  FaQuora
+} from 'react-icons/fa';
+import { SiThreads, SiBluesky, SiMastodon } from 'react-icons/si';
 
 export default function Settings() {
   const [accounts, setAccounts] = useState([]);
@@ -17,6 +38,8 @@ export default function Settings() {
   const [discordWebhookUrl, setDiscordWebhookUrl] = useState('');
   const [discordServerName, setDiscordServerName] = useState('');
   const [activeTab, setActiveTab] = useState('accounts');
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+  const [comingSoonPlatform, setComingSoonPlatform] = useState('');
 
   
   // Check if platform is already connected
@@ -261,6 +284,11 @@ export default function Settings() {
     }
   };
 
+  const handleComingSoon = (platformName) => {
+    setComingSoonPlatform(platformName);
+    setShowComingSoonModal(true);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -273,27 +301,29 @@ export default function Settings() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-white/10 mb-6">
-        <nav className="-mb-px flex space-x-8">
+      <div className="mb-6">
+        <nav className="flex gap-4">
           <button
             onClick={() => setActiveTab('accounts')}
-            className={`${
+            className={`relative overflow-hidden flex-1 py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-300 ${
               activeTab === 'accounts'
-                ? 'border-blue-400 text-blue-300'
-                : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all`}
+                ? 'bg-blue-500/30 backdrop-blur-lg border-2 border-blue-400/50 text-white shadow-lg shadow-blue-500/30'
+                : 'bg-gray-800/30 backdrop-blur-sm border-2 border-white/10 text-gray-400 hover:text-gray-200 hover:bg-gray-700/30 hover:border-white/20'
+            }`}
           >
-            Connected Accounts
+            <div className={`absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 ${activeTab === 'accounts' ? 'opacity-100' : ''} transition-opacity`}></div>
+            <span className="relative">Connected Accounts</span>
           </button>
           <button
             onClick={() => setActiveTab('billing')}
-            className={`${
+            className={`relative overflow-hidden flex-1 py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-300 ${
               activeTab === 'billing'
-                ? 'border-purple-400 text-purple-300'
-                : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-500'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all`}
+                ? 'bg-purple-500/30 backdrop-blur-lg border-2 border-purple-400/50 text-white shadow-lg shadow-purple-500/30'
+                : 'bg-gray-800/30 backdrop-blur-sm border-2 border-white/10 text-gray-400 hover:text-gray-200 hover:bg-gray-700/30 hover:border-white/20'
+            }`}
           >
-            Billing & Usage
+            <div className={`absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 ${activeTab === 'billing' ? 'opacity-100' : ''} transition-opacity`}></div>
+            <span className="relative">Billing & Usage</span>
           </button>
         </nav>
       </div>
@@ -315,46 +345,94 @@ export default function Settings() {
             <p className="text-sm text-gray-500">Connect your first platform below to get started</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {accounts.map((account, idx) => (
-              <div key={idx} className="border-2 border-white/10 bg-gray-900/30 backdrop-blur-lg rounded-xl p-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="text-5xl drop-shadow-sm">
-                      {account?.platform === 'linkedin' && '💼'}
-                      {account?.platform === 'twitter' && '🐦'}
-                      {account?.platform === 'telegram' && '✈️'}
-                      {account?.platform === 'slack' && '💬'}
-                      {account?.platform === 'discord' && '🎮'}
-                      {account?.platform === 'reddit' && '🔴'}
-                      {account?.platform === 'instagram' && '📷'}
-                      {account?.platform === 'facebook' && '📘'}
-                      {account?.platform === 'youtube' && '🎬'}
-                      {account?.platform === 'tiktok' && '🎵'}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-100 text-lg">
-                        {account?.platform_name || (account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account')}
-                      </h4>
-                      <p className="text-sm text-gray-400 mt-1 font-medium">{account?.platform_username || account?.username || 'Connected'}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300">
-                          <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                          </svg>
-                          Active
-                        </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {accounts.map((account, idx) => {
+              // Get platform-specific gradient
+              const platformGradients = {
+                linkedin: 'from-blue-600/20 via-blue-500/10 to-transparent',
+                twitter: 'from-sky-600/20 via-sky-500/10 to-transparent',
+                telegram: 'from-cyan-600/20 via-cyan-500/10 to-transparent',
+                slack: 'from-purple-600/20 via-purple-500/10 to-transparent',
+                discord: 'from-indigo-600/20 via-indigo-500/10 to-transparent',
+                reddit: 'from-orange-600/20 via-orange-500/10 to-transparent',
+                instagram: 'from-pink-600/20 via-pink-500/10 to-transparent',
+                facebook: 'from-blue-700/20 via-blue-600/10 to-transparent',
+                youtube: 'from-red-600/20 via-red-500/10 to-transparent',
+                tiktok: 'from-gray-700/20 via-gray-600/10 to-transparent'
+              };
+              
+              const gradient = platformGradients[account?.platform] || 'from-gray-600/20 via-gray-500/10 to-transparent';
+              
+              return (
+                <div 
+                  key={idx} 
+                  className={`group relative overflow-hidden border-2 border-white/10 bg-gradient-to-br ${gradient} backdrop-blur-xl rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] hover:border-white/20 transition-all duration-300`}
+                >
+                  {/* Glossy shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  <div className="relative flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      {/* Icon with glow effect */}
+                      <div className="relative">
+                        <div className="absolute inset-0 blur-xl opacity-50">
+                          {account?.platform === 'linkedin' && <FaLinkedin className="text-5xl text-blue-500" />}
+                          {account?.platform === 'twitter' && <FaTwitter className="text-5xl text-sky-500" />}
+                          {account?.platform === 'telegram' && <FaTelegram className="text-5xl text-cyan-500" />}
+                          {account?.platform === 'slack' && <FaSlack className="text-5xl text-purple-500" />}
+                          {account?.platform === 'discord' && <FaDiscord className="text-5xl text-indigo-500" />}
+                          {account?.platform === 'reddit' && <FaReddit className="text-5xl text-orange-500" />}
+                          {account?.platform === 'instagram' && <FaInstagram className="text-5xl text-pink-500" />}
+                          {account?.platform === 'facebook' && <FaFacebook className="text-5xl text-blue-600" />}
+                          {account?.platform === 'youtube' && <FaYoutube className="text-5xl text-red-500" />}
+                          {account?.platform === 'tiktok' && <FaTiktok className="text-5xl text-gray-300" />}
+                        </div>
+                        <div className="relative text-5xl drop-shadow-lg">
+                          {account?.platform === 'linkedin' && <FaLinkedin className="text-blue-400" />}
+                          {account?.platform === 'twitter' && <FaTwitter className="text-sky-400" />}
+                          {account?.platform === 'telegram' && <FaTelegram className="text-cyan-400" />}
+                          {account?.platform === 'slack' && <FaSlack className="text-purple-400" />}
+                          {account?.platform === 'discord' && <FaDiscord className="text-indigo-400" />}
+                          {account?.platform === 'reddit' && <FaReddit className="text-orange-400" />}
+                          {account?.platform === 'instagram' && <FaInstagram className="text-pink-400" />}
+                          {account?.platform === 'facebook' && <FaFacebook className="text-blue-500" />}
+                          {account?.platform === 'youtube' && <FaYoutube className="text-red-400" />}
+                          {account?.platform === 'tiktok' && <FaTiktok className="text-gray-300" />}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-bold text-white text-lg mb-1">
+                          {account?.platform_name || (account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account')}
+                        </h4>
+                        <p className="text-sm text-gray-300 font-medium">{account?.platform_username || account?.username || 'Connected'}</p>
+                        <div className="flex items-center gap-2 mt-3">
+                          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-400/30 backdrop-blur-sm">
+                            <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                            </svg>
+                            Active
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    {account?.id && (
+                      <button 
+                        onClick={() => disconnectAccount(account)} 
+                        className="group/btn relative overflow-hidden text-red-400 hover:text-white font-semibold text-sm px-5 py-2.5 rounded-lg border-2 border-red-500/30 hover:border-red-500 bg-red-500/10 hover:bg-red-500 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-red-500/50"
+                      >
+                        <span className="relative z-10 flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Disconnect
+                        </span>
+                      </button>
+                    )}
                   </div>
-                  {account?.id && (
-                    <button onClick={() => disconnectAccount(account)} className="text-red-600 hover:text-white hover:bg-red-600 font-semibold text-sm px-4 py-2 rounded-lg border-2 border-red-200 hover:border-red-600 transition-all duration-200">
-                      Disconnect
-                    </button>
-                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
         
@@ -363,67 +441,167 @@ export default function Settings() {
           <h3 className="text-lg font-semibold text-gray-100 mb-2">Connect New Platform</h3>
           <p className="text-sm text-gray-400 mb-4">Add more platforms to expand your reach.</p>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {/* LinkedIn - Working */}
             {!isPlatformConnected('linkedin') && (
-            <button onClick={connectLinkedIn} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-400/50 rounded-xl hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">💼</span>
-              <span className="font-semibold text-sm text-white">LinkedIn</span>
+            <button onClick={connectLinkedIn} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-400/50 rounded-xl hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaLinkedin className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">LinkedIn</span>
             </button>
             )}
+            
+            {/* Twitter - Working */}
             {!isPlatformConnected('twitter') && (
-            <button onClick={connectTwitter} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-sky-500 to-sky-600 border-2 border-sky-400/50 rounded-xl hover:border-sky-300 hover:shadow-lg hover:shadow-sky-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">🐦</span>
-              <span className="font-semibold text-sm text-white">Twitter</span>
+            <button onClick={connectTwitter} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-sky-500 to-sky-600 border-2 border-sky-400/50 rounded-xl hover:border-sky-300 hover:shadow-2xl hover:shadow-sky-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaTwitter className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Twitter / X</span>
             </button>
             )}
-            {!isPlatformConnected('telegram') && (
-            <button onClick={connectTelegram} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-cyan-500 to-cyan-600 border-2 border-cyan-400/50 rounded-xl hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">✈️</span>
-              <span className="font-semibold text-sm text-white">Telegram</span>
-            </button>
-            )}
-            {!isPlatformConnected('slack') && (
-            <button onClick={connectSlack} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-500 to-purple-600 border-2 border-purple-400/50 rounded-xl hover:border-purple-300 hover:shadow-lg hover:shadow-purple-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">💬</span>
-              <span className="font-semibold text-sm text-white">Slack</span>
-            </button>
-            )}
-            {!isPlatformConnected('discord') && (
-            <button onClick={connectDiscord} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-indigo-500 to-indigo-600 border-2 border-indigo-400/50 rounded-xl hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">🎮</span>
-              <span className="font-semibold text-sm text-white">Discord</span>
-            </button>
-            )}
-            {!isPlatformConnected('reddit') && (
-            <button onClick={connectReddit} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-orange-500 to-orange-600 border-2 border-orange-400/50 rounded-xl hover:border-orange-300 hover:shadow-lg hover:shadow-orange-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">🔴</span>
-              <span className="font-semibold text-sm text-white">Reddit</span>
-            </button>
-            )}
+            
+            {/* Instagram - Working */}
             {!isPlatformConnected('instagram') && (
-            <button onClick={connectInstagram} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-pink-500 to-pink-600 border-2 border-pink-400/50 rounded-xl hover:border-pink-300 hover:shadow-lg hover:shadow-pink-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">📷</span>
-              <span className="font-semibold text-sm text-white">Instagram</span>
+            <button onClick={connectInstagram} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-pink-500 to-pink-600 border-2 border-pink-400/50 rounded-xl hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaInstagram className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Instagram</span>
             </button>
             )}
+            
+            {/* Facebook - Working */}
             {!isPlatformConnected('facebook') && (
-            <button onClick={connectFacebook} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-500/50 rounded-xl hover:border-blue-400 hover:shadow-lg hover:shadow-blue-600/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">📘</span>
-              <span className="font-semibold text-sm text-white">Facebook</span>
+            <button onClick={connectFacebook} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-500/50 rounded-xl hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-600/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaFacebook className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Facebook</span>
             </button>
             )}
+            
+            {/* Telegram - Working */}
+            {!isPlatformConnected('telegram') && (
+            <button onClick={connectTelegram} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-cyan-500 to-cyan-600 border-2 border-cyan-400/50 rounded-xl hover:border-cyan-300 hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaTelegram className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Telegram</span>
+            </button>
+            )}
+            
+            {/* Slack - Working */}
+            {!isPlatformConnected('slack') && (
+            <button onClick={connectSlack} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-500 to-purple-600 border-2 border-purple-400/50 rounded-xl hover:border-purple-300 hover:shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaSlack className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Slack</span>
+            </button>
+            )}
+            
+            {/* Discord - Working */}
+            {!isPlatformConnected('discord') && (
+            <button onClick={connectDiscord} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-indigo-500 to-indigo-600 border-2 border-indigo-400/50 rounded-xl hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaDiscord className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Discord</span>
+            </button>
+            )}
+            
+            {/* Reddit - Working */}
+            {!isPlatformConnected('reddit') && (
+            <button onClick={connectReddit} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-orange-500 to-orange-600 border-2 border-orange-400/50 rounded-xl hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaReddit className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Reddit</span>
+            </button>
+            )}
+            
+            {/* YouTube - Working */}
             {!isPlatformConnected('youtube') && (
-            <button onClick={connectYouTube} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-lg hover:shadow-red-500/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">🎬</span>
-              <span className="font-semibold text-sm text-white">YouTube</span>
+            <button onClick={connectYouTube} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaYoutube className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">YouTube</span>
             </button>
             )}
+            
+            {/* TikTok - Working */}
             {!isPlatformConnected('tiktok') && (
-            <button onClick={connectTikTok} className="flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600/50 rounded-xl hover:border-gray-500 hover:shadow-lg hover:shadow-gray-700/50 hover:scale-105 transition-all duration-200">
-              <span className="text-4xl">🎵</span>
-              <span className="font-semibold text-sm text-white">TikTok</span>
+            <button onClick={connectTikTok} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600/50 rounded-xl hover:border-gray-500 hover:shadow-2xl hover:shadow-gray-700/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaTiktok className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">TikTok</span>
             </button>
             )}
+            
+            {/* Coming Soon Platforms - Keep Solid Bold Colors */}
+            <button onClick={() => handleComingSoon('Pinterest')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaPinterest className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Pinterest</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('WhatsApp')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-green-500 to-green-600 border-2 border-green-400/50 rounded-xl hover:border-green-300 hover:shadow-2xl hover:shadow-green-500/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaWhatsapp className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">WhatsApp</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Snapchat')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-yellow-400 to-yellow-500 border-2 border-yellow-300/50 rounded-xl hover:border-yellow-200 hover:shadow-2xl hover:shadow-yellow-400/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaSnapchat className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Snapchat</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Medium')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700/50 rounded-xl hover:border-gray-600 hover:shadow-2xl hover:shadow-gray-800/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaMedium className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Medium</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Twitch')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-600 to-purple-700 border-2 border-purple-500/50 rounded-xl hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-600/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaTwitch className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Twitch</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Threads')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-900 to-black border-2 border-gray-800/50 rounded-xl hover:border-gray-700 hover:shadow-2xl hover:shadow-gray-900/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <SiThreads className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Threads</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Bluesky')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-sky-400 to-sky-500 border-2 border-sky-300/50 rounded-xl hover:border-sky-200 hover:shadow-2xl hover:shadow-sky-400/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <SiBluesky className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Bluesky</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Mastodon')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-indigo-600 to-purple-600 border-2 border-indigo-500/50 rounded-xl hover:border-indigo-400 hover:shadow-2xl hover:shadow-indigo-600/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <SiMastodon className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Mastodon</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Tumblr')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-700 to-indigo-800 border-2 border-blue-600/50 rounded-xl hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-700/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaTumblr className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Tumblr</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
+            
+            <button onClick={() => handleComingSoon('Quora')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-600 to-red-700 border-2 border-red-500/50 rounded-xl hover:border-red-400 hover:shadow-2xl hover:shadow-red-600/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaQuora className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-semibold text-sm text-white">Quora</span>
+              <span className="relative text-xs text-white/80">Coming Soon</span>
+            </button>
           </div>
         </div>
         </div>
@@ -602,6 +780,36 @@ export default function Settings() {
                 className="flex-1 px-4 py-2 bg-indigo-700 text-white rounded-lg font-medium hover:bg-indigo-800 transition"
               >
                 Connect
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Coming Soon Modal */}
+      {showComingSoonModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full text-center"
+          >
+            <div className="text-6xl mb-4">🚧</div>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              {comingSoonPlatform} Integration
+            </h3>
+            <p className="text-gray-300 mb-4">
+              We're working hard to bring {comingSoonPlatform} integration to you!
+            </p>
+            <p className="text-sm text-gray-400 mb-6">
+              This feature is currently under development. Check back soon for updates or contact support if you'd like to be notified when it's ready.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowComingSoonModal(false)}
+                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+              >
+                Got it!
               </button>
             </div>
           </motion.div>

@@ -5,6 +5,18 @@ import api from '../lib/api';
 import { showError } from '../components/ui/Toast';
 import { NoAnalyticsEmpty } from '../components/ui/EmptyState';
 import { AnalyticsSkeleton } from '../components/ui/LoadingStates';
+import { 
+  FaLinkedin, 
+  FaTwitter, 
+  FaInstagram, 
+  FaFacebook, 
+  FaTiktok, 
+  FaYoutube, 
+  FaReddit, 
+  FaDiscord, 
+  FaSlack, 
+  FaTelegram
+} from 'react-icons/fa';
 
 export default function Analytics() {
   const [analytics, setAnalytics] = useState(null);
@@ -304,10 +316,16 @@ export default function Analytics() {
                 
                 // Platform icons mapping
                 const platformIcons = {
-                  linkedin: { emoji: '🔗', color: 'bg-blue-100 text-blue-800', name: 'LinkedIn' },
-                  twitter: { emoji: '🐦', color: 'bg-sky-100 text-sky-800', name: 'Twitter' },
-                  telegram: { emoji: '💬', color: 'bg-indigo-100 text-indigo-800', name: 'Telegram' },
-                  instagram: { emoji: '📸', color: 'bg-pink-100 text-pink-800', name: 'Instagram' }
+                  linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'LinkedIn' },
+                  twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border-sky-400/30', name: 'Twitter' },
+                  telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border-cyan-400/30', name: 'Telegram' },
+                  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border-pink-400/30', name: 'Instagram' },
+                  facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Facebook' },
+                  youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border-red-400/30', name: 'YouTube' },
+                  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
+                  discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
+                  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border-purple-400/30', name: 'Slack' },
+                  tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: 'TikTok' }
                 };
 
                 // Helper function to get post URL from results
@@ -383,9 +401,10 @@ export default function Analytics() {
                       {platforms.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {platforms.map((platform, pIdx) => {
-                            const platformInfo = platformIcons[platform.toLowerCase()] || { emoji: '📱', color: 'bg-gray-100 text-gray-800', name: platform };
+                            const platformInfo = platformIcons[platform.toLowerCase()] || { Icon: FaTwitter, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: platform };
                             const postUrl = getPostUrl(platform);
                             const isClickable = postUrl !== null;
+                            const PlatformIcon = platformInfo.Icon;
                             
                             return (
                               <a
@@ -400,14 +419,14 @@ export default function Analytics() {
                                     showError(`Link not available for this ${platformInfo.name} post. The post was successful but the URL wasn't saved. This will be fixed for future posts.`);
                                   }
                                 }}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full ${platformInfo.color} transition ${
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border backdrop-blur-sm ${platformInfo.color} transition ${
                                   isClickable 
                                     ? 'hover:scale-110 cursor-pointer hover:shadow-md hover:ring-2 hover:ring-blue-400' 
                                     : 'cursor-pointer opacity-70 hover:opacity-100'
                                 }`}
                                 title={isClickable ? `View post on ${platformInfo.name}` : `Click to see why link isn't available for ${platformInfo.name}`}
                               >
-                                <span className="text-base">{platformInfo.emoji}</span>
+                                <PlatformIcon className="text-sm" />
                                 <span>{platformInfo.name}</span>
                                 {isClickable ? <span className="text-xs">↗</span> : <span className="text-xs opacity-50">ⓘ</span>}
                               </a>

@@ -1,18 +1,32 @@
 import { motion } from 'framer-motion';
+import { 
+  FaLinkedin, 
+  FaTwitter, 
+  FaInstagram, 
+  FaFacebook, 
+  FaTiktok, 
+  FaYoutube, 
+  FaReddit, 
+  FaDiscord, 
+  FaSlack, 
+  FaTelegram,
+  FaPinterest,
+  FaWhatsapp
+} from 'react-icons/fa';
 
 const platformConfig = {
-  linkedin: { icon: '💼', gradient: 'from-blue-500 to-blue-600', name: 'LinkedIn' },
-  twitter: { icon: '𝕏', gradient: 'from-gray-900 to-black', name: 'Twitter/X' },
-  instagram: { icon: '📸', gradient: 'from-pink-500 to-purple-500', name: 'Instagram' },
-  facebook: { icon: '📘', gradient: 'from-blue-600 to-blue-700', name: 'Facebook' },
-  tiktok: { icon: '🎵', gradient: 'from-black to-cyan-500', name: 'TikTok' },
-  youtube: { icon: '▶️', gradient: 'from-red-600 to-red-700', name: 'YouTube' },
-  reddit: { icon: '🔴', gradient: 'from-orange-500 to-orange-600', name: 'Reddit' },
-  discord: { icon: '💬', gradient: 'from-indigo-500 to-indigo-600', name: 'Discord' },
-  slack: { icon: '💼', gradient: 'from-purple-500 to-pink-500', name: 'Slack' },
-  telegram: { icon: '✈️', gradient: 'from-cyan-400 to-cyan-500', name: 'Telegram' },
-  whatsapp: { icon: '💚', gradient: 'from-green-500 to-green-600', name: 'WhatsApp' },
-  pinterest: { icon: '📌', gradient: 'from-red-500 to-red-600', name: 'Pinterest' },
+  linkedin: { Icon: FaLinkedin, gradient: 'from-blue-500 to-blue-600', name: 'LinkedIn' },
+  twitter: { Icon: FaTwitter, gradient: 'from-sky-400 to-sky-600', name: 'Twitter/X' },
+  instagram: { Icon: FaInstagram, gradient: 'from-pink-500 to-purple-500', name: 'Instagram' },
+  facebook: { Icon: FaFacebook, gradient: 'from-blue-600 to-blue-700', name: 'Facebook' },
+  tiktok: { Icon: FaTiktok, gradient: 'from-black to-cyan-500', name: 'TikTok' },
+  youtube: { Icon: FaYoutube, gradient: 'from-red-600 to-red-700', name: 'YouTube' },
+  reddit: { Icon: FaReddit, gradient: 'from-orange-500 to-orange-600', name: 'Reddit' },
+  discord: { Icon: FaDiscord, gradient: 'from-indigo-500 to-indigo-600', name: 'Discord' },
+  slack: { Icon: FaSlack, gradient: 'from-purple-500 to-pink-500', name: 'Slack' },
+  telegram: { Icon: FaTelegram, gradient: 'from-cyan-400 to-cyan-500', name: 'Telegram' },
+  whatsapp: { Icon: FaWhatsapp, gradient: 'from-green-500 to-green-600', name: 'WhatsApp' },
+  pinterest: { Icon: FaPinterest, gradient: 'from-red-500 to-red-600', name: 'Pinterest' },
 };
 
 export default function PlatformChip({ 
@@ -22,16 +36,24 @@ export default function PlatformChip({
   size = 'md' 
 }) {
   const config = platformConfig[platform] || { 
-    icon: '🌐', 
+    Icon: FaTwitter, 
     gradient: 'from-gray-500 to-gray-600', 
     name: platform 
   };
 
   const sizeClasses = {
-    sm: 'p-2 text-2xl',
-    md: 'p-4 text-3xl',
-    lg: 'p-6 text-4xl',
+    sm: 'p-2',
+    md: 'p-4',
+    lg: 'p-6',
   };
+
+  const iconSizeClasses = {
+    sm: 'text-2xl',
+    md: 'text-3xl',
+    lg: 'text-4xl',
+  };
+
+  const IconComponent = config.Icon;
 
   return (
     <motion.button
@@ -62,7 +84,7 @@ export default function PlatformChip({
       />
 
       {/* Icon */}
-      <motion.span
+      <motion.div
         animate={{
           rotate: selected ? [0, 5, -5, 0] : 0,
         }}
@@ -72,8 +94,8 @@ export default function PlatformChip({
         }}
         className="relative z-10"
       >
-        {config.icon}
-      </motion.span>
+        <IconComponent className={`${iconSizeClasses[size]} text-white`} />
+      </motion.div>
 
       {/* Selected checkmark */}
       {selected && (

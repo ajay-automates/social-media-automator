@@ -2,6 +2,18 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../lib/api';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
+import { 
+  FaLinkedin, 
+  FaTwitter, 
+  FaInstagram, 
+  FaFacebook, 
+  FaTiktok, 
+  FaYoutube, 
+  FaReddit, 
+  FaDiscord, 
+  FaSlack, 
+  FaTelegram
+} from 'react-icons/fa';
 
 const CATEGORIES = [
   { id: 'all', name: 'All Templates', icon: '📋' },
@@ -15,10 +27,16 @@ const CATEGORIES = [
 ];
 
 const PLATFORM_ICONS = {
-  linkedin: { icon: '💼', color: 'bg-blue-100 text-blue-600' },
-  twitter: { icon: '🐦', color: 'bg-sky-100 text-sky-600' },
-  telegram: { icon: '✈️', color: 'bg-blue-100 text-blue-600' },
-  instagram: { icon: '📸', color: 'bg-pink-100 text-pink-600' }
+  linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border border-blue-400/30' },
+  twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border border-sky-400/30' },
+  telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border border-cyan-400/30' },
+  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border border-pink-400/30' },
+  facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border border-blue-400/30' },
+  youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border border-red-400/30' },
+  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border border-orange-400/30' },
+  discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border border-indigo-400/30' },
+  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border border-purple-400/30' },
+  tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border border-gray-400/30' }
 };
 
 export default function Templates() {
@@ -312,7 +330,7 @@ async function handleSaveTemplate() {
         </div>
 
         {/* Category Filter */}
-        <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+        <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
           {CATEGORIES.map(cat => (
             <button
               key={cat.id}
@@ -376,13 +394,15 @@ async function handleSaveTemplate() {
                 {/* Platforms */}
                 <div className="flex gap-2 mb-4 flex-wrap">
                   {template.platforms.map(platform => {
-                    const config = PLATFORM_ICONS[platform] || { icon: '📱', color: 'bg-gray-100 text-gray-600' };
+                    const config = PLATFORM_ICONS[platform] || { Icon: FaTwitter, color: 'bg-gray-500/20 text-gray-400 border border-gray-400/30' };
+                    const PlatformIcon = config.Icon;
                     return (
                       <span
                         key={platform}
-                        className={`px-2 py-1 rounded text-xs font-medium ${config.color}`}
+                        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded backdrop-blur-sm text-xs font-medium ${config.color}`}
                       >
-                        {config.icon} {platform}
+                        <PlatformIcon className="text-sm" />
+                        <span>{platform}</span>
                       </span>
                     );
                   })}
