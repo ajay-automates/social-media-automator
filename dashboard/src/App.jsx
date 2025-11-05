@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import ConnectAccounts from './pages/ConnectAccounts';
 import Templates from './pages/Templates';
 import Pricing from './pages/Pricing';
 import PaymentSuccess from './pages/PaymentSuccess';
@@ -23,6 +24,7 @@ function Navigation() {
     { path: '/create', label: 'Create Post', icon: '✨' },
     { path: '/templates', label: 'Templates', icon: '📝' },
     { path: '/analytics', label: 'Analytics', icon: '📈' },
+    { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
     { path: '/pricing', label: 'Pricing', icon: '💎' },
   ];
@@ -120,6 +122,7 @@ function App() {
               <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
               <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
               <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
