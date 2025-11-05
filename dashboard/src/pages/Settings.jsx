@@ -301,7 +301,7 @@ export default function Settings() {
       {activeTab === 'accounts' && (
         <>
         {/* Connected Accounts Section */}
-        <div className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 mb-8">
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-100 mb-4">Connected Accounts</h2>
         
         {loading ? (
@@ -317,7 +317,7 @@ export default function Settings() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {accounts.map((account, idx) => (
-              <div key={idx} className="border-2 border-white/10 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-xl p-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
+              <div key={idx} className="border-2 border-white/10 bg-gray-900/30 backdrop-blur-lg rounded-xl p-6 hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
                     <div className="text-5xl drop-shadow-sm">
@@ -431,7 +431,7 @@ export default function Settings() {
       )}
 
       {activeTab === 'billing' && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6">
           <BillingSettings />
         </div>
       )}
@@ -442,9 +442,9 @@ export default function Settings() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl p-6 max-w-md w-full"
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
           >
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Connect Telegram</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Connect Telegram</h3>
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -501,12 +501,12 @@ export default function Settings() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl p-6 max-w-md w-full"
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
           >
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Connect Slack</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Connect Slack</h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Webhook URL
                 </label>
                 <input
@@ -514,14 +514,14 @@ export default function Settings() {
                   value={slackWebhookUrl}
                   onChange={(e) => setSlackWebhookUrl(e.target.value)}
                   placeholder="https://hooks.slack.com/services/..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Get this from Slack: Your Workspace → Apps → Incoming Webhooks
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Channel Name (Optional)
                 </label>
                 <input
@@ -529,7 +529,7 @@ export default function Settings() {
                   value={slackChannelName}
                   onChange={(e) => setSlackChannelName(e.target.value)}
                   placeholder="#general"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400"
                 />
               </div>
             </div>
@@ -557,12 +557,12 @@ export default function Settings() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl p-6 max-w-md w-full"
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
           >
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Connect Discord</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Connect Discord</h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Webhook URL
                 </label>
                 <input
@@ -570,14 +570,14 @@ export default function Settings() {
                   value={discordWebhookUrl}
                   onChange={(e) => setDiscordWebhookUrl(e.target.value)}
                   placeholder="https://discord.com/api/webhooks/..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-700 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-gray-400"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   Get this from Discord: Server Settings → Integrations → Webhooks → New Webhook
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Server/Channel Name (Optional)
                 </label>
                 <input
@@ -585,7 +585,7 @@ export default function Settings() {
                   value={discordServerName}
                   onChange={(e) => setDiscordServerName(e.target.value)}
                   placeholder="My Discord Server"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-700 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-gray-400"
                 />
               </div>
             </div>

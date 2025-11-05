@@ -416,7 +416,7 @@ export default function CreatePost() {
           <p className="text-gray-400">Share your message across 25+ platforms</p>
         </div>
         
-        <div className="bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
           {/* Reddit-Specific Fields */}
           {platforms.includes('reddit') && (
             <div className="space-y-4 bg-orange-50 border border-orange-200 rounded-lg p-4">
@@ -688,7 +688,7 @@ export default function CreatePost() {
         </div>
 
         {/* AI Image Generation */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
           <h3 className="text-xl font-bold text-white mb-4">✨ AI Image Generator</h3>
           
           {/* Example Prompts */}
@@ -783,7 +783,7 @@ export default function CreatePost() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">AI Caption Generator</h2>
@@ -899,7 +899,7 @@ export default function CreatePost() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-800 border border-gray-700 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">🔗 Generate from URL</h2>

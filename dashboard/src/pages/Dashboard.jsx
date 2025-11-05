@@ -156,16 +156,16 @@ export default function Dashboard() {
       
       {/* Usage Summary */}
       {billingInfo && billingInfo.usage && billingInfo.usage.posts && billingInfo.plan && billingInfo.plan.name && (
-        <div className="mb-6">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+        <div className="mb-6 relative z-10">
+          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-2xl">📊</span>
               <div>
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-white">
                   You've used {billingInfo.usage.posts.used}/{billingInfo.usage.posts.limit} posts this month
                 </p>
                 {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && (
-                  <p className={`text-xs mt-1 ${billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? 'text-red-600' : 'text-yellow-600'}`}>
+                  <p className={`text-xs mt-1 ${billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? 'text-red-400' : 'text-yellow-400'}`}>
                     {billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? '❌ Limit reached' : '⚠️ Approaching limit'}
                   </p>
                 )}
@@ -174,7 +174,7 @@ export default function Dashboard() {
             {billingInfo.plan && billingInfo.plan.name === 'free' && (
               <Link
                 to="/pricing"
-                className="text-blue-600 hover:text-blue-700 font-medium text-sm ml-2"
+                className="text-blue-400 hover:text-blue-300 font-medium text-sm ml-2"
               >
                 Upgrade →
               </Link>

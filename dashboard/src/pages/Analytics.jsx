@@ -214,7 +214,7 @@ export default function Analytics() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Timeline Chart */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6">
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-white mb-4">Posts Timeline (Last 30 Days)</h2>
           {lineData.length > 0 && lineData[0].date !== 'No data' ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -235,7 +235,7 @@ export default function Analytics() {
         </div>
 
         {/* Platform Distribution */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6">
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-white mb-4">Platform Distribution</h2>
           {pieData.length > 0 && pieData[0].name !== 'No data' ? (
             <ResponsiveContainer width="100%" height={300}>
@@ -271,7 +271,7 @@ export default function Analytics() {
       </div>
 
       {/* Post History Table */}
-      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl shadow-lg p-6">
+      <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6">
         <h2 className="text-2xl font-bold text-white mb-4">Recent Posts</h2>
         {history.length === 0 ? (
           <div className="text-center py-12 text-gray-400">

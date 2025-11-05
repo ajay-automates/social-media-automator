@@ -264,19 +264,19 @@ async function handleSaveTemplate() {
       {/* Stats */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-blue-400">{stats.total}</div>
             <div className="text-sm text-gray-300 mt-1">Total Templates</div>
           </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-yellow-400">{stats.favorites}</div>
             <div className="text-sm text-gray-300 mt-1">Favorites</div>
           </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-green-400">{stats.totalUses}</div>
             <div className="text-sm text-gray-300 mt-1">Total Uses</div>
           </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6">
+          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-purple-400">
               {stats.mostUsed && stats.mostUsed.length > 0 ? stats.mostUsed[0]?.use_count || 0 : 0}
             </div>
@@ -286,7 +286,7 @@ async function handleSaveTemplate() {
       )}
 
       {/* Controls */}
-      <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-6 mb-6">
+      <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg shadow p-6 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1">
@@ -333,7 +333,7 @@ async function handleSaveTemplate() {
       {loading ? (
         <LoadingSkeleton count={6} />
       ) : templates.length === 0 ? (
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow p-12 text-center">
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg shadow p-12 text-center">
           <div className="text-6xl mb-4">📋</div>
           <h3 className="text-xl font-semibold text-white mb-2">No templates yet</h3>
           <p className="text-gray-300 mb-6">Create your first template to get started!</p>
@@ -350,7 +350,7 @@ async function handleSaveTemplate() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map(template => (
-            <div key={template.id} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow">
+            <div key={template.id} className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg shadow hover:shadow-lg transition-shadow">
               <div className="p-6">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
@@ -424,7 +424,7 @@ async function handleSaveTemplate() {
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 border border-gray-700 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-white mb-6">
                 {editingTemplate ? 'Edit Template' : 'Create Template'}

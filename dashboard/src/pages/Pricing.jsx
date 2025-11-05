@@ -205,9 +205,9 @@ export default function Pricing() {
                 whileHover={{ y: -5, scale: 1.02 }}
                 className={`${
                   isPopular
-                    ? 'bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-400 transform scale-105'
-                    : 'bg-gray-800 border-2 border-gray-700'
-                } p-8 rounded-lg flex flex-col relative`}
+                    ? 'bg-gradient-to-br from-blue-600/40 to-blue-700/40 backdrop-blur-lg border-2 border-blue-400/50 transform scale-105'
+                    : 'bg-gray-900/30 backdrop-blur-lg border-2 border-white/10'
+                } p-8 rounded-lg flex flex-col relative shadow-xl`}
               >
                 {/* Popular Badge */}
                 {isPopular && (
