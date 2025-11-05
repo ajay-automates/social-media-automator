@@ -294,8 +294,8 @@ export default function ConnectAccounts() {
   };
 
   const disconnectAccount = async (account) => {
-    if (!account || !account.id) {
-      console.error('No account or ID provided for disconnection');
+    if (!account || !account.id || !account.platform) {
+      console.error('No account, ID, or platform provided for disconnection');
       return;
     }
     
@@ -304,9 +304,11 @@ export default function ConnectAccounts() {
     }
 
     try {
-      await api.delete(`/accounts/${account.id}`);
-      showSuccess(`${account.platform} disconnected successfully!`);
-      loadAccounts();
+      const response = await api.delete(`/user/accounts/${account.platform}/${account.id}`);
+      if (response.data.success) {
+        showSuccess(`${account.platform} disconnected successfully!`);
+        loadAccounts();
+      }
     } catch (err) {
       console.error('Error disconnecting account:', err);
       const errorMsg = err.response?.data?.error || 'Failed to disconnect account';
