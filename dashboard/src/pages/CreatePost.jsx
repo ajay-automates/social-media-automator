@@ -48,6 +48,12 @@ export default function CreatePost() {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templateSearch, setTemplateSearch] = useState('');
   const [templateCategory, setTemplateCategory] = useState('all');
+  const [generatedHashtags, setGeneratedHashtags] = useState([]);
+  const [generatingHashtags, setGeneratingHashtags] = useState(false);
+  const [showHashtags, setShowHashtags] = useState(false);
+  const [bestTimes, setBestTimes] = useState([]);
+  const [loadingBestTimes, setLoadingBestTimes] = useState(false);
+  const [showBestTimes, setShowBestTimes] = useState(true);
 
   useEffect(() => {
     loadBillingInfo();
@@ -76,6 +82,13 @@ export default function CreatePost() {
   useEffect(() => {
     if (platforms.includes('reddit')) {
       loadModeratedSubreddits();
+    }
+  }, [platforms]);
+
+  // Load best times when platform is selected
+  useEffect(() => {
+    if (platforms.length > 0) {
+      loadBestTimes();
     }
   }, [platforms]);
 
@@ -134,6 +147,160 @@ export default function CreatePost() {
     
     // Show success message
     showSuccess(`Template "${template.name}" loaded! Replace {{variables}} with your content.`);
+  };
+
+  const generateAIHashtags = async () => {
+    if (!caption || caption.trim().length < 10) {
+      showError('Please enter at least 10 characters in your caption first');
+      return;
+    }
+
+    setGeneratingHashtags(true);
+    setGeneratedHashtags([]);
+
+    try {
+      const selectedPlatform = platforms.length > 0 ? platforms[0] : 'instagram';
+      
+      const response = await api.post('/ai/hashtags', {
+        caption: caption.trim(),
+        platform: selectedPlatform
+      });
+
+      if (response.data.success && response.data.hashtags) {
+        setGeneratedHashtags(response.data.hashtags);
+        setShowHashtags(true);
+        showSuccess(`Generated ${response.data.hashtags.length} hashtags for ${selectedPlatform}!`);
+      }
+    } catch (err) {
+      console.error('Hashtag generation error:', err);
+      const errorMessage = err.response?.data?.error || 'Failed to generate hashtags';
+      showError(errorMessage);
+      
+      // Check if usage limit reached
+      if (err.response?.data?.limitReached) {
+        setShowUpgrade(true);
+      }
+    } finally {
+      setGeneratingHashtags(false);
+    }
+  };
+
+  const addHashtagToCaption = (hashtag) => {
+    if (!caption.includes(hashtag)) {
+      setCaption(caption + (caption.endsWith(' ') || caption.endsWith('\n') ? '' : ' ') + hashtag);
+      showSuccess(`Added ${hashtag}`);
+    }
+  };
+
+  const addAllHashtags = () => {
+    const hashtagString = generatedHashtags.join(' ');
+    setCaption(caption + (caption.endsWith(' ') || caption.endsWith('\n') ? '' : '\n\n') + hashtagString);
+    showSuccess(`Added all ${generatedHashtags.length} hashtags!`);
+  };
+
+  const loadBestTimes = async () => {
+    if (platforms.length === 0) return;
+    
+    setLoadingBestTimes(true);
+    try {
+      const selectedPlatform = platforms[0]; // Use first selected platform
+      const response = await api.get(`/analytics/best-times?platform=${selectedPlatform}`);
+      
+      if (response.data.success && response.data.recommendations) {
+        setBestTimes(response.data.recommendations);
+      }
+    } catch (err) {
+      console.error('Error loading best times:', err);
+      // Silent fail - not critical
+      setBestTimes([]);
+    } finally {
+      setLoadingBestTimes(false);
+    }
+  };
+
+  const scheduleAtRecommendedTime = async (timeRecommendation) => {
+    if (!caption.trim()) {
+      showError('Please enter a caption first');
+      return;
+    }
+
+    if (platforms.length === 0) {
+      showError('Please select at least one platform');
+      return;
+    }
+
+    try {
+      // Parse the day and time from recommendation
+      const { day, time } = timeRecommendation;
+      
+      // Calculate the next occurrence of this day/time
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const targetDayIndex = daysOfWeek.indexOf(day);
+      
+      if (targetDayIndex === -1) {
+        showError('Invalid day in recommendation');
+        return;
+      }
+      
+      // Parse time (e.g., "9:00 AM" or "2:30 PM")
+      const timeMatch = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (!timeMatch) {
+        showError('Invalid time format in recommendation');
+        return;
+      }
+      
+      let hours = parseInt(timeMatch[1]);
+      const minutes = parseInt(timeMatch[2]);
+      const period = timeMatch[3].toUpperCase();
+      
+      // Convert to 24-hour format
+      if (period === 'PM' && hours !== 12) hours += 12;
+      if (period === 'AM' && hours === 12) hours = 0;
+      
+      // Find next occurrence of this day
+      const now = new Date();
+      const currentDay = now.getDay();
+      let daysUntilTarget = targetDayIndex - currentDay;
+      
+      if (daysUntilTarget < 0 || (daysUntilTarget === 0 && (now.getHours() > hours || (now.getHours() === hours && now.getMinutes() >= minutes)))) {
+        daysUntilTarget += 7; // Next week
+      }
+      
+      const scheduleDate = new Date(now);
+      scheduleDate.setDate(scheduleDate.getDate() + daysUntilTarget);
+      scheduleDate.setHours(hours, minutes, 0, 0);
+      
+      // Schedule the post
+      startLoading('Scheduling post...');
+      
+      const requestData = {
+        text: caption.trim(),
+        platforms,
+        imageUrl: image,
+        scheduleTime: scheduleDate.toISOString(),
+        redditTitle: platforms.includes('reddit') ? redditTitle : undefined,
+        redditSubreddit: platforms.includes('reddit') ? redditSubreddit : undefined
+      };
+      
+      const response = await api.post('/post/schedule', requestData);
+      
+      if (response.data.success) {
+        showSuccess(`Post scheduled for ${day} at ${time}! Redirecting to calendar...`);
+        celebrateSuccess();
+        
+        // Redirect to calendar after 1.5 seconds
+        setTimeout(() => {
+          navigate('/calendar');
+        }, 1500);
+      }
+      
+    } catch (err) {
+      console.error('Schedule error:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to schedule post';
+      showError(errorMessage);
+    } finally {
+      stopLoading();
+    }
   };
 
   const generateCaption = async () => {
@@ -234,8 +401,6 @@ export default function CreatePost() {
         prompt: aiImagePrompt,
         style: 'photographic'
       });
-      
-      console.log('AI Image response:', response.data);
       
       if (response.data.imageUrl) {
         setGeneratedImage(response.data.imageUrl);
@@ -352,7 +517,6 @@ export default function CreatePost() {
       const formData = new FormData();
       formData.append('file', pendingVideoFile);
       
-      console.log('📤 Uploading video to Cloudinary...');
       const response = await api.post('/upload/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
@@ -360,7 +524,6 @@ export default function CreatePost() {
       if (response.data.success) {
         const uploadedUrl = response.data.videoUrl || response.data.url || response.data.imageUrl;
         setImage(uploadedUrl);
-        console.log('✅ Video uploaded and attached, URL:', uploadedUrl);
         showSuccess('Video attached successfully! Ready to post.');
         
         // Clear pending video
@@ -415,10 +578,6 @@ export default function CreatePost() {
     startLoading(platforms[0] || 'twitter');
     
     try {
-      console.log('📤 About to post - image state:', image);
-      console.log('📤 Caption:', caption);
-      console.log('📤 Platforms:', platforms);
-      
       // Prepare post metadata for platform-specific requirements
       const postMetadata = {};
       if (platforms.includes('reddit')) {
@@ -612,8 +771,84 @@ export default function CreatePost() {
               className="w-full p-4 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-400"
               rows={6}
             />
-            <div className="mt-2 text-sm text-gray-400">{caption.length} characters</div>
+            <div className="mt-2 flex items-center justify-between">
+              <div className="text-sm text-gray-400">{caption.length} characters</div>
+              {caption.length >= 10 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={generateAIHashtags}
+                  disabled={generatingHashtags}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                >
+                  {generatingHashtags ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      🏷️ Generate Hashtags
+                    </>
+                  )}
+                </motion.button>
+              )}
+            </div>
           </div>
+
+          {/* Generated Hashtags Display */}
+          {showHashtags && generatedHashtags.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+              
+              <div className="relative">
+                <div className="flex items-center justify-between mb-5">
+                  <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                    <span className="text-2xl">🏷️</span>
+                    Generated Hashtags ({generatedHashtags.length})
+                  </h4>
+                  <button
+                    onClick={() => setShowHashtags(false)}
+                    className="text-gray-400 hover:text-white transition text-2xl p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                <div className="flex flex-wrap gap-3 mb-5">
+                  {generatedHashtags.map((hashtag, index) => (
+                    <motion.button
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.03 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => addHashtagToCaption(hashtag)}
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
+                    >
+                      {hashtag}
+                    </motion.button>
+                  ))}
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={addAllHashtags}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
+                >
+                  ✨ Add All Hashtags to Caption
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
           
           {/* AI Generate Buttons */}
           <div className="flex gap-3">
@@ -997,6 +1232,70 @@ export default function CreatePost() {
                 )}
               </div>
             </div>
+          )}
+
+          {/* Best Time to Post Recommendations */}
+          {platforms.length > 0 && showBestTimes && bestTimes.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden mt-4"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+              
+              <div className="relative">
+                <div className="flex items-center justify-between mb-5">
+                  <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                    <span className="text-2xl">⏰</span>
+                    Best Time to Post on {platforms[0].charAt(0).toUpperCase() + platforms[0].slice(1)}
+                  </h4>
+                  <button
+                    onClick={() => setShowBestTimes(false)}
+                    className="text-gray-400 hover:text-white transition text-2xl p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {loadingBestTimes ? (
+                  <div className="text-center py-6">
+                    <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+                    <p className="text-gray-300 text-sm mt-3 font-medium">Analyzing best times...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {bestTimes.map((time, index) => (
+                      <motion.button
+                        key={index}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => scheduleAtRecommendedTime(time)}
+                        className="group/time relative w-full bg-gradient-to-r from-gray-800/60 to-gray-700/60 backdrop-blur-xl border-2 border-blue-400/30 rounded-xl p-4 hover:border-blue-400/50 hover:shadow-xl hover:shadow-blue-500/30 transition-all overflow-hidden cursor-pointer text-left"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/time:opacity-100 transition-opacity duration-300"></div>
+                        <div className="relative flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-3xl">{['🥇', '🥈', '🥉'][index]}</span>
+                              <span className="font-bold text-blue-200 text-lg">{time.day} at {time.time}</span>
+                            </div>
+                            <p className="text-sm text-gray-300 pl-11">{time.reason}</p>
+                          </div>
+                          <div className="text-blue-400 opacity-0 group-hover/time:opacity-100 transition-opacity text-xs font-semibold mt-1">
+                            Click to schedule →
+                          </div>
+                        </div>
+                      </motion.button>
+                    ))}
+                    
+                    <div className="text-xs text-blue-300/60 mt-4 flex items-center gap-2 bg-blue-900/20 backdrop-blur-sm border border-blue-400/20 rounded-lg px-3 py-2">
+                      <span>🤖</span>
+                      <span>Powered by AI + your posting history</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           )}
 
           {/* Actions */}

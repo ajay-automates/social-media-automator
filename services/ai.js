@@ -137,7 +137,179 @@ async function generateMultiPlatformCaptions(topic, niche, platforms = ['linkedi
   return results;
 }
 
+/**
+ * Generate AI hashtags for a post
+ * @param {string} caption - The caption/content of the post
+ * @param {string} platform - Target platform (linkedin, twitter, instagram, etc.)
+ * @returns {Promise<Array<string>>} - Array of relevant hashtags
+ */
+async function generateHashtags(caption, platform = 'instagram') {
+  try {
+    // Validate inputs
+    if (!caption || caption.trim() === '') {
+      throw new Error('Caption is required');
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured in environment variables');
+    }
+
+    // Normalize platform
+    platform = platform.toLowerCase();
+    
+    // Platform-specific hashtag counts
+    const hashtagCounts = {
+      'instagram': '15-20',
+      'linkedin': '3-5',
+      'twitter': '2-4',
+      'tiktok': '5-8',
+      'default': '10-15'
+    };
+    
+    const count = hashtagCounts[platform] || hashtagCounts['default'];
+
+    console.log(`\n🏷️  Generating ${count} hashtags for ${platform}...`);
+
+    // Initialize Anthropic client
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const prompt = `Generate ${count} relevant hashtags for this ${platform} post:
+
+"${caption}"
+
+Requirements:
+- Return ONLY hashtags, one per line
+- No explanations, no numbering, no extra text
+- Include the # symbol
+- Mix popular and niche hashtags
+- Make them trending and ${platform}-appropriate
+- Focus on relevance to the content
+${platform === 'linkedin' ? '- Use professional, industry-related hashtags' : ''}
+${platform === 'instagram' ? '- Mix broad reach and specific niche hashtags' : ''}
+${platform === 'twitter' ? '- Keep them concise and trending' : ''}`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 512,
+      temperature: 0.7,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    });
+
+    // Extract hashtags from response
+    const text = message.content[0].text;
+    const hashtags = text
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.startsWith('#'))
+      .map(tag => tag.replace(/[^\w#]/g, '')); // Clean up any extra characters
+
+    console.log(`✅ Generated ${hashtags.length} hashtags for ${platform}`);
+    
+    return hashtags;
+
+  } catch (error) {
+    console.error('❌ AI Hashtag Generation Error:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Get AI recommendations for best time to post
+ * @param {string} platform - Target platform
+ * @param {object} userHistory - User's historical best times data
+ * @returns {Promise<Array>} Array of recommended times
+ */
+async function recommendPostTime(platform, userHistory = {}) {
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY not configured');
+    }
+
+    console.log(`\n⏰ Getting posting time recommendations for ${platform}...`);
+
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const currentDay = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+    const currentDate = new Date().toLocaleDateString();
+    
+    const historyContext = userHistory.hasEnoughData 
+      ? `The user's best performing times based on their history:
+${userHistory.topSlots?.map(slot => `- ${slot.day} at ${slot.time} (${slot.successRate}% success rate, ${slot.totalPosts} posts)`).join('\n')}`
+      : 'User has limited posting history. Rely on general best practices.';
+
+    const prompt = `You are a social media expert. Recommend the best 3 times to post on ${platform} this week.
+
+Current context:
+- Today is ${currentDay}, ${currentDate}
+- Platform: ${platform}
+
+${historyContext}
+
+Provide 3 specific recommendations for THIS WEEK with exact days and times.
+
+Return ONLY a JSON array with this exact format (no markdown, no code blocks, just the JSON):
+[
+  {
+    "day": "Monday",
+    "time": "9:00 AM",
+    "reason": "Peak professional engagement time"
+  }
+]
+
+Make recommendations practical and actionable for the upcoming week.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 512,
+      temperature: 0.5,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    });
+
+    // Parse the response
+    const text = message.content[0].text.trim();
+    
+    // Try to extract JSON from response
+    let recommendations;
+    try {
+      // Remove markdown code blocks if present
+      const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+      recommendations = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', text);
+      throw new Error('Failed to parse AI recommendations');
+    }
+
+    if (!Array.isArray(recommendations) || recommendations.length === 0) {
+      throw new Error('Invalid recommendations format');
+    }
+
+    console.log(`✅ Generated ${recommendations.length} time recommendations for ${platform}`);
+    
+    return recommendations.slice(0, 3); // Ensure max 3
+
+  } catch (error) {
+    console.error('❌ AI Time Recommendation Error:', error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   generateCaption,
-  generateMultiPlatformCaptions
+  generateMultiPlatformCaptions,
+  generateHashtags,
+  recommendPostTime
 };

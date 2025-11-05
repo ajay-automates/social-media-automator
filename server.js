@@ -29,7 +29,10 @@ const {
   updatePostStatus
 } = require('./services/database');
 
-const { generateCaption } = require('./services/ai');
+const { generateCaption, generateHashtags, recommendPostTime } = require('./services/ai');
+const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
+const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
+const { sendTestEmail } = require('./services/email');
 const aiImageService = require('./services/ai-image');
 const { 
   extractTranscript, 
@@ -584,24 +587,32 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
       }
     }
     
-    const queueItem = await schedulePost(
-      text, 
-      imageUrl || null,
-      platforms || ['linkedin'],
-      scheduleTime, 
-      credentials,
-      userId // Pass userId for multi-tenant
-    );
+    const result = await schedulePost({
+      user_id: userId,
+      text: text,
+      image_url: imageUrl || null,
+      platforms: platforms || ['linkedin'],
+      schedule_time: scheduleTime
+    });
+    
+    if (!result.success) {
+      return res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to schedule post'
+      });
+    }
     
     // Increment usage count
     await incrementUsage(userId, 'posts');
+    
+    console.log(`✅ Post scheduled successfully for ${new Date(scheduleTime).toLocaleString()}`);
     
     res.json({ 
       success: true, 
       message: 'Post scheduled successfully!',
       post: {
-        id: queueItem.id,
-        scheduleTime: queueItem.scheduleTime
+        id: result.post.id,
+        scheduleTime: result.post.schedule_time
       }
     });
   } catch (error) {
@@ -856,6 +867,114 @@ app.get('/api/history', verifyAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/posts/scheduled
+ * Get all scheduled posts for calendar view (protected)
+ */
+app.get('/api/posts/scheduled', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Get all posts that are queued (scheduled for future)
+    const { data, error } = await supabaseAdmin
+      .from('posts')
+      .select('id, text, platforms, schedule_time, image_url, created_at, status')
+      .eq('user_id', userId)
+      .eq('status', 'queued')
+      .gte('schedule_time', new Date().toISOString()) // Future posts only
+      .order('schedule_time', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching scheduled posts:', error);
+      throw error;
+    }
+    
+    // Format for calendar
+    const scheduledPosts = (data || []).map(post => ({
+      id: post.id,
+      title: post.text ? post.text.substring(0, 50) + (post.text.length > 50 ? '...' : '') : 'Scheduled Post',
+      start: new Date(post.schedule_time),
+      end: new Date(post.schedule_time),
+      text: post.text,
+      platforms: post.platforms,
+      image_url: post.image_url,
+      status: post.status
+    }));
+    
+    res.json({ 
+      success: true,
+      posts: scheduledPosts,
+      count: scheduledPosts.length
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/posts/scheduled:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/analytics/best-times
+ * Get best times to post recommendations (protected)
+ */
+app.get('/api/analytics/best-times', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const platform = req.query.platform || 'linkedin';
+    
+    // Get user's historical best times
+    const historicalData = await analyzeBestTimes(userId);
+    
+    // Get AI recommendations based on history
+    let aiRecommendations = [];
+    try {
+      aiRecommendations = await recommendPostTime(platform, historicalData);
+    } catch (aiError) {
+      console.error('AI recommendations failed, using historical data only:', aiError);
+    }
+    
+    res.json({
+      success: true,
+      historical: historicalData,
+      recommendations: aiRecommendations,
+      platform
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/analytics/best-times:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/analytics/heatmap
+ * Get posting heatmap data (protected)
+ */
+app.get('/api/analytics/heatmap', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const heatmap = await getPostingHeatmap(userId);
+    
+    res.json({
+      success: true,
+      heatmap
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/analytics/heatmap:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * GET /api/analytics/platforms
  * Get platform statistics (protected - multi-tenant)
  */
@@ -924,6 +1043,58 @@ app.get('/api/analytics/timeline', verifyAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Error in /api/analytics/timeline:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/analytics/export
+ * Export analytics data to CSV (protected)
+ */
+app.get('/api/analytics/export', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { Parser } = require('json2csv');
+    
+    // Get post history for the user
+    const history = await getPostHistory(100, userId); // Get last 100 posts
+    
+    if (!history || history.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'No analytics data to export'
+      });
+    }
+    
+    // Prepare data for CSV
+    const csvData = history.map(post => ({
+      'Date': new Date(post.created_at).toLocaleDateString(),
+      'Time': new Date(post.created_at).toLocaleTimeString(),
+      'Platform': Array.isArray(post.platforms) ? post.platforms.join(', ') : post.platforms,
+      'Status': post.status || 'unknown',
+      'Caption': post.text ? post.text.substring(0, 100) + (post.text.length > 100 ? '...' : '') : '',
+      'Has Media': post.image_url ? 'Yes' : 'No',
+      'Image URL': post.image_url || '',
+      'Scheduled For': post.schedule_time ? new Date(post.schedule_time).toLocaleString() : 'Posted immediately'
+    }));
+    
+    // Convert to CSV
+    const parser = new Parser();
+    const csv = parser.parse(csvData);
+    
+    // Set headers for download
+    const filename = `analytics-export-${new Date().toISOString().split('T')[0]}.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    
+    res.send(csv);
+    
+    console.log(`✅ Analytics exported for user ${userId}`);
+  } catch (error) {
+    console.error('Error in /api/analytics/export:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -1310,6 +1481,69 @@ app.post('/api/ai/image/generate', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Image generation failed. Please try again.'
+    });
+  }
+});
+
+/**
+ * POST /api/ai/hashtags
+ * Generate AI hashtags for a post (protected)
+ */
+app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { caption, platform } = req.body;
+    
+    // Validate inputs
+    if (!caption || caption.trim().length < 10) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Caption must be at least 10 characters' 
+      });
+    }
+    
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+    
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+      });
+    }
+    
+    console.log(`🏷️  AI hashtag request for ${platform || 'default'} platform`);
+    
+    // Generate hashtags
+    const hashtags = await generateHashtags(
+      caption,
+      platform || 'instagram'
+    );
+    
+    // Increment AI usage count
+    await incrementUsage(userId, 'ai');
+    
+    res.json({ 
+      success: true,
+      hashtags,
+      count: hashtags.length,
+      platform: platform || 'instagram'
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/ai/hashtags:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to generate hashtags'
     });
   }
 });
@@ -1887,6 +2121,82 @@ app.get('/api/user/accounts', verifyAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting user accounts:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/user/profile
+ * Get user profile including email preferences (protected)
+ */
+app.get('/api/user/profile', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const { data: user, error } = await supabaseAdmin
+      .from('users')
+      .select('id, email, email_reports_enabled, report_email, report_frequency, metadata')
+      .eq('id', userId)
+      .single();
+    
+    if (error) throw error;
+    
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        email_reports_enabled: user.email_reports_enabled || false,
+        report_email: user.report_email || user.email,
+        report_frequency: user.report_frequency || 'weekly',
+        metadata: user.metadata
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error getting user profile:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * PUT /api/user/email-preferences
+ * Update user email report preferences (protected)
+ */
+app.put('/api/user/email-preferences', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { email_reports_enabled, report_email, report_frequency } = req.body;
+    
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .update({
+        email_reports_enabled: email_reports_enabled || false,
+        report_email: report_email || null,
+        report_frequency: report_frequency || 'weekly'
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    console.log(`✅ Email preferences updated for user ${userId}`);
+    
+    res.json({
+      success: true,
+      message: 'Email preferences updated successfully',
+      user: data
+    });
+    
+  } catch (error) {
+    console.error('Error updating email preferences:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -2806,6 +3116,90 @@ app.post('/api/billing/portal', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/reports/preview
+ * Preview weekly report data (protected)
+ */
+app.get('/api/reports/preview', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const reportData = await generateWeeklyReport(userId);
+    
+    res.json({
+      success: true,
+      report: reportData
+    });
+    
+  } catch (error) {
+    console.error('Error generating report preview:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/reports/send-now
+ * Send report email immediately (protected, for testing)
+ */
+app.post('/api/reports/send-now', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const success = await sendReportToUser(userId);
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'Weekly report sent successfully!'
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        error: 'Email reports not enabled or no email configured'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error sending report:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/reports/test-email
+ * Send test email (protected)
+ */
+app.post('/api/reports/test-email', verifyAuth, async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Valid email address required'
+      });
+    }
+    
+    await sendTestEmail(email);
+    
+    res.json({
+      success: true,
+      message: `Test email sent to ${email}`
+    });
+    
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to send test email. Check email configuration.'
     });
   }
 });

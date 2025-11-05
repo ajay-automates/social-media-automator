@@ -23,7 +23,7 @@ let isProcessing = false;
 function startScheduler() {
   console.log('🚀 Queue processor started - checking every minute');
   
-  // Run every minute
+  // Run every minute - process due posts
   cron.schedule('* * * * *', async () => {
     if (isProcessing) return;
     
@@ -36,6 +36,21 @@ function startScheduler() {
       isProcessing = false;
     }
   });
+
+  // Run every Monday at 9 AM - send weekly email reports
+  cron.schedule('0 9 * * 1', async () => {
+    console.log('📧 Running weekly email reports job...');
+    
+    try {
+      const { sendWeeklyReportsToAll } = require('./reports');
+      const result = await sendWeeklyReportsToAll();
+      console.log(`✅ Email reports sent: ${result.sent} successful, ${result.failed} failed`);
+    } catch (error) {
+      console.error('❌ Email reports job error:', error);
+    }
+  });
+  
+  console.log('📧 Email reports scheduler initialized (Mondays at 9 AM)');
 }
 
 async function processDueQueue() {
