@@ -14,7 +14,8 @@ export default function CreatePost() {
   const navigate = useNavigate();
   const { isLoading, currentStep, startLoading, stopLoading } = useLoadingState();
   const [caption, setCaption] = useState('');
-  const [platforms, setPlatforms] = useState(['twitter']);
+  const [platforms, setPlatforms] = useState([]);
+  const [connectedAccounts, setConnectedAccounts] = useState([]);
   const [image, setImage] = useState(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [mediaType, setMediaType] = useState(null); // 'image' or 'video'
@@ -46,7 +47,25 @@ export default function CreatePost() {
 
   useEffect(() => {
     loadBillingInfo();
+    loadConnectedAccounts();
   }, []);
+
+  const loadConnectedAccounts = async () => {
+    try {
+      const response = await api.get('/accounts');
+      const accountsData = response.data?.accounts || response.data || [];
+      const accounts = Array.isArray(accountsData) ? accountsData : [];
+      setConnectedAccounts(accounts);
+      
+      // Auto-select first connected platform if available
+      if (accounts.length > 0 && platforms.length === 0) {
+        setPlatforms([accounts[0].platform]);
+      }
+    } catch (err) {
+      console.error('Error loading connected accounts:', err);
+      setConnectedAccounts([]);
+    }
+  };
 
   // Load moderated subreddits when Reddit is selected
   useEffect(() => {
@@ -847,32 +866,43 @@ export default function CreatePost() {
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
           <h3 className="text-xl font-bold text-white mb-4">🎯 Select Platforms</h3>
           
-          <div>
-            <div className="flex flex-wrap gap-4">
-              {[
-                'twitter', 'linkedin', 'facebook', 'telegram', 
-                'slack', 'discord', 'reddit', 'instagram', 
-                'youtube', 'tiktok'
-              ].map(platformId => (
-                <PlatformChip
-                  key={platformId}
-                  platform={platformId}
-                  selected={platforms.includes(platformId)}
-                  onClick={() => togglePlatform(platformId)}
-                  size="md"
-                />
-              ))}
-            </div>
-            {platforms.length > 0 && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-sm text-gray-400 mt-3"
+          {connectedAccounts.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-6xl mb-4">🔗</div>
+              <h4 className="text-lg font-semibold text-white mb-2">No Platforms Connected</h4>
+              <p className="text-gray-400 mb-4">Connect your social media accounts to start posting</p>
+              <button
+                onClick={() => navigate('/connect-accounts')}
+                className="group relative bg-blue-600/30 backdrop-blur-lg border-2 border-blue-400/30 text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 font-medium transition-all shadow-lg hover:shadow-blue-500/30 overflow-hidden"
               >
-                ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
-              </motion.p>
-            )}
-          </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+                <span className="relative">Connect Accounts</span>
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div className="flex flex-wrap gap-4">
+                {connectedAccounts.map(account => (
+                  <PlatformChip
+                    key={account.platform}
+                    platform={account.platform}
+                    selected={platforms.includes(account.platform)}
+                    onClick={() => togglePlatform(account.platform)}
+                    size="md"
+                  />
+                ))}
+              </div>
+              {platforms.length > 0 && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-gray-400 mt-3"
+                >
+                  ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
+                </motion.p>
+              )}
+            </div>
+          )}
 
           {/* Instagram Image Requirement Warning */}
           {platforms.includes('instagram') && !image && (
