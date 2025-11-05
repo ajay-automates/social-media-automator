@@ -225,16 +225,18 @@ export default function ConnectAccounts() {
     }
 
     try {
-      await api.post('/accounts/telegram', {
+      const response = await api.post('/auth/telegram/connect', {
         bot_token: telegramBotToken,
         chat_id: telegramChatId
       });
       
-      showSuccess('Telegram connected successfully!');
-      setShowTelegramModal(false);
-      setTelegramBotToken('');
-      setTelegramChatId('');
-      loadAccounts();
+      if (response.data.success) {
+        showSuccess('Telegram connected successfully!');
+        setShowTelegramModal(false);
+        setTelegramBotToken('');
+        setTelegramChatId('');
+        loadAccounts();
+      }
     } catch (err) {
       console.error('Error connecting Telegram:', err);
       showError(err.response?.data?.error || 'Failed to connect Telegram');
@@ -248,16 +250,18 @@ export default function ConnectAccounts() {
     }
 
     try {
-      await api.post('/accounts/slack', {
+      const response = await api.post('/auth/slack/connect', {
         webhook_url: slackWebhookUrl,
         channel_name: slackChannelName || 'general'
       });
       
-      showSuccess('Slack connected successfully!');
-      setShowSlackModal(false);
-      setSlackWebhookUrl('');
-      setSlackChannelName('');
-      loadAccounts();
+      if (response.data.success) {
+        showSuccess('Slack connected successfully!');
+        setShowSlackModal(false);
+        setSlackWebhookUrl('');
+        setSlackChannelName('');
+        loadAccounts();
+      }
     } catch (err) {
       console.error('Error connecting Slack:', err);
       showError(err.response?.data?.error || 'Failed to connect Slack');
@@ -271,16 +275,18 @@ export default function ConnectAccounts() {
     }
 
     try {
-      await api.post('/accounts/discord', {
+      const response = await api.post('/auth/discord/connect', {
         webhook_url: discordWebhookUrl,
         server_name: discordServerName || 'My Server'
       });
       
-      showSuccess('Discord connected successfully!');
-      setShowDiscordModal(false);
-      setDiscordWebhookUrl('');
-      setDiscordServerName('');
-      loadAccounts();
+      if (response.data.success) {
+        showSuccess('Discord connected successfully!');
+        setShowDiscordModal(false);
+        setDiscordWebhookUrl('');
+        setDiscordServerName('');
+        loadAccounts();
+      }
     } catch (err) {
       console.error('Error connecting Discord:', err);
       showError(err.response?.data?.error || 'Failed to connect Discord');
