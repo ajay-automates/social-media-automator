@@ -419,15 +419,15 @@ export default function CreatePost() {
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
           {/* Reddit-Specific Fields */}
           {platforms.includes('reddit') && (
-            <div className="space-y-4 bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-orange-700 font-semibold">
+            <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-orange-300 font-semibold">
                 <span>🔴</span>
                 <span>Reddit Settings</span>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Post Title <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Post Title <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -435,22 +435,22 @@ export default function CreatePost() {
                   onChange={(e) => setRedditTitle(e.target.value)}
                   placeholder="Enter post title (required for Reddit, max 300 chars)"
                   maxLength={300}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-400"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-400 mt-1">
                   {redditTitle.length}/300 characters
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subreddit <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Subreddit <span className="text-red-400">*</span>
                 </label>
                 {moderatedSubreddits.length > 0 ? (
                   <select
                     value={redditSubreddit}
                     onChange={(e) => setRedditSubreddit(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     {moderatedSubreddits.map(sub => (
                       <option key={sub} value={sub}>
@@ -459,7 +459,7 @@ export default function CreatePost() {
                     ))}
                   </select>
                 ) : (
-                  <div className="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 rounded p-3">
+                  <div className="text-sm text-gray-300 bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded p-3">
                     ⚠️ No moderated subreddits found. You can only post to subreddits where you're a moderator.
                   </div>
                 )}
@@ -548,13 +548,13 @@ export default function CreatePost() {
 
           {/* Video Preview and Attach Button */}
           {pendingVideoFile && (
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="text-4xl">🎬</div>
                   <div>
-                    <p className="font-semibold text-gray-900">{pendingVideoFile.name}</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-semibold text-white">{pendingVideoFile.name}</p>
+                    <p className="text-sm text-gray-300">
                       {(pendingVideoFile.size / (1024 * 1024)).toFixed(2)} MB
                     </p>
                   </div>
@@ -581,14 +581,14 @@ export default function CreatePost() {
 
           {/* Attached Media Confirmation */}
           {image && !pendingVideoFile && (
-            <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+            <div className="bg-green-900/20 backdrop-blur-sm border-2 border-green-500/30 rounded-lg p-4">
               <div className="flex items-center gap-3">
                 <div className="text-2xl">✅</div>
                 <div>
-                  <p className="font-semibold text-green-900">
+                  <p className="font-semibold text-green-300">
                     {mediaType === 'video' ? 'Video' : 'Image'} attached and ready to post!
                   </p>
-                  <p className="text-sm text-green-700">
+                  <p className="text-sm text-green-400">
                     Click &quot;Post Now&quot; to share across platforms
                   </p>
                 </div>
@@ -629,11 +629,11 @@ export default function CreatePost() {
 
           {/* Instagram Image Requirement Warning */}
           {platforms.includes('instagram') && !image && (
-            <div className="border border-yellow-400 bg-yellow-50 rounded-lg p-3 flex items-center gap-2">
+            <div className="border border-yellow-500/30 bg-yellow-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2">
               <span className="text-2xl">⚠️</span>
               <div>
-                <div className="font-semibold text-yellow-800">Image Required</div>
-                <div className="text-sm text-yellow-700">Instagram requires an image or video. Please upload or generate one above.</div>
+                <div className="font-semibold text-yellow-300">Image Required</div>
+                <div className="text-sm text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
               </div>
             </div>
           )}
@@ -641,19 +641,19 @@ export default function CreatePost() {
 
           {/* TikTok Video Requirement Warning */}
           {platforms.includes("tiktok") && !videoUrl && (
-            <div className="border border-amber-400 bg-amber-50 rounded-lg p-3 flex items-center gap-2">
+            <div className="border border-amber-500/30 bg-amber-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2">
               <span className="text-2xl">⚠️</span>
               <div>
-                <div className="font-semibold text-amber-800">Video Required for TikTok</div>
-                <div className="text-sm text-amber-700">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
+                <div className="font-semibold text-amber-300">Video Required for TikTok</div>
+                <div className="text-sm text-amber-400">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
               </div>
             </div>
           )}
           {/* Post Usage Info */}
           {billingInfo && billingInfo.usage && billingInfo.usage.posts && (
-            <div className={`border rounded-lg p-3 ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200'}`}>
+            <div className={`border rounded-lg p-3 backdrop-blur-sm ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-500/30 bg-yellow-900/20' : 'border-white/10 bg-gray-800/30'}`}>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-700">
+                <span className="text-gray-200">
                   {billingInfo.usage.posts.limit === Infinity ? 'Unlimited posts' : `${billingInfo.usage.posts.limit - billingInfo.usage.posts.used} posts remaining`}
                 </span>
                 {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan && billingInfo.plan.name === 'free' && (
@@ -680,7 +680,7 @@ export default function CreatePost() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+              className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
             >
               📅 Schedule
             </motion.button>

@@ -320,7 +320,7 @@ async function handleSaveTemplate() {
               className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
                 selectedCategory === cat.id
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-800/50 text-gray-200 hover:bg-gray-700/50 border border-white/10'
               }`}
             >
               {cat.icon} {cat.name}
