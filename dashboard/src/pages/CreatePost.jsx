@@ -174,12 +174,7 @@ export default function CreatePost() {
     }
   }, [platforms]);
 
-  // Load best times when platform is selected
-  useEffect(() => {
-    if (platforms.length > 0) {
-      loadBestTimes();
-    }
-  }, [platforms]);
+  // Don't auto-load best times - let user click button to get suggestions
 
   const loadBillingInfo = async () => {
     try {
@@ -1669,6 +1664,36 @@ export default function CreatePost() {
                 )}
               </div>
             </div>
+          )}
+
+          {/* Best Time to Post - Ask First Button */}
+          {platforms.length > 0 && !showBestTimes && bestTimes.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-4"
+            >
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={loadBestTimes}
+                disabled={loadingBestTimes}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-3 border-2 border-blue-400/30"
+              >
+                {loadingBestTimes ? (
+                  <>
+                    <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Getting AI suggestions...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-2xl">⏰</span>
+                    <span>Want AI Best Time to Post Suggestions?</span>
+                    <span className="text-sm bg-white/20 px-2 py-1 rounded-full">Click Here</span>
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
           )}
 
           {/* Best Time to Post Recommendations */}
