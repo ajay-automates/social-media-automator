@@ -36,6 +36,7 @@ const { sendTestEmail, sendEmail } = require('./services/email');
 const { getUserWorkspace, checkPermission, requireRole, requirePermission, getTeamMembers } = require('./services/permissions');
 const { logActivity, getActivityFeed, formatActivity, getPendingApprovalsCount } = require('./services/activity');
 const { createInvitation, acceptInvitation, getPendingInvitations, cancelInvitation, resendInvitation } = require('./services/invitations');
+const { searchVideos, getVideoById, getPopularVideos, validatePexelsKey } = require('./services/video-search');
 const { parseCSV, generateTemplate, getValidationSummary } = require('./services/csv-parser');
 const aiImageService = require('./services/ai-image');
 const { 
@@ -453,8 +454,10 @@ app.put('/api/user/accounts/:id/set-default', verifyAuth, async (req, res) => {
 app.post('/api/post/now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { text, imageUrl, post_metadata, variations } = req.body;
+    const { text, imageUrl, videoUrl, post_metadata, variations } = req.body;
     let platforms = req.body.platforms;
+    
+    console.log('📹 Post request - Video URL:', videoUrl ? 'Present' : 'None');
     
     // Support both single text and platform-specific variations
     if (!text && !variations) {
@@ -557,7 +560,8 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       platforms, 
       credentials, 
       post_metadata,
-      !!variations // Flag to indicate if using variations
+      !!variations, // Flag to indicate if using variations
+      videoUrl || null // Pexels video URL
     );
     
     // Check if all platforms succeeded (handle array results per platform)
@@ -3505,6 +3509,106 @@ app.get('/api/notifications/count', verifyAuth, async (req, res) => {
 
 // =====================================================
 // END TEAM COLLABORATION ENDPOINTS
+// =====================================================
+
+// =====================================================
+// VIDEO LIBRARY ENDPOINTS (Pexels Stock Videos)
+// =====================================================
+
+/**
+ * GET /api/videos/search
+ * Search for stock videos on Pexels (FREE, unlimited)
+ */
+app.get('/api/videos/search', verifyAuth, async (req, res) => {
+  try {
+    const { q, orientation, page, per_page } = req.query;
+    
+    if (!q || q.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Search query must be at least 2 characters'
+      });
+    }
+    
+    // Check if Pexels API is configured
+    if (!process.env.PEXELS_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'Pexels API not configured. Get a free API key from https://www.pexels.com/api/'
+      });
+    }
+    
+    const result = await searchVideos(
+      q.trim(),
+      parseInt(per_page) || 15,
+      orientation || null,
+      parseInt(page) || 1
+    );
+    
+    res.json({
+      success: true,
+      ...result
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/videos/search:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to search videos'
+    });
+  }
+});
+
+/**
+ * GET /api/videos/popular
+ * Get popular/trending videos from Pexels
+ */
+app.get('/api/videos/popular', verifyAuth, async (req, res) => {
+  try {
+    const { per_page } = req.query;
+    
+    const result = await getPopularVideos(parseInt(per_page) || 15);
+    
+    res.json({
+      success: true,
+      videos: result.videos || [],
+      total: result.total_results || 0
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/videos/popular:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get popular videos'
+    });
+  }
+});
+
+/**
+ * GET /api/videos/validate-key
+ * Check if Pexels API key is configured and valid
+ */
+app.get('/api/videos/validate-key', verifyAuth, async (req, res) => {
+  try {
+    const validation = await validatePexelsKey();
+    
+    res.json({
+      success: validation.valid,
+      configured: !!process.env.PEXELS_API_KEY,
+      error: validation.error || null
+    });
+    
+  } catch (error) {
+    console.error('Error validating Pexels key:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// =====================================================
+// END VIDEO LIBRARY ENDPOINTS
 // =====================================================
 
 /**

@@ -82,8 +82,9 @@ async function processDueQueue() {
   }
 }
 
-async function postNow(text, imageUrl, platforms, providedCredentials, post_metadata, useVariations = false) {
+async function postNow(text, imageUrl, platforms, providedCredentials, post_metadata, useVariations = false, videoUrl = null) {
   try {
+    console.log('📹 postNow called with video:', videoUrl ? 'YES' : 'NO');
     let id, user_id, image_url, platformsArray, credentials, postMetadata, variationsData;
     
     // Support both signatures:
@@ -103,14 +104,14 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
       // Signature 3: Variations object
       variationsData = text;
       platformsArray = platforms;
-      image_url = imageUrl;
+      image_url = videoUrl || imageUrl; // Prioritize video over image
       credentials = providedCredentials;
       postMetadata = post_metadata;
       user_id = 'immediate';
     } else {
       // Signature 2: Immediate post (OLD signature)
       platformsArray = platforms;
-      image_url = imageUrl;
+      image_url = videoUrl || imageUrl; // Prioritize video over image
       credentials = providedCredentials;
       postMetadata = post_metadata;
       user_id = 'immediate';
@@ -119,6 +120,11 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     console.log(`\n📤 Posting to: ${platformsArray.join(', ')}`);
     if (variationsData) {
       console.log(`🎨 Using platform-specific variations`);
+    }
+    if (videoUrl) {
+      console.log(`📹 Attaching video: ${videoUrl.substring(0, 50)}...`);
+    } else if (imageUrl) {
+      console.log(`🖼️ Attaching image: ${imageUrl.substring(0, 50)}...`);
     }
     
     if (!credentials) {

@@ -9,6 +9,8 @@ import { celebrateSuccess } from '../utils/animations';
 import UpgradeModal from '../components/UpgradeModal';
 import PlatformChip from '../components/ui/PlatformChip';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
+import VideoSearchModal from '../components/VideoSearchModal';
+import VideoPreview from '../components/VideoPreview';
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -18,6 +20,8 @@ export default function CreatePost() {
   const [platforms, setPlatforms] = useState([]);
   const [connectedAccounts, setConnectedAccounts] = useState([]);
   const [image, setImage] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [mediaType, setMediaType] = useState(null); // 'image' or 'video'
   const [showAIModal, setShowAIModal] = useState(false);
@@ -750,6 +754,7 @@ export default function CreatePost() {
         platforms: platformsToPost,
         accountId: 1, // Will be replaced with actual account selection
         imageUrl: image, // Send the Cloudinary URL to the server
+        videoUrl: selectedVideo?.videoUrl || null, // Send the Pexels video URL
         post_metadata: Object.keys(postMetadata).length > 0 ? postMetadata : undefined
       });
       
@@ -771,6 +776,7 @@ export default function CreatePost() {
         // Reset form
         setCaption('');
         setImage(null);
+        setSelectedVideo(null);
         
         // Redirect after success
         setTimeout(() => navigate('/dashboard'), 2000);
@@ -1301,18 +1307,35 @@ export default function CreatePost() {
           )}
         </div>
 
-        {/* AI Video Generation */}
+        {/* Stock Video Library */}
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-          <h3 className="text-xl font-bold text-white mb-4">🎬 AI Video Generator</h3>
+          <h3 className="text-xl font-bold text-white mb-4">🎬 Stock Video Library</h3>
           
-          <div className="mb-4 p-4 bg-blue-900/20 backdrop-blur-sm border border-blue-500/30 rounded-lg">
-            <p className="text-sm text-blue-200 flex items-center gap-2">
-              <span className="text-xl">🚧</span>
-              <span><strong>Coming Soon:</strong> AI-powered video generation is currently in development. Stay tuned for exciting updates!</span>
-            </p>
-          </div>
+          <p className="text-gray-300 text-sm mb-4">
+            Search and attach professional HD/4K stock videos to your posts. <span className="text-green-400 font-semibold">100% FREE!</span> Powered by Pexels.
+          </p>
+
+          {/* Selected Video Preview */}
+          {selectedVideo ? (
+            <VideoPreview
+              video={selectedVideo}
+              onRemove={() => setSelectedVideo(null)}
+              onChangeVideo={() => setShowVideoModal(true)}
+            />
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowVideoModal(true)}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
+            >
+              <span className="text-2xl">🎬</span>
+              <span>Search Stock Videos</span>
+              <span className="text-xs bg-white/20 px-2 py-1 rounded-full">FREE</span>
+            </motion.button>
+          )}
           
-          {/* Example Prompts */}
+          {/* Example Searches */}
           <div className="mb-4">
             <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
             <div className="flex flex-wrap gap-2">
@@ -1960,6 +1983,16 @@ export default function CreatePost() {
         onClose={() => setShowUpgrade(false)}
         reason="posts_limit"
         currentPlan={billingInfo?.plan?.name || 'free'}
+      />
+
+      {/* Video Search Modal */}
+      <VideoSearchModal
+        show={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        onSelectVideo={(video) => {
+          setSelectedVideo(video);
+          console.log('✅ Video selected:', video);
+        }}
       />
 
       {/* Template Selection Modal */}
