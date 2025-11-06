@@ -1,11 +1,11 @@
 # ✨ Social Media Automator - Complete Feature List
 
-**Version 5.0 - AI Enterprise Edition**  
+**Version 6.0 - Team Collaboration Edition**  
 **Last Updated:** November 6, 2025
 
 ---
 
-## 🎯 13 Core Features (All Production-Ready)
+## 🎯 14 Core Features (All Production-Ready)
 
 ### 1. 🌐 Multi-Platform Posting
 Post to 10 platforms simultaneously from one interface.
@@ -241,6 +241,44 @@ Automated weekly analytics summaries.
 
 ---
 
+### 14. 👥 Team Collaboration System
+Multi-user workspaces with role-based permissions and approval workflows.
+
+**Features:**
+- **4 User Roles:** Owner ⭐, Admin 👑, Editor ✏️, Viewer 👁️
+- **Approval Workflow:** Editors submit posts → Owners/Admins approve/reject
+- **Email Invitations:** Invite team members with 7-day expiry tokens
+- **Activity Logging:** Complete audit trail of all team actions
+- **Real-Time Notifications:** Bell icon with pending approvals count
+- **Role Management:** Change roles, remove members (Owner only)
+- **Workspace Management:** Shared accounts, templates, and analytics
+- **Permission System:** Granular access control for 12+ actions
+
+**User Roles & Permissions:**
+- **Owner:** Full control - manage team, approve posts, post directly
+- **Admin:** Manage team, approve posts, post directly (can't remove Owner)
+- **Editor:** Create posts, requires approval to publish
+- **Viewer:** Read-only access to analytics and calendar
+
+**Business Impact:**
+- Unlocks **Agency pricing tier** ($99-$199/month)
+- 3-10x revenue increase potential
+- Enables team collaboration for agencies
+- Professional workflow management
+
+**Setup:**
+- Database: Run `migrations/016_add_team_collaboration.sql`
+- Environment: Optional EMAIL_USER, EMAIL_PASSWORD for invites
+- Usage: Invite team → Accept invitation → Role-based access
+
+**API Endpoints (19 new):**
+- Team management (invite, remove, change roles)
+- Approval workflow (submit, approve, reject, request changes)
+- Activity feed & notifications
+- Workspace management
+
+---
+
 ## 🗄️ Database Migrations Required
 
 Run these in Supabase SQL Editor (in order):
@@ -249,11 +287,12 @@ Run these in Supabase SQL Editor (in order):
 -- Core tables (if new installation)
 migrations/001_initial_schema.sql through 011_add_post_templates.sql
 
--- New features
+-- Feature additions (run in order)
 migrations/012_add_public_templates.sql
 migrations/013_add_email_reports.sql
 migrations/014_add_bulk_upload_tracking.sql
 migrations/015_add_account_labels.sql
+migrations/016_add_team_collaboration.sql  -- NEW: Team Collaboration System
 ```
 
 ---
