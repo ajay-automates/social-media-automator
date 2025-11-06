@@ -3923,6 +3923,8 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
     }
 
     console.log(`📸 Posting ${imageUrls.length}-slide carousel to ${platforms.join(', ')}...`);
+    console.log('User ID:', userId);
+    console.log('Platforms:', platforms);
 
     // Get user accounts for selected platforms
     const { data: accounts, error: accountError } = await supabase
@@ -3931,10 +3933,31 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
       .eq('user_id', userId)
       .in('platform', platforms);
 
-    if (accountError || !accounts || accounts.length === 0) {
+    console.log('Query result:', { accounts, accountError, accountCount: accounts?.length });
+
+    if (accountError) {
+      console.error('Account query error:', accountError);
+      return res.status(500).json({
+        success: false,
+        error: 'Database error: ' + accountError.message
+      });
+    }
+
+    if (!accounts || accounts.length === 0) {
+      console.error('No accounts found for user:', userId, 'platforms:', platforms);
+      
+      // Debug: Check what accounts exist for this user
+      const { data: allAccounts } = await supabase
+        .from('user_accounts')
+        .select('platform, account_label')
+        .eq('user_id', userId);
+      
+      console.log('User has these accounts:', allAccounts);
+      
       return res.status(400).json({
         success: false,
-        error: 'No connected accounts found for selected platforms. Please connect your accounts first.'
+        error: `No ${platforms.join('/')} account connected. Please connect your account first in Settings.`,
+        debug: allAccounts
       });
     }
 
