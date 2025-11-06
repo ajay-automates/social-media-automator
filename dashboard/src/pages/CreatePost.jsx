@@ -62,7 +62,7 @@ export default function CreatePost() {
   const [showHashtags, setShowHashtags] = useState(false);
   const [bestTimes, setBestTimes] = useState([]);
   const [loadingBestTimes, setLoadingBestTimes] = useState(false);
-  const [showBestTimes, setShowBestTimes] = useState(true);
+  const [showBestTimes, setShowBestTimes] = useState(false); // Start hidden, show after clicking button
 
   // Multi-account support state
   const [selectedAccounts, setSelectedAccounts] = useState({}); // { platform: accountId }
@@ -347,11 +347,13 @@ export default function CreatePost() {
       
       if (response.data.success && response.data.recommendations) {
         setBestTimes(response.data.recommendations);
+        setShowBestTimes(true); // Show the card after loading successfully
       }
     } catch (err) {
       console.error('Error loading best times:', err);
       // Silent fail - not critical
       setBestTimes([]);
+      setShowBestTimes(false);
     } finally {
       setLoadingBestTimes(false);
     }
