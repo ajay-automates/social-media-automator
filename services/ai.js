@@ -307,9 +307,193 @@ Make recommendations practical and actionable for the upcoming week.`;
   }
 }
 
+/**
+ * Generate platform-specific post variations
+ * Takes a base caption and creates optimized versions for each platform
+ * @param {string} baseCaption - The original caption
+ * @param {Array<string>} platforms - Array of platforms (e.g., ['linkedin', 'twitter', 'instagram'])
+ * @returns {Promise<Object>} - Object with platform-specific variations { linkedin: "...", twitter: "...", instagram: "..." }
+ */
+async function generatePostVariations(baseCaption, platforms) {
+  try {
+    if (!baseCaption || baseCaption.trim() === '') {
+      throw new Error('Base caption is required');
+    }
+
+    if (!platforms || platforms.length === 0) {
+      throw new Error('At least one platform is required');
+    }
+
+    console.log(`🎨 Generating post variations for ${platforms.length} platforms...`);
+
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    // Platform-specific instructions
+    const platformInstructions = {
+      linkedin: `
+LINKEDIN VERSION:
+- Professional, thought-leadership tone
+- 2-4 paragraphs with clear structure
+- 200-500 words (can be longer for valuable content)
+- Include insights, data, or lessons learned
+- End with an engaging question to spark discussion
+- 3-5 professional hashtags (e.g., #BusinessStrategy, #Leadership)
+- NO emojis (or max 1-2 very subtle ones)
+- Format with line breaks for readability`,
+
+      twitter: `
+TWITTER VERSION:
+- Casual, punchy, conversational tone
+- MUST be under 280 characters total (including hashtags)
+- Start with a HOOK (surprising fact, question, or bold statement)
+- Use line breaks for emphasis (max 3-4 lines)
+- 1-2 emojis maximum
+- 2-3 hashtags
+- Make it shareable and quotable`,
+
+      instagram: `
+INSTAGRAM VERSION:
+- Story-driven, emotional, relatable tone
+- 3-5 short paragraphs with emojis throughout
+- Use emojis to break up text (5-10 emojis total)
+- Personal and conversational (like talking to a friend)
+- Include call-to-action (e.g., "Double tap if you agree!", "Tag a friend!")
+- 8-12 trending hashtags at the end
+- Make it visually appealing with line breaks`,
+
+      facebook: `
+FACEBOOK VERSION:
+- Friendly, community-focused tone
+- 2-3 paragraphs, conversational
+- 100-300 words
+- Encourage comments and discussion
+- 2-3 emojis
+- 2-4 hashtags
+- Ask questions to drive engagement`,
+
+      reddit: `
+REDDIT VERSION:
+- Authentic, helpful, no-BS tone
+- Detailed and informative (300-500 words)
+- NO emojis, NO hashtags, NO sales-y language
+- Provide value first, link/CTA last
+- Use bullet points or numbered lists
+- Sound like a real person sharing knowledge`,
+
+      tiktok: `
+TIKTOK VERSION:
+- Fun, energetic, Gen-Z friendly tone
+- Short and snappy (100-150 words)
+- Lots of emojis (8-15)
+- Trending phrases and hashtags
+- Call-to-action for engagement
+- Use line breaks for emphasis`,
+
+      youtube: `
+YOUTUBE VERSION:
+- Engaging, informative tone
+- 2-3 paragraphs explaining the video
+- Include timestamps if relevant
+- Call-to-action (like, subscribe, comment)
+- 3-5 hashtags
+- Professional but friendly`
+    };
+
+    // Filter to only platforms we have instructions for
+    const supportedPlatforms = platforms.filter(p => platformInstructions[p]);
+    
+    if (supportedPlatforms.length === 0) {
+      // Return original caption for all platforms if none are supported
+      const variations = {};
+      platforms.forEach(p => variations[p] = baseCaption);
+      return variations;
+    }
+
+    // Build the prompt for Claude
+    const platformsList = supportedPlatforms.map(p => {
+      return `${p.toUpperCase()}:\n${platformInstructions[p]}`;
+    }).join('\n\n---\n\n');
+
+    const prompt = `You are a social media expert who adapts content for different platforms.
+
+ORIGINAL POST:
+"""
+${baseCaption}
+"""
+
+TASK: Transform this post into optimized versions for the following platforms. Each version should be COMPLETELY REWRITTEN to match that platform's audience and best practices, while keeping the core message.
+
+${platformsList}
+
+RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
+{
+  ${supportedPlatforms.map(p => `"${p}": "...optimized version..."`).join(',\n  ')}
+}
+
+IMPORTANT RULES:
+1. Each version should be UNIQUE and optimized for that specific platform
+2. Maintain the core message but adapt tone, length, and style dramatically
+3. Include appropriate hashtags for each platform
+4. Use emojis according to platform norms (none for LinkedIn/Reddit, lots for Instagram/TikTok)
+5. Ensure Twitter version is under 280 characters total
+6. Make each version feel native to that platform
+7. Return ONLY valid JSON, nothing else`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      temperature: 0.7,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    });
+
+    // Parse the response
+    const text = message.content[0].text.trim();
+    
+    let variations;
+    try {
+      // Remove markdown code blocks if present
+      const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+      variations = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('Failed to parse AI variations:', text);
+      throw new Error('Failed to parse AI variations');
+    }
+
+    // Validate we got variations for all requested platforms
+    supportedPlatforms.forEach(platform => {
+      if (!variations[platform]) {
+        variations[platform] = baseCaption; // Fallback to original
+      }
+    });
+
+    // For unsupported platforms, use original caption
+    platforms.forEach(platform => {
+      if (!variations[platform]) {
+        variations[platform] = baseCaption;
+      }
+    });
+
+    console.log(`✅ Generated ${Object.keys(variations).length} platform variations`);
+    
+    return variations;
+
+  } catch (error) {
+    console.error('❌ AI Variations Error:', error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   generateCaption,
   generateMultiPlatformCaptions,
   generateHashtags,
-  recommendPostTime
+  recommendPostTime,
+  generatePostVariations
 };

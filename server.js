@@ -29,7 +29,7 @@ const {
   updatePostStatus
 } = require('./services/database');
 
-const { generateCaption, generateHashtags, recommendPostTime } = require('./services/ai');
+const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations } = require('./services/ai');
 const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
 const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
 const { sendTestEmail } = require('./services/email');
@@ -450,13 +450,14 @@ app.put('/api/user/accounts/:id/set-default', verifyAuth, async (req, res) => {
 app.post('/api/post/now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { text, imageUrl, post_metadata } = req.body;
+    const { text, imageUrl, post_metadata, variations } = req.body;
     let platforms = req.body.platforms;
     
-    if (!text) {
+    // Support both single text and platform-specific variations
+    if (!text && !variations) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Text is required' 
+        error: 'Text or variations are required' 
       });
     }
     
@@ -546,7 +547,15 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       }
     }
     
-    const platformResults = await postNow(text, finalImageUrl || null, platforms, credentials, post_metadata);
+    // Use platform-specific variations if provided, otherwise use single text for all
+    const platformResults = await postNow(
+      variations || text, // Pass variations object or single text
+      finalImageUrl || null, 
+      platforms, 
+      credentials, 
+      post_metadata,
+      !!variations // Flag to indicate if using variations
+    );
     
     // Check if all platforms succeeded (handle array results per platform)
     const platformArray = Object.values(platformResults);
@@ -1822,6 +1831,73 @@ app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: error.message || 'Failed to generate hashtags'
+    });
+  }
+});
+
+/**
+ * POST /api/ai/variations
+ * Generate platform-specific post variations
+ */
+app.post('/api/ai/variations', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { caption, platforms } = req.body;
+    
+    // Validate inputs
+    if (!caption || caption.trim().length < 10) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Caption must be at least 10 characters' 
+      });
+    }
+
+    if (!platforms || !Array.isArray(platforms) || platforms.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'At least one platform is required' 
+      });
+    }
+    
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+    
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+      });
+    }
+    
+    console.log(`🎨 Generating post variations for ${platforms.length} platforms`);
+    
+    // Generate platform-specific variations
+    const variations = await generatePostVariations(caption, platforms);
+    
+    // Increment AI usage count
+    await incrementUsage(userId, 'ai');
+    
+    res.json({ 
+      success: true,
+      variations,
+      platforms,
+      count: Object.keys(variations).length
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/ai/variations:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to generate post variations'
     });
   }
 });

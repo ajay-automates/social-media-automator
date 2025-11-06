@@ -58,6 +58,12 @@ export default function CreatePost() {
   // Multi-account support state
   const [selectedAccounts, setSelectedAccounts] = useState({}); // { platform: accountId }
 
+  // AI Post Variations state
+  const [variations, setVariations] = useState({}); // { platform: "variation text" }
+  const [generatingVariations, setGeneratingVariations] = useState(false);
+  const [showVariations, setShowVariations] = useState(false);
+  const [useVariations, setUseVariations] = useState(false);
+
   // Character counter state
   const PLATFORM_LIMITS = {
     twitter: 280,
@@ -257,6 +263,61 @@ export default function CreatePost() {
     const hashtagString = generatedHashtags.join(' ');
     setCaption(caption + (caption.endsWith(' ') || caption.endsWith('\n') ? '' : '\n\n') + hashtagString);
     showSuccess(`Added all ${generatedHashtags.length} hashtags!`);
+  };
+
+  const generateVariations = async () => {
+    if (!caption || caption.trim().length < 10) {
+      showError('Please enter at least 10 characters in your caption first');
+      return;
+    }
+
+    if (platforms.length === 0) {
+      showError('Please select at least one platform first');
+      return;
+    }
+
+    setGeneratingVariations(true);
+    setVariations({});
+
+    try {
+      const response = await api.post('/ai/variations', {
+        caption: caption.trim(),
+        platforms
+      });
+
+      if (response.data.success && response.data.variations) {
+        setVariations(response.data.variations);
+        setShowVariations(true);
+        setUseVariations(true);
+        showSuccess(`Generated ${Object.keys(response.data.variations).length} platform-specific variations! ✨`);
+      }
+    } catch (err) {
+      console.error('Variations generation error:', err);
+      const errorMessage = err.response?.data?.error || 'Failed to generate variations';
+      showError(errorMessage);
+      
+      if (err.response?.data?.limitReached) {
+        setShowUpgrade(true);
+      }
+    } finally {
+      setGeneratingVariations(false);
+    }
+  };
+
+  const updateVariation = (platform, newText) => {
+    setVariations({
+      ...variations,
+      [platform]: newText
+    });
+  };
+
+  const toggleUseVariations = () => {
+    setUseVariations(!useVariations);
+    if (!useVariations) {
+      showSuccess('Using platform-specific variations!');
+    } else {
+      showSuccess('Using original caption for all platforms');
+    }
   };
 
   const loadBestTimes = async () => {
@@ -670,7 +731,8 @@ export default function CreatePost() {
       }
       
       const response = await api.post('/post/now', {
-        text: caption,
+        text: useVariations && Object.keys(variations).length > 0 ? null : caption,
+        variations: useVariations && Object.keys(variations).length > 0 ? variations : undefined,
         platforms: platformsToPost,
         accountId: 1, // Will be replaced with actual account selection
         imageUrl: image, // Send the Cloudinary URL to the server
@@ -906,30 +968,54 @@ export default function CreatePost() {
               </motion.div>
             )}
 
-            <div className="mt-2 flex items-center justify-between">
+            <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
               <div className="text-sm text-gray-400">{caption.length} characters total</div>
-              {caption.length >= 10 && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={generateAIHashtags}
-                  disabled={generatingHashtags}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
-                >
-                  {generatingHashtags ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      🏷️ Generate Hashtags
-                    </>
-                  )}
-                </motion.button>
-              )}
+              <div className="flex items-center gap-2">
+                {caption.length >= 10 && platforms.length > 0 && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={generateVariations}
+                    disabled={generatingVariations}
+                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 shadow-lg"
+                  >
+                    {generatingVariations ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        🎨 Generate Variations
+                      </>
+                    )}
+                  </motion.button>
+                )}
+                {caption.length >= 10 && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={generateAIHashtags}
+                    disabled={generatingHashtags}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                  >
+                    {generatingHashtags ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        🏷️ Generate Hashtags
+                      </>
+                    )}
+                  </motion.button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -981,6 +1067,100 @@ export default function CreatePost() {
                 >
                   ✨ Add All Hashtags to Caption
                 </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Platform-Specific Variations Display */}
+          {showVariations && Object.keys(variations).length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="group relative bg-gradient-to-br from-pink-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-pink-400/40 rounded-2xl p-6 shadow-2xl shadow-pink-500/20 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+              
+              <div className="relative">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h4 className="text-white font-bold text-xl flex items-center gap-2">
+                      <span className="text-2xl">🎨</span>
+                      Platform-Specific Variations
+                    </h4>
+                    <p className="text-gray-300 text-sm mt-1">AI-optimized versions for each platform</p>
+                  </div>
+                  <button
+                    onClick={() => setShowVariations(false)}
+                    className="text-gray-400 hover:text-white transition text-2xl p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Toggle Switch */}
+                <div className="mb-5 flex items-center justify-between bg-gray-800/50 backdrop-blur-xl border border-white/10 rounded-xl p-4">
+                  <div>
+                    <p className="text-white font-semibold">Use Platform-Specific Variations</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Each platform gets its optimized version</p>
+                  </div>
+                  <button
+                    onClick={toggleUseVariations}
+                    className={`relative w-14 h-7 rounded-full transition-all ${
+                      useVariations ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-600'
+                    }`}
+                  >
+                    <div
+                      className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${
+                        useVariations ? 'translate-x-7' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Variations Grid */}
+                <div className="space-y-4">
+                  {Object.entries(variations).map(([platform, text]) => (
+                    <motion.div
+                      key={platform}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="bg-gray-800/60 backdrop-blur-xl border-2 border-gray-600/50 rounded-xl p-4 hover:border-pink-400/50 transition-all"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="text-white font-bold capitalize flex items-center gap-2">
+                          <span className="text-lg">
+                            {platform === 'linkedin' && '💼'}
+                            {platform === 'twitter' && '🐦'}
+                            {platform === 'instagram' && '📸'}
+                            {platform === 'facebook' && '👥'}
+                            {platform === 'reddit' && '🤖'}
+                            {platform === 'tiktok' && '🎵'}
+                            {platform === 'youtube' && '📹'}
+                          </span>
+                          {platform}
+                        </h5>
+                        <span className="text-xs text-gray-400 font-mono">
+                          {text.length} chars
+                        </span>
+                      </div>
+                      <textarea
+                        value={text}
+                        onChange={(e) => updateVariation(platform, e.target.value)}
+                        className="w-full bg-gray-900/50 border border-gray-700 text-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition resize-none"
+                        rows={6}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+
+                {!useVariations && (
+                  <div className="mt-4 bg-yellow-900/20 border border-yellow-400/30 rounded-lg p-3 flex items-center gap-2">
+                    <span className="text-yellow-300 text-xl">⚠️</span>
+                    <p className="text-yellow-200 text-sm font-semibold">
+                      Variations are disabled. Toggle "Use Platform-Specific Variations" to use them when posting.
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

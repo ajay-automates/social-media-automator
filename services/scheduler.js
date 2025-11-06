@@ -82,13 +82,13 @@ async function processDueQueue() {
   }
 }
 
-async function postNow(text, imageUrl, platforms, providedCredentials, post_metadata) {
+async function postNow(text, imageUrl, platforms, providedCredentials, post_metadata, useVariations = false) {
   try {
-    let id, user_id, image_url, platformsArray, credentials, postMetadata;
+    let id, user_id, image_url, platformsArray, credentials, postMetadata, variationsData;
     
     // Support both signatures:
     // 1. postNow({id, user_id, text, image_url, platforms, post_metadata}) - for scheduled posts
-    // 2. postNow(text, imageUrl, platforms, credentials, post_metadata) - for immediate posts
+    // 2. postNow(text, imageUrl, platforms, credentials, post_metadata, useVariations) - for immediate posts
     if (typeof text === 'object' && text.text) {
       // Signature 1: Scheduled post object
       ({ id, user_id, text, image_url, platforms, post_metadata } = text);
@@ -99,6 +99,14 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
       }
       // Get credentials from database
       credentials = await getUserCredentialsForPosting(user_id);
+    } else if (typeof text === 'object' && !text.text) {
+      // Signature 3: Variations object
+      variationsData = text;
+      platformsArray = platforms;
+      image_url = imageUrl;
+      credentials = providedCredentials;
+      postMetadata = post_metadata;
+      user_id = 'immediate';
     } else {
       // Signature 2: Immediate post (OLD signature)
       platformsArray = platforms;
@@ -109,6 +117,9 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     }
 
     console.log(`\n📤 Posting to: ${platformsArray.join(', ')}`);
+    if (variationsData) {
+      console.log(`🎨 Using platform-specific variations`);
+    }
     
     if (!credentials) {
       console.error(`❌ No credentials found`);
@@ -120,14 +131,20 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     // Process each platform
     for (const platform of platformsArray) {
       try {
+        // Get platform-specific text (use variation if available, otherwise use original text)
+        const platformText = variationsData && variationsData[platform] ? variationsData[platform] : text;
+        
         console.log(`  → Posting to ${platform}...`);
+        if (variationsData && variationsData[platform]) {
+          console.log(`    🎨 Using custom variation (${platformText.length} chars)`);
+        }
 
         if (platform === 'linkedin') {
           if (credentials.linkedin && Array.isArray(credentials.linkedin)) {
             results.linkedin = [];
             for (const account of credentials.linkedin) {
               try {
-                const result = await postToLinkedIn(text, image_url, account);
+                const result = await postToLinkedIn(platformText, image_url, account);
                 results.linkedin.push(result);
                 if (result.success) {
                   console.log('    ✅ Posted to LinkedIn');
@@ -148,7 +165,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.twitter) {
               console.log(`🐦 Posting to Twitter with account:`, JSON.stringify(account, null, 2));
               try {
-                const result = await postToTwitter(text, account, image_url);
+                const result = await postToTwitter(platformText, account, image_url);
                 results.twitter = results.twitter || [];
                 results.twitter.push(result);
                 console.log(`    ✅ Posted to Twitter - Result:`, JSON.stringify(result, null, 2));
@@ -170,7 +187,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               try {
                 // Note: getUserCredentialsForPosting returns { botToken, chatId }
                 console.log(`    📱 Posting to Telegram - Bot token: ${account.botToken ? 'exists' : 'missing'}, Chat ID: ${account.chatId}`);
-                const result = await sendToTelegram(account.botToken, account.chatId, text, image_url);
+                const result = await sendToTelegram(account.botToken, account.chatId, platformText, image_url);
                 results.telegram.push(result);
                 console.log(`    ✅ Posted to Telegram - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
@@ -190,7 +207,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.slack) {
               try {
                 console.log(`    💬 Posting to Slack - Webhook: ${account.webhookUrl ? 'exists' : 'missing'}`);
-                const result = await sendToSlack(account.webhookUrl, text, image_url);
+                const result = await sendToSlack(account.webhookUrl, platformText, image_url);
                 results.slack.push(result);
                 console.log(`    ✅ Posted to Slack - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
@@ -209,7 +226,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.discord) {
               try {
                 console.log(`    🎮 Posting to Discord - Webhook: ${account.webhookUrl ? 'exists' : 'missing'}`);
-                const result = await sendToDiscord(account.webhookUrl, text, image_url);
+                const result = await sendToDiscord(account.webhookUrl, platformText, image_url);
                 results.discord.push(result);
                 console.log(`    ✅ Posted to Discord - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
@@ -261,7 +278,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 }
                 
                 console.log(`    🔴 Posting to Reddit r/${subreddit}`);
-                const result = await postToReddit(subreddit, title, text, image_url, accessToken);
+                const result = await postToReddit(subreddit, title, platformText, image_url, accessToken);
                 results.reddit.push(result);
                 
                 if (result.success) {
@@ -284,7 +301,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.instagram) {
               try {
                 // Credentials structure: { accessToken, igUserId }
-                const result = await postToInstagram(text, image_url, account.accessToken, account.igUserId);
+                const result = await postToInstagram(platformText, image_url, account.accessToken, account.igUserId);
                 results.instagram = results.instagram || [];
                 results.instagram.push(result);
                 if (result.success) {
