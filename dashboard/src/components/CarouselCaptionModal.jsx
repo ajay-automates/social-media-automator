@@ -53,12 +53,15 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
 
   // Auto-generate when modal opens
   useEffect(() => {
-    if (show && images.length > 0 && captions.length === 0 && !generating) {
+    if (show && images && images.length > 0 && captions.length === 0 && !generating) {
+      console.log('🎨 Auto-generating captions for', images.length, 'images');
       generateCaptions();
     }
   }, [show, images]);
 
   if (!show) return null;
+
+  console.log('Modal state:', { show, generating, captionCount: captions.length, imageCount: images?.length });
 
   return (
     <AnimatePresence>
