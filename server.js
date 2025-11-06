@@ -583,8 +583,11 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       }
       
       // Save post to database
+      // If using variations, save the first platform's variation or combine them
+      const textToSave = text || (variations ? Object.values(variations)[0] : 'Post with variations');
+      
       const savedPost = await addPost({
-        text,
+        text: textToSave,
         imageUrl: imageUrl || null,
         platforms,
         scheduleTime: new Date(), // For "post now", use current time
