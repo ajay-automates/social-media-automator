@@ -29,7 +29,7 @@ const {
   updatePostStatus
 } = require('./services/database');
 
-const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations, generateContentIdeas, improveCaption, generateCaptionFromImage } = require('./services/ai');
+const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations, generateContentIdeas, improveCaption, generateCaptionFromImage, generateCarouselCaptions } = require('./services/ai');
 const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
 const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
 const { sendTestEmail, sendEmail } = require('./services/email');
@@ -37,6 +37,8 @@ const { getUserWorkspace, checkPermission, requireRole, requirePermission, getTe
 const { logActivity, getActivityFeed, formatActivity, getPendingApprovalsCount } = require('./services/activity');
 const { createInvitation, acceptInvitation, getPendingInvitations, cancelInvitation, resendInvitation } = require('./services/invitations');
 const { searchVideos, getVideoById, getPopularVideos, validatePexelsKey } = require('./services/video-search');
+const { validateCarousel, getCarouselLimits, formatCarouselMetadata } = require('./services/carousel');
+const { postLinkedInCarousel } = require('./services/linkedin');
 const { parseCSV, generateTemplate, getValidationSummary } = require('./services/csv-parser');
 const aiImageService = require('./services/ai-image');
 const { 
@@ -3736,6 +3738,280 @@ app.get('/api/videos/validate-key', verifyAuth, async (req, res) => {
 
 // =====================================================
 // END VIDEO LIBRARY ENDPOINTS
+// =====================================================
+
+// =====================================================
+// CAROUSEL POSTS ENDPOINTS (Multi-Image Posts)
+// =====================================================
+
+/**
+ * POST /api/carousel/upload
+ * Upload multiple images for carousel post
+ */
+app.post('/api/carousel/upload', verifyAuth, upload.array('images', 10), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const files = req.files;
+
+    if (!files || files.length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please upload at least 2 images for carousel (minimum required)'
+      });
+    }
+
+    if (files.length > 10) {
+      return res.status(400).json({
+        success: false,
+        error: 'Maximum 10 images allowed per carousel'
+      });
+    }
+
+    console.log(`📤 Uploading ${files.length} carousel images to Cloudinary...`);
+
+    // Upload all images to Cloudinary
+    const uploadPromises = files.map(file => {
+      return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { 
+            folder: 'carousel-posts',
+            transformation: [
+              { width: 1200, height: 1200, crop: 'limit' },
+              { quality: 'auto:good' }
+            ]
+          },
+          (error, result) => {
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(error);
+            } else {
+              resolve(result.secure_url);
+            }
+          }
+        );
+        uploadStream.end(file.buffer);
+      });
+    });
+
+    const imageUrls = await Promise.all(uploadPromises);
+
+    console.log(`✅ Uploaded ${imageUrls.length} carousel images successfully`);
+
+    res.json({
+      success: true,
+      images: imageUrls,
+      count: imageUrls.length,
+      message: `${imageUrls.length} images uploaded successfully`
+    });
+
+  } catch (error) {
+    console.error('Error uploading carousel images:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to upload carousel images'
+    });
+  }
+});
+
+/**
+ * POST /api/carousel/generate-captions
+ * Generate AI captions for carousel slides using Claude Vision
+ */
+app.post('/api/carousel/generate-captions', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { imageUrls, topic, platform } = req.body;
+
+    if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide at least 2 image URLs for carousel'
+      });
+    }
+
+    if (imageUrls.length > 10) {
+      return res.status(400).json({
+        success: false,
+        error: 'Maximum 10 images allowed per carousel'
+      });
+    }
+
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+
+    console.log(`🤖 Generating AI captions for ${imageUrls.length}-slide carousel...`);
+
+    const captions = await generateCarouselCaptions(
+      imageUrls, 
+      topic || 'carousel post', 
+      platform || 'linkedin'
+    );
+
+    // Increment AI usage
+    await incrementUsage(userId, 'ai');
+
+    res.json({
+      success: true,
+      captions,
+      count: captions.length,
+      slideCount: imageUrls.length
+    });
+
+  } catch (error) {
+    console.error('Error generating carousel captions:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate carousel captions'
+    });
+  }
+});
+
+/**
+ * POST /api/carousel/post
+ * Post carousel to social media platforms
+ */
+app.post('/api/carousel/post', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { imageUrls, captions, platforms, topic } = req.body;
+
+    if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length < 2) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide at least 2 images for carousel'
+      });
+    }
+
+    if (!platforms || platforms.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please select at least one platform'
+      });
+    }
+
+    if (!captions || captions.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide captions for the carousel'
+      });
+    }
+
+    // Validate platforms support carousels
+    const supportedPlatforms = ['linkedin', 'instagram'];
+    const unsupported = platforms.filter(p => !supportedPlatforms.includes(p));
+    if (unsupported.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Carousel not supported on: ${unsupported.join(', ')}. Only LinkedIn and Instagram support carousels.`
+      });
+    }
+
+    console.log(`📸 Posting ${imageUrls.length}-slide carousel to ${platforms.join(', ')}...`);
+
+    // Get user accounts for selected platforms
+    const { data: accounts, error: accountError } = await supabase
+      .from('user_accounts')
+      .select('*')
+      .eq('user_id', userId)
+      .in('platform', platforms);
+
+    if (accountError || !accounts || accounts.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No connected accounts found for selected platforms. Please connect your accounts first.'
+      });
+    }
+
+    const results = [];
+
+    // Post to each platform
+    for (const account of accounts) {
+      try {
+        let result;
+        
+        if (account.platform === 'linkedin') {
+          result = await postLinkedInCarousel(imageUrls, captions, account);
+        } else if (account.platform === 'instagram') {
+          // Instagram carousel will be implemented in Phase 2
+          result = {
+            success: false,
+            error: 'Instagram carousel coming soon! Use LinkedIn for now.',
+            platform: 'instagram'
+          };
+        }
+
+        results.push({
+          platform: account.platform,
+          success: result.success,
+          postId: result.postId,
+          url: result.url,
+          error: result.error
+        });
+
+        if (result.success) {
+          console.log(`✅ Carousel posted to ${account.platform}`);
+        }
+
+      } catch (error) {
+        console.error(`Failed to post carousel to ${account.platform}:`, error);
+        results.push({
+          platform: account.platform,
+          success: false,
+          error: error.message
+        });
+      }
+    }
+
+    // Save to analytics
+    const carouselMetadata = formatCarouselMetadata({
+      images: imageUrls,
+      captions,
+      captionMode: captions.length === 1 ? 'single' : 'per-slide'
+    });
+
+    await addPost(
+      userId,
+      captions[0] || 'Carousel post',
+      imageUrls[0],
+      platforms,
+      carouselMetadata
+    );
+
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.filter(r => !r.success).length;
+
+    res.json({
+      success: successCount > 0,
+      results,
+      summary: {
+        total: results.length,
+        successful: successCount,
+        failed: failCount
+      },
+      message: successCount > 0 
+        ? `Carousel posted successfully to ${successCount} platform(s)!` 
+        : 'Failed to post carousel to any platform'
+    });
+
+  } catch (error) {
+    console.error('Error posting carousel:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to post carousel'
+    });
+  }
+});
+
+// =====================================================
+// END CAROUSEL POSTS ENDPOINTS
 // =====================================================
 
 /**

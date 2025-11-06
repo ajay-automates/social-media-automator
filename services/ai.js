@@ -802,6 +802,109 @@ Return ONLY valid JSON format:
   }
 }
 
+/**
+ * Generate captions for carousel slides using Claude Vision
+ * @param {Array<string>} imageUrls - Array of image URLs
+ * @param {string} topic - Overall topic/theme
+ * @param {string} platform - Target platform
+ * @returns {Promise<Array<string>>} - Array of captions (one per slide)
+ */
+async function generateCarouselCaptions(imageUrls, topic, platform = 'linkedin') {
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('Anthropic API key not configured');
+    }
+
+    console.log(`🎨 Generating captions for ${imageUrls.length}-slide carousel about "${topic}"...`);
+
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    // Build content array with all images
+    const content = [];
+    
+    imageUrls.forEach((url, index) => {
+      // Determine image source type
+      let imageSource;
+      if (url.startsWith('data:')) {
+        const matches = url.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          imageSource = {
+            type: 'base64',
+            media_type: matches[1],
+            data: matches[2]
+          };
+        }
+      } else {
+        imageSource = {
+          type: 'url',
+          url: url
+        };
+      }
+      
+      if (imageSource) {
+        content.push({
+          type: 'image',
+          source: imageSource
+        });
+      }
+    });
+
+    // Add the prompt
+    const prompt = `Analyze these ${imageUrls.length} images as a carousel post about "${topic}" for ${platform}.
+
+Create a caption for EACH slide that follows this structure:
+- Slide 1: Attention-grabbing hook/title
+- Middle slides: Key points/tips/steps (numbered if applicable)
+- Last slide: Call-to-action or conclusion
+
+Requirements:
+- Each caption should be 1-2 sentences
+- Progressive storytelling (build on previous slides)
+- Platform-appropriate for ${platform}
+- Include relevant emojis (1-2 per caption)
+- Engaging and actionable
+
+Return ONLY valid JSON format:
+{
+  "captions": [
+    "Caption for slide 1",
+    "Caption for slide 2",
+    "Caption for slide 3",
+    ...
+  ]
+}`;
+
+    content.push({
+      type: 'text',
+      text: prompt
+    });
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2500,
+      temperature: 0.7,
+      messages: [{
+        role: 'user',
+        content: content
+      }]
+    });
+
+    const text = message.content[0].text.trim();
+    const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+    const result = JSON.parse(jsonText);
+
+    console.log(`✅ Generated ${result.captions.length} carousel captions`);
+    
+    return result.captions;
+
+  } catch (error) {
+    console.error('❌ Carousel Caption Generation Error:', error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   generateCaption,
   generateMultiPlatformCaptions,
@@ -810,5 +913,6 @@ module.exports = {
   generatePostVariations,
   generateContentIdeas,
   improveCaption,
-  generateCaptionFromImage
+  generateCaptionFromImage,
+  generateCarouselCaptions
 };

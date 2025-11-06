@@ -82,4 +82,142 @@ async function postToLinkedIn(text, imageUrl, credentials) {
   }
 }
 
-module.exports = {postTextToLinkedIn,postImageToLinkedIn,postToLinkedIn,refreshLinkedInToken,ensureValidToken};
+/**
+ * Post carousel (multi-image) to LinkedIn
+ * @param {Array<string>} imageUrls - Array of image URLs (2-10 images)
+ * @param {Array<string>} captions - Array of captions (or single caption for all)
+ * @param {Object} credentials - LinkedIn credentials
+ * @returns {Promise<Object>} - Post result
+ */
+async function postLinkedInCarousel(imageUrls, captions, credentials) {
+  try {
+    console.log(`📸 LinkedIn: Posting carousel with ${imageUrls.length} images...`);
+
+    // Ensure valid token
+    const validCredentials = await ensureValidToken(credentials);
+    const accessToken = validCredentials.access_token || validCredentials.accessToken;
+    
+    let author;
+    const urn = validCredentials.urn;
+    const type = validCredentials.type;
+    
+    if (!urn || urn === '') {
+      author = 'urn:li:person:me';
+    } else {
+      author = type === 'organization' ? `urn:li:organization:${urn}` : `urn:li:person:${urn}`;
+    }
+
+    // Step 1: Register upload for each image
+    console.log('📤 LinkedIn: Registering image uploads...');
+    const mediaAssets = [];
+    
+    for (let i = 0; i < imageUrls.length; i++) {
+      try {
+        // Register upload
+        const registerResponse = await axios.post(
+          'https://api.linkedin.com/v2/assets?action=registerUpload',
+          {
+            registerUploadRequest: {
+              recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
+              owner: author,
+              serviceRelationships: [{
+                relationshipType: 'OWNER',
+                identifier: 'urn:li:userGeneratedContent'
+              }]
+            }
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        const uploadUrl = registerResponse.data.value.uploadMechanism['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'].uploadUrl;
+        const asset = registerResponse.data.value.asset;
+
+        // Step 2: Download image and upload binary
+        const imageResponse = await axios.get(imageUrls[i], { 
+          responseType: 'arraybuffer',
+          timeout: 30000 // 30 second timeout
+        });
+        
+        await axios.put(uploadUrl, imageResponse.data, {
+          headers: { 
+            'Content-Type': 'image/jpeg',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity
+        });
+
+        mediaAssets.push(asset);
+        console.log(`✅ LinkedIn: Image ${i + 1}/${imageUrls.length} uploaded`);
+
+      } catch (imgError) {
+        console.error(`❌ LinkedIn: Failed to upload image ${i + 1}:`, imgError.message);
+        throw new Error(`Failed to upload image ${i + 1}: ${imgError.message}`);
+      }
+    }
+
+    // Step 3: Create carousel post
+    console.log('📝 LinkedIn: Creating carousel post...');
+    
+    // Use single caption or join multiple
+    const caption = captions.length === 1 ? captions[0] : captions.join('\n\n');
+    
+    const postData = {
+      author: author,
+      lifecycleState: 'PUBLISHED',
+      specificContent: {
+        'com.linkedin.ugc.ShareContent': {
+          shareCommentary: {
+            text: caption
+          },
+          shareMediaCategory: 'IMAGE',
+          media: mediaAssets.map(asset => ({
+            status: 'READY',
+            media: asset
+          }))
+        }
+      },
+      visibility: {
+        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+      }
+    };
+
+    const response = await axios.post(
+      'https://api.linkedin.com/v2/ugcPosts',
+      postData,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'X-Restli-Protocol-Version': '2.0.0'
+        }
+      }
+    );
+
+    console.log('✅ LinkedIn carousel posted successfully');
+    const postUrl = `https://www.linkedin.com/feed/update/${response.data.id}`;
+    
+    return { 
+      success: true, 
+      postId: response.data.id,
+      url: postUrl,
+      platform: 'linkedin',
+      slideCount: imageUrls.length
+    };
+
+  } catch (error) {
+    console.error('❌ LinkedIn carousel error:', error.response?.data || error.message);
+    return { 
+      success: false, 
+      error: error.response?.data?.message || error.message,
+      platform: 'linkedin'
+    };
+  }
+}
+
+module.exports = {postTextToLinkedIn,postImageToLinkedIn,postToLinkedIn,postLinkedInCarousel,refreshLinkedInToken,ensureValidToken};
