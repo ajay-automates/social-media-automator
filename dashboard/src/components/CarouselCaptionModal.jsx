@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../lib/api';
 import { toast } from 'react-hot-toast';
@@ -52,11 +52,11 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
   };
 
   // Auto-generate when modal opens
-  useState(() => {
+  useEffect(() => {
     if (show && images.length > 0 && captions.length === 0 && !generating) {
       generateCaptions();
     }
-  }, [show]);
+  }, [show, images]);
 
   if (!show) return null;
 
