@@ -110,20 +110,40 @@ export default function CreateCarousel() {
     setPosting(true);
 
     try {
-      const response = await api.post('/carousel/post', {
+      const requestData = {
         imageUrls: images,
         captions: captions.filter(c => c.trim()),
         platforms,
         topic
-      });
+      };
+
+      console.log('📸 Posting carousel with data:', requestData);
+      console.log('Image URLs:', images);
+      console.log('Captions count:', requestData.captions.length);
+      console.log('Platforms:', platforms);
+
+      const response = await api.post('/carousel/post', requestData);
+
+      console.log('✅ Carousel post response:', response.data);
 
       if (response.data.success) {
         toast.success('Carousel posted successfully! 🎉');
         setTimeout(() => navigate('/analytics'), 2000);
+      } else {
+        toast.error(response.data.error || 'Failed to post carousel');
       }
     } catch (error) {
-      console.error('Post error:', error);
-      toast.error(error.response?.data?.error || 'Failed to post carousel');
+      console.error('❌ Post error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to post carousel';
+      toast.error(errorMsg);
+      
+      // Show debug info if available
+      if (error.response?.data?.debug) {
+        console.log('Debug info from server:', error.response.data.debug);
+      }
     } finally {
       setPosting(false);
     }
