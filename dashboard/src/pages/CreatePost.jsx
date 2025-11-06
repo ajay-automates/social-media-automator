@@ -11,6 +11,8 @@ import PlatformChip from '../components/ui/PlatformChip';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
 import VideoSearchModal from '../components/VideoSearchModal';
 import VideoPreview from '../components/VideoPreview';
+import CaptionImproverModal from '../components/CaptionImproverModal';
+import ImageCaptionModal from '../components/ImageCaptionModal';
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -22,6 +24,8 @@ export default function CreatePost() {
   const [image, setImage] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showCaptionImprover, setShowCaptionImprover] = useState(false);
+  const [showImageCaptionModal, setShowImageCaptionModal] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [mediaType, setMediaType] = useState(null); // 'image' or 'video'
   const [showAIModal, setShowAIModal] = useState(false);
@@ -1025,26 +1029,39 @@ export default function CreatePost() {
                   </motion.button>
                 )}
                 {caption.length >= 10 && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={generateAIHashtags}
-                    disabled={generatingHashtags}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
-                  >
-                    {generatingHashtags ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        🏷️ Generate Hashtags
-                      </>
-                    )}
-                  </motion.button>
+                  <>
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowCaptionImprover(true)}
+                      className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm flex items-center gap-2 shadow-lg"
+                    >
+                      ✨ Improve Caption
+                    </motion.button>
+                    
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={generateAIHashtags}
+                      disabled={generatingHashtags}
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                    >
+                      {generatingHashtags ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          🏷️ Generate Hashtags
+                        </>
+                      )}
+                    </motion.button>
+                  </>
                 )}
               </div>
             </div>
@@ -1431,12 +1448,22 @@ export default function CreatePost() {
             {image && (
               <div className="mb-3">
                 <img src={image} alt="Preview" className="w-full max-h-64 object-contain rounded-lg border-2 border-gray-300" />
-                <button
-                  onClick={() => setImage(null)}
-                  className="mt-2 text-sm text-red-600 hover:text-red-700"
-                >
-                  Remove Image
-                </button>
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowImageCaptionModal(true)}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg flex items-center gap-2"
+                  >
+                    🤖 Generate Caption from This Image
+                  </motion.button>
+                  <button
+                    onClick={() => setImage(null)}
+                    className="text-sm text-red-600 hover:text-red-700 px-4 py-2"
+                  >
+                    Remove Image
+                  </button>
+                </div>
               </div>
             )}
             <input
@@ -1993,6 +2020,24 @@ export default function CreatePost() {
           setSelectedVideo(video);
           console.log('✅ Video selected:', video);
         }}
+      />
+
+      {/* Caption Improver Modal */}
+      <CaptionImproverModal
+        show={showCaptionImprover}
+        onClose={() => setShowCaptionImprover(false)}
+        originalCaption={caption}
+        onSelectCaption={(newCaption) => setCaption(newCaption)}
+        platform={platforms[0] || 'linkedin'}
+      />
+
+      {/* Image Caption Modal */}
+      <ImageCaptionModal
+        show={showImageCaptionModal}
+        onClose={() => setShowImageCaptionModal(false)}
+        imageUrl={image}
+        onSelectCaption={(newCaption) => setCaption(newCaption)}
+        platform={platforms[0] || 'linkedin'}
       />
 
       {/* Template Selection Modal */}

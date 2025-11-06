@@ -29,7 +29,7 @@ const {
   updatePostStatus
 } = require('./services/database');
 
-const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations, generateContentIdeas } = require('./services/ai');
+const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations, generateContentIdeas, improveCaption, generateCaptionFromImage } = require('./services/ai');
 const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
 const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
 const { sendTestEmail, sendEmail } = require('./services/email');
@@ -1914,6 +1914,133 @@ app.post('/api/ai/content-ideas', verifyAuth, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: error.message || 'Failed to generate content ideas'
+    });
+  }
+});
+
+/**
+ * POST /api/ai/improve-caption
+ * Improve an existing caption with AI (4 variations)
+ */
+app.post('/api/ai/improve-caption', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { caption, platform } = req.body;
+    
+    // Validate inputs
+    if (!caption || caption.trim().length < 5) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Caption must be at least 5 characters' 
+      });
+    }
+    
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+    
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+      });
+    }
+    
+    console.log(`🎨 Improving caption for ${platform || 'linkedin'}`);
+    
+    // Improve caption
+    const improved = await improveCaption(
+      caption.trim(),
+      platform || 'linkedin'
+    );
+    
+    // Increment AI usage count
+    await incrementUsage(userId, 'ai');
+    
+    res.json({ 
+      success: true,
+      original: caption.trim(),
+      improved,
+      platform: platform || 'linkedin'
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/ai/improve-caption:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to improve caption'
+    });
+  }
+});
+
+/**
+ * POST /api/ai/caption-from-image
+ * Generate captions from image using Claude Vision
+ */
+app.post('/api/ai/caption-from-image', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { imageUrl, platform } = req.body;
+    
+    // Validate inputs
+    if (!imageUrl || imageUrl.trim().length < 10) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Image URL is required' 
+      });
+    }
+    
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+    
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+      });
+    }
+    
+    console.log(`🖼️ Generating captions from image for ${platform || 'linkedin'}`);
+    
+    // Generate captions from image
+    const result = await generateCaptionFromImage(
+      imageUrl.trim(),
+      platform || 'linkedin'
+    );
+    
+    // Increment AI usage count
+    await incrementUsage(userId, 'ai');
+    
+    res.json({ 
+      success: true,
+      description: result.description,
+      captions: result.captions,
+      platform: platform || 'linkedin',
+      imageUrl: imageUrl.trim()
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/ai/caption-from-image:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to generate captions from image'
     });
   }
 });

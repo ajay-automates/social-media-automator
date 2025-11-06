@@ -634,11 +634,181 @@ IMPORTANT:
   }
 }
 
+/**
+ * Improve an existing caption with AI
+ * @param {string} originalCaption - User's original caption
+ * @param {string} platform - Target platform
+ * @returns {Promise<Object>} - { professional, casual, engaging, short }
+ */
+async function improveCaption(originalCaption, platform = 'linkedin') {
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('Anthropic API key not configured');
+    }
+
+    console.log(`🎨 Improving caption for ${platform}...`);
+
+    // Initialize Anthropic client
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const prompt = `Improve this social media caption for ${platform}. Create 4 distinct versions:
+
+1. PROFESSIONAL & POLISHED - Business-appropriate, clear value proposition
+2. CASUAL & FRIENDLY - Conversational, approachable, warm tone
+3. ENGAGING & VIRAL - Hooks, curiosity gaps, calls-to-action
+4. SHORT & PUNCHY - Concise, impactful, under 100 characters
+
+Original caption: "${originalCaption}"
+
+REQUIREMENTS:
+- Keep the core message but enhance delivery
+- Add relevant emojis (2-3 max per caption)
+- Each version should feel distinctly different
+- Make them platform-appropriate for ${platform}
+- Optimize for engagement
+
+Return ONLY valid JSON format:
+{
+  "professional": "professional version here",
+  "casual": "casual version here",
+  "engaging": "engaging version here",
+  "short": "short version here"
+}`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      temperature: 0.7,
+      messages: [{ role: 'user', content: prompt }]
+    });
+
+    const text = message.content[0].text.trim();
+    const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+    const improved = JSON.parse(jsonText);
+
+    console.log(`✅ Caption improved successfully`);
+    
+    return improved;
+
+  } catch (error) {
+    console.error('❌ Caption Improvement Error:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * Generate captions from image using Claude Vision
+ * @param {string} imageUrl - URL of the image to analyze
+ * @param {string} platform - Target platform
+ * @returns {Promise<Object>} - { description, captions: [] }
+ */
+async function generateCaptionFromImage(imageUrl, platform = 'linkedin') {
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error('Anthropic API key not configured');
+    }
+
+    console.log(`🖼️ Analyzing image to generate captions for ${platform}...`);
+
+    // Initialize Anthropic client
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const prompt = `Analyze this image and generate 3 engaging social media captions for ${platform}.
+
+Instructions:
+1. First, describe what you see in the image (objects, setting, mood, colors, composition)
+2. Then create 3 unique caption variations that match the image
+3. Each caption should:
+   - Reference what's in the image naturally
+   - Include relevant emojis (2-4 per caption)
+   - Have a clear call-to-action or question
+   - Be platform-appropriate for ${platform}
+   - Aim for high engagement (curiosity, emotion, value)
+
+Make each caption feel different:
+- Caption 1: Professional/Informative
+- Caption 2: Casual/Relatable  
+- Caption 3: Engaging/Viral (with hook)
+
+Return ONLY valid JSON format:
+{
+  "description": "detailed description of what's in the image",
+  "captions": [
+    "caption 1 here",
+    "caption 2 here",
+    "caption 3 here"
+  ]
+}`;
+
+    // Handle both base64 data URLs and regular URLs
+    let imageSource;
+    if (imageUrl.startsWith('data:')) {
+      // It's a base64 data URL - extract the base64 part
+      const matches = imageUrl.match(/^data:([^;]+);base64,(.+)$/);
+      if (!matches) {
+        throw new Error('Invalid base64 data URL format');
+      }
+      const mediaType = matches[1]; // e.g., "image/jpeg", "image/png"
+      const base64Data = matches[2];
+      
+      imageSource = {
+        type: 'base64',
+        media_type: mediaType,
+        data: base64Data
+      };
+    } else {
+      // It's a regular URL
+      imageSource = {
+        type: 'url',
+        url: imageUrl
+      };
+    }
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      temperature: 0.8,
+      messages: [{
+        role: 'user',
+        content: [
+          {
+            type: 'image',
+            source: imageSource
+          },
+          {
+            type: 'text',
+            text: prompt
+          }
+        ]
+      }]
+    });
+
+    const text = message.content[0].text.trim();
+    const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+    const result = JSON.parse(jsonText);
+
+    console.log(`✅ Generated captions from image`);
+    console.log(`   Image shows: ${result.description?.substring(0, 80)}...`);
+    
+    return result;
+
+  } catch (error) {
+    console.error('❌ Image-to-Caption Error:', error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   generateCaption,
   generateMultiPlatformCaptions,
   generateHashtags,
   recommendPostTime,
   generatePostVariations,
-  generateContentIdeas
+  generateContentIdeas,
+  improveCaption,
+  generateCaptionFromImage
 };
