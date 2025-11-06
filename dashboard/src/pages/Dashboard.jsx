@@ -21,10 +21,14 @@ export default function Dashboard() {
   const [billingInfo, setBillingInfo] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showContentIdeas, setShowContentIdeas] = useState(false);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
+  const [draftsCount, setDraftsCount] = useState(0);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     loadDashboardData();
     loadBillingInfo();
+    loadTeamData();
   }, []);
 
   // Auto-open Content Ideas modal if requested from Create Post page
@@ -50,6 +54,31 @@ export default function Dashboard() {
       console.error('Error loading billing info:', err);
       // Set default empty billing info on error
       setBillingInfo(null);
+    }
+  };
+
+  const loadTeamData = async () => {
+    try {
+      // Load workspace info to get user role
+      const workspaceRes = await api.get('/workspace/info').catch(() => null);
+      if (workspaceRes?.data?.success) {
+        setUserRole(workspaceRes.data.workspace.role);
+      }
+
+      // Load pending approvals count (for Owner/Admin)
+      const approvalsRes = await api.get('/notifications/count').catch(() => null);
+      if (approvalsRes?.data?.success) {
+        setPendingApprovalsCount(approvalsRes.data.count || 0);
+      }
+
+      // Load drafts count (for all users)
+      const draftsRes = await api.get('/posts/drafts').catch(() => null);
+      if (draftsRes?.data?.success) {
+        setDraftsCount(draftsRes.data.drafts?.length || 0);
+      }
+    } catch (err) {
+      console.error('Error loading team data:', err);
+      // Silently fail - team features are optional
     }
   };
 
@@ -310,6 +339,39 @@ export default function Dashboard() {
               >
                 💡 Get Content Ideas
               </motion.button>
+
+              {/* Pending Approvals (Owner/Admin only) */}
+              {(userRole === 'owner' || userRole === 'admin') && pendingApprovalsCount > 0 && (
+                <Link to="/approvals">
+                  <motion.button
+                    whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(234, 179, 8, 0.4)" }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg relative"
+                  >
+                    ⏳ Pending Approvals
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
+                      {pendingApprovalsCount}
+                    </span>
+                  </motion.button>
+                </Link>
+              )}
+
+              {/* My Drafts (All users) */}
+              {draftsCount > 0 && (
+                <Link to="/create">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20 relative"
+                  >
+                    📝 My Drafts
+                    <span className="ml-1 bg-blue-500/30 text-blue-300 text-xs font-bold px-2 py-0.5 rounded-full">
+                      {draftsCount}
+                    </span>
+                  </motion.button>
+                </Link>
+              )}
+
               <Link to="/calendar">
                 <motion.button
                   whileHover={{ scale: 1.05 }}

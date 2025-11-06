@@ -32,7 +32,10 @@ const {
 const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations, generateContentIdeas } = require('./services/ai');
 const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
 const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
-const { sendTestEmail } = require('./services/email');
+const { sendTestEmail, sendEmail } = require('./services/email');
+const { getUserWorkspace, checkPermission, requireRole, requirePermission, getTeamMembers } = require('./services/permissions');
+const { logActivity, getActivityFeed, formatActivity, getPendingApprovalsCount } = require('./services/activity');
+const { createInvitation, acceptInvitation, getPendingInvitations, cancelInvitation, resendInvitation } = require('./services/invitations');
 const { parseCSV, generateTemplate, getValidationSummary } = require('./services/csv-parser');
 const aiImageService = require('./services/ai-image');
 const { 
@@ -2633,6 +2636,876 @@ app.put('/api/user/email-preferences', verifyAuth, async (req, res) => {
     });
   }
 });
+
+// =====================================================
+// TEAM COLLABORATION ENDPOINTS
+// =====================================================
+
+/**
+ * GET /api/workspace/info
+ * Get current user's workspace information
+ */
+app.get('/api/workspace/info', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userEmail = req.user.email;
+    
+    console.log(`🔍 Getting workspace for user ${userId} (${userEmail})`);
+    
+    let workspace = await getUserWorkspace(userId);
+    
+    // Auto-create workspace ONLY if user is not a member of ANY workspace
+    if (!workspace) {
+      // First check if user was invited to any workspace (check team_members table)
+      const { data: existingMembership } = await supabaseAdmin
+        .from('team_members')
+        .select('workspace_id')
+        .eq('user_id', userId)
+        .eq('status', 'active')
+        .single();
+      
+      if (existingMembership) {
+        console.log(`✅ User ${userId} is already a team member, re-fetching workspace...`);
+        workspace = await getUserWorkspace(userId);
+      } else {
+        // User is not a member of any workspace, create a new one as Owner
+        console.log(`🏗️ Creating new workspace for user ${userId} (Owner)`);
+        
+        // Create workspace
+        const { data: newWorkspace, error: workspaceError } = await supabaseAdmin
+          .from('workspaces')
+          .insert({
+            owner_id: userId,
+            name: `${userEmail || 'My'}'s Workspace`
+          })
+          .select()
+          .single();
+        
+        if (workspaceError) {
+          console.error('Error creating workspace:', workspaceError);
+          throw workspaceError;
+        }
+        
+        // Add user as owner in team_members
+        const { error: memberError } = await supabaseAdmin
+          .from('team_members')
+          .insert({
+            workspace_id: newWorkspace.id,
+            user_id: userId,
+            role: 'owner',
+            status: 'active',
+            joined_at: new Date().toISOString()
+          });
+        
+        if (memberError) {
+          console.error('Error adding team member:', memberError);
+          throw memberError;
+        }
+        
+        console.log(`✅ Workspace created for user ${userId}`);
+        
+        // Fetch the newly created workspace
+        workspace = await getUserWorkspace(userId);
+      }
+    }
+    
+    if (!workspace) {
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to create or load workspace'
+      });
+    }
+    
+    console.log(`✅ Workspace loaded for user ${userId}:`, workspace);
+    
+    res.json({
+      success: true,
+      workspace
+    });
+  } catch (error) {
+    console.error('Error getting workspace info:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * PUT /api/workspace/name
+ * Update workspace name (Owner only)
+ */
+app.put('/api/workspace/name', verifyAuth, requireRole('owner'), async (req, res) => {
+  try {
+    const { name } = req.body;
+    const workspaceId = req.workspace.workspace_id;
+    
+    if (!name || name.trim().length < 1) {
+      return res.status(400).json({
+        success: false,
+        error: 'Workspace name is required'
+      });
+    }
+    
+    const { data, error } = await supabaseAdmin
+      .from('workspaces')
+      .update({ name: name.trim(), updated_at: new Date().toISOString() })
+      .eq('id', workspaceId)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    await logActivity(
+      workspaceId,
+      req.user.id,
+      'workspace_renamed',
+      'workspace',
+      workspaceId,
+      { new_name: name.trim() }
+    );
+    
+    res.json({
+      success: true,
+      workspace: data
+    });
+  } catch (error) {
+    console.error('Error updating workspace name:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/team/members
+ * Get all team members for current workspace
+ */
+app.get('/api/team/members', verifyAuth, async (req, res) => {
+  try {
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    if (!workspace) {
+      return res.status(404).json({
+        success: false,
+        error: 'No workspace found'
+      });
+    }
+    
+    const { data: members, error } = await supabaseAdmin
+      .from('team_members')
+      .select('*')
+      .eq('workspace_id', workspace.workspace_id)
+      .eq('status', 'active')
+      .order('joined_at', { ascending: true });
+    
+    if (error) throw error;
+    
+    // Get user details for each member
+    const membersWithDetails = await Promise.all(
+      members.map(async (member) => {
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserById(member.user_id);
+        return {
+          ...member,
+          email: userData?.user?.email,
+          name: userData?.user?.user_metadata?.full_name || userData?.user?.email?.split('@')[0]
+        };
+      })
+    );
+    
+    res.json({
+      success: true,
+      members: membersWithDetails
+    });
+  } catch (error) {
+    console.error('Error getting team members:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/team/invite
+ * Invite a new team member (Owner/Admin only)
+ */
+app.post('/api/team/invite', verifyAuth, requirePermission('invite_member'), async (req, res) => {
+  try {
+    const { email, role } = req.body;
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    if (!workspace) {
+      return res.status(404).json({
+        success: false,
+        error: 'No workspace found'
+      });
+    }
+    
+    if (!email || !role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and role are required'
+      });
+    }
+    
+    if (!['admin', 'editor', 'viewer'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid role. Must be admin, editor, or viewer'
+      });
+    }
+    
+    const invitation = await createInvitation(
+      workspace.workspace_id,
+      email,
+      role,
+      req.user.id
+    );
+    
+    res.json({
+      success: true,
+      invitation,
+      message: `Invitation sent to ${email}`
+    });
+  } catch (error) {
+    console.error('Error inviting team member:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/team/invitations
+ * Get pending invitations for current workspace
+ */
+app.get('/api/team/invitations', verifyAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const workspace = await getUserWorkspace(req.user.id);
+    const invitations = await getPendingInvitations(workspace.workspace_id);
+    
+    res.json({
+      success: true,
+      invitations
+    });
+  } catch (error) {
+    console.error('Error getting invitations:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/team/invitations/:id
+ * Cancel a pending invitation
+ */
+app.delete('/api/team/invitations/:id', verifyAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    await cancelInvitation(id, req.user.id);
+    
+    res.json({
+      success: true,
+      message: 'Invitation cancelled'
+    });
+  } catch (error) {
+    console.error('Error cancelling invitation:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/team/invitations/:id/resend
+ * Resend an invitation email
+ */
+app.post('/api/team/invitations/:id/resend', verifyAuth, requireRole('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    await resendInvitation(id);
+    
+    res.json({
+      success: true,
+      message: 'Invitation resent'
+    });
+  } catch (error) {
+    console.error('Error resending invitation:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/team/accept-invite
+ * Accept a team invitation (public endpoint)
+ */
+app.post('/api/team/accept-invite', verifyAuth, async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invitation token is required'
+      });
+    }
+    
+    const teamMember = await acceptInvitation(token, req.user.id);
+    
+    res.json({
+      success: true,
+      teamMember,
+      message: 'Successfully joined workspace'
+    });
+  } catch (error) {
+    console.error('Error accepting invitation:', error);
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/team/members/:userId
+ * Remove a team member (Owner only)
+ */
+app.delete('/api/team/members/:userId', verifyAuth, requireRole('owner'), async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    // Cannot remove the owner
+    if (userId === workspace.workspace.owner_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot remove workspace owner'
+      });
+    }
+    
+    // Get member info before deletion for activity log
+    const { data: member } = await supabaseAdmin
+      .from('team_members')
+      .select('*')
+      .eq('workspace_id', workspace.workspace_id)
+      .eq('user_id', userId)
+      .single();
+    
+    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+    
+    // Remove member
+    const { error } = await supabaseAdmin
+      .from('team_members')
+      .delete()
+      .eq('workspace_id', workspace.workspace_id)
+      .eq('user_id', userId);
+    
+    if (error) throw error;
+    
+    await logActivity(
+      workspace.workspace_id,
+      req.user.id,
+      'member_removed',
+      'member',
+      userId,
+      { removed_user: userData?.user?.email }
+    );
+    
+    res.json({
+      success: true,
+      message: 'Team member removed'
+    });
+  } catch (error) {
+    console.error('Error removing team member:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * PUT /api/team/members/:userId/role
+ * Change a team member's role (Owner only)
+ */
+app.put('/api/team/members/:userId/role', verifyAuth, requireRole('owner'), async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    if (!['admin', 'editor', 'viewer'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid role'
+      });
+    }
+    
+    // Cannot change owner's role
+    if (userId === workspace.workspace.owner_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot change owner role'
+      });
+    }
+    
+    const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+    
+    const { error } = await supabaseAdmin
+      .from('team_members')
+      .update({ role })
+      .eq('workspace_id', workspace.workspace_id)
+      .eq('user_id', userId);
+    
+    if (error) throw error;
+    
+    await logActivity(
+      workspace.workspace_id,
+      req.user.id,
+      'role_changed',
+      'member',
+      userId,
+      { target_user: userData?.user?.email, new_role: role }
+    );
+    
+    res.json({
+      success: true,
+      message: 'Role updated'
+    });
+  } catch (error) {
+    console.error('Error changing role:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/activity
+ * Get activity feed for current workspace
+ */
+app.get('/api/activity', verifyAuth, async (req, res) => {
+  try {
+    const workspace = await getUserWorkspace(req.user.id);
+    const limit = parseInt(req.query.limit) || 50;
+    
+    const activities = await getActivityFeed(workspace.workspace_id, limit);
+    
+    // Format each activity for display
+    const formattedActivities = activities.map(activity => ({
+      ...activity,
+      formatted: formatActivity(activity)
+    }));
+    
+    res.json({
+      success: true,
+      activities: formattedActivities
+    });
+  } catch (error) {
+    console.error('Error getting activity feed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/posts/submit-for-review
+ * Submit a draft post for review (Editor role)
+ */
+app.post('/api/posts/submit-for-review', verifyAuth, requireRole('editor'), async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    if (!postId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Post ID is required'
+      });
+    }
+    
+    // Update post approval status
+    const { error: queueError } = await supabaseAdmin
+      .from('queue')
+      .update({ approval_status: 'pending_review' })
+      .eq('id', postId)
+      .eq('workspace_id', workspace.workspace_id)
+      .eq('created_by', req.user.id);
+    
+    if (queueError) throw queueError;
+    
+    // Create approval record
+    const { data: approval, error: approvalError } = await supabaseAdmin
+      .from('post_approvals')
+      .insert({
+        post_id: postId,
+        submitted_by: req.user.id,
+        status: 'pending',
+        submitted_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (approvalError) throw approvalError;
+    
+    // Get post details for notification
+    const { data: post } = await supabaseAdmin
+      .from('queue')
+      .select('text, platforms')
+      .eq('id', postId)
+      .single();
+    
+    await logActivity(
+      workspace.workspace_id,
+      req.user.id,
+      'post_submitted',
+      'post',
+      postId.toString(),
+      { post_title: post?.text?.substring(0, 50) }
+    );
+    
+    // TODO: Send email notification to workspace owner/admins
+    
+    res.json({
+      success: true,
+      approval,
+      message: 'Post submitted for review'
+    });
+  } catch (error) {
+    console.error('Error submitting post for review:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/posts/pending-approvals
+ * Get posts awaiting approval (Owner/Admin only)
+ */
+app.get('/api/posts/pending-approvals', verifyAuth, requirePermission('approve_post'), async (req, res) => {
+  try {
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    // Get pending approvals with post details
+    const { data: approvals, error } = await supabaseAdmin
+      .from('post_approvals')
+      .select('*')
+      .eq('status', 'pending')
+      .order('submitted_at', { ascending: true });
+    
+    if (error) throw error;
+    
+    // Get full post details for each approval
+    const approvalsWithPosts = await Promise.all(
+      approvals.map(async (approval) => {
+        const { data: post } = await supabaseAdmin
+          .from('queue')
+          .select('*')
+          .eq('id', approval.post_id)
+          .eq('workspace_id', workspace.workspace_id)
+          .single();
+        
+        const { data: submitterData } = await supabaseAdmin.auth.admin.getUserById(approval.submitted_by);
+        
+        return {
+          ...approval,
+          post,
+          submitter: {
+            email: submitterData?.user?.email,
+            name: submitterData?.user?.user_metadata?.full_name || submitterData?.user?.email?.split('@')[0]
+          }
+        };
+      })
+    );
+    
+    res.json({
+      success: true,
+      approvals: approvalsWithPosts.filter(a => a.post !== null)
+    });
+  } catch (error) {
+    console.error('Error getting pending approvals:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/posts/:id/approve
+ * Approve a post (Owner/Admin only)
+ */
+app.post('/api/posts/:id/approve', verifyAuth, requirePermission('approve_post'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    // Update approval record
+    const { data: approval, error: approvalError } = await supabaseAdmin
+      .from('post_approvals')
+      .update({
+        status: 'approved',
+        reviewed_by: req.user.id,
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('post_id', parseInt(id))
+      .eq('status', 'pending')
+      .select()
+      .single();
+    
+    if (approvalError) throw approvalError;
+    
+    // Update post status
+    const { error: queueError } = await supabaseAdmin
+      .from('queue')
+      .update({ approval_status: 'approved' })
+      .eq('id', parseInt(id));
+    
+    if (queueError) throw queueError;
+    
+    // Get post details
+    const { data: post } = await supabaseAdmin
+      .from('queue')
+      .select('text')
+      .eq('id', parseInt(id))
+      .single();
+    
+    await logActivity(
+      workspace.workspace_id,
+      req.user.id,
+      'post_approved',
+      'post',
+      id,
+      { post_title: post?.text?.substring(0, 50) }
+    );
+    
+    // TODO: Send approval notification to post creator
+    
+    res.json({
+      success: true,
+      message: 'Post approved'
+    });
+  } catch (error) {
+    console.error('Error approving post:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/posts/:id/reject
+ * Reject a post with feedback (Owner/Admin only)
+ */
+app.post('/api/posts/:id/reject', verifyAuth, requirePermission('approve_post'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { feedback } = req.body;
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    // Update approval record
+    const { error: approvalError } = await supabaseAdmin
+      .from('post_approvals')
+      .update({
+        status: 'rejected',
+        reviewed_by: req.user.id,
+        reviewed_at: new Date().toISOString(),
+        feedback: feedback || 'Post rejected'
+      })
+      .eq('post_id', parseInt(id))
+      .eq('status', 'pending');
+    
+    if (approvalError) throw approvalError;
+    
+    // Update post status
+    const { error: queueError } = await supabaseAdmin
+      .from('queue')
+      .update({ approval_status: 'rejected' })
+      .eq('id', parseInt(id));
+    
+    if (queueError) throw queueError;
+    
+    // Get post details
+    const { data: post } = await supabaseAdmin
+      .from('queue')
+      .select('text')
+      .eq('id', parseInt(id))
+      .single();
+    
+    await logActivity(
+      workspace.workspace_id,
+      req.user.id,
+      'post_rejected',
+      'post',
+      id,
+      { post_title: post?.text?.substring(0, 50), feedback }
+    );
+    
+    // TODO: Send rejection notification to post creator
+    
+    res.json({
+      success: true,
+      message: 'Post rejected'
+    });
+  } catch (error) {
+    console.error('Error rejecting post:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/posts/:id/request-changes
+ * Request changes on a post (Owner/Admin only)
+ */
+app.post('/api/posts/:id/request-changes', verifyAuth, requirePermission('approve_post'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { feedback } = req.body;
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    if (!feedback) {
+      return res.status(400).json({
+        success: false,
+        error: 'Feedback is required when requesting changes'
+      });
+    }
+    
+    // Update approval record
+    const { error: approvalError } = await supabaseAdmin
+      .from('post_approvals')
+      .update({
+        status: 'changes_requested',
+        reviewed_by: req.user.id,
+        reviewed_at: new Date().toISOString(),
+        feedback
+      })
+      .eq('post_id', parseInt(id))
+      .eq('status', 'pending');
+    
+    if (approvalError) throw approvalError;
+    
+    // Update post status back to draft
+    const { error: queueError } = await supabaseAdmin
+      .from('queue')
+      .update({ approval_status: 'draft' })
+      .eq('id', parseInt(id));
+    
+    if (queueError) throw queueError;
+    
+    // Get post details
+    const { data: post } = await supabaseAdmin
+      .from('queue')
+      .select('text')
+      .eq('id', parseInt(id))
+      .single();
+    
+    await logActivity(
+      workspace.workspace_id,
+      req.user.id,
+      'changes_requested',
+      'post',
+      id,
+      { post_title: post?.text?.substring(0, 50), feedback }
+    );
+    
+    // TODO: Send changes requested notification to post creator
+    
+    res.json({
+      success: true,
+      message: 'Changes requested'
+    });
+  } catch (error) {
+    console.error('Error requesting changes:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/posts/drafts
+ * Get user's draft posts
+ */
+app.get('/api/posts/drafts', verifyAuth, async (req, res) => {
+  try {
+    const workspace = await getUserWorkspace(req.user.id);
+    
+    const { data: drafts, error } = await supabaseAdmin
+      .from('queue')
+      .select('*')
+      .eq('workspace_id', workspace.workspace_id)
+      .eq('created_by', req.user.id)
+      .in('approval_status', ['draft', 'changes_requested'])
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    res.json({
+      success: true,
+      drafts: drafts || []
+    });
+  } catch (error) {
+    console.error('Error getting drafts:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/notifications/count
+ * Get unread notification count (for Owner/Admin)
+ */
+app.get('/api/notifications/count', verifyAuth, async (req, res) => {
+  try {
+    const workspace = await getUserWorkspace(req.user.id);
+    const hasPermission = await checkPermission(req.user.id, 'approve_post');
+    
+    if (!hasPermission) {
+      return res.json({
+        success: true,
+        count: 0
+      });
+    }
+    
+    const count = await getPendingApprovalsCount(workspace.workspace_id);
+    
+    res.json({
+      success: true,
+      count
+    });
+  } catch (error) {
+    console.error('Error getting notification count:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// =====================================================
+// END TEAM COLLABORATION ENDPOINTS
+// =====================================================
 
 /**
  * POST /api/auth/instagram/url

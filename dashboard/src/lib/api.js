@@ -32,7 +32,7 @@ api.interceptors.response.use(
       console.error('❌ Error details:', error.response?.data);
       // Only redirect if we're not already on auth page
       if (!window.location.pathname.includes('/auth')) {
-        window.location.href = '/auth';
+        window.location.href = '/auth.html';
       }
     }
     return Promise.reject(error);

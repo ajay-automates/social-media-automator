@@ -15,6 +15,10 @@ import Templates from './pages/Templates';
 import Pricing from './pages/Pricing';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentCancel from './pages/PaymentCancel';
+import Team from './pages/Team';
+import Approvals from './pages/Approvals';
+import AcceptInvitation from './pages/AcceptInvitation';
+import NotificationBell from './components/NotificationBell';
 
 function Navigation() {
   const location = useLocation();
@@ -28,6 +32,8 @@ function Navigation() {
     { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤' },
     { path: '/templates', label: 'Templates', icon: '📝' },
     { path: '/analytics', label: 'Analytics', icon: '📈' },
+    { path: '/approvals', label: 'Approvals', icon: '⏳' },
+    { path: '/team', label: 'Team', icon: '👥' },
     { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
     { path: '/pricing', label: 'Pricing', icon: '💎' },
@@ -91,6 +97,7 @@ function Navigation() {
           
           {/* User Section */}
           <div className="flex items-center gap-4">
+            <NotificationBell />
             <span className="text-sm text-gray-400">{user?.email}</span>
             <motion.button 
               onClick={signOut}
@@ -128,6 +135,9 @@ function App() {
               <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
               <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              <Route path="/approvals" element={<ProtectedRoute><Approvals /></ProtectedRoute>} />
+              <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
+              <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitation /></ProtectedRoute>} />
               <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />

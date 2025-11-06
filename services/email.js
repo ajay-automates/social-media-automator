@@ -264,7 +264,38 @@ async function sendTestEmail(userEmail) {
   }
 }
 
+/**
+ * Send a generic email
+ * @param {string} to - Recipient email address
+ * @param {string} subject - Email subject
+ * @param {string} htmlContent - HTML content of email
+ */
+async function sendEmail(to, subject, htmlContent) {
+  try {
+    const transporter = getTransporter();
+    
+    if (!transporter) {
+      throw new Error('Email not configured. Please set EMAIL_USER and EMAIL_PASSWORD in .env file.');
+    }
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to,
+      subject,
+      html: htmlContent
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`✅ Email sent to ${to}: ${info.messageId}`);
+    return info;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
+}
+
 module.exports = {
+  sendEmail,
   sendWeeklyReport,
   sendTestEmail
 };
