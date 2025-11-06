@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
+import CreateCarousel from './pages/CreateCarousel';
 import Analytics from './pages/Analytics';
 import Calendar from './pages/Calendar';
 import BulkUpload from './pages/BulkUpload';
@@ -28,6 +29,7 @@ function Navigation() {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/create', label: 'Create Post', icon: '✨' },
+    { path: '/carousel', label: 'Create Carousel', icon: '📸' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
     { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤' },
     { path: '/templates', label: 'Templates', icon: '📝' },
@@ -131,6 +133,7 @@ function App() {
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+              <Route path="/carousel" element={<ProtectedRoute><CreateCarousel /></ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
               <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
               <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
