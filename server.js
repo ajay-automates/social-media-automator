@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
 const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const crypto = require('crypto');
@@ -105,6 +106,13 @@ const {
 } = require('./services/templates');
 
 const app = express();
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // In-memory storage for PKCE code_verifier (use Redis in production)
 // NOTE: This is lost on server restart - using session storage as fallback
