@@ -30,28 +30,6 @@ export default function ContentIdeasModal({ isOpen, onClose }) {
   const [ideas, setIdeas] = useState([]);
   const [showResults, setShowResults] = useState(false);
 
-  const getTypeIcon = (type) => {
-    const icons = {
-      'case-study': '📊',
-      'poll': '❓',
-      'tips': '💡',
-      'story': '📖',
-      'data': '📈',
-      'question': '🤔',
-      'tutorial': '📚',
-      'thread': '🧵',
-      'lessons': '🎓',
-      'commentary': '💬'
-    };
-    return icons[type] || '✨';
-  };
-
-  const getBadgeColor = (potential) => {
-    if (potential === 'high') return 'from-green-600 to-emerald-600 border-green-400/50 text-green-200';
-    if (potential === 'medium') return 'from-yellow-600 to-orange-600 border-yellow-400/50 text-yellow-200';
-    return 'from-gray-600 to-gray-700 border-gray-400/50 text-gray-300';
-  };
-
   const platforms = [
     { id: 'linkedin', name: 'LinkedIn', Icon: FaLinkedin, color: 'from-blue-600 to-blue-700', glow: 'rgba(59, 130, 246, 0.5)' },
     { id: 'twitter', name: 'Twitter', Icon: FaTwitter, color: 'from-sky-500 to-sky-600', glow: 'rgba(14, 165, 233, 0.5)' },
