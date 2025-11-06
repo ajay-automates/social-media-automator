@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../lib/api';
 import { PostingOverlay } from '../components/ui/LoadingStates';
 import { useLoadingState } from '../hooks/useLoadingState';
@@ -12,6 +12,7 @@ import AnimatedBackground from '../components/ui/AnimatedBackground';
 
 export default function CreatePost() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isLoading, currentStep, startLoading, stopLoading } = useLoadingState();
   const [caption, setCaption] = useState('');
   const [platforms, setPlatforms] = useState([]);
@@ -106,6 +107,19 @@ export default function CreatePost() {
     loadConnectedAccounts();
     loadTemplates();
   }, []);
+
+  // Handle pre-filled ideas from Content Ideas Generator
+  useEffect(() => {
+    if (location.state?.ideaText) {
+      setCaption(location.state.ideaText);
+      if (location.state.platforms && location.state.platforms.length > 0) {
+        setPlatforms(location.state.platforms);
+      }
+      showSuccess('Idea loaded! Start writing your post 💡');
+      // Clear the state so it doesn't persist on refresh
+      window.history.replaceState({}, '');
+    }
+  }, [location]);
 
   // Auto-select default accounts when platforms change
   useEffect(() => {
@@ -907,9 +921,20 @@ export default function CreatePost() {
 
           {/* Caption Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Caption
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-300">
+                Caption
+              </label>
+              {!caption.trim() && (
+                <button
+                  onClick={() => navigate('/', { state: { openContentIdeas: true } })}
+                  className="text-purple-400 hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
+                >
+                  <span>💡</span>
+                  Need ideas? Click here
+                </button>
+              )}
+            </div>
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}

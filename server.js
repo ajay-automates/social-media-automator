@@ -29,7 +29,7 @@ const {
   updatePostStatus
 } = require('./services/database');
 
-const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations } = require('./services/ai');
+const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations, generateContentIdeas } = require('./services/ai');
 const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
 const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
 const { sendTestEmail } = require('./services/email');
@@ -1834,6 +1834,79 @@ app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: error.message || 'Failed to generate hashtags'
+    });
+  }
+});
+
+/**
+ * POST /api/ai/content-ideas
+ * Generate content ideas for a given topic and platform
+ */
+app.post('/api/ai/content-ideas', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { topic, platform, count } = req.body;
+    
+    // Validate inputs
+    if (!topic || topic.trim().length < 3) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Topic must be at least 3 characters' 
+      });
+    }
+
+    const ideaCount = count || 20;
+    if (ideaCount < 5 || ideaCount > 50) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Count must be between 5 and 50' 
+      });
+    }
+    
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+    
+    // Check if API key is configured
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
+      });
+    }
+    
+    console.log(`💡 Generating ${ideaCount} content ideas for "${topic}" on ${platform || 'linkedin'}`);
+    
+    // Generate content ideas
+    const ideas = await generateContentIdeas(
+      topic.trim(),
+      platform || 'linkedin',
+      ideaCount
+    );
+    
+    // Increment AI usage count
+    await incrementUsage(userId, 'ai');
+    
+    res.json({ 
+      success: true,
+      ideas,
+      topic: topic.trim(),
+      platform: platform || 'linkedin',
+      count: ideas.length
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/ai/content-ideas:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to generate content ideas'
     });
   }
 });

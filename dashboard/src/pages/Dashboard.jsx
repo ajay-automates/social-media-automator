@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../lib/api';
 import { DashboardSkeleton } from '../components/ui/LoadingStates';
 import { NoPostsEmpty } from '../components/ui/EmptyState';
@@ -11,19 +10,30 @@ import UpgradeModal from '../components/UpgradeModal';
 import Card3D from '../components/ui/Card3D';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
+import ContentIdeasModal from '../components/ContentIdeasModal';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
   const [billingInfo, setBillingInfo] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showContentIdeas, setShowContentIdeas] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
     loadBillingInfo();
   }, []);
+
+  // Auto-open Content Ideas modal if requested from Create Post page
+  useEffect(() => {
+    if (location.state?.openContentIdeas) {
+      setShowContentIdeas(true);
+      window.history.replaceState({}, '');
+    }
+  }, [location]);
 
   const loadBillingInfo = async () => {
     try {
@@ -293,12 +303,22 @@ export default function Dashboard() {
                 </motion.button>
               </Link>
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(147, 51, 234, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
+                onClick={() => setShowContentIdeas(true)}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg"
               >
-                📅 View Calendar
+                💡 Get Content Ideas
               </motion.button>
+              <Link to="/calendar">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
+                >
+                  📅 View Calendar
+                </motion.button>
+              </Link>
               <Link to="/analytics">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -364,6 +384,11 @@ export default function Dashboard() {
         onClose={() => setShowUpgrade(false)}
         reason="posts_limit"
         currentPlan={billingInfo?.plan?.name || 'free'}
+      />
+
+      <ContentIdeasModal
+        isOpen={showContentIdeas}
+        onClose={() => setShowContentIdeas(false)}
       />
     </motion.div>
   );

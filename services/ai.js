@@ -490,10 +490,155 @@ IMPORTANT RULES:
   }
 }
 
+/**
+ * Generate content ideas for a given topic and platform
+ * @param {string} topic - The topic to generate ideas about
+ * @param {string} platform - Target platform (linkedin, twitter, instagram, etc.)
+ * @param {number} count - Number of ideas to generate (default 20)
+ * @returns {Promise<Array>} - Array of content idea objects
+ */
+async function generateContentIdeas(topic, platform = 'linkedin', count = 20) {
+  try {
+    if (!topic || topic.trim() === '') {
+      throw new Error('Topic is required');
+    }
+
+    if (count < 5 || count > 50) {
+      count = 20; // Default to 20 if invalid
+    }
+
+    console.log(`💡 Generating ${count} content ideas about "${topic}" for ${platform}...`);
+
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    // Platform-specific content strategies
+    const platformStrategies = {
+      linkedin: {
+        focus: 'Thought leadership, professional insights, data-driven content, career advice, industry trends',
+        types: 'Case studies, polls, lessons learned, data analysis, industry commentary, how-to guides, personal stories with business lessons',
+        tone: 'Professional but approachable, authoritative, insightful',
+        examples: 'Share 3 lessons from [experience], Poll: What\'s your biggest [challenge], Case study: How we [achieved result]'
+      },
+      twitter: {
+        focus: 'Quick tips, hot takes, news commentary, viral threads, controversial opinions',
+        types: 'Thread starters, hot takes, quick tips, polls, quote tweets, controversial statements',
+        tone: 'Casual, punchy, conversational, witty',
+        examples: 'Unpopular opinion: [hot take], Here\'s why [controversial statement], Thread: 10 things about [topic]'
+      },
+      instagram: {
+        focus: 'Visual storytelling, behind-the-scenes, inspirational content, personal journeys',
+        types: 'Carousel post ideas, reel concepts, before/after stories, day-in-the-life, transformation stories',
+        tone: 'Personal, relatable, emotional, inspiring',
+        examples: 'Behind the scenes of [process], Before/after: [transformation], Story time: When I [experience]'
+      },
+      facebook: {
+        focus: 'Community engagement, events, questions, local content, group discussions',
+        types: 'Community questions, event announcements, polls, local stories, user stories',
+        tone: 'Friendly, community-focused, conversational',
+        examples: 'Question for the community: [question], Share your [experience], Poll: [options]'
+      },
+      reddit: {
+        focus: 'Detailed guides, AMAs, authentic discussions, problem-solving, niche expertise',
+        types: 'Detailed guides, ask-me-anything, discussion starters, tutorials, resource compilations',
+        tone: 'Authentic, helpful, no-BS, expertise-driven',
+        examples: 'Complete guide to [topic], AMA: I\'ve been doing [thing] for [time], Here\'s what nobody tells you about [topic]'
+      },
+      tiktok: {
+        focus: 'Entertainment, trends, quick tutorials, challenges, relatable humor',
+        types: 'Trend participation, quick tips, challenges, day-in-life, funny takes',
+        tone: 'Fun, energetic, Gen-Z friendly, trendy',
+        examples: 'POV: When [relatable situation], Quick hack for [problem], This trend but make it [topic]'
+      },
+      youtube: {
+        focus: 'In-depth tutorials, reviews, vlogs, educational content, entertainment',
+        types: 'Tutorial videos, reviews, vlogs, interviews, documentaries, commentary',
+        tone: 'Engaging, informative, personality-driven',
+        examples: 'How to [achieve result] in [timeframe], I tried [thing] for [duration], Everything wrong with [topic]'
+      }
+    };
+
+    const strategy = platformStrategies[platform] || platformStrategies.linkedin;
+
+    const prompt = `You are a viral content strategist specializing in ${platform.toUpperCase()}.
+
+TASK: Generate ${count} SPECIFIC, ACTIONABLE content ideas about "${topic}" for ${platform}.
+
+PLATFORM STRATEGY:
+- Focus: ${strategy.focus}
+- Content Types: ${strategy.types}
+- Tone: ${strategy.tone}
+- Examples: ${strategy.examples}
+
+REQUIREMENTS FOR EACH IDEA:
+1. Be SPECIFIC, not generic (e.g., "Share 3 specific automation tools" not just "Talk about automation")
+2. Include a clear hook/angle that drives engagement
+3. Vary the content types (mix of ${strategy.types})
+4. Make them immediately actionable (user can start writing right away)
+5. Include numbers, specifics, or unique angles
+6. Each should feel fresh and different from the others
+
+RETURN FORMAT - Respond with ONLY a JSON array, no markdown, no code blocks:
+[
+  {
+    "title": "Specific, actionable idea description",
+    "type": "case-study|poll|tips|story|data|question|tutorial|thread",
+    "hook": "The engaging angle or hook",
+    "engagement_potential": "high|medium|low"
+  }
+]
+
+IMPORTANT: 
+- Make ideas SPECIFIC to "${topic}"
+- Each idea should be unique and non-repetitive
+- High engagement potential = questions, polls, controversial, data-driven
+- Return ONLY valid JSON array with ${count} ideas`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 3000,
+      temperature: 0.8, // Higher creativity for diverse ideas
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
+    });
+
+    // Parse the response
+    const text = message.content[0].text.trim();
+    
+    let ideas;
+    try {
+      // Remove markdown code blocks if present
+      const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+      ideas = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('Failed to parse AI ideas:', text);
+      throw new Error('Failed to parse AI ideas');
+    }
+
+    if (!Array.isArray(ideas) || ideas.length === 0) {
+      throw new Error('No ideas generated');
+    }
+
+    console.log(`✅ Generated ${ideas.length} content ideas for ${platform}`);
+    
+    return ideas.slice(0, count); // Ensure we return exactly the requested count
+
+  } catch (error) {
+    console.error('❌ AI Content Ideas Error:', error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   generateCaption,
   generateMultiPlatformCaptions,
   generateHashtags,
   recommendPostTime,
-  generatePostVariations
+  generatePostVariations,
+  generateContentIdeas
 };
