@@ -224,11 +224,11 @@ if (process.env.NODE_ENV === 'production') {
   }));
 }
 
-// Configure Multer for file uploads
+// Configure Multer for file uploads (memory storage for Cloudinary)
 const upload = multer({
-  dest: 'uploads/',
+  storage: multer.memoryStorage(), // Use memory storage for direct Cloudinary upload
   limits: {
-    fileSize: 100 * 1024 * 1024 // Increase to 100MB for videos
+    fileSize: 100 * 1024 * 1024 // 100MB for videos, 10MB for images
   },
   fileFilter: (req, file, cb) => {
     // Accept images and videos
