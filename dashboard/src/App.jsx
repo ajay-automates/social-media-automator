@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
 import Analytics from './pages/Analytics';
 import Calendar from './pages/Calendar';
+import BulkUpload from './pages/BulkUpload';
 import Settings from './pages/Settings';
 import ConnectAccounts from './pages/ConnectAccounts';
 import Templates from './pages/Templates';
@@ -24,6 +25,7 @@ function Navigation() {
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/create', label: 'Create Post', icon: '✨' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
+    { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤' },
     { path: '/templates', label: 'Templates', icon: '📝' },
     { path: '/analytics', label: 'Analytics', icon: '📈' },
     { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
@@ -123,6 +125,7 @@ function App() {
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+              <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
               <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
               <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />

@@ -55,11 +55,72 @@ export default function CreatePost() {
   const [loadingBestTimes, setLoadingBestTimes] = useState(false);
   const [showBestTimes, setShowBestTimes] = useState(true);
 
+  // Multi-account support state
+  const [selectedAccounts, setSelectedAccounts] = useState({}); // { platform: accountId }
+
+  // Character counter state
+  const PLATFORM_LIMITS = {
+    twitter: 280,
+    linkedin: 3000,
+    instagram: 2200,
+    facebook: 63206,
+    tiktok: 2200,
+    youtube: 5000,
+    reddit: 40000,
+    discord: 2000,
+    slack: 4000,
+    telegram: 4096
+  };
+
+  // Calculate character counts for selected platforms
+  const getCharacterCounts = () => {
+    const length = caption.length;
+    return platforms.map(platform => {
+      const limit = PLATFORM_LIMITS[platform] || 2000;
+      const percentage = (length / limit) * 100;
+      let status = 'safe'; // green
+      if (percentage >= 100) status = 'exceeded'; // red
+      else if (percentage >= 90) status = 'warning'; // yellow
+      
+      return {
+        platform,
+        current: length,
+        limit,
+        percentage: Math.round(percentage),
+        status
+      };
+    });
+  };
+
+  const characterCounts = getCharacterCounts();
+  const hasExceededLimit = characterCounts.some(c => c.status === 'exceeded');
+
   useEffect(() => {
     loadBillingInfo();
     loadConnectedAccounts();
     loadTemplates();
   }, []);
+
+  // Auto-select default accounts when platforms change
+  useEffect(() => {
+    if (connectedAccounts.length > 0 && platforms.length > 0) {
+      const newSelectedAccounts = { ...selectedAccounts };
+      
+      platforms.forEach(platform => {
+        // If no account selected for this platform yet, select the default or first one
+        if (!newSelectedAccounts[platform]) {
+          const platformAccounts = connectedAccounts.filter(acc => acc.platform === platform);
+          if (platformAccounts.length > 0) {
+            // Find default account or use first account
+            const defaultAccount = platformAccounts.find(acc => acc.is_default) || platformAccounts[0];
+            newSelectedAccounts[platform] = defaultAccount.id;
+          }
+        }
+      });
+      
+      setSelectedAccounts(newSelectedAccounts);
+    }
+  }, [platforms, connectedAccounts]);
 
   const loadConnectedAccounts = async () => {
     try {
@@ -546,6 +607,26 @@ export default function CreatePost() {
       return;
     }
 
+    // Validate character limits for selected platforms
+    const exceededPlatforms = characterCounts.filter(c => c.status === 'exceeded');
+    const validPlatforms = platforms.filter(platform => {
+      const count = characterCounts.find(c => c.platform === platform);
+      return count && count.status !== 'exceeded';
+    });
+
+    if (exceededPlatforms.length > 0) {
+      if (validPlatforms.length === 0) {
+        // All platforms exceed limit
+        const platformsList = exceededPlatforms.map(p => p.platform).join(', ');
+        showError(`Caption exceeds character limits for all platforms (${platformsList}). Please shorten your text.`);
+        return;
+      } else {
+        // Some platforms exceed, warn user and continue with valid ones
+        const exceededList = exceededPlatforms.map(p => p.platform).join(', ');
+        showError(`Skipping ${exceededList} due to character limits. Posting to other platforms...`);
+      }
+    }
+
     // Validate Reddit-specific fields if Reddit is selected
     if (platforms.includes('reddit')) {
       if (!redditTitle.trim()) {
@@ -575,19 +656,22 @@ export default function CreatePost() {
       }
     }
 
-    startLoading(platforms[0] || 'twitter');
+    // Use valid platforms only (filter out those exceeding character limits)
+    const platformsToPost = validPlatforms.length > 0 ? validPlatforms : platforms;
+    
+    startLoading(platformsToPost[0] || 'twitter');
     
     try {
       // Prepare post metadata for platform-specific requirements
       const postMetadata = {};
-      if (platforms.includes('reddit')) {
+      if (platformsToPost.includes('reddit')) {
         postMetadata.reddit_subreddit = redditSubreddit;
         postMetadata.reddit_title = redditTitle;
       }
       
       const response = await api.post('/post/now', {
         text: caption,
-        platforms: platforms,
+        platforms: platformsToPost,
         accountId: 1, // Will be replaced with actual account selection
         imageUrl: image, // Send the Cloudinary URL to the server
         post_metadata: Object.keys(postMetadata).length > 0 ? postMetadata : undefined
@@ -771,8 +855,59 @@ export default function CreatePost() {
               className="w-full p-4 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-400"
               rows={6}
             />
+            {/* Character Counter - Multi-Platform */}
+            {platforms.length > 0 && caption.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-3"
+              >
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-xs text-gray-400 font-semibold">Character Count:</span>
+                  {characterCounts.map((count) => {
+                    const getStatusColor = () => {
+                      if (count.status === 'exceeded') return 'from-red-600 to-red-700 border-red-500/50';
+                      if (count.status === 'warning') return 'from-yellow-600 to-orange-600 border-yellow-500/50';
+                      return 'from-green-600 to-emerald-600 border-green-500/50';
+                    };
+
+                    const getStatusIcon = () => {
+                      if (count.status === 'exceeded') return '🚫';
+                      if (count.status === 'warning') return '⚠️';
+                      return '✅';
+                    };
+
+                    return (
+                      <motion.div
+                        key={count.platform}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className={`inline-flex items-center gap-1.5 bg-gradient-to-r ${getStatusColor()} backdrop-blur-xl border-2 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg`}
+                      >
+                        <span>{getStatusIcon()}</span>
+                        <span className="capitalize">{count.platform}</span>
+                        <span className="opacity-75">|</span>
+                        <span>{count.current}/{count.limit}</span>
+                        <span className="text-xs opacity-75">({count.percentage}%)</span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+                {hasExceededLimit && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-2 text-xs text-red-400 font-semibold flex items-center gap-1"
+                  >
+                    <span>⚠️</span>
+                    <span>Some platforms exceed character limits. You can only post to platforms within limits.</span>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+
             <div className="mt-2 flex items-center justify-between">
-              <div className="text-sm text-gray-400">{caption.length} characters</div>
+              <div className="text-sm text-gray-400">{caption.length} characters total</div>
               {caption.length >= 10 && (
                 <motion.button
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -1192,6 +1327,53 @@ export default function CreatePost() {
                 >
                   ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
                 </motion.p>
+              )}
+
+              {/* Multi-Account Selectors */}
+              {platforms.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 space-y-3"
+                >
+                  <h4 className="text-sm font-bold text-gray-300 mb-3">Select Account for Each Platform:</h4>
+                  {platforms.map(platform => {
+                    const platformAccounts = connectedAccounts.filter(acc => acc.platform === platform);
+                    
+                    // Only show dropdown if there are multiple accounts for this platform
+                    if (platformAccounts.length <= 1) {
+                      return null;
+                    }
+
+                    return (
+                      <motion.div
+                        key={platform}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="flex items-center gap-3"
+                      >
+                        <label className="text-sm font-semibold text-white capitalize min-w-[100px]">
+                          {platform}:
+                        </label>
+                        <select
+                          value={selectedAccounts[platform] || ''}
+                          onChange={(e) => setSelectedAccounts({
+                            ...selectedAccounts,
+                            [platform]: parseInt(e.target.value)
+                          })}
+                          className="flex-1 bg-gray-800/70 border-2 border-gray-600 text-white px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
+                        >
+                          {platformAccounts.map(account => (
+                            <option key={account.id} value={account.id}>
+                              {account.account_label || 'Main Account'}
+                              {account.is_default ? ' (Default)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
               )}
             </div>
           )}

@@ -33,6 +33,7 @@ const { generateCaption, generateHashtags, recommendPostTime } = require('./serv
 const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
 const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
 const { sendTestEmail } = require('./services/email');
+const { parseCSV, generateTemplate, getValidationSummary } = require('./services/csv-parser');
 const aiImageService = require('./services/ai-image');
 const { 
   extractTranscript, 
@@ -343,6 +344,101 @@ app.get('/api/accounts', verifyAuth, async (req, res) => {
     res.status(500).json({ 
       success: false,
       error: error.message
+    });
+  }
+});
+
+/**
+ * PUT /api/user/accounts/:id/label
+ * Update account label
+ */
+app.put('/api/user/accounts/:id/label', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const accountId = req.params.id;
+    const { label } = req.body;
+
+    if (!label || label.trim() === '') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Label is required' 
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('user_accounts')
+      .update({ account_label: label.trim() })
+      .eq('id', accountId)
+      .eq('user_id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ 
+      success: true, 
+      account: data
+    });
+  } catch (error) {
+    console.error('Error updating account label:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * PUT /api/user/accounts/:id/set-default
+ * Set account as default for its platform
+ */
+app.put('/api/user/accounts/:id/set-default', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const accountId = req.params.id;
+
+    // Get the account to find its platform
+    const { data: account, error: fetchError } = await supabase
+      .from('user_accounts')
+      .select('platform')
+      .eq('id', accountId)
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !account) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Account not found' 
+      });
+    }
+
+    // Unset all defaults for this platform and user
+    await supabase
+      .from('user_accounts')
+      .update({ is_default: false })
+      .eq('user_id', userId)
+      .eq('platform', account.platform);
+
+    // Set this account as default
+    const { data, error } = await supabase
+      .from('user_accounts')
+      .update({ is_default: true })
+      .eq('id', accountId)
+      .eq('user_id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ 
+      success: true, 
+      account: data
+    });
+  } catch (error) {
+    console.error('Error setting default account:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
     });
   }
 });
@@ -789,8 +885,190 @@ app.post('/api/post/bulk-csv', verifyAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/bulk/upload
+ * Parse and validate CSV file for bulk scheduling
+ */
+app.post('/api/bulk/upload', verifyAuth, upload.single('file'), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'No file uploaded' 
+      });
+    }
+
+    // Read CSV file content
+    const csvContent = await fs.readFile(req.file.path, 'utf-8');
+    
+    // Parse and validate CSV
+    const parsedData = parseCSV(csvContent);
+    const summary = getValidationSummary(parsedData);
+    
+    // Clean up uploaded file
+    await fs.unlink(req.file.path);
+    
+    // Track upload in database
+    try {
+      await supabase.from('bulk_uploads').insert({
+        user_id: userId,
+        filename: req.file.originalname,
+        total_posts: summary.total,
+        successful: 0,
+        failed: 0,
+        status: 'pending'
+      });
+    } catch (dbError) {
+      console.error('Failed to track upload in database:', dbError);
+    }
+    
+    res.json({ 
+      success: true, 
+      data: parsedData,
+      summary
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/bulk/upload:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * POST /api/bulk/schedule
+ * Schedule multiple posts from validated CSV data
+ */
+app.post('/api/bulk/schedule', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { posts } = req.body;
+    
+    if (!posts || !Array.isArray(posts)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'posts array is required' 
+      });
+    }
+    
+    console.log(`\n📂 Bulk scheduling ${posts.length} posts...`);
+    
+    const scheduled = [];
+    const failed = [];
+    
+    for (let i = 0; i < posts.length; i++) {
+      const post = posts[i];
+      const rowNum = post.rowNumber || i + 1;
+      
+      try {
+        // Validate required fields
+        if (!post.caption || !post.platforms || !post.schedule_datetime) {
+          failed.push({ 
+            rowNumber: rowNum, 
+            error: 'Missing required fields' 
+          });
+          continue;
+        }
+        
+        // Schedule the post
+        const scheduleTime = new Date(post.schedule_datetime);
+        const postData = {
+          text: post.caption,
+          platforms: Array.isArray(post.platforms) ? post.platforms : post.platforms.split(','),
+          imageUrl: post.image_url || null,
+          scheduleTime: scheduleTime.toISOString(),
+          redditTitle: post.reddit_title || null,
+          redditSubreddit: post.reddit_subreddit || null
+        };
+        
+        const queueItem = await schedulePost(postData);
+        
+        scheduled.push({
+          rowNumber: rowNum,
+          queueId: queueItem.id,
+          scheduleTime: scheduleTime.toISOString()
+        });
+        
+        console.log(`   ✅ Row ${rowNum}: Scheduled`);
+        
+      } catch (error) {
+        console.error(`   ❌ Row ${rowNum}:`, error.message);
+        failed.push({ 
+          rowNumber: rowNum, 
+          error: error.message 
+        });
+      }
+    }
+    
+    console.log(`\n📊 Bulk Schedule Complete:`);
+    console.log(`   ✅ Scheduled: ${scheduled.length}`);
+    console.log(`   ❌ Failed: ${failed.length}\n`);
+    
+    // Update bulk_uploads record
+    try {
+      const mostRecent = await supabase
+        .from('bulk_uploads')
+        .select('*')
+        .eq('user_id', userId)
+        .order('uploaded_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (mostRecent.data) {
+        await supabase
+          .from('bulk_uploads')
+          .update({
+            successful: scheduled.length,
+            failed: failed.length,
+            status: 'completed'
+          })
+          .eq('id', mostRecent.data.id);
+      }
+    } catch (dbError) {
+      console.error('Failed to update bulk_uploads:', dbError);
+    }
+    
+    res.json({ 
+      success: true, 
+      scheduled: scheduled.length,
+      failed: failed.length,
+      results: {
+        scheduled,
+        failed
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in /api/bulk/schedule:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * GET /api/bulk/template
+ * Download CSV template for bulk upload (no auth required for template)
+ */
+app.get('/api/bulk/template', (req, res) => {
+  try {
+    const template = generateTemplate();
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="bulk-upload-template.csv"');
+    res.status(200).send(template);
+  } catch (error) {
+    console.error('Error generating template:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * GET /template.csv
- * Download CSV template for bulk upload
+ * Download CSV template for bulk upload (legacy endpoint)
  */
 app.get('/template.csv', (req, res) => {
   res.sendFile(path.join(__dirname, 'template.csv'));

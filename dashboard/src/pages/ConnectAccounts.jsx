@@ -38,6 +38,8 @@ export default function ConnectAccounts() {
   const [discordServerName, setDiscordServerName] = useState('');
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
   const [comingSoonPlatform, setComingSoonPlatform] = useState('');
+  const [editingAccountId, setEditingAccountId] = useState(null);
+  const [editLabel, setEditLabel] = useState('');
 
   
   // Check if platform is already connected
@@ -316,6 +318,58 @@ export default function ConnectAccounts() {
     }
   };
 
+  const startEditLabel = (account) => {
+    setEditingAccountId(account.id);
+    setEditLabel(account.account_label || 'Main Account');
+  };
+
+  const cancelEditLabel = () => {
+    setEditingAccountId(null);
+    setEditLabel('');
+  };
+
+  const saveLabel = async (accountId) => {
+    if (!editLabel.trim()) {
+      showError('Label cannot be empty');
+      return;
+    }
+
+    try {
+      const response = await api.put(`/user/accounts/${accountId}/label`, {
+        label: editLabel.trim()
+      });
+
+      if (response.data.success) {
+        showSuccess('Account label updated!');
+        setEditingAccountId(null);
+        setEditLabel('');
+        loadAccounts();
+      }
+    } catch (err) {
+      console.error('Error updating label:', err);
+      showError(err.response?.data?.error || 'Failed to update label');
+    }
+  };
+
+  const toggleDefault = async (accountId, currentDefault) => {
+    if (currentDefault) {
+      showError('This is already your default account for this platform');
+      return;
+    }
+
+    try {
+      const response = await api.put(`/user/accounts/${accountId}/set-default`);
+
+      if (response.data.success) {
+        showSuccess('Default account updated!');
+        loadAccounts();
+      }
+    } catch (err) {
+      console.error('Error setting default:', err);
+      showError(err.response?.data?.error || 'Failed to set default account');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -395,18 +449,82 @@ export default function ConnectAccounts() {
                         </div>
                       </div>
                       
-                      <div>
+                      <div className="flex-1">
                         <h4 className="font-bold text-white text-lg mb-1">
                           {account?.platform_name || (account?.platform ? account.platform.charAt(0).toUpperCase() + account.platform.slice(1) : 'Account')}
                         </h4>
-                        <p className="text-sm text-gray-300 font-medium">{account?.platform_username || account?.username || 'Connected'}</p>
-                        <div className="flex items-center gap-2 mt-3">
+                        
+                        {/* Account Label */}
+                        {editingAccountId === account.id ? (
+                          <div className="flex items-center gap-2 mt-2">
+                            <input
+                              type="text"
+                              value={editLabel}
+                              onChange={(e) => setEditLabel(e.target.value)}
+                              className="bg-gray-800/70 border border-gray-600 text-white px-3 py-1.5 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Account label"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => saveLabel(account.id)}
+                              className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={cancelEditLabel}
+                              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 mt-1">
+                            <p className="text-sm text-gray-300 font-semibold">
+                              {account?.account_label || 'Main Account'}
+                            </p>
+                            <button
+                              onClick={() => startEditLabel(account)}
+                              className="text-blue-400 hover:text-blue-300 transition"
+                              title="Edit label"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                        
+                        <p className="text-xs text-gray-400 mt-1">{account?.platform_username || account?.username || 'Connected'}</p>
+                        
+                        <div className="flex items-center gap-2 mt-3 flex-wrap">
                           <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-400/30 backdrop-blur-sm">
                             <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                             </svg>
                             Active
                           </span>
+                          
+                          {/* Default Badge */}
+                          {account.is_default ? (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-200 border border-yellow-400/50 backdrop-blur-sm">
+                              <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              Default
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => toggleDefault(account.id, account.is_default)}
+                              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-700/30 text-gray-300 border border-gray-600/50 hover:bg-blue-600/30 hover:border-blue-400/50 hover:text-blue-200 transition backdrop-blur-sm"
+                              title="Set as default account for this platform"
+                            >
+                              <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                              Set as Default
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
