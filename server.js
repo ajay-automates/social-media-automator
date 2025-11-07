@@ -4125,17 +4125,7 @@ app.get('/auth/instagram/callback', async (req, res) => {
       return res.redirect('/dashboard?error=instagram_invalid_callback');
     }
     
-    // Verify and decrypt state
-    let userId;
-    try {
-      userId = decryptState(state);
-      console.log('  - User ID from state:', userId);
-    } catch (stateError) {
-      console.error('State decryption error:', stateError.message);
-      return res.redirect('/dashboard?error=instagram_invalid_state');
-    }
-    
-    // Handle Instagram callback
+    // Handle Instagram callback (state decoding happens inside the function)
     try {
       const { handleInstagramCallback } = require('./services/oauth');
       const result = await handleInstagramCallback(code, state);
