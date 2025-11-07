@@ -178,8 +178,8 @@ export default function ConnectAccounts() {
   const connectYouTube = async () => {
     try {
       const response = await api.post('/auth/youtube/url');
-      if (response.data.authUrl) {
-        window.location.href = response.data.authUrl;
+      if (response.data.success && response.data.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
       } else {
         showError('Failed to generate YouTube auth URL');
       }
@@ -200,18 +200,6 @@ export default function ConnectAccounts() {
     } catch (err) {
       console.error('Error connecting TikTok:', err);
       showError(err.response?.data?.error || 'Failed to connect TikTok');
-    }
-  };
-
-  const connectYouTube = async () => {
-    try {
-      const response = await api.post('/auth/youtube/url');
-      if (response.data.success && response.data.oauthUrl) {
-        window.location.href = response.data.oauthUrl;
-      }
-    } catch (err) {
-      console.error('Error connecting YouTube:', err);
-      showError(err.response?.data?.error || 'Failed to generate YouTube auth URL');
     }
   };
 
