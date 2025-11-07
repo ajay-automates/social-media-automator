@@ -203,6 +203,18 @@ export default function ConnectAccounts() {
     }
   };
 
+  const connectYouTube = async () => {
+    try {
+      const response = await api.post('/auth/youtube/url');
+      if (response.data.success && response.data.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
+      }
+    } catch (err) {
+      console.error('Error connecting YouTube:', err);
+      showError(err.response?.data?.error || 'Failed to generate YouTube auth URL');
+    }
+  };
+
   const connectTelegram = () => {
     setShowTelegramModal(true);
   };
