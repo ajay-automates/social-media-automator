@@ -216,6 +216,7 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
   try {
     console.log('   🔧 Creating upload session...');
     console.log('   API URL:', `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`);
+    console.log('   Video buffer size:', videoBuffer.length, 'bytes');
     
     const createSessionResponse = await axios.post(
       `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`,
@@ -225,7 +226,9 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
           'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
           'X-Goog-Upload-Protocol': 'resumable',
-          'X-Goog-Upload-Command': 'start'
+          'X-Goog-Upload-Command': 'start',
+          'X-Upload-Content-Length': videoBuffer.length.toString(),
+          'X-Upload-Content-Type': 'video/*'
         }
       }
     );
