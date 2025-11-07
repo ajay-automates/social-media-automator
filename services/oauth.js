@@ -641,14 +641,16 @@ function initiateInstagramOAuth(userId) {
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
   
-  // Use Facebook Login OAuth (required for Instagram Graph API posting)
-  // Request permissions needed for Instagram Business account posting
-  // Note: pages_read_engagement requires app review - removed from scope to allow connection
-  // After app review approval, can be added back for posting capability
+  // Instagram Business API (via Facebook Pages)
+  // Meta deprecated instagram_basic and instagram_content_publish scopes
+  // New approach: Use Page permissions + Instagram Business account
+  // pages_show_list: List Facebook Pages (required, no review needed)
+  // instagram_manage_insights: Manage Instagram account (required for posting)
+  // pages_read_engagement: Read Page data (requires review, but needed for full posting)
   const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'instagram_basic,instagram_content_publish,pages_show_list'); // Removed pages_read_engagement (invalid scope)
+  authUrl.searchParams.append('scope', 'pages_show_list,instagram_manage_insights,business_management');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
   
