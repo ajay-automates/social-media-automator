@@ -3926,75 +3926,79 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
     console.log('User ID:', userId);
     console.log('Platforms:', platforms);
 
-    // Get user accounts for selected platforms
-    const { data: accounts, error: accountError } = await supabase
-      .from('user_accounts')
-      .select('*')
-      .eq('user_id', userId)
-      .in('platform', platforms);
+    // Get user credentials (use same method as regular posting)
+    const credentials = await getUserCredentialsForPosting(userId);
+    
+    console.log('Credentials fetched:', Object.keys(credentials));
 
-    console.log('Query result:', { accounts, accountError, accountCount: accounts?.length });
-
-    if (accountError) {
-      console.error('Account query error:', accountError);
-      return res.status(500).json({
-        success: false,
-        error: 'Database error: ' + accountError.message
-      });
+    // Check if LinkedIn account exists
+    if (platforms.includes('linkedin')) {
+      if (!credentials.linkedin || credentials.linkedin.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'No LinkedIn account connected. Please connect your LinkedIn account in Connect Accounts.'
+        });
+      }
     }
 
-    if (!accounts || accounts.length === 0) {
-      console.error('No accounts found for user:', userId, 'platforms:', platforms);
-      
-      // Debug: Check what accounts exist for this user
-      const { data: allAccounts } = await supabase
-        .from('user_accounts')
-        .select('platform, account_label')
-        .eq('user_id', userId);
-      
-      console.log('User has these accounts:', allAccounts);
-      
-      return res.status(400).json({
-        success: false,
-        error: `No ${platforms.join('/')} account connected. Please connect your account first in Settings.`,
-        debug: allAccounts
-      });
+    // Check if Instagram account exists
+    if (platforms.includes('instagram')) {
+      if (!credentials.instagram || credentials.instagram.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'No Instagram account connected. Please connect your Instagram account in Connect Accounts.'
+        });
+      }
     }
 
     const results = [];
 
     // Post to each platform
-    for (const account of accounts) {
+    for (const platform of platforms) {
       try {
         let result;
         
-        if (account.platform === 'linkedin') {
-          result = await postLinkedInCarousel(imageUrls, captions, account);
-        } else if (account.platform === 'instagram') {
+        if (platform === 'linkedin' && credentials.linkedin) {
+          // Post to all LinkedIn accounts
+          for (const linkedinAccount of credentials.linkedin) {
+            try {
+              result = await postLinkedInCarousel(imageUrls, captions, linkedinAccount);
+              
+              results.push({
+                platform: 'linkedin',
+                success: result.success,
+                postId: result.postId,
+                url: result.url,
+                error: result.error
+              });
+
+              if (result.success) {
+                console.log(`✅ Carousel posted to LinkedIn`);
+              } else {
+                console.log(`❌ LinkedIn carousel failed:`, result.error);
+              }
+            } catch (err) {
+              console.error(`Failed to post carousel to LinkedIn:`, err);
+              results.push({
+                platform: 'linkedin',
+                success: false,
+                error: err.message
+              });
+            }
+          }
+        } else if (platform === 'instagram') {
           // Instagram carousel will be implemented in Phase 2
-          result = {
+          results.push({
+            platform: 'instagram',
             success: false,
-            error: 'Instagram carousel coming soon! Use LinkedIn for now.',
-            platform: 'instagram'
-          };
-        }
-
-        results.push({
-          platform: account.platform,
-          success: result.success,
-          postId: result.postId,
-          url: result.url,
-          error: result.error
-        });
-
-        if (result.success) {
-          console.log(`✅ Carousel posted to ${account.platform}`);
+            error: 'Instagram carousel coming soon! Use LinkedIn for now.'
+          });
         }
 
       } catch (error) {
-        console.error(`Failed to post carousel to ${account.platform}:`, error);
+        console.error(`Failed to post carousel to ${platform}:`, error);
         results.push({
-          platform: account.platform,
+          platform: platform,
           success: false,
           error: error.message
         });
