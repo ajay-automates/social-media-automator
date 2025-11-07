@@ -214,6 +214,9 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
 
 async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTitle, credentials = {}) {
   try {
+    console.log('   🔧 Creating upload session...');
+    console.log('   API URL:', `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`);
+    
     const createSessionResponse = await axios.post(
       `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`,
       metadata,
@@ -229,10 +232,13 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
     
     const sessionUri = createSessionResponse.headers['location'];
     if (!sessionUri) {
-      throw new Error('Could not create upload session');
+      console.error('   ❌ No session URI in response headers');
+      console.error('   Response headers:', createSessionResponse.headers);
+      throw new Error('Could not create upload session - no location header');
     }
     
     console.log('   📍 Upload session created');
+    console.log('   Session URI:', sessionUri);
     
     const uploadDataResponse = await axios.put(sessionUri, videoBuffer, {
       headers: {
@@ -263,6 +269,18 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
     if (errorReason) console.error('   Error reason:', errorReason);
     if (fullError?.errors) {
       console.error('   Full error details:', JSON.stringify(fullError.errors, null, 2));
+    }
+    
+    // Log the full response data for debugging
+    if (error.response?.data) {
+      console.error('   Full YouTube API response:', JSON.stringify(error.response.data, null, 2));
+    }
+    
+    // Log request details if session creation failed
+    if (error.config) {
+      console.error('   Request URL:', error.config.url);
+      console.error('   Request method:', error.config.method);
+      console.error('   Request data:', typeof error.config.data === 'string' ? error.config.data : JSON.stringify(error.config.data, null, 2));
     }
     
     return {
