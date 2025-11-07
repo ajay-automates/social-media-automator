@@ -1426,14 +1426,39 @@ app.post('/api/upload/image', verifyAuth, upload.single('file'), async (req, res
 
     const userId = req.user.id;
     console.log(`📤 Uploading ${isVideo ? 'video' : 'image'} for user ${userId}...`);
+    console.log(`   File size: ${(req.file.size / 1024 / 1024).toFixed(2)}MB`);
+    console.log(`   Storage: ${req.file.buffer ? 'memory' : 'disk'}`);
 
-    // Upload to Cloudinary
-    const result = isVideo ? await uploadVideo(req.file.path, userId) : await uploadImage(req.file.path, userId);
-
-    // Delete temporary file
-    await fs.unlink(req.file.path).catch(err => {
-      console.error('Error deleting temp file:', err);
-    });
+    // Upload to Cloudinary (handle both memory buffer and disk path)
+    let result;
+    if (req.file.buffer) {
+      // Memory storage - upload buffer directly
+      result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: isVideo ? 'video' : 'image',
+            folder: `social-media-automator/${userId}`,
+            transformation: isVideo ? [] : [
+              { width: 1200, height: 630, crop: 'limit' },
+              { quality: 'auto' }
+            ]
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve({ success: true, url: result.secure_url, publicId: result.public_id });
+          }
+        );
+        uploadStream.end(req.file.buffer);
+      });
+    } else {
+      // Disk storage - use path
+      result = isVideo ? await uploadVideo(req.file.path, userId) : await uploadImage(req.file.path, userId);
+      
+      // Delete temporary file
+      await fs.unlink(req.file.path).catch(err => {
+        console.error('Error deleting temp file:', err);
+      });
+    }
 
     if (result.success) {
       console.log('✅ Image uploaded:', result.url);
