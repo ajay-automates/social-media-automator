@@ -4015,29 +4015,31 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
     // Ensure text is never null/empty for database
     const captionText = (captions.find(c => c && c.trim()) || 'Carousel post with ' + imageUrls.length + ' slides').trim();
 
-    // Save to analytics (use correct object format)
+    // Save to posts table (same as regular posts)
     try {
-      const { data: analyticsEntry, error: analyticsError } = await supabase
-        .from('analytics')
+      const { data: postEntry, error: postError } = await supabaseAdmin
+        .from('posts')
         .insert([{
           user_id: userId,
           text: captionText,
           image_url: imageUrls[0],
           platforms: platforms,
+          status: 'posted',
+          created_at: new Date().toISOString(),
           posted_at: new Date().toISOString(),
           post_metadata: carouselMetadata
         }])
         .select()
         .single();
 
-      if (analyticsError) {
-        console.error('❌ Failed to save carousel to analytics:', analyticsError);
+      if (postError) {
+        console.error('❌ Failed to save carousel to database:', postError);
       } else {
-        console.log('✅ Carousel saved to analytics');
+        console.log('✅ Carousel saved to posts table (ID:', postEntry.id, ')');
       }
-    } catch (analyticsErr) {
-      console.error('❌ Analytics save error:', analyticsErr);
-      // Don't fail the whole request if analytics fails
+    } catch (saveErr) {
+      console.error('❌ Post save error:', saveErr);
+      // Don't fail the whole request if saving fails
     }
 
     const successCount = results.filter(r => r.success).length;
