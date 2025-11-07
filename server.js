@@ -4012,9 +4012,12 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
       captionMode: captions.length === 1 ? 'single' : 'per-slide'
     });
 
+    // Ensure text is never null/empty for database
+    const captionText = (captions.find(c => c && c.trim()) || 'Carousel post with ' + imageUrls.length + ' slides').trim();
+
     await addPost(
       userId,
-      captions[0] || 'Carousel post',
+      captionText,
       imageUrls[0],
       platforms,
       carouselMetadata
