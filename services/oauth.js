@@ -719,23 +719,43 @@ async function handleInstagramCallback(code, state) {
     
     // Step 3: Get Instagram Business Account ID from first page
     console.log('📱 Step 3: Getting Instagram Business Account ID...');
+    console.log('   - Page ID:', pages[0].id);
+    console.log('   - Page Name:', pages[0].name);
+    console.log('   - Page Token:', pages[0].access_token ? 'exists' : 'missing');
+    
     const pageId = pages[0].id;
     const pageToken = pages[0].access_token;
     
-    const igBusinessResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/${pageId}`,
-      {
-        params: {
-          fields: 'instagram_business_account',
-          access_token: pageToken
+    let igBusinessResponse;
+    try {
+      igBusinessResponse = await axios.get(
+        `https://graph.facebook.com/v18.0/${pageId}`,
+        {
+          params: {
+            fields: 'instagram_business_account',
+            access_token: pageToken
+          }
         }
-      }
-    );
+      );
+    } catch (igError) {
+      console.error('❌ Failed to get Instagram account from Page:');
+      console.error('   - Status:', igError.response?.status);
+      console.error('   - Error:', igError.response?.data);
+      console.error('   - Message:', igError.response?.data?.error?.message);
+      
+      throw new Error(`Facebook API error: ${igError.response?.data?.error?.message || igError.message}. Make sure your Facebook Page has an Instagram Business account linked.`);
+    }
+    
+    console.log('   - Instagram account data:', igBusinessResponse.data);
     
     const igBusinessId = igBusinessResponse.data.instagram_business_account?.id;
     if (!igBusinessId) {
-      throw new Error('Instagram Business or Creator account not found. Please link your Instagram account to a Facebook Page.');
+      console.error('❌ No Instagram Business account found on this Page');
+      console.error('   - Available fields:', Object.keys(igBusinessResponse.data));
+      throw new Error('Instagram Business or Creator account not found on your Facebook Page. Please link your Instagram Business account to this Facebook Page in Instagram app settings.');
     }
+    
+    console.log('   ✅ Instagram Business ID:', igBusinessId);
     
     // Step 4: Get Instagram username
     console.log('📱 Step 4: Getting Instagram username...');
