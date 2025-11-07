@@ -754,8 +754,8 @@ async function handleInstagramCallback(code, state) {
     // Step 5: Calculate token expiry
     const expiresAt = new Date(Date.now() + (expiresIn * 1000));
     
-    // Step 6: Store in database
-    const { data: account, error } = await supabase
+    // Step 6: Store in database (use supabaseAdmin to bypass RLS)
+    const { data: account, error } = await supabaseAdmin
       .from('user_accounts')
       .upsert({
         user_id: userId,
