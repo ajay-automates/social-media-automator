@@ -221,8 +221,8 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
     if (videoSizeMB < 10) {
       console.log('   📤 Using simple multipart upload (video < 10MB)...');
       
-      // Create multipart/related body
-      const boundary = '-------314159265358979323846';
+      // Create multipart/related body (use text boundary, not numbers!)
+      const boundary = 'yt_multipart_boundary_' + Date.now();
       const delimiter = `\r\n--${boundary}\r\n`;
       const closeDelim = `\r\n--${boundary}--`;
       
