@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 
 const OnboardingContext = createContext();
 
@@ -41,22 +41,22 @@ export function OnboardingProvider({ children }) {
     }
   }, [state]);
 
-  const goToStep = (stepNumber) => {
+  const goToStep = useCallback((stepNumber) => {
     setState(prev => ({ ...prev, currentStep: stepNumber }));
-  };
+  }, []);
 
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     setState(prev => ({ ...prev, currentStep: prev.currentStep + 1 }));
-  };
+  }, []);
 
-  const previousStep = () => {
+  const previousStep = useCallback(() => {
     setState(prev => ({ 
       ...prev, 
       currentStep: Math.max(0, prev.currentStep - 1) 
     }));
-  };
+  }, []);
 
-  const skipOnboarding = () => {
+  const skipOnboarding = useCallback(() => {
     setState(prev => ({
       ...prev,
       skipped: true,
@@ -64,9 +64,9 @@ export function OnboardingProvider({ children }) {
       skipCount: prev.skipCount + 1,
       completedAt: new Date().toISOString()
     }));
-  };
+  }, []);
 
-  const completeOnboarding = (results = null) => {
+  const completeOnboarding = useCallback((results = null) => {
     setState(prev => ({
       ...prev,
       onboardingComplete: true,
@@ -74,37 +74,37 @@ export function OnboardingProvider({ children }) {
       postResults: results,
       currentStep: 4 // Move to success modal
     }));
-  };
+  }, []);
 
-  const finishOnboarding = () => {
+  const finishOnboarding = useCallback(() => {
     setState(prev => ({
       ...prev,
       isComplete: true
     }));
-  };
+  }, []);
 
-  const markAccountConnected = () => {
+  const markAccountConnected = useCallback(() => {
     setState(prev => ({ ...prev, hasConnectedAccount: true }));
-  };
+  }, []);
 
-  const markPostCreated = () => {
+  const markPostCreated = useCallback(() => {
     setState(prev => ({ ...prev, hasCreatedFirstPost: true }));
-  };
+  }, []);
 
-  const setFirstPostData = (data) => {
+  const setFirstPostData = useCallback((data) => {
     setState(prev => ({ ...prev, firstPostData: data }));
-  };
+  }, []);
 
-  const updateProgress = (updates) => {
+  const updateProgress = useCallback((updates) => {
     setState(prev => ({ ...prev, ...updates }));
-  };
+  }, []);
 
-  const resetOnboarding = () => {
+  const resetOnboarding = useCallback(() => {
     setState(defaultState);
     localStorage.removeItem(STORAGE_KEY);
-  };
+  }, []);
 
-  const restartOnboarding = () => {
+  const restartOnboarding = useCallback(() => {
     setState({
       ...defaultState,
       isNewUser: false, // Not a brand new user, just restarting
@@ -112,9 +112,9 @@ export function OnboardingProvider({ children }) {
       onboardingComplete: false,
       isComplete: false
     });
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     ...state,
     isComplete: state.onboardingComplete,
     goToStep,
@@ -130,7 +130,7 @@ export function OnboardingProvider({ children }) {
     updateProgress,
     resetOnboarding,
     restartOnboarding
-  };
+  }), [state]); // Functions are stable (useCallback), only state changes
 
   return (
     <OnboardingContext.Provider value={value}>
