@@ -40,7 +40,8 @@ export default function Dashboard() {
     // Auto-show onboarding if:
     // 1. Onboarding is not complete (either new user OR manually restarted)
     // 2. User has data loaded
-    if (!isComplete && stats) {
+    // 3. Not already showing (prevent infinite loop!)
+    if (!isComplete && stats && !showOnboarding) {
       const hasNoPosts = stats.totalPosts === 0;
       const hasNoPlatforms = stats.activePlatforms === 0;
       
@@ -51,7 +52,7 @@ export default function Dashboard() {
       }
     }
     // If user disconnects all accounts later, they'll see the helpful banner instead
-  }, [isNewUser, isComplete, hasConnectedAccount, stats]);
+  }, [isNewUser, isComplete, hasConnectedAccount, stats, showOnboarding]);
 
   // Auto-open Content Ideas modal if requested from Create Post page
   useEffect(() => {
