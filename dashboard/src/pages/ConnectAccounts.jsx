@@ -40,6 +40,8 @@ export default function ConnectAccounts() {
   const [comingSoonPlatform, setComingSoonPlatform] = useState('');
   const [editingAccountId, setEditingAccountId] = useState(null);
   const [editLabel, setEditLabel] = useState('');
+  const [showDevToModal, setShowDevToModal] = useState(false);
+  const [devToApiKey, setDevToApiKey] = useState('');
 
   
   // Check if platform is already connected
@@ -217,6 +219,20 @@ export default function ConnectAccounts() {
     }
   };
 
+  const connectMedium = async () => {
+    try {
+      const response = await api.post('/auth/medium/url');
+      if (response.data.success && response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        showError('Failed to generate Medium auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting Medium:', err);
+      showError(err.response?.data?.error || 'Failed to connect Medium');
+    }
+  };
+
   const connectTelegram = () => {
     setShowTelegramModal(true);
   };
@@ -227,6 +243,10 @@ export default function ConnectAccounts() {
 
   const connectDiscord = () => {
     setShowDiscordModal(true);
+  };
+
+  const connectDevTo = () => {
+    setShowDevToModal(true);
   };
 
   const handleComingSoon = (platform) => {
@@ -306,6 +326,29 @@ export default function ConnectAccounts() {
     } catch (err) {
       console.error('Error connecting Discord:', err);
       showError(err.response?.data?.error || 'Failed to connect Discord');
+    }
+  };
+
+  const handleDevToConnect = async () => {
+    if (!devToApiKey.trim()) {
+      showError('Please enter your Dev.to API key');
+      return;
+    }
+
+    try {
+      const response = await api.post('/auth/devto/connect', {
+        apiKey: devToApiKey
+      });
+      
+      if (response.data.success) {
+        showSuccess('Dev.to connected successfully!');
+        setShowDevToModal(false);
+        setDevToApiKey('');
+        loadAccounts();
+      }
+    } catch (err) {
+      console.error('Error connecting Dev.to:', err);
+      showError(err.response?.data?.error || 'Failed to connect Dev.to');
     }
   };
 
@@ -449,6 +492,8 @@ export default function ConnectAccounts() {
                           {account?.platform === 'youtube' && <FaYoutube className="text-5xl text-red-500" />}
                           {account?.platform === 'pinterest' && <FaPinterest className="text-5xl text-red-600" />}
                           {account?.platform === 'tiktok' && <FaTiktok className="text-5xl text-gray-300" />}
+                          {account?.platform === 'medium' && <FaMedium className="text-5xl text-gray-100" />}
+                          {account?.platform === 'devto' && <FaMedium className="text-5xl text-gray-900" />}
                         </div>
                         <div className="relative text-5xl drop-shadow-lg">
                           {account?.platform === 'linkedin' && <FaLinkedin className="text-blue-400" />}
@@ -462,6 +507,8 @@ export default function ConnectAccounts() {
                           {account?.platform === 'youtube' && <FaYoutube className="text-red-400" />}
                           {account?.platform === 'pinterest' && <FaPinterest className="text-red-500" />}
                           {account?.platform === 'tiktok' && <FaTiktok className="text-gray-300" />}
+                          {account?.platform === 'medium' && <FaMedium className="text-gray-50" />}
+                          {account?.platform === 'devto' && <FaMedium className="text-gray-800" />}
                         </div>
                       </div>
                       
@@ -669,6 +716,24 @@ export default function ConnectAccounts() {
             </button>
             )}
             
+            {/* Medium - Working */}
+            {!isPlatformConnected('medium') && (
+            <button onClick={connectMedium} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700/50 rounded-xl hover:border-gray-600 hover:shadow-2xl hover:shadow-gray-800/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaMedium className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Medium</span>
+            </button>
+            )}
+            
+            {/* Dev.to - Working */}
+            {!isPlatformConnected('devto') && (
+            <button onClick={connectDevTo} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-900 to-black border-2 border-gray-800/50 rounded-xl hover:border-gray-700 hover:shadow-2xl hover:shadow-gray-900/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaMedium className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Dev.to</span>
+            </button>
+            )}
+            
             {/* Coming Soon Platforms - Keep Solid Bold Colors */}
             <button onClick={() => handleComingSoon('Pinterest')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -688,13 +753,6 @@ export default function ConnectAccounts() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <FaSnapchat className="relative text-4xl text-white drop-shadow-lg" />
               <span className="relative font-semibold text-sm text-white">Snapchat</span>
-              <span className="relative text-xs text-white/80">Coming Soon</span>
-            </button>
-            
-            <button onClick={() => handleComingSoon('Medium')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700/50 rounded-xl hover:border-gray-600 hover:shadow-2xl hover:shadow-gray-800/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <FaMedium className="relative text-4xl text-white drop-shadow-lg" />
-              <span className="relative font-semibold text-sm text-white">Medium</span>
               <span className="relative text-xs text-white/80">Coming Soon</span>
             </button>
             
@@ -893,6 +951,53 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowDiscordModal(false)}
+                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Dev.to Modal */}
+      {showDevToModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+          >
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <FaMedium className="text-2xl" />
+              Connect Dev.to
+            </h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  API Key <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={devToApiKey}
+                  onChange={(e) => setDevToApiKey(e.target.value)}
+                  placeholder="Q3QMaaq53dyqJsebtZ6ry14N"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Get your API key from <a href="https://dev.to/settings/extensions" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">Dev.to Settings → Extensions</a>
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDevToConnect}
+                className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 font-medium"
+              >
+                Connect
+              </button>
+              <button
+                onClick={() => setShowDevToModal(false)}
                 className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
               >
                 Cancel

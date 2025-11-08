@@ -520,6 +520,99 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             }
           }
         }
+        else if (platform === 'medium') {
+          // Medium - requires title and content
+          if (credentials.medium && Array.isArray(credentials.medium)) {
+            results.medium = [];
+            for (const account of credentials.medium) {
+              try {
+                const { postToMedium, extractTitle, formatMediumContent, extractHashtags } = require('./medium');
+                
+                // Extract title from text (first line or first 60 chars)
+                const title = extractTitle(text);
+                
+                // Format content for Medium (markdown with title and optional image)
+                const content = formatMediumContent(title, text, image_url);
+                
+                // Extract hashtags as tags (max 3)
+                const tags = extractHashtags(text);
+                
+                const result = await postToMedium(
+                  title,
+                  content,
+                  'markdown',     // contentFormat
+                  'public',       // publishStatus
+                  tags,           // tags array
+                  null,           // canonicalUrl
+                  account         // credentials
+                );
+                
+                results.medium.push(result);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to Medium (@${account.username}): ${result.url}`);
+                } else {
+                  console.log(`    ❌ Medium error: ${result.error}`);
+                }
+              } catch (err) {
+                console.error(`    ❌ Medium error:`, err.message);
+                results.medium.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'medium',
+                  account: account.username || 'Medium'
+                });
+              }
+            }
+          }
+        }
+        else if (platform === 'devto') {
+          // Dev.to - publish articles
+          if (credentials.devto && Array.isArray(credentials.devto)) {
+            results.devto = [];
+            for (const account of credentials.devto) {
+              try {
+                const { postToDevTo, extractTitle, formatDevToContent, extractHashtags } = require('./devto');
+                
+                // Extract title from text (first line or first 60 chars)
+                const title = extractTitle(text);
+                
+                // Format content for Dev.to (markdown with title and optional image)
+                const body = formatDevToContent(title, text, image_url);
+                
+                // Extract hashtags as tags (max 4)
+                const tags = extractHashtags(text);
+                
+                const result = await postToDevTo(
+                  title,          // title
+                  body,           // body_markdown
+                  true,           // published
+                  tags,           // tags array
+                  image_url,      // coverImageUrl
+                  null,           // canonicalUrl
+                  null,           // description
+                  account         // credentials
+                );
+                
+                results.devto.push(result);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to Dev.to (@${account.username}): ${result.url}`);
+                } else {
+                  console.log(`    ❌ Dev.to error: ${result.error}`);
+                }
+              } catch (err) {
+                console.error(`    ❌ Dev.to error:`, err.message);
+                results.devto.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'devto',
+                  account: account.username || 'Dev.to'
+                });
+              }
+            }
+          }
+        }
 
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);

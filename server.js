@@ -74,12 +74,15 @@ const {
   handleFacebookCallback,
   initiatePinterestOAuth,
   handlePinterestCallback,
+  initiateMediumOAuth,
+  handleMediumCallback,
   disconnectAccount,
   disconnectAccountById,
   getUserConnectedAccounts,
   getUserCredentialsForPosting
 } = require('./services/oauth');
 const { validateBotToken } = require('./services/telegram');
+const { validateDevToApiKey, getDevToUserInfo } = require('./services/devto');
 const { validateWebhook, sendToSlack } = require('./services/slack');
 const { validateWebhook: validateDiscordWebhook, sendToDiscord } = require('./services/discord');
 const { postToReddit, getModeratedSubreddits } = require('./services/reddit');
@@ -5504,6 +5507,154 @@ app.get('/api/pinterest/boards/:userId', verifyAuth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching Pinterest boards:', error);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// DEV.TO API ROUTES
+// ============================================
+
+// Connect Dev.to account with API key
+app.post('/api/auth/devto/connect', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { apiKey } = req.body;
+
+    if (!apiKey) {
+      return res.status(400).json({
+        success: false,
+        error: 'API key is required'
+      });
+    }
+
+    console.log(`📝 Validating Dev.to API key for user ${userId}...`);
+
+    // Validate API key and get user info
+    const validation = await validateDevToApiKey(apiKey);
+
+    if (!validation.valid) {
+      return res.status(400).json({
+        success: false,
+        error: validation.error || 'Invalid Dev.to API key'
+      });
+    }
+
+    const userInfo = validation.user;
+
+    // Save to database
+    const { data: account, error } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'devto',
+        platform_name: 'Dev.to',
+        oauth_provider: 'api_key',
+        access_token: apiKey, // Store API key as access_token
+        platform_user_id: userInfo.userId.toString(),
+        platform_username: userInfo.username,
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving Dev.to credentials:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to save Dev.to connection'
+      });
+    }
+
+    console.log(`✅ Dev.to connected successfully for user ${userId}: @${userInfo.username}`);
+
+    res.json({
+      success: true,
+      account: {
+        id: account.id,
+        platform: 'devto',
+        username: userInfo.username,
+        name: userInfo.name
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error connecting Dev.to:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to connect Dev.to account'
+    });
+  }
+});
+
+// ============================================
+// MEDIUM OAUTH & API ROUTES
+// ============================================
+
+// Get Medium OAuth URL
+app.post('/api/auth/medium/url', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    if (!process.env.MEDIUM_CLIENT_ID) {
+      return res.status(503).json({
+        success: false,
+        error: 'Medium integration not configured. Please add MEDIUM_CLIENT_ID to environment variables.'
+      });
+    }
+
+    const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/medium/callback`;
+    const authUrl = initiateMediumOAuth(userId, redirectUri);
+    
+    console.log('📝 Medium OAuth URL generated for user:', userId);
+    
+    res.json({ 
+      success: true, 
+      url: authUrl 
+    });
+
+  } catch (error) {
+    console.error('Error generating Medium OAuth URL:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to generate Medium OAuth URL'
+    });
+  }
+});
+
+// Medium OAuth callback
+app.get('/auth/medium/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+    
+    console.log('📝 Medium callback received');
+
+    // Handle OAuth error
+    if (error) {
+      console.error('Medium OAuth error:', error);
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=medium_denied`);
+    }
+
+    if (!code || !state) {
+      console.error('Medium callback missing parameters');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=medium_missing_params`);
+    }
+
+    const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/medium/callback`;
+    
+    // Handle the callback
+    const result = await handleMediumCallback(code, state, redirectUri);
+
+    console.log('✅ Medium account connected successfully:', result.username);
+    
+    // Redirect to settings with success message
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?success=medium_connected&username=${encodeURIComponent(result.username)}`);
+
+  } catch (error) {
+    console.error('❌ Medium callback error:', error);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=medium_failed`);
   }
 });
 

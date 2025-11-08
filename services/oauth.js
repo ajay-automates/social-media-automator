@@ -1019,7 +1019,9 @@ async function getUserCredentialsForPosting(userId) {
       reddit: [],
       facebook: [],
       youtube: [],
-      pinterest: []
+      pinterest: [],
+      medium: [],
+      devto: []
     };
     
     accounts?.forEach(account => {
@@ -1154,6 +1156,17 @@ async function getUserCredentialsForPosting(userId) {
           username: account.platform_username,
           token_expires_at: account.token_expires_at
         });
+      } else if (account.platform === 'medium') {
+        credentials.medium.push({
+          accessToken: account.access_token,
+          userId: account.platform_user_id,
+          username: account.platform_username
+        });
+      } else if (account.platform === 'devto') {
+        credentials.devto.push({
+          apiKey: account.access_token,
+          username: account.platform_username
+        });
       }
     });
     
@@ -1256,6 +1269,124 @@ async function handlePinterestCallback(code, state, redirectUri) {
   }
 }
 
+// ============================================
+// MEDIUM OAUTH
+// ============================================
+
+/**
+ * Initiate Medium OAuth flow
+ * @param {string} userId - User ID from Supabase auth
+ * @param {string} redirectUri - Callback URL
+ * @returns {string} Authorization URL
+ */
+function initiateMediumOAuth(userId, redirectUri) {
+  const clientId = process.env.MEDIUM_CLIENT_ID;
+  const scope = 'basicProfile,publishPost';
+  
+  if (!clientId) {
+    throw new Error('Medium OAuth not configured. Set MEDIUM_CLIENT_ID in environment variables.');
+  }
+  
+  // Generate state parameter for security
+  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
+  
+  const authUrl = new URL('https://medium.com/m/oauth/authorize');
+  authUrl.searchParams.append('client_id', clientId);
+  authUrl.searchParams.append('scope', scope);
+  authUrl.searchParams.append('state', state);
+  authUrl.searchParams.append('response_type', 'code');
+  authUrl.searchParams.append('redirect_uri', redirectUri);
+  
+  return authUrl.toString();
+}
+
+/**
+ * Handle Medium OAuth callback
+ * Exchange authorization code for access token and store in database
+ * @param {string} code - Authorization code from Medium
+ * @param {string} state - State parameter (contains userId)
+ * @param {string} redirectUri - Callback URL (must match)
+ * @returns {object} Account info
+ */
+async function handleMediumCallback(code, state, redirectUri) {
+  try {
+    // Decode state to get userId
+    const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
+    
+    console.log(`🔄 Processing Medium OAuth callback for user ${userId}...`);
+    
+    // Exchange code for access token
+    const tokenParams = new URLSearchParams({
+      code,
+      client_id: process.env.MEDIUM_CLIENT_ID,
+      client_secret: process.env.MEDIUM_CLIENT_SECRET,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri
+    });
+    
+    const tokenResponse = await axios.post(
+      'https://api.medium.com/v1/tokens',
+      tokenParams.toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    const { access_token, refresh_token, expires_at } = tokenResponse.data;
+    
+    // Get Medium user info
+    const { getMediumUserInfo } = require('./medium');
+    const userInfo = await getMediumUserInfo(access_token);
+    
+    // Calculate token expiry (Medium tokens don't expire but store expires_at if provided)
+    const expiresAt = expires_at ? new Date(expires_at * 1000).toISOString() : null;
+    
+    // Store in database
+    const { data: account, error } = await supabase
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'medium',
+        platform_name: 'Medium',
+        oauth_provider: 'medium',
+        access_token: access_token,
+        refresh_token: refresh_token || null,
+        token_expires_at: expiresAt,
+        platform_user_id: userInfo.userId,
+        platform_username: userInfo.username,
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error saving Medium credentials:', error);
+      throw error;
+    }
+    
+    console.log(`✅ Medium connected successfully for user ${userId}: @${userInfo.username}`);
+    
+    return {
+      success: true,
+      accountId: account.id,
+      userId: userInfo.userId,
+      username: userInfo.username,
+      name: userInfo.name,
+      platform: 'medium'
+    };
+    
+  } catch (error) {
+    console.error('❌ Medium OAuth callback error:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
 module.exports = {
   // LinkedIn
   initiateLinkedInOAuth,
@@ -1282,6 +1413,10 @@ module.exports = {
   // Facebook
   initiateFacebookOAuth,
   handleFacebookCallback,
+  
+  // Medium
+  initiateMediumOAuth,
+  handleMediumCallback,
   
   // Common
   disconnectAccount,

@@ -11,7 +11,8 @@ import {
   FaSlack, 
   FaTelegram,
   FaPinterest,
-  FaWhatsapp
+  FaWhatsapp,
+  FaMedium
 } from 'react-icons/fa';
 
 const platformConfig = {
@@ -27,6 +28,8 @@ const platformConfig = {
   telegram: { Icon: FaTelegram, gradient: 'from-cyan-400 to-cyan-500', name: 'Telegram' },
   whatsapp: { Icon: FaWhatsapp, gradient: 'from-green-500 to-green-600', name: 'WhatsApp' },
   pinterest: { Icon: FaPinterest, gradient: 'from-red-500 to-red-600', name: 'Pinterest' },
+  medium: { Icon: FaMedium, gradient: 'from-gray-700 to-gray-800', name: 'Medium' },
+  devto: { Icon: FaMedium, gradient: 'from-gray-900 to-black', name: 'Dev.to' },
 };
 
 export default function PlatformChip({ 

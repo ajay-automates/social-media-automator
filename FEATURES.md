@@ -22,6 +22,8 @@ Post to 11 platforms simultaneously from one interface.
 - Discord (Webhook)
 - Slack (Webhook)
 - Telegram (Bot API)
+- Medium (OAuth 2.0) ⚠️ API restricted
+- Dev.to (API Key) ✅ Working
 
 **Features:**
 - Post text, images, and videos
