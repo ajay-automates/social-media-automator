@@ -42,6 +42,9 @@ export default function ConnectAccounts() {
   const [editLabel, setEditLabel] = useState('');
   const [showDevToModal, setShowDevToModal] = useState(false);
   const [devToApiKey, setDevToApiKey] = useState('');
+  const [showMastodonModal, setShowMastodonModal] = useState(false);
+  const [mastodonAccessToken, setMastodonAccessToken] = useState('');
+  const [mastodonInstanceUrl, setMastodonInstanceUrl] = useState('mastodon.social');
 
   
   // Check if platform is already connected
@@ -260,6 +263,35 @@ export default function ConnectAccounts() {
     } catch (err) {
       console.error('Error connecting Tumblr:', err);
       showError(err.response?.data?.error || 'Failed to connect Tumblr');
+    }
+  };
+
+  const connectMastodon = () => {
+    setShowMastodonModal(true);
+  };
+
+  const handleMastodonConnect = async () => {
+    if (!mastodonAccessToken.trim() || !mastodonInstanceUrl.trim()) {
+      showError('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const response = await api.post('/auth/mastodon/connect', {
+        accessToken: mastodonAccessToken,
+        instanceUrl: mastodonInstanceUrl
+      });
+      
+      if (response.data.success) {
+        showSuccess('Mastodon connected successfully!');
+        setShowMastodonModal(false);
+        setMastodonAccessToken('');
+        setMastodonInstanceUrl('mastodon.social');
+        loadAccounts();
+      }
+    } catch (err) {
+      console.error('Error connecting Mastodon:', err);
+      showError(err.response?.data?.error || 'Failed to connect Mastodon');
     }
   };
 
@@ -509,6 +541,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'medium' && <FaMedium className="text-5xl text-gray-100" />}
                           {account?.platform === 'devto' && <FaMedium className="text-5xl text-gray-900" />}
                           {account?.platform === 'tumblr' && <FaTumblr className="text-5xl text-blue-500" />}
+                          {account?.platform === 'mastodon' && <SiMastodon className="text-5xl text-purple-500" />}
                         </div>
                         <div className="relative text-5xl drop-shadow-lg">
                           {account?.platform === 'linkedin' && <FaLinkedin className="text-blue-400" />}
@@ -525,6 +558,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'medium' && <FaMedium className="text-gray-50" />}
                           {account?.platform === 'devto' && <FaMedium className="text-gray-800" />}
                           {account?.platform === 'tumblr' && <FaTumblr className="text-blue-400" />}
+                          {account?.platform === 'mastodon' && <SiMastodon className="text-purple-400" />}
                         </div>
                       </div>
                       
@@ -756,6 +790,15 @@ export default function ConnectAccounts() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <FaTumblr className="relative text-4xl text-white drop-shadow-lg" />
               <span className="relative font-bold text-sm text-white">Tumblr</span>
+            </button>
+            )}
+            
+            {/* Mastodon - Working */}
+            {!isPlatformConnected('mastodon') && (
+            <button onClick={connectMastodon} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-600 to-indigo-700 border-2 border-purple-500/50 rounded-xl hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-600/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <SiMastodon className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Mastodon</span>
             </button>
             )}
             
@@ -1016,6 +1059,68 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowDevToModal(false)}
+                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Mastodon Modal */}
+      {showMastodonModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+          >
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <SiMastodon className="text-2xl text-purple-400" />
+              Connect Mastodon
+            </h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Instance URL <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={mastodonInstanceUrl}
+                  onChange={(e) => setMastodonInstanceUrl(e.target.value)}
+                  placeholder="mastodon.social"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Your Mastodon instance (e.g., mastodon.social, mastodon.online)
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Access Token <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="password"
+                  value={mastodonAccessToken}
+                  onChange={(e) => setMastodonAccessToken(e.target.value)}
+                  placeholder="Your access token"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Create an app at: <code className="bg-gray-800 px-1 rounded">https://[your-instance]/settings/applications</code>
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleMastodonConnect}
+                className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 font-medium"
+              >
+                Connect
+              </button>
+              <button
+                onClick={() => setShowMastodonModal(false)}
                 className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
               >
                 Cancel

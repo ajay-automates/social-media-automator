@@ -650,6 +650,43 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             }
           }
         }
+        else if (platform === 'mastodon') {
+          // Mastodon - decentralized microblogging
+          if (credentials.mastodon && Array.isArray(credentials.mastodon)) {
+            results.mastodon = [];
+            for (const account of credentials.mastodon) {
+              try {
+                const { postToMastodon, formatMastodonStatus } = require('./mastodon');
+                
+                // Format status (handle 500 char limit)
+                const status = formatMastodonStatus(text, 500);
+                
+                const result = await postToMastodon(
+                  status,
+                  image_url,
+                  'public', // visibility
+                  account
+                );
+                
+                results.mastodon.push(result);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to Mastodon (@${account.username}): ${result.url}`);
+                } else {
+                  console.log(`    ❌ Mastodon error: ${result.error}`);
+                }
+              } catch (err) {
+                console.error(`    ❌ Mastodon error:`, err.message);
+                results.mastodon.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'mastodon',
+                  account: account.username || 'Mastodon'
+                });
+              }
+            }
+          }
+        }
 
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);

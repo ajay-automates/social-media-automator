@@ -1,12 +1,12 @@
 # Social Media Automator - Platform Status
 
 **Last Updated:** November 8, 2025
-**Version:** 4.1 - Pinterest Edition
+**Version:** 6.2 - Mastodon Edition
 **UI:** Premium glassmorphism with real brand SVG icons
 
 ---
 
-## ✅ FULLY WORKING PLATFORMS (14)
+## ✅ FULLY WORKING PLATFORMS (15)
 
 ### 1. LinkedIn ✅
 - ✅ Text posts
@@ -126,9 +126,20 @@
 - ✅ Unlimited tags
 - 🎨 Perfect for creative content, blogging, fandoms
 
+### 15. Mastodon ✅ 🆕
+- ✅ Text posts (500 characters)
+- ✅ Image posts
+- ✅ Access Token authentication (no approval needed!)
+- ✅ Multi-account support (across different instances)
+- ✅ Real brand icon (SiMastodon)
+- ✅ Hashtag support
+- ✅ Visibility controls (public/unlisted/private)
+- 🐘 Decentralized, open-source Twitter alternative
+- 🌐 Works with any Mastodon instance (mastodon.social, mastodon.online, etc.)
+
 ---
 
-## 🚧 COMING SOON (7)
+## 🚧 COMING SOON (6)
 
 The following platforms are displayed in the Settings page with "Coming Soon" modal:
 
@@ -137,8 +148,7 @@ The following platforms are displayed in the Settings page with "Coming Soon" mo
 3. **Twitch** - FaTwitch
 4. **Threads** - SiThreads
 5. **Bluesky** - SiBluesky
-6. **Mastodon** - SiMastodon
-7. **Quora** - FaQuora
+6. **Quora** - FaQuora
 
 ---
 
@@ -196,8 +206,8 @@ The following platforms are displayed in the Settings page with "Coming Soon" mo
 
 ## 📊 CURRENT SUCCESS METRICS
 
-**Platforms Integrated:** 14/20 (70%)
-**Fully Functional:** 13/14 (93%)
+**Platforms Integrated:** 15/21 (71%)
+**Fully Functional:** 14/15 (93%)
 **Real Icons:** 70+ (100% coverage)
 **UI Quality:** ✅ Premium glassmorphism
 **Code Quality:** ✅ Clean, production-ready

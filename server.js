@@ -85,6 +85,7 @@ const {
 } = require('./services/oauth');
 const { validateBotToken } = require('./services/telegram');
 const { validateDevToApiKey, getDevToUserInfo } = require('./services/devto');
+const { verifyMastodonCredentials } = require('./services/mastodon');
 const { validateWebhook, sendToSlack } = require('./services/slack');
 const { validateWebhook: validateDiscordWebhook, sendToDiscord } = require('./services/discord');
 const { postToReddit, getModeratedSubreddits } = require('./services/reddit');
@@ -5576,6 +5577,96 @@ app.get('/auth/tumblr/callback', async (req, res) => {
   } catch (error) {
     console.error('❌ Tumblr callback error:', error);
     res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=tumblr_failed`);
+  }
+});
+
+// ============================================
+// MASTODON API ROUTES
+// ============================================
+
+// Connect Mastodon account with access token
+app.post('/api/auth/mastodon/connect', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { accessToken, instanceUrl } = req.body;
+
+    if (!accessToken || !instanceUrl) {
+      return res.status(400).json({
+        success: false,
+        error: 'Access token and instance URL are required'
+      });
+    }
+
+    // Normalize instance URL
+    let normalizedUrl = instanceUrl.trim();
+    if (!normalizedUrl.startsWith('http')) {
+      normalizedUrl = 'https://' + normalizedUrl;
+    }
+
+    console.log(`🐘 Validating Mastodon credentials for ${normalizedUrl}...`);
+
+    // Verify credentials and get user info
+    const userInfo = await verifyMastodonCredentials(accessToken, normalizedUrl);
+
+    if (!userInfo.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid Mastodon credentials'
+      });
+    }
+
+    // Save to database
+    const { data: account, error } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'mastodon',
+        platform_name: 'Mastodon',
+        oauth_provider: 'access_token',
+        access_token: accessToken,
+        platform_user_id: userInfo.id,
+        platform_username: userInfo.acct, // Full handle with instance
+        platform_metadata: JSON.stringify({
+          instanceUrl: normalizedUrl,
+          username: userInfo.username,
+          displayName: userInfo.displayName,
+          url: userInfo.url,
+          followersCount: userInfo.followersCount
+        }),
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving Mastodon credentials:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to save Mastodon connection'
+      });
+    }
+
+    console.log(`✅ Mastodon connected for user ${userId}: @${userInfo.acct}`);
+
+    res.json({
+      success: true,
+      account: {
+        id: account.id,
+        platform: 'mastodon',
+        username: userInfo.acct,
+        displayName: userInfo.displayName
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error connecting Mastodon:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to connect Mastodon account'
+    });
   }
 });
 

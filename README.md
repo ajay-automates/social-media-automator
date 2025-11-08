@@ -13,7 +13,7 @@
 Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, and glassmorphism UI design.
 
 **Key Features:**
-- 🌐 **14 Platforms Integrated**: LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok, Pinterest, Reddit, Discord, Slack, Telegram, Medium, Dev.to, Tumblr
+- 🌐 **15 Platforms Integrated**: LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok, Pinterest, Reddit, Discord, Slack, Telegram, Medium, Dev.to, Tumblr, Mastodon
 - 🤖 **AI Suite** (Claude Sonnet 4):
   - Caption generation (3 variations per topic)
   - Platform-specific post variations (auto-adapt content)
@@ -43,7 +43,7 @@ Premium multi-platform social media automation SaaS with AI-powered content gene
 
 ## 🎯 Platform Status
 
-### ✅ Fully Integrated (14)
+### ✅ Fully Integrated (15)
 | Platform | Text | Images | Videos | OAuth/Webhook | Status |
 |----------|------|--------|--------|--------------|--------|
 | **LinkedIn** | ✅ | ✅ | ❌ | OAuth 2.0 | Live |
@@ -57,9 +57,13 @@ Premium multi-platform social media automation SaaS with AI-powered content gene
 | **Facebook** | ✅ | ✅ | ✅ | Graph API | Live |
 | **TikTok** | ❌ | ❌ | ✅ | OAuth 2.0 | Beta |
 | **Pinterest** | ❌ | ✅ | ❌ | OAuth 2.0 | ⏳ Pending |
+| **Dev.to** | ✅ | ✅ | ❌ | API Key | Live |
+| **Tumblr** | ✅ | ✅ | ❌ | OAuth 1.0a | Live |
+| **Mastodon** | ✅ | ✅ | ❌ | Access Token | Live |
+| **Medium** | ✅ | ✅ | ❌ | OAuth 2.0 | ⚠️ API Restricted |
 
-### 🚧 Coming Soon (9)
-WhatsApp, Snapchat, Medium, Twitch, Threads, Bluesky, Mastodon, Tumblr, Quora
+### 🚧 Coming Soon (6)
+Bluesky, Threads, Quora, Twitch, WhatsApp, Snapchat
 
 **Legend:**
 - ✅ Fully Working

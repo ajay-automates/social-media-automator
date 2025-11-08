@@ -1022,7 +1022,8 @@ async function getUserCredentialsForPosting(userId) {
       pinterest: [],
       medium: [],
       devto: [],
-      tumblr: []
+      tumblr: [],
+      mastodon: []
     };
     
     accounts?.forEach(account => {
@@ -1178,6 +1179,13 @@ async function getUserCredentialsForPosting(userId) {
           blogName: blogName,
           blogTitle: metadata.blogTitle || blogName,
           allBlogs: metadata.allBlogs || []
+        });
+      } else if (account.platform === 'mastodon') {
+        const metadata = account.platform_metadata ? JSON.parse(account.platform_metadata) : {};
+        credentials.mastodon.push({
+          accessToken: account.access_token,
+          instanceUrl: metadata.instanceUrl || 'https://mastodon.social',
+          username: account.platform_username
         });
       }
     });

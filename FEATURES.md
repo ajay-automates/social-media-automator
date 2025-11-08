@@ -1,6 +1,6 @@
 # ✨ Social Media Automator - Complete Feature List
 
-**Version 6.1 - Pinterest Edition**  
+**Version 6.2 - Mastodon Edition**  
 **Last Updated:** November 8, 2025
 
 ---
@@ -8,7 +8,7 @@
 ## 🎯 14 Core Features (All Production-Ready)
 
 ### 1. 🌐 Multi-Platform Posting
-Post to 11 platforms simultaneously from one interface.
+Post to 15 platforms simultaneously from one interface.
 
 **Supported Platforms:**
 - LinkedIn (OAuth 2.0)
@@ -25,6 +25,7 @@ Post to 11 platforms simultaneously from one interface.
 - Medium (OAuth 2.0) ⚠️ API restricted
 - Dev.to (API Key) ✅ Working
 - Tumblr (OAuth 1.0a) ✅ Working
+- Mastodon (Access Token) ✅ Working 🆕
 
 **Features:**
 - Post text, images, and videos
