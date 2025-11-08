@@ -40,6 +40,7 @@ const { createInvitation, acceptInvitation, getPendingInvitations, cancelInvitat
 const { searchVideos, getVideoById, getPopularVideos, validatePexelsKey } = require('./services/video-search');
 const { validateCarousel, getCarouselLimits, formatCarouselMetadata } = require('./services/carousel');
 const { postLinkedInCarousel } = require('./services/linkedin');
+const { getUserBoards, postToPinterest } = require('./services/pinterest');
 const { parseCSV, generateTemplate, getValidationSummary } = require('./services/csv-parser');
 const aiImageService = require('./services/ai-image');
 const { 
@@ -71,6 +72,8 @@ const {
   handleInstagramCallback,
   initiateFacebookOAuth,
   handleFacebookCallback,
+  initiatePinterestOAuth,
+  handlePinterestCallback,
   disconnectAccount,
   disconnectAccountById,
   getUserConnectedAccounts,
@@ -5425,6 +5428,86 @@ app.get('/auth/youtube/callback', async (req, res) => {
   }
 });
 
+// ============================================
+// PINTEREST OAUTH & API ROUTES
+// ============================================
+
+app.post('/api/auth/pinterest/url', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/pinterest/callback`;
+    const authUrl = initiatePinterestOAuth(userId, redirectUri);
+    console.log('📍 Pinterest OAuth URL generated for user:', userId);
+    res.json({ success: true, authUrl });
+  } catch (error) {
+    console.error('Error generating Pinterest auth URL:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/auth/pinterest/callback', async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+    console.log('📍 Pinterest callback received');
+    
+    if (error) {
+      console.error('Pinterest OAuth error:', error);
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=pinterest_denied`);
+    }
+    
+    if (!code || !state) {
+      console.error('Pinterest callback missing params');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=pinterest_missing_params`);
+    }
+    
+    const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/pinterest/callback`;
+    await handlePinterestCallback(code, state, redirectUri);
+    
+    console.log('✅ Pinterest account connected successfully');
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?success=pinterest_connected`);
+  } catch (error) {
+    console.error('Pinterest callback error:', error);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=pinterest_failed`);
+  }
+});
+
+// Get user's Pinterest boards
+app.get('/api/pinterest/boards/:userId', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    // Verify the requesting user matches the userId (or is admin)
+    if (req.user.id !== parseInt(userId)) {
+      return res.status(403).json({ success: false, error: 'Unauthorized' });
+    }
+    
+    // Get Pinterest credentials
+    const { data: account, error } = await supabaseAdmin
+      .from('user_accounts')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('platform', 'pinterest')
+      .single();
+    
+    if (error || !account) {
+      return res.status(404).json({ success: false, error: 'Pinterest account not connected' });
+    }
+    
+    const result = await getUserBoards({
+      access_token: account.access_token,
+      refresh_token: account.refresh_token,
+      token_expires_at: account.token_expires_at,
+      user_id: userId
+    });
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching Pinterest boards:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
 
 // CATCH-ALL ROUTE FOR REACT SPA (must be last)
 // ============================================

@@ -9,11 +9,11 @@ import {
   FaFacebook, 
   FaTiktok, 
   FaYoutube, 
+  FaPinterest,
   FaReddit, 
   FaDiscord, 
   FaSlack, 
   FaTelegram,
-  FaPinterest,
   FaWhatsapp,
   FaSnapchat,
   FaMedium,
@@ -186,6 +186,20 @@ export default function ConnectAccounts() {
     } catch (err) {
       console.error('Error connecting YouTube:', err);
       showError(err.response?.data?.error || 'Failed to connect YouTube');
+    }
+  };
+
+  const connectPinterest = async () => {
+    try {
+      const response = await api.post('/auth/pinterest/url');
+      if (response.data.success && response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        showError('Failed to generate Pinterest auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting Pinterest:', err);
+      showError(err.response?.data?.error || 'Failed to connect Pinterest');
     }
   };
 
@@ -433,6 +447,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'instagram' && <FaInstagram className="text-5xl text-pink-500" />}
                           {account?.platform === 'facebook' && <FaFacebook className="text-5xl text-blue-600" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-5xl text-red-500" />}
+                          {account?.platform === 'pinterest' && <FaPinterest className="text-5xl text-red-600" />}
                           {account?.platform === 'tiktok' && <FaTiktok className="text-5xl text-gray-300" />}
                         </div>
                         <div className="relative text-5xl drop-shadow-lg">
@@ -445,6 +460,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'instagram' && <FaInstagram className="text-pink-400" />}
                           {account?.platform === 'facebook' && <FaFacebook className="text-blue-500" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-red-400" />}
+                          {account?.platform === 'pinterest' && <FaPinterest className="text-red-500" />}
                           {account?.platform === 'tiktok' && <FaTiktok className="text-gray-300" />}
                         </div>
                       </div>
@@ -632,6 +648,15 @@ export default function ConnectAccounts() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <FaYoutube className="relative text-4xl text-white drop-shadow-lg" />
               <span className="relative font-bold text-sm text-white">YouTube</span>
+            </button>
+            )}
+            
+            {/* Pinterest - Working */}
+            {!isPlatformConnected('pinterest') && (
+            <button onClick={connectPinterest} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-600 to-red-700 border-2 border-red-500/50 rounded-xl hover:border-red-400 hover:shadow-2xl hover:shadow-red-600/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaPinterest className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Pinterest</span>
             </button>
             )}
             

@@ -1012,13 +1012,14 @@ async function getUserCredentialsForPosting(userId) {
     const credentials = {
       linkedin: [],
       twitter: [],
-    instagram: [],
-    telegram: [],
-    slack: [],
-    discord: [],
-    reddit: [],
-    facebook: [],
-    youtube: []
+      instagram: [],
+      telegram: [],
+      slack: [],
+      discord: [],
+      reddit: [],
+      facebook: [],
+      youtube: [],
+      pinterest: []
     };
     
     accounts?.forEach(account => {
@@ -1145,6 +1146,14 @@ async function getUserCredentialsForPosting(userId) {
           platform_user_id: account.platform_user_id,
           token_expires_at: account.token_expires_at
         });
+      } else if (account.platform === 'pinterest') {
+        credentials.pinterest.push({
+          accessToken: account.access_token,
+          refreshToken: account.refresh_token,
+          userId: account.user_id,
+          username: account.platform_username,
+          token_expires_at: account.token_expires_at
+        });
       }
     });
     
@@ -1157,8 +1166,93 @@ async function getUserCredentialsForPosting(userId) {
       twitter: [],
       instagram: [],
       telegram: [],
-      facebook: []
+      facebook: [],
+      youtube: [],
+      pinterest: []
     };
+  }
+}
+
+// ============================================
+// PINTEREST OAUTH
+// ============================================
+
+function initiatePinterestOAuth(userId, redirectUri) {
+  const clientId = process.env.PINTEREST_APP_ID;
+  const scope = 'boards:read,boards:write,pins:read,pins:write,user_accounts:read';
+  
+  if (!clientId) {
+    throw new Error('Pinterest OAuth not configured. Set PINTEREST_APP_ID in environment variables.');
+  }
+  
+  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
+  
+  const authUrl = new URL('https://www.pinterest.com/oauth/');
+  authUrl.searchParams.append('response_type', 'code');
+  authUrl.searchParams.append('client_id', clientId);
+  authUrl.searchParams.append('redirect_uri', redirectUri);
+  authUrl.searchParams.append('scope', scope);
+  authUrl.searchParams.append('state', state);
+  
+  return authUrl.toString();
+}
+
+async function handlePinterestCallback(code, state, redirectUri) {
+  try {
+    const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
+
+    // Exchange code for token
+    const tokenResponse = await axios.post('https://api.pinterest.com/v5/oauth/token', 
+      new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: redirectUri,
+        client_id: process.env.PINTEREST_APP_ID,
+        client_secret: process.env.PINTEREST_APP_SECRET
+      }),
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      }
+    );
+
+    const { access_token, refresh_token, expires_in } = tokenResponse.data;
+
+    // Get user profile
+    const profileResponse = await axios.get('https://api.pinterest.com/v5/user_account', {
+      headers: { 'Authorization': `Bearer ${access_token}` }
+    });
+
+    const profile = profileResponse.data;
+
+    // Store in database
+    const { data, error} = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'pinterest',
+        platform_user_id: profile.username,
+        platform_username: profile.username,
+        access_token: access_token,
+        refresh_token: refresh_token,
+        token_expires_at: new Date(Date.now() + expires_in * 1000).toISOString(),
+        platform_metadata: JSON.stringify({
+          profile_image: profile.profile_image,
+          account_type: profile.account_type
+        })
+      }, {
+        onConflict: 'user_id,platform'
+      });
+
+    if (error) throw error;
+
+    return {
+      success: true,
+      username: profile.username,
+      platform: 'pinterest'
+    };
+  } catch (error) {
+    console.error('Pinterest OAuth callback error:', error.response?.data || error.message);
+    throw error;
   }
 }
 
@@ -1176,6 +1270,10 @@ module.exports = {
   // Twitter
   initiateTwitterOAuth,
   handleTwitterCallback,
+  
+  // Pinterest
+  initiatePinterestOAuth,
+  handlePinterestCallback,
   
   // Instagram
   initiateInstagramOAuth,

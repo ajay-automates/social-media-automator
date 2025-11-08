@@ -478,6 +478,48 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             }
           }
         }
+        else if (platform === 'pinterest') {
+          // Pinterest - requires an image
+          if (credentials.pinterest && Array.isArray(credentials.pinterest)) {
+            results.pinterest = [];
+            for (const account of credentials.pinterest) {
+              try {
+                if (!image_url) {
+                  console.log(`    ⚠️  Skipping Pinterest - image required`);
+                  results.pinterest.push({
+                    success: false,
+                    error: 'Pinterest requires an image. Please attach an image.',
+                    platform: 'pinterest'
+                  });
+                  continue;
+                }
+                
+                const { postToPinterest } = require('./pinterest');
+                
+                const result = await postToPinterest(text, image_url, account, {
+                  boardId: post_metadata?.pinterestBoardId || null,
+                  link: post_metadata?.pinterestLink || null,
+                  title: post_metadata?.pinterestTitle || null
+                });
+                
+                results.pinterest.push(result);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to Pinterest (@${account.username})`);
+                } else {
+                  console.log(`    ❌ Pinterest error: ${result.error}`);
+                }
+              } catch (err) {
+                console.error(`    ❌ Pinterest error:`, err.message);
+                results.pinterest.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'pinterest'
+                });
+              }
+            }
+          }
+        }
 
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);
