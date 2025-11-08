@@ -1606,8 +1606,12 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => {
+                    console.log('🎓 Restarting onboarding from CreatePost...');
                     restartOnboarding();
-                    navigate('/dashboard');
+                    // Navigate to dashboard where onboarding will auto-trigger
+                    setTimeout(() => {
+                      navigate('/dashboard');
+                    }, 50);
                   }}
                   className="glass border-2 border-purple-400/50 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all"
                 >

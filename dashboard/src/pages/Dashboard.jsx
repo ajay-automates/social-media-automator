@@ -35,20 +35,18 @@ export default function Dashboard() {
     loadTeamData();
   }, []);
 
-  // Check if we should show onboarding for BRAND NEW users only
+  // Check if we should show onboarding
   useEffect(() => {
-    // ONLY auto-show onboarding for truly new users on their FIRST login
-    // Show onboarding if:
-    // 1. User is marked as NEW (first time ever)
-    // 2. Onboarding is not complete
-    // 3. User has not connected any accounts yet
-    // 4. User has never created posts
-    if (isNewUser && !isComplete && stats) {
+    // Auto-show onboarding if:
+    // 1. Onboarding is not complete (either new user OR manually restarted)
+    // 2. User has data loaded
+    if (!isComplete && stats) {
       const hasNoPosts = stats.totalPosts === 0;
       const hasNoPlatforms = stats.activePlatforms === 0;
       
-      // Only show if they've never done anything (truly new user)
-      if (hasNoPosts && hasNoPlatforms && !hasConnectedAccount) {
+      // Show for brand new users OR when manually restarted
+      if (isNewUser && hasNoPosts && hasNoPlatforms && !hasConnectedAccount) {
+        console.log('✅ Auto-showing onboarding for new user');
         setShowOnboarding(true);
       }
     }
@@ -159,8 +157,12 @@ export default function Dashboard() {
   };
 
   const handleRestartOnboarding = () => {
+    console.log('🎓 Restarting onboarding tutorial...');
+    // First update the context to reset state
     restartOnboarding();
+    // Then show the onboarding modal
     setShowOnboarding(true);
+    console.log('✅ Onboarding modal state set to true');
   };
 
   if (loading) {
@@ -201,6 +203,16 @@ export default function Dashboard() {
   };
 
   const hasNoActivity = displayStats.totalPosts === 0;
+
+  // Debug logging
+  useEffect(() => {
+    console.log('📊 Dashboard Stats:', {
+      activePlatforms: displayStats.activePlatforms,
+      totalPosts: displayStats.totalPosts,
+      showOnboarding: showOnboarding,
+      isComplete: isComplete
+    });
+  }, [displayStats, showOnboarding, isComplete]);
 
   return (
     <>
