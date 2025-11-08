@@ -172,8 +172,8 @@ export default function ConnectAccounts() {
   const connectReddit = async () => {
     try {
       const response = await api.post('/auth/reddit/url');
-      if (response.data.authUrl) {
-        window.location.href = response.data.authUrl;
+      if (response.data.oauthUrl) {
+        window.location.href = response.data.oauthUrl;
       } else {
         showError('Failed to generate Reddit auth URL');
       }
