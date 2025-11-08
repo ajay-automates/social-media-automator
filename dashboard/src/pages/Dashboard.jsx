@@ -204,15 +204,15 @@ export default function Dashboard() {
 
   const hasNoActivity = displayStats.totalPosts === 0;
 
-  // Debug logging
+  // Debug logging (only once on mount)
   useEffect(() => {
-    console.log('📊 Dashboard Stats:', {
+    console.log('📊 Dashboard loaded with stats:', {
       activePlatforms: displayStats.activePlatforms,
       totalPosts: displayStats.totalPosts,
-      showOnboarding: showOnboarding,
       isComplete: isComplete
     });
-  }, [displayStats, showOnboarding, isComplete]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   return (
     <>
