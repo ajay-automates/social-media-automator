@@ -13,11 +13,13 @@ import VideoSearchModal from '../components/VideoSearchModal';
 import VideoPreview from '../components/VideoPreview';
 import CaptionImproverModal from '../components/CaptionImproverModal';
 import ImageCaptionModal from '../components/ImageCaptionModal';
+import { useOnboarding } from '../contexts/OnboardingContext';
 
 export default function CreatePost() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoading, currentStep, startLoading, stopLoading } = useLoadingState();
+  const { restartOnboarding } = useOnboarding();
   const [caption, setCaption] = useState('');
   const [platforms, setPlatforms] = useState([]);
   const [connectedAccounts, setConnectedAccounts] = useState([]);
@@ -157,9 +159,10 @@ export default function CreatePost() {
       const accounts = Array.isArray(accountsData) ? accountsData : [];
       setConnectedAccounts(accounts);
       
-      // Auto-select first connected platform if available
+      // Smart Default: Auto-select ALL connected platforms if none are selected yet
       if (accounts.length > 0 && platforms.length === 0) {
-        setPlatforms([accounts[0].platform]);
+        const allPlatforms = accounts.map(acc => acc.platform);
+        setPlatforms(allPlatforms);
       }
     } catch (err) {
       console.error('Error loading connected accounts:', err);
@@ -1210,231 +1213,241 @@ export default function CreatePost() {
             </motion.div>
           )}
           
-          {/* AI Generate Buttons */}
-          <div className="flex gap-3">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowAIModal(true)}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
-            >
-              ✨ Generate with AI
-            </motion.button>
+          {/* AI Features Section */}
+          <div className="glass border border-white/20 rounded-xl p-6 mb-6 mt-6 relative z-10">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              💡 AI Helpers
+              <span className="text-sm text-gray-400 font-normal">(Optional)</span>
+            </h3>
             
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowYoutubeModal(true)}
-              className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
-            >
-              � Generate from URL
-            </motion.button>
-          </div>
-        </div>
-
-        {/* AI Image Generation */}
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-          <h3 className="text-xl font-bold text-white mb-4">✨ AI Image Generator</h3>
-          
-          {/* Example Prompts */}
-          <div className="mb-4">
-            <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
-            <div className="flex flex-wrap gap-2">
-              {['city skyline at night', 'modern workspace setup', 'abstract tech design', 'coffee cup on desk'].map((example, idx) => (
-                <motion.button
-                  key={idx}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => useExample(example)}
-                  className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
-                >
-                  {example}
-                </motion.button>
-              ))}
-            </div>
-          </div>
-          
-          {/* Prompt Input */}
-          <textarea
-            value={aiImagePrompt}
-            onChange={(e) => setAiImagePrompt(e.target.value)}
-            placeholder="Describe the image you want to create..."
-            className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4 placeholder:text-gray-400"
-            rows={3}
-          />
-          
-          {/* Generate Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={generateImage}
-            disabled={generatingImage || !aiImagePrompt.trim()}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {generatingImage ? 'Generating...' : '🎨 Generate Image'}
-          </motion.button>
-
-          {/* Generated Image Preview */}
-          {showImagePreview && generatedImage && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 border-2 border-purple-200 rounded-lg bg-purple-50"
-            >
-              <p className="text-sm font-semibold text-gray-700 mb-3">Generated Image:</p>
-              <img 
-                src={generatedImage} 
-                alt="Generated preview" 
-                className="w-full rounded-lg mb-4 border-2 border-gray-200"
-              />
+            <div className="space-y-6">
+              {/* AI Generate Buttons */}
               <div className="flex gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={attachImage}
-                  className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+                  onClick={() => setShowAIModal(true)}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
                 >
-                  📎 Attach Image
+                  ✨ Generate with AI
                 </motion.button>
+                
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={regenerateImage}
-                  disabled={generatingImage}
-                  className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  onClick={() => setShowYoutubeModal(true)}
+                  className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
                 >
-                  🔄 Regenerate
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setShowImagePreview(false);
-                    setGeneratedImage(null);
-                  }}
-                  className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
-                >
-                  ✕
+                  📺 Generate from URL
                 </motion.button>
               </div>
-            </motion.div>
-          )}
-        </div>
 
-        {/* Stock Video Library */}
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-          <h3 className="text-xl font-bold text-white mb-4">🎬 Stock Video Library</h3>
-          
-          <p className="text-gray-300 text-sm mb-4">
-            Search and attach professional HD/4K stock videos to your posts. <span className="text-green-400 font-semibold">100% FREE!</span> Powered by Pexels.
-          </p>
-
-          {/* Selected Video Preview */}
-          {selectedVideo ? (
-            <VideoPreview
-              video={selectedVideo}
-              onRemove={() => setSelectedVideo(null)}
-              onChangeVideo={() => setShowVideoModal(true)}
-            />
-          ) : (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowVideoModal(true)}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
-            >
-              <span className="text-2xl">🎬</span>
-              <span>Search Stock Videos</span>
-              <span className="text-xs bg-white/20 px-2 py-1 rounded-full">FREE</span>
-            </motion.button>
-          )}
-          
-          {/* Example Searches */}
-          <div className="mb-4">
-            <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
-            <div className="flex flex-wrap gap-2">
-              {['product showcase animation', 'social media intro video', 'abstract motion graphics', 'text animation reveal'].map((example, idx) => (
+              {/* AI Image Generation */}
+              <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
+                <h3 className="text-xl font-bold text-white mb-4">✨ AI Image Generator</h3>
+                
+                {/* Example Prompts */}
+                <div className="mb-4">
+                  <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['city skyline at night', 'modern workspace setup', 'abstract tech design', 'coffee cup on desk'].map((example, idx) => (
+                      <motion.button
+                        key={idx}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => useExample(example)}
+                        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
+                      >
+                        {example}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Prompt Input */}
+                <textarea
+                  value={aiImagePrompt}
+                  onChange={(e) => setAiImagePrompt(e.target.value)}
+                  placeholder="Describe the image you want to create..."
+                  className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4 placeholder:text-gray-400"
+                  rows={3}
+                />
+                
+                {/* Generate Button */}
                 <motion.button
-                  key={idx}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => useVideoExample(example)}
-                  className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={generateImage}
+                  disabled={generatingImage || !aiImagePrompt.trim()}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
-                  {example}
+                  {generatingImage ? 'Generating...' : '🎨 Generate Image'}
                 </motion.button>
-              ))}
+
+                {/* Generated Image Preview */}
+                {showImagePreview && generatedImage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-4 border-2 border-purple-200 rounded-lg bg-purple-50"
+                  >
+                    <p className="text-sm font-semibold text-gray-700 mb-3">Generated Image:</p>
+                    <img 
+                      src={generatedImage} 
+                      alt="Generated preview" 
+                      className="w-full rounded-lg mb-4 border-2 border-gray-200"
+                    />
+                    <div className="flex gap-3">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={attachImage}
+                        className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+                      >
+                        📎 Attach Image
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={regenerateImage}
+                        disabled={generatingImage}
+                        className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      >
+                        🔄 Regenerate
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setShowImagePreview(false);
+                          setGeneratedImage(null);
+                        }}
+                        className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                      >
+                        ✕
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Stock Video Library */}
+              <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
+                <h3 className="text-xl font-bold text-white mb-4">🎬 Stock Video Library</h3>
+                
+                <p className="text-gray-300 text-sm mb-4">
+                  Search and attach professional HD/4K stock videos to your posts. <span className="text-green-400 font-semibold">100% FREE!</span> Powered by Pexels.
+                </p>
+
+                {/* Selected Video Preview */}
+                {selectedVideo ? (
+                  <VideoPreview
+                    video={selectedVideo}
+                    onRemove={() => setSelectedVideo(null)}
+                    onChangeVideo={() => setShowVideoModal(true)}
+                  />
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowVideoModal(true)}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <span className="text-2xl">🎬</span>
+                    <span>Search Stock Videos</span>
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">FREE</span>
+                  </motion.button>
+                )}
+                
+                {/* AI Video Generation */}
+                <div className="bg-blue-900/10 border border-blue-400/30 rounded-lg p-4 mb-4">
+                  <h4 className="text-white font-semibold mb-3">🎬 AI Video Generation (Experimental)</h4>
+                  <p className="text-sm text-gray-300 mb-4">Quick examples:</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {['product showcase animation', 'social media intro video', 'abstract motion graphics', 'text animation reveal'].map((example, idx) => (
+                      <motion.button
+                        key={idx}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => useVideoExample(example)}
+                        className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
+                      >
+                        {example}
+                      </motion.button>
+                    ))}
+                  </div>
+                  
+                  {/* Prompt Input */}
+                  <textarea
+                    value={aiVideoPrompt}
+                    onChange={(e) => setAiVideoPrompt(e.target.value)}
+                    placeholder="Describe the video you want to create... (5-10 seconds, 16:9 aspect ratio)"
+                    className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 mb-4 placeholder:text-gray-400"
+                    rows={3}
+                  />
+                  
+                  {/* Generate Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={generateVideo}
+                    disabled={generatingVideo || !aiVideoPrompt.trim()}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition w-full"
+                  >
+                    {generatingVideo ? 'Generating...' : '🎬 Generate Video'}
+                  </motion.button>
+
+                  {/* Generated Video Preview */}
+                  {showVideoGenPreview && generatedVideo && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6 p-4 bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg"
+                    >
+                      <p className="text-sm font-semibold text-gray-200 mb-3">Generated Video:</p>
+                      <video 
+                        src={generatedVideo} 
+                        controls
+                        className="w-full rounded-lg mb-4 border-2 border-gray-600"
+                      />
+                      <div className="flex gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={attachGeneratedVideo}
+                          className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+                        >
+                          📎 Attach Video
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={regenerateVideo}
+                          disabled={generatingVideo}
+                          className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        >
+                          🔄 Regenerate
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            setShowVideoGenPreview(false);
+                            setGeneratedVideo(null);
+                          }}
+                          className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
+                        >
+                          ✕
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-          
-          {/* Prompt Input */}
-          <textarea
-            value={aiVideoPrompt}
-            onChange={(e) => setAiVideoPrompt(e.target.value)}
-            placeholder="Describe the video you want to create... (5-10 seconds, 16:9 aspect ratio)"
-            className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 mb-4 placeholder:text-gray-400"
-            rows={3}
-          />
-          
-          {/* Generate Button */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={generateVideo}
-            disabled={generatingVideo || !aiVideoPrompt.trim()}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {generatingVideo ? 'Generating...' : '🎬 Generate Video'}
-          </motion.button>
 
-          {/* Generated Video Preview */}
-          {showVideoGenPreview && generatedVideo && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg"
-            >
-              <p className="text-sm font-semibold text-gray-200 mb-3">Generated Video:</p>
-              <video 
-                src={generatedVideo} 
-                controls
-                className="w-full rounded-lg mb-4 border-2 border-gray-600"
-              />
-              <div className="flex gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={attachGeneratedVideo}
-                  className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
-                >
-                  📎 Attach Video
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={regenerateVideo}
-                  disabled={generatingVideo}
-                  className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                >
-                  🔄 Regenerate
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setShowVideoGenPreview(false);
-                    setGeneratedVideo(null);
-                  }}
-                  className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
-                >
-                  ✕
-                </motion.button>
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Image/Video Upload */}
+        {/* Media Upload Section */}
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
           <h3 className="text-xl font-bold text-white mb-4">📁 Upload Media</h3>
           
@@ -1540,6 +1553,7 @@ export default function CreatePost() {
             </div>
           )}
         </div>
+        </div>
 
         {/* Platform Selection with 3D Chips */}
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
@@ -1579,13 +1593,27 @@ export default function CreatePost() {
               <div className="text-6xl mb-4">🔗</div>
               <h4 className="text-lg font-semibold text-white mb-2">No Platforms Connected</h4>
               <p className="text-gray-400 mb-4">Connect your social media accounts to start posting</p>
-              <button
-                onClick={() => navigate('/connect-accounts')}
-                className="group relative bg-blue-600/30 backdrop-blur-lg border-2 border-blue-400/30 text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 font-medium transition-all shadow-lg hover:shadow-blue-500/30 overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                <span className="relative">Connect Accounts</span>
-              </button>
+              <div className="flex gap-3 justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/connect-accounts')}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-blue-500/50 transition-all"
+                >
+                  🚀 Connect Accounts
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    restartOnboarding();
+                    navigate('/dashboard');
+                  }}
+                  className="glass border-2 border-purple-400/50 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all"
+                >
+                  🎓 Restart Tutorial
+                </motion.button>
+              </div>
             </div>
           ) : (
             <div>
@@ -1790,9 +1818,11 @@ export default function CreatePost() {
               </div>
             </motion.div>
           )}
+        </div>
 
-          {/* Actions */}
-          <div className="flex gap-4 mt-6">
+        {/* Actions */}
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+          <div className="flex gap-4">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

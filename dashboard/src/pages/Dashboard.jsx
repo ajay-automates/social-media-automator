@@ -11,6 +11,8 @@ import Card3D from '../components/ui/Card3D';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
 import ContentIdeasModal from '../components/ContentIdeasModal';
+import { useOnboarding } from '../contexts/OnboardingContext';
+import OnboardingFlow from '../components/onboarding/OnboardingFlow';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -24,12 +26,34 @@ export default function Dashboard() {
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
   const [draftsCount, setDraftsCount] = useState(0);
   const [userRole, setUserRole] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const { isNewUser, isComplete, hasConnectedAccount, restartOnboarding } = useOnboarding();
 
   useEffect(() => {
     loadDashboardData();
     loadBillingInfo();
     loadTeamData();
   }, []);
+
+  // Check if we should show onboarding for BRAND NEW users only
+  useEffect(() => {
+    // ONLY auto-show onboarding for truly new users on their FIRST login
+    // Show onboarding if:
+    // 1. User is marked as NEW (first time ever)
+    // 2. Onboarding is not complete
+    // 3. User has not connected any accounts yet
+    // 4. User has never created posts
+    if (isNewUser && !isComplete && stats) {
+      const hasNoPosts = stats.totalPosts === 0;
+      const hasNoPlatforms = stats.activePlatforms === 0;
+      
+      // Only show if they've never done anything (truly new user)
+      if (hasNoPosts && hasNoPlatforms && !hasConnectedAccount) {
+        setShowOnboarding(true);
+      }
+    }
+    // If user disconnects all accounts later, they'll see the helpful banner instead
+  }, [isNewUser, isComplete, hasConnectedAccount, stats]);
 
   // Auto-open Content Ideas modal if requested from Create Post page
   useEffect(() => {
@@ -134,6 +158,11 @@ export default function Dashboard() {
     navigate('/create');
   };
 
+  const handleRestartOnboarding = () => {
+    restartOnboarding();
+    setShowOnboarding(true);
+  };
+
   if (loading) {
     return (
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
@@ -174,13 +203,18 @@ export default function Dashboard() {
   const hasNoActivity = displayStats.totalPosts === 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="relative w-full px-4 sm:px-6 lg:px-8 py-8"
-    >
-      {/* Animated Background */}
-      <AnimatedBackground variant="blue" />
+    <>
+      {/* Onboarding Flow for New Users */}
+      {showOnboarding && <OnboardingFlow onComplete={() => setShowOnboarding(false)} />}
+      
+      {/* Regular Dashboard */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative w-full px-4 sm:px-6 lg:px-8 py-8"
+      >
+        {/* Animated Background */}
+        <AnimatedBackground variant="blue" />
 
       <div className="mb-8 relative z-10">
         <motion.h1 
@@ -306,8 +340,43 @@ export default function Dashboard() {
         </Card3D>
       </motion.div>
 
-      {hasNoActivity && (
-        <div className="mb-8">
+      {/* No Connected Accounts Banner */}
+      {displayStats.activePlatforms === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 relative z-10"
+        >
+          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-lg border-2 border-blue-400/30 rounded-2xl p-8 text-center shadow-2xl shadow-blue-500/20">
+            <div className="text-6xl mb-4">🔗</div>
+            <h2 className="text-3xl font-bold text-white mb-3">No Platforms Connected</h2>
+            <p className="text-gray-300 mb-6 text-lg">
+              Connect your social media accounts to start posting across multiple platforms instantly!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/connect-accounts')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all inline-flex items-center gap-2"
+              >
+                <span>🚀 Connect Accounts</span>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleRestartOnboarding}
+                className="glass border-2 border-purple-400/50 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all inline-flex items-center gap-2"
+              >
+                <span>🎓 Restart Tutorial</span>
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {hasNoActivity && displayStats.activePlatforms > 0 && (
+        <div className="mb-8 relative z-10">
           <NoPostsEmpty onCreate={handleCreatePost} />
         </div>
       )}
@@ -452,7 +521,8 @@ export default function Dashboard() {
         isOpen={showContentIdeas}
         onClose={() => setShowContentIdeas(false)}
       />
-    </motion.div>
+      </motion.div>
+    </>
   );
 }
 
