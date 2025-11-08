@@ -46,6 +46,12 @@ INSTAGRAM_APP_SECRET=your_instagram_app_secret
 INSTAGRAM_REDIRECT_URI=http://localhost:3000/auth/instagram/callback
 # For production: INSTAGRAM_REDIRECT_URI=https://capable-motivation-production-7a75.up.railway.app/auth/instagram/callback
 
+# Pinterest OAuth 2.0 (Visual content platform)
+# Get from: https://developers.pinterest.com/apps/
+PINTEREST_APP_ID=your_pinterest_app_id
+PINTEREST_APP_SECRET=your_pinterest_app_secret
+# Note: Pinterest is awaiting API approval. Add credentials once approved (1-3 days)
+
 # Threads API (for future use)
 THREADS_APP_ID=your_threads_app_id
 THREADS_APP_SECRET=your_threads_app_secret

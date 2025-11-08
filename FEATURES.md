@@ -1,14 +1,14 @@
 # ✨ Social Media Automator - Complete Feature List
 
-**Version 6.0 - Team Collaboration Edition**  
-**Last Updated:** November 6, 2025
+**Version 6.1 - Pinterest Edition**  
+**Last Updated:** November 8, 2025
 
 ---
 
 ## 🎯 14 Core Features (All Production-Ready)
 
 ### 1. 🌐 Multi-Platform Posting
-Post to 10 platforms simultaneously from one interface.
+Post to 11 platforms simultaneously from one interface.
 
 **Supported Platforms:**
 - LinkedIn (OAuth 2.0)
@@ -18,6 +18,7 @@ Post to 10 platforms simultaneously from one interface.
 - Reddit (OAuth 2.0)
 - YouTube (OAuth 2.0)
 - TikTok (OAuth 2.0)
+- Pinterest (OAuth 2.0) ⏳ Pending approval
 - Discord (Webhook)
 - Slack (Webhook)
 - Telegram (Bot API)
