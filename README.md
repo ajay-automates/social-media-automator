@@ -13,7 +13,9 @@
 Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, and glassmorphism UI design.
 
 **Key Features:**
-- 🌐 **16 Platforms Integrated**: LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok, Pinterest, Reddit, Discord, Slack, Telegram, Medium, Dev.to, Tumblr, Mastodon, Bluesky
+- 🌐 **16 Platforms Integrated**: 10 Fully Working + 5 Pending Approval + 1 API Restricted
+  - **Working Now:** LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky
+  - **Pending Approval:** Facebook, Instagram, YouTube, Pinterest, TikTok
 - 🤖 **AI Suite** (Claude Sonnet 4):
   - Caption generation (3 variations per topic)
   - Platform-specific post variations (auto-adapt content)
@@ -43,27 +45,35 @@ Premium multi-platform social media automation SaaS with AI-powered content gene
 
 ## 🎯 Platform Status
 
-### ✅ Fully Integrated (16)
-| Platform | Text | Images | Videos | OAuth/Webhook | Status |
-|----------|------|--------|--------|--------------|--------|
-| **LinkedIn** | ✅ | ✅ | ❌ | OAuth 2.0 | Live |
-| **Twitter/X** | ✅ | ✅ | ⚠️ | OAuth 2.0 | Live |
-| **Telegram** | ✅ | ✅ | ✅ | Bot API | Live |
-| **Slack** | ✅ | ✅ | 🔗 | Webhook | Live |
-| **Discord** | ✅ | ✅ | 🔗 | Webhook | Live |
-| **Reddit** | ✅ | ✅ | ✅ | OAuth 2.0 | Live |
-| **YouTube** | ⏳ | ⏳ | ✅ | OAuth 2.0 | Ready |
-| **Instagram** | ✅ | ✅ | ✅ | Graph API | Live |
-| **Facebook** | ✅ | ✅ | ✅ | Graph API | Live |
-| **TikTok** | ❌ | ❌ | ✅ | OAuth 2.0 | Beta |
-| **Pinterest** | ❌ | ✅ | ❌ | OAuth 2.0 | ⏳ Pending |
-| **Dev.to** | ✅ | ✅ | ❌ | API Key | Live |
-| **Tumblr** | ✅ | ✅ | ❌ | OAuth 1.0a | Live |
-| **Mastodon** | ✅ | ✅ | ❌ | Access Token | Live |
-| **Bluesky** | ✅ | ✅ | ❌ | App Password | Live |
-| **Medium** | ✅ | ✅ | ❌ | OAuth 2.0 | ⚠️ API Restricted |
+### ✅ **FULLY WORKING (10 platforms - No Approval Needed)**
+| Platform | Text | Images | Videos | Auth Method | Status |
+|----------|------|--------|--------|-------------|--------|
+| **LinkedIn** | ✅ | ✅ | ❌ | OAuth 2.0 | ✅ Live |
+| **Twitter/X** | ✅ | ✅ | ⚠️ | OAuth 2.0 | ✅ Live |
+| **Telegram** | ✅ | ✅ | ✅ | Bot API | ✅ Live |
+| **Slack** | ✅ | ✅ | 🔗 | Webhook | ✅ Live |
+| **Discord** | ✅ | ✅ | 🔗 | Webhook | ✅ Live |
+| **Reddit** | ✅ | ✅ | ✅ | OAuth 2.0 | ✅ Live |
+| **Dev.to** | ✅ | ✅ | ❌ | API Key | ✅ Live |
+| **Tumblr** | ✅ | ✅ | ❌ | OAuth 1.0a | ✅ Live |
+| **Mastodon** | ✅ | ✅ | ❌ | Access Token | ✅ Live |
+| **Bluesky** | ✅ | ✅ | ❌ | App Password | ✅ Live |
 
-### 🚧 Coming Soon (5)
+### ⏳ **Code Complete - Pending Approval (5)**
+| Platform | Text | Images | Videos | Auth Method | Status |
+|----------|------|--------|--------|-------------|--------|
+| **Facebook** | ✅ | ✅ | ✅ | Graph API | ⏳ Approval Needed |
+| **Instagram** | ✅ | ✅ | ✅ | Graph API | ⏳ Approval Needed |
+| **YouTube** | ⏳ | ⏳ | ✅ | OAuth 2.0 | ⏳ Quota Limited |
+| **Pinterest** | ❌ | ✅ | ❌ | OAuth 2.0 | ⏳ Approval Pending |
+| **TikTok** | ❌ | ❌ | ✅ | OAuth 2.0 | ⏳ Approval Needed |
+
+### ⚠️ **API Restricted (1)**
+| Platform | Status | Note |
+|----------|--------|------|
+| **Medium** | ⚠️ Code Complete | Requires manual email approval from Medium |
+
+### 🚧 **Coming Soon (5)**
 Threads, Quora, Twitch, WhatsApp, Snapchat
 
 **Legend:**

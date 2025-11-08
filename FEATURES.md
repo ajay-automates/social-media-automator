@@ -8,25 +8,29 @@
 ## 🎯 14 Core Features (All Production-Ready)
 
 ### 1. 🌐 Multi-Platform Posting
-Post to 16 platforms simultaneously from one interface.
+Post to 16 platforms (10 fully working, 5 pending approval, 1 API restricted).
 
-**Supported Platforms:**
-- LinkedIn (OAuth 2.0)
-- Twitter/X (OAuth 2.0)
-- Instagram (Facebook Graph API)
-- Facebook (Graph API)
-- Reddit (OAuth 2.0)
-- YouTube (OAuth 2.0)
-- TikTok (OAuth 2.0)
-- Pinterest (OAuth 2.0) ⏳ Pending approval
-- Discord (Webhook)
-- Slack (Webhook)
-- Telegram (Bot API)
-- Medium (OAuth 2.0) ⚠️ API restricted
-- Dev.to (API Key) ✅ Working
-- Tumblr (OAuth 1.0a) ✅ Working
-- Mastodon (Access Token) ✅ Working
-- Bluesky (App Password) ✅ Working 🆕
+**✅ FULLY WORKING PLATFORMS (10 - No Approval Needed):**
+- LinkedIn (OAuth 2.0) ✅
+- Twitter/X (OAuth 2.0) ✅
+- Telegram (Bot API) ✅
+- Slack (Webhook) ✅
+- Discord (Webhook) ✅
+- Reddit (OAuth 2.0) ✅
+- Dev.to (API Key) ✅
+- Tumblr (OAuth 1.0a) ✅
+- Mastodon (Access Token) ✅
+- Bluesky (App Password) ✅
+
+**⏳ CODE COMPLETE - PENDING APPROVAL (5):**
+- Facebook (Graph API) - Meta approval needed
+- Instagram (Graph API) - Meta approval needed
+- YouTube (OAuth 2.0) - Quota/approval needed
+- Pinterest (OAuth 2.0) - Approval pending
+- TikTok (OAuth 2.0) - Approval needed
+
+**⚠️ API RESTRICTED (1):**
+- Medium (OAuth 2.0) - Requires manual email approval from Medium
 
 **Features:**
 - Post text, images, and videos
