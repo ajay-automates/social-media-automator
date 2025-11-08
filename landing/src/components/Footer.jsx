@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { triggerConfetti } from '../utils/confetti';
 
 export default function Footer() {
@@ -102,14 +103,14 @@ export default function Footer() {
             <h4 className="font-bold text-white mb-4">Legal</h4>
             <ul className="space-y-3 text-gray-400 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link to="/terms" className="hover:text-white transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link to="/privacy" className="hover:text-white transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -139,9 +140,13 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-400 text-sm">
-            © 2024 Social Media Automator. All rights reserved.
-          </p>
+          <div className="text-gray-400 text-sm flex flex-wrap gap-4 items-center">
+            <span>© 2025 Social Media Automator. All rights reserved.</span>
+            <span className="hidden md:inline">•</span>
+            <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <span>•</span>
+            <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+          </div>
           
           {/* Social Icons */}
           <div className="flex gap-4">

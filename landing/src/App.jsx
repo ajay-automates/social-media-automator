@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import Testimonials from './components/Testimonials';
@@ -6,6 +7,22 @@ import Stats from './components/Stats';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
 import Footer from './components/Footer';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+
+function HomePage() {
+  return (
+    <>
+      <Hero />
+      <Features />
+      <Stats />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <Footer />
+    </>
+  );
+}
 
 function App() {
   useEffect(() => {
@@ -19,14 +36,12 @@ function App() {
 
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <Hero />
-      <Features />
-      <Stats />
-      <Testimonials />
-      <Pricing />
-      <FAQ />
-      <Footer />
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+      </Routes>
+    </div>
   );
 }
 
