@@ -216,60 +216,9 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
   try {
     const videoSizeMB = videoBuffer.length / (1024 * 1024);
     
-    // For small videos (< 10MB), use simple multipart upload instead of resumable
-    // YouTube's resumable protocol is complex and may have issues with small files
-    if (videoSizeMB < 10) {
-      console.log('   📤 Using simple multipart upload (video < 10MB)...');
-      
-      // Create multipart/related body (use text boundary, not numbers!)
-      const boundary = 'yt_multipart_boundary_' + Date.now();
-      const delimiter = `\r\n--${boundary}\r\n`;
-      const closeDelim = `\r\n--${boundary}--`;
-      
-      const metadataJSON = JSON.stringify(metadata);
-      
-      const multipartBody = Buffer.concat([
-        Buffer.from(delimiter),
-        Buffer.from('Content-Type: application/json; charset=UTF-8\r\n\r\n'),
-        Buffer.from(metadataJSON),
-        Buffer.from(delimiter),
-        Buffer.from('Content-Type: video/mp4\r\n\r\n'),
-        videoBuffer,
-        Buffer.from(closeDelim)
-      ]);
-      
-      console.log('   📦 Multipart body size:', (multipartBody.length / 1024 / 1024).toFixed(2), 'MB');
-      
-      const uploadResponse = await axios.post(
-        `${YOUTUBE_API_BASE}/videos?uploadType=multipart&part=snippet,status`,
-        multipartBody,
-        {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': `multipart/related; boundary=${boundary}`,
-            'Content-Length': multipartBody.length
-          },
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity
-        }
-      );
-      
-      if (!uploadResponse.data.id) {
-        throw new Error('Video upload failed - no video ID returned');
-      }
-      
-      console.log('   ✅ Video uploaded via multipart!');
-      
-      return {
-        success: true,
-        videoId: uploadResponse.data.id
-      };
-    }
-    
-    // For larger videos, use resumable upload
-    console.log('   🔧 Creating resumable upload session (video >= 10MB)...');
-    console.log('   API URL:', `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`);
-    console.log('   Video buffer size:', videoBuffer.length, 'bytes');
+    // Use resumable upload for ALL videos (most reliable method)
+    console.log('   🔧 Creating resumable upload session...');
+    console.log('   📦 Video size:', videoSizeMB.toFixed(2), 'MB');
     
     const createSessionResponse = await axios.post(
       `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`,
@@ -277,10 +226,8 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          'X-Goog-Upload-Protocol': 'resumable',
-          'X-Goog-Upload-Command': 'start',
-          'X-Upload-Content-Length': videoBuffer.length.toString(),
+          'Content-Type': 'application/json; charset=UTF-8',
+          'X-Upload-Content-Length': videoBuffer.length,
           'X-Upload-Content-Type': 'video/*'
         }
       }
@@ -296,11 +243,12 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
     console.log('   📍 Upload session created');
     console.log('   Session URI:', sessionUri);
     
+    // Upload the actual video binary
+    console.log('   📤 Uploading video binary...');
     const uploadDataResponse = await axios.put(sessionUri, videoBuffer, {
       headers: {
-        'Content-Type': 'video/mp4',
-        'X-Goog-Upload-Command': 'upload, finalize',
-        'X-Goog-Upload-Offset': '0'
+        'Content-Length': videoBuffer.length,
+        'Content-Type': 'video/*'
       },
       maxContentLength: Infinity,
       maxBodyLength: Infinity
