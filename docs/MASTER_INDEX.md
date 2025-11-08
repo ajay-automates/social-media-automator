@@ -1,10 +1,10 @@
 # 📚 Social Media Automator - Master Documentation Index
 
 **Last Updated**: November 8, 2025  
-**Version**: 4.3 - Tumblr Edition  
+**Version**: 6.3 - Bluesky Edition  
 **Status**: Production Ready ✅  
-**Platforms**: 14 (13 fully working)  
-**Lines of Code**: 25,000+
+**Platforms**: 16 total (10 working, 5 pending approval, 1 restricted)  
+**Lines of Code**: 28,000+
 
 ---
 
@@ -21,7 +21,8 @@
 ## 📊 PROJECT OVERVIEW
 
 ### **What We Built**
-- ✅ **14 Social Media Platforms** (13 working, 1 restricted)
+- ✅ **16 Social Media Platforms** (10 fully working, 5 pending approval, 1 restricted)
+- ✅ **10 Platforms Work Instantly** (LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky)
 - ✅ **AI-Powered** (Claude Sonnet 4, Stability AI, YouTube transcripts)
 - ✅ **URL Content Generator** (Unique feature!)
 - ✅ **YouTube Transcript** (Unique feature!)
@@ -62,6 +63,7 @@
 
 ### **2. PLATFORM GUIDES** 🌐
 
+**✅ WORKING NOW (10 - No Approval Needed):**
 | Platform | Guide | Auth | Status | Media |
 |----------|-------|------|--------|-------|
 | LinkedIn | [platforms/linkedin.md](platforms/linkedin.md) | OAuth 2.0 | ✅ Live | Text, Images |
@@ -69,13 +71,27 @@
 | Telegram | [platforms/telegram.md](platforms/telegram.md) | Bot API | ✅ Live | Text, Images, Videos |
 | Slack | [platforms/slack.md](platforms/slack.md) | Webhooks | ✅ Live | Text, Images |
 | Discord | [platforms/discord.md](platforms/discord.md) | Webhooks | ✅ Live | Text, Images |
-| Reddit | [platforms/reddit.md](platforms/reddit.md) | OAuth 2.0 | ✅ Live | Text, Images, Videos, Links |
-| Instagram | [platforms/instagram.md](platforms/instagram.md) | OAuth 2.0 | 🟡 Pending | Images, Videos |
-| Facebook | [platforms/facebook.md](platforms/facebook.md) | OAuth 2.0 | 🟡 Pending | Text, Images, Videos |
-| YouTube | [platforms/youtube.md](platforms/youtube.md) | OAuth 2.0 + PKCE | ✅ Live | Videos |
-| TikTok | [platforms/tiktok.md](platforms/tiktok.md) | OAuth 2.0 | ✅ Live | Videos |
+| Reddit | [platforms/reddit.md](platforms/reddit.md) | OAuth 2.0 | ✅ Live | Text, Images, Videos |
+| Dev.to | [platforms/devto.md](platforms/devto.md) | API Key | ✅ Live | Text, Images |
+| Tumblr | [platforms/tumblr.md](platforms/tumblr.md) | OAuth 1.0a | ✅ Live | Text, Images |
+| Mastodon | [platforms/mastodon.md](platforms/mastodon.md) | Access Token | ✅ Live | Text, Images |
+| Bluesky | [platforms/bluesky.md](platforms/bluesky.md) | App Password | ✅ Live | Text, Images |
 
-**Legend**: ✅ Working | 🟡 Pending Review
+**⏳ PENDING APPROVAL (5 - Code Complete):**
+| Platform | Guide | Auth | Status | Media |
+|----------|-------|------|--------|-------|
+| Instagram | [platforms/instagram.md](platforms/instagram.md) | Graph API | ⏳ Approval Needed | Images, Videos |
+| Facebook | [platforms/facebook.md](platforms/facebook.md) | Graph API | ⏳ Approval Needed | Text, Images, Videos |
+| YouTube | [platforms/youtube.md](platforms/youtube.md) | OAuth 2.0 | ⏳ Quota Limited | Videos |
+| Pinterest | [platforms/pinterest.md](platforms/pinterest.md) | OAuth 2.0 | ⏳ Approval Pending | Images |
+| TikTok | [platforms/tiktok.md](platforms/tiktok.md) | OAuth 2.0 | ⏳ Approval Needed | Videos |
+
+**⚠️ API RESTRICTED (1):**
+| Platform | Guide | Auth | Status | Media |
+|----------|-------|------|--------|-------|
+| Medium | [platforms/medium.md](platforms/medium.md) | OAuth 2.0 | ⚠️ Restricted | Text, Images |
+
+**Legend**: ✅ Working | ⏳ Pending Approval | ⚠️ API Restricted
 
 ---
 

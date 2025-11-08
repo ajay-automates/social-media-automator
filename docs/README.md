@@ -57,25 +57,34 @@ Welcome to the complete documentation for the Social Media Automator SaaS platfo
 
 ## 📊 Platform Support Matrix
 
+**✅ FULLY WORKING (10 - No Approval Needed):**
 | Platform | Text | Images | Videos | Status |
 |----------|------|--------|--------|--------|
-| **LinkedIn** | ✅ | ✅ | ❌ | Live |
-| **Twitter/X** | ✅ | ✅ | ⚠️ | Partial |
-| **Telegram** | ✅ | ✅ | ✅ | Live |
-| **Slack** | ✅ | ✅ | 🔗 | Live |
-| **Discord** | ✅ | ✅ | 🔗 | Live |
-| **Reddit** | ✅ | ✅ | ✅ | Live |
-| **Instagram** | ✅ | ✅ | ✅ | Live |
-| **Facebook** | ✅ | ✅ | ✅ | Live |
-| **YouTube** | ⏳ | ⏳ | ✅ | Ready |
-| **TikTok** | ❌ | ❌ | ✅ | Beta |
+| **LinkedIn** | ✅ | ✅ | ❌ | ✅ Live |
+| **Twitter/X** | ✅ | ✅ | ⚠️ | ✅ Live |
+| **Telegram** | ✅ | ✅ | ✅ | ✅ Live |
+| **Slack** | ✅ | ✅ | 🔗 | ✅ Live |
+| **Discord** | ✅ | ✅ | 🔗 | ✅ Live |
+| **Reddit** | ✅ | ✅ | ✅ | ✅ Live |
+| **Dev.to** | ✅ | ✅ | ❌ | ✅ Live |
+| **Tumblr** | ✅ | ✅ | ❌ | ✅ Live |
+| **Mastodon** | ✅ | ✅ | ❌ | ✅ Live |
+| **Bluesky** | ✅ | ✅ | ❌ | ✅ Live |
+
+**⏳ PENDING APPROVAL (5 - Code Complete):**
+| Platform | Text | Images | Videos | Status |
+|----------|------|--------|--------|--------|
+| **Facebook** | ✅ | ✅ | ✅ | ⏳ Approval Needed |
+| **Instagram** | ✅ | ✅ | ✅ | ⏳ Approval Needed |
+| **YouTube** | ⏳ | ⏳ | ✅ | ⏳ Quota Limited |
+| **Pinterest** | ❌ | ✅ | ❌ | ⏳ Approval Pending |
+| **TikTok** | ❌ | ❌ | ✅ | ⏳ Approval Needed |
 
 **Legend:**
 - ✅ Fully Working
-- ⚠️ Partial Support
-- ⏳ Ready (awaiting quota/approval)
+- ⏳ Pending Approval
 - 🔗 Link only (webhooks)
-- ❌ Not Supported
+- ❌ Not Supported by Platform
 
 ---
 
@@ -93,9 +102,9 @@ Welcome to the complete documentation for the Social Media Automator SaaS platfo
 
 ---
 
-**Last Updated**: November 2025  
-**Version**: 4.0  
+**Last Updated**: November 8, 2025  
+**Version**: 6.3 - Bluesky Edition  
 **Status**: Production Ready ✅  
-**Platforms**: 10  
-**Lines of Code**: 10,000+
+**Platforms**: 16 total (10 working, 5 pending, 1 restricted)  
+**Lines of Code**: 28,000+
 
