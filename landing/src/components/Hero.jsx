@@ -4,7 +4,8 @@ import GradientBlobs from './GradientBlobs';
 import { platforms } from '../data/features';
 
 export default function Hero() {
-  const floatingPlatforms = platforms.slice(0, 6);
+  // Show first 6 working platforms
+  const floatingPlatforms = platforms.working.slice(0, 6);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -74,8 +75,9 @@ export default function Hero() {
             variants={itemVariants}
             className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
           >
-            Post to <span className="text-blue-400 font-semibold">25+ platforms</span> at once. 
-            Generate <span className="text-purple-400 font-semibold">AI captions & videos</span> with Claude, Sora & Veo. 
+            Post to <span className="text-blue-400 font-semibold">20+ platforms</span> at once. 
+            <span className="text-green-400 font-semibold">10 working now</span>, 5+ coming soon. 
+            Generate <span className="text-purple-400 font-semibold">AI captions & images</span> with Claude & Stability AI. 
             Schedule weeks in advance. Save <span className="text-pink-400 font-semibold">20+ hours</span> per week.
           </motion.p>
 

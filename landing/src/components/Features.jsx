@@ -1,6 +1,6 @@
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { features } from '../data/features';
+import { features, allFeatures } from '../data/features';
 
 function Feature3D({ feature, index }) {
   const ref = useRef(null);
@@ -145,10 +145,16 @@ function Feature3D({ feature, index }) {
               )}
             </AnimatePresence>
 
-            {/* Static depth indicator */}
-            <div className="absolute bottom-3 right-3">
-              <div className="w-3 h-3 bg-white/60 rounded-full" />
-            </div>
+            {/* Status Badge */}
+            {feature.status === 'available' ? (
+              <div className="absolute top-3 right-3">
+                <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">AVAILABLE</div>
+              </div>
+            ) : (
+              <div className="absolute top-3 right-3">
+                <div className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-bold">SOON</div>
+              </div>
+            )}
           </motion.div>
 
           {/* Layered depth cards in 3D */}
@@ -257,7 +263,9 @@ export default function Features() {
             transition={{ delay: 0.3, duration: 1 }}
             className="text-xl text-gray-300 max-w-3xl mx-auto"
           >
-            24 powerful features • 25+ platforms • AI-powered automation
+            <span className="text-green-400 font-semibold">12 features available now</span> • 
+            <span className="text-purple-400 font-semibold">6 coming soon</span> • 
+            <span className="text-blue-400 font-semibold">20+ platforms</span>
           </motion.p>
 
           <motion.p
@@ -270,10 +278,22 @@ export default function Features() {
           </motion.p>
         </motion.div>
 
-        {/* 3D Interactive Grid */}
+        {/* Available Now Features */}
+        <div className="max-w-7xl mx-auto mb-12">
+          <h3 className="text-2xl font-bold text-green-400 text-center mb-8">✅ Available Now</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-8 mb-16">
+            {features.available.map((feature, index) => (
+              <Feature3D key={feature.id} feature={feature} index={index} />
+            ))}
+          </div>
+        </div>
+
+        {/* Future Suite Features */}
         <div className="max-w-7xl mx-auto mb-20">
+          <h3 className="text-2xl font-bold text-purple-400 text-center mb-4">🚀 Future Suite - Coming Soon</h3>
+          <p className="text-center text-gray-400 mb-8">Advanced features in development</p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-8">
-            {features.map((feature, index) => (
+            {features.futureSuite.map((feature, index) => (
               <Feature3D key={feature.id} feature={feature} index={index} />
             ))}
           </div>
@@ -314,7 +334,7 @@ export default function Features() {
                 backgroundSize: '200% 200%',
               }}
             />
-            <span className="relative z-10">Experience All 24 Features</span>
+            <span className="relative z-10">Try 12 Features - Available Now!</span>
             <motion.span
               animate={{ x: [0, 5, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}

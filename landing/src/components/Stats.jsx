@@ -1,16 +1,16 @@
 import { motion } from 'framer-motion';
 import AnimatedCounter from './AnimatedCounter';
-import { platforms } from '../data/features';
+import { platforms, allPlatforms } from '../data/features';
 
 export default function Stats() {
   const stats = [
     {
-      value: 25,
+      value: 20,
       suffix: '+',
       label: 'Platforms Supported',
       icon: '🌐',
       color: 'from-blue-500 to-cyan-500',
-      description: 'Post to all major social networks'
+      description: '10 working now, more coming soon'
     },
     {
       value: 10000,
@@ -148,29 +148,87 @@ export default function Stats() {
           className="glass rounded-3xl p-8 md:p-12"
         >
           <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-6">
-            Integrated with 25+ Platforms
+            Integrated with 20+ Platforms
           </h3>
           <p className="text-gray-400 text-center mb-8">
-            Connect and post to all major social networks simultaneously
+            <span className="text-green-400 font-semibold">✅ 10 Working Now</span> • 
+            <span className="text-blue-400 font-semibold">⏳ 5 Pending Approval</span> • 
+            <span className="text-purple-400 font-semibold">🚀 5 Coming Soon</span>
           </p>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-4">
-            {platforms.map((platform, index) => {
-              const PlatformIcon = platform.Icon;
-              return (
-                <motion.div
-                  key={platform.name}
-                  initial={{ opacity: 0, scale: 0 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.02 }}
-                  whileHover={{ scale: 1.15, y: -5 }}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer`}
-                >
-                  <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
-                  <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
-                </motion.div>
-              );
-            })}
+
+          {/* Working Now Platforms */}
+          <div className="mb-8">
+            <h4 className="text-lg font-bold text-green-400 text-center mb-4">✅ Working Now - Instant Access</h4>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+              {platforms.working.map((platform, index) => {
+                const PlatformIcon = platform.Icon;
+                return (
+                  <motion.div
+                    key={platform.name}
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.15, y: -5 }}
+                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer border-2 border-green-400/50`}
+                  >
+                    <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
+                    <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
+                    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">NOW</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Pending Approval Platforms */}
+          <div className="mb-8">
+            <h4 className="text-lg font-bold text-blue-400 text-center mb-4">⏳ Pending Platform Approval</h4>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+              {platforms.pending.map((platform, index) => {
+                const PlatformIcon = platform.Icon;
+                return (
+                  <motion.div
+                    key={platform.name}
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.15, y: -5 }}
+                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer opacity-75 border-2 border-blue-400/30`}
+                  >
+                    <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
+                    <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
+                    <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">SOON</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Coming Soon Platforms */}
+          <div>
+            <h4 className="text-lg font-bold text-purple-400 text-center mb-4">🚀 Coming Soon</h4>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+              {platforms.comingSoon.map((platform, index) => {
+                const PlatformIcon = platform.Icon;
+                return (
+                  <motion.div
+                    key={platform.name}
+                    initial={{ opacity: 0, scale: 0 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.15, y: -5 }}
+                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer opacity-50 border-2 border-purple-400/20`}
+                  >
+                    <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
+                    <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
+                    <span className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">2025</span>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
           <motion.div
             initial={{ opacity: 0 }}
