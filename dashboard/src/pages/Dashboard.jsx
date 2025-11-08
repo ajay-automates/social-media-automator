@@ -35,24 +35,9 @@ export default function Dashboard() {
     loadTeamData();
   }, []);
 
-  // Check if we should show onboarding
-  useEffect(() => {
-    // Auto-show onboarding if:
-    // 1. Onboarding is not complete (either new user OR manually restarted)
-    // 2. User has data loaded
-    // 3. Not already showing (prevent infinite loop!)
-    if (!isComplete && stats && !showOnboarding) {
-      const hasNoPosts = stats.totalPosts === 0;
-      const hasNoPlatforms = stats.activePlatforms === 0;
-      
-      // Show for brand new users OR when manually restarted
-      if (isNewUser && hasNoPosts && hasNoPlatforms && !hasConnectedAccount) {
-        console.log('✅ Auto-showing onboarding for new user');
-        setShowOnboarding(true);
-      }
-    }
-    // If user disconnects all accounts later, they'll see the helpful banner instead
-  }, [isNewUser, isComplete, hasConnectedAccount, stats, showOnboarding]);
+  // DISABLED AUTO-TRIGGER to prevent infinite loops
+  // Users will see helpful banner and can manually click "Restart Tutorial"
+  // This is actually BETTER UX - gives users control instead of forcing onboarding
 
   // Auto-open Content Ideas modal if requested from Create Post page
   useEffect(() => {
