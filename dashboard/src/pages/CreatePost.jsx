@@ -1543,7 +1543,36 @@ export default function CreatePost() {
 
         {/* Platform Selection with 3D Chips */}
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-          <h3 className="text-xl font-bold text-white mb-4">🎯 Select Platforms</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-white">🎯 Select Platforms</h3>
+            {connectedAccounts.length > 0 && (
+              <div className="flex gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    const allPlatforms = connectedAccounts.map(acc => acc.platform);
+                    setPlatforms(allPlatforms);
+                    showSuccess(`Selected all ${allPlatforms.length} platforms! 🎯`);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                >
+                  ✅ Select All
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setPlatforms([]);
+                    showSuccess('Deselected all platforms');
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                >
+                  ❌ Clear All
+                </motion.button>
+              </div>
+            )}
+          </div>
           
           {connectedAccounts.length === 0 ? (
             <div className="text-center py-8">

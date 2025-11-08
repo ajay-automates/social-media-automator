@@ -15,8 +15,12 @@ import {
   FaReddit, 
   FaDiscord, 
   FaSlack, 
-  FaTelegram
+  FaTelegram,
+  FaTumblr,
+  FaMedium,
+  FaPinterest
 } from 'react-icons/fa';
+import { SiMastodon, SiBluesky } from 'react-icons/si';
 
 export default function Analytics() {
   const [analytics, setAnalytics] = useState(null);
@@ -403,7 +407,13 @@ export default function Analytics() {
                   reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
                   discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
                   slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border-purple-400/30', name: 'Slack' },
-                  tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: 'TikTok' }
+                  tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: 'TikTok' },
+                  tumblr: { Icon: FaTumblr, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Tumblr' },
+                  devto: { Icon: FaMedium, color: 'bg-gray-900/20 text-gray-300 border-gray-300/30', name: 'Dev.to' },
+                  mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-purple-400 border-purple-400/30', name: 'Mastodon' },
+                  bluesky: { Icon: SiBluesky, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'Bluesky' },
+                  medium: { Icon: FaMedium, color: 'bg-gray-700/20 text-gray-300 border-gray-300/30', name: 'Medium' },
+                  pinterest: { Icon: FaPinterest, color: 'bg-red-600/20 text-red-400 border-red-400/30', name: 'Pinterest' }
                 };
 
                 // Helper function to get post URL from results
