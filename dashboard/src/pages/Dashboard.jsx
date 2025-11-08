@@ -11,8 +11,9 @@ import Card3D from '../components/ui/Card3D';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
 import ContentIdeasModal from '../components/ContentIdeasModal';
-import { useOnboarding } from '../contexts/OnboardingContext';
-import OnboardingFlow from '../components/onboarding/OnboardingFlow';
+// Onboarding temporarily disabled to fix React hooks error
+// import { useOnboarding, OnboardingProvider } from '../contexts/OnboardingContext';
+// import OnboardingFlow from '../components/onboarding/OnboardingFlow';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -26,8 +27,8 @@ export default function Dashboard() {
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
   const [draftsCount, setDraftsCount] = useState(0);
   const [userRole, setUserRole] = useState(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const { isNewUser, isComplete, hasConnectedAccount, restartOnboarding } = useOnboarding();
+  // const [showOnboarding, setShowOnboarding] = useState(false);
+  // const { isNewUser, isComplete, hasConnectedAccount, restartOnboarding } = useOnboarding();
 
   useEffect(() => {
     loadDashboardData();
@@ -142,14 +143,12 @@ export default function Dashboard() {
     navigate('/create');
   };
 
-  const handleRestartOnboarding = () => {
-    console.log('🎓 Restarting onboarding tutorial...');
-    // First update the context to reset state
-    restartOnboarding();
-    // Then show the onboarding modal
-    setShowOnboarding(true);
-    console.log('✅ Onboarding modal state set to true');
-  };
+  // const handleRestartOnboarding = () => {
+  //   console.log('🎓 Restarting onboarding tutorial...');
+  //   restartOnboarding();
+  //   setShowOnboarding(true);
+  //   console.log('✅ Onboarding modal state set to true');
+  // };
 
   if (loading) {
     return (
@@ -190,21 +189,8 @@ export default function Dashboard() {
 
   const hasNoActivity = displayStats.totalPosts === 0;
 
-  // Debug logging (only once on mount)
-  useEffect(() => {
-    console.log('📊 Dashboard loaded with stats:', {
-      activePlatforms: displayStats.activePlatforms,
-      totalPosts: displayStats.totalPosts,
-      isComplete: isComplete
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
-
   return (
     <>
-      {/* Onboarding Flow for New Users */}
-      {showOnboarding && <OnboardingFlow onComplete={() => setShowOnboarding(false)} />}
-      
       {/* Regular Dashboard */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -360,14 +346,7 @@ export default function Dashboard() {
               >
                 <span>🚀 Connect Accounts</span>
               </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleRestartOnboarding}
-                className="glass border-2 border-purple-400/50 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all inline-flex items-center gap-2"
-              >
-                <span>🎓 Restart Tutorial</span>
-              </motion.button>
+              {/* Restart Tutorial button temporarily disabled */}
             </div>
           </div>
         </motion.div>

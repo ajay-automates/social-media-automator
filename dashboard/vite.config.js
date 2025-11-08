@@ -16,7 +16,6 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    historyApiFallback: true,  // Enable SPA routing
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -28,4 +27,5 @@ export default defineConfig({
       },
     },
   },
+  publicDir: 'public',
 })

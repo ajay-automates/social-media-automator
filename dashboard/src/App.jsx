@@ -3,7 +3,6 @@ import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { OnboardingProvider } from './contexts/OnboardingContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
@@ -127,10 +126,9 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <OnboardingProvider>
-          <BrowserRouter>
-            <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-              <Navigation />
+        <BrowserRouter>
+          <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+            <Navigation />
             
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -174,8 +172,7 @@ function App() {
               },
             }}
           />
-          </BrowserRouter>
-        </OnboardingProvider>
+        </BrowserRouter>
       </AuthProvider>
     </ErrorBoundary>
   );

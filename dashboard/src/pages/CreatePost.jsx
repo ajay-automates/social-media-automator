@@ -13,9 +13,9 @@ import VideoSearchModal from '../components/VideoSearchModal';
 import VideoPreview from '../components/VideoPreview';
 import CaptionImproverModal from '../components/CaptionImproverModal';
 import ImageCaptionModal from '../components/ImageCaptionModal';
-import { useOnboarding } from '../contexts/OnboardingContext';
+import { useOnboarding, OnboardingProvider } from '../contexts/OnboardingContext';
 
-export default function CreatePost() {
+function CreatePostContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoading, currentStep, startLoading, stopLoading } = useLoadingState();
@@ -2285,5 +2285,13 @@ export default function CreatePost() {
         </div>
       )}
     </>
+  );
+}
+
+export default function CreatePost() {
+  return (
+    <OnboardingProvider>
+      <CreatePostContent />
+    </OnboardingProvider>
   );
 }
