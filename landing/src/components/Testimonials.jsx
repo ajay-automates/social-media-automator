@@ -34,29 +34,31 @@ export default function Testimonials() {
           </p>
         </motion.div>
 
-        {/* Trust Badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-wrap justify-center gap-8 mb-16"
-        >
-          {trustBadges.map((badge, index) => (
-            <motion.div
-              key={badge.name}
-              whileHover={{ scale: 1.1, y: -5 }}
-              className="flex items-center gap-3 glass px-6 py-4 rounded-xl"
-            >
-              <span className="text-4xl">{badge.logo}</span>
-              <div>
-                <div className="font-bold text-white">{badge.name}</div>
-                <div className="text-sm text-yellow-400">{badge.rating}</div>
-                <div className="text-xs text-gray-400">{badge.reviews}</div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* Trust Badges - Will be added when we have real reviews */}
+        {trustBadges.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-8 mb-16"
+          >
+            {trustBadges.map((badge, index) => (
+              <motion.div
+                key={badge.name}
+                whileHover={{ scale: 1.1, y: -5 }}
+                className="flex items-center gap-3 glass px-6 py-4 rounded-xl"
+              >
+                <span className="text-4xl">{badge.logo}</span>
+                <div>
+                  <div className="font-bold text-white">{badge.name}</div>
+                  <div className="text-sm text-yellow-400">{badge.rating}</div>
+                  <div className="text-xs text-gray-400">{badge.reviews}</div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Infinite Scrolling Carousel */}
         <div className="mb-20">

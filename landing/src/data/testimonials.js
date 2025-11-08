@@ -121,24 +121,6 @@ export const testimonials = [
   }
 ];
 
-export const trustBadges = [
-  {
-    name: "G2",
-    rating: "4.9/5",
-    reviews: "500+ reviews",
-    logo: "🏆"
-  },
-  {
-    name: "Capterra",
-    rating: "4.8/5",
-    reviews: "300+ reviews",
-    logo: "⭐"
-  },
-  {
-    name: "Product Hunt",
-    rating: "#1 Product of the Day",
-    reviews: "Featured",
-    logo: "🚀"
-  }
-];
+// Trust badges removed - will be added when we have real reviews
+export const trustBadges = [];
 
