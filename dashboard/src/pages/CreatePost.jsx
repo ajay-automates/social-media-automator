@@ -13,13 +13,14 @@ import VideoSearchModal from '../components/VideoSearchModal';
 import VideoPreview from '../components/VideoPreview';
 import CaptionImproverModal from '../components/CaptionImproverModal';
 import ImageCaptionModal from '../components/ImageCaptionModal';
-import { useOnboarding, OnboardingProvider } from '../contexts/OnboardingContext';
+// Onboarding temporarily disabled
+// import { useOnboarding, OnboardingProvider } from '../contexts/OnboardingContext';
 
-function CreatePostContent() {
+export default function CreatePost() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoading, currentStep, startLoading, stopLoading } = useLoadingState();
-  const { restartOnboarding } = useOnboarding();
+  // const { restartOnboarding } = useOnboarding();
   const [caption, setCaption] = useState('');
   const [platforms, setPlatforms] = useState([]);
   const [connectedAccounts, setConnectedAccounts] = useState([]);
@@ -1602,21 +1603,7 @@ function CreatePostContent() {
                 >
                   🚀 Connect Accounts
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    console.log('🎓 Restarting onboarding from CreatePost...');
-                    restartOnboarding();
-                    // Navigate to dashboard where onboarding will auto-trigger
-                    setTimeout(() => {
-                      navigate('/dashboard');
-                    }, 50);
-                  }}
-                  className="glass border-2 border-purple-400/50 text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-all"
-                >
-                  🎓 Restart Tutorial
-                </motion.button>
+                {/* Restart Tutorial button temporarily disabled */}
               </div>
             </div>
           ) : (
@@ -2285,13 +2272,5 @@ function CreatePostContent() {
         </div>
       )}
     </>
-  );
-}
-
-export default function CreatePost() {
-  return (
-    <OnboardingProvider>
-      <CreatePostContent />
-    </OnboardingProvider>
   );
 }
