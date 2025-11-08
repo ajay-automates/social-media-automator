@@ -86,6 +86,7 @@ const {
 const { validateBotToken } = require('./services/telegram');
 const { validateDevToApiKey, getDevToUserInfo } = require('./services/devto');
 const { verifyMastodonCredentials } = require('./services/mastodon');
+const { verifyBlueskyCredentials } = require('./services/bluesky');
 const { validateWebhook, sendToSlack } = require('./services/slack');
 const { validateWebhook: validateDiscordWebhook, sendToDiscord } = require('./services/discord');
 const { postToReddit, getModeratedSubreddits } = require('./services/reddit');
@@ -5666,6 +5667,92 @@ app.post('/api/auth/mastodon/connect', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to connect Mastodon account'
+    });
+  }
+});
+
+// ============================================
+// BLUESKY API ROUTES
+// ============================================
+
+// Connect Bluesky account with handle + app password
+app.post('/api/auth/bluesky/connect', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { handle, appPassword } = req.body;
+
+    if (!handle || !appPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Handle and app password are required'
+      });
+    }
+
+    console.log(`🦋 Validating Bluesky credentials for @${handle}...`);
+
+    // Verify credentials and get user info (creates session + gets profile)
+    const userInfo = await verifyBlueskyCredentials(handle, appPassword);
+
+    if (!userInfo.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid Bluesky credentials'
+      });
+    }
+
+    // Save to database
+    const { data: account, error } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'bluesky',
+        platform_name: 'Bluesky',
+        oauth_provider: 'app_password',
+        access_token: userInfo.accessJwt,
+        refresh_token: userInfo.refreshJwt,
+        platform_user_id: userInfo.did,
+        platform_username: userInfo.handle,
+        platform_metadata: JSON.stringify({
+          did: userInfo.did,
+          handle: userInfo.handle,
+          displayName: userInfo.displayName,
+          followersCount: userInfo.followersCount,
+          followsCount: userInfo.followsCount,
+          postsCount: userInfo.postsCount
+        }),
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving Bluesky credentials:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to save Bluesky connection'
+      });
+    }
+
+    console.log(`✅ Bluesky connected for user ${userId}: @${userInfo.handle}`);
+
+    res.json({
+      success: true,
+      account: {
+        id: account.id,
+        platform: 'bluesky',
+        handle: userInfo.handle,
+        displayName: userInfo.displayName
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error connecting Bluesky:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to connect Bluesky account'
     });
   }
 });

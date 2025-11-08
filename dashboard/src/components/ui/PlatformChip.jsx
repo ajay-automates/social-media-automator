@@ -15,7 +15,7 @@ import {
   FaMedium,
   FaTumblr
 } from 'react-icons/fa';
-import { SiMastodon } from 'react-icons/si';
+import { SiMastodon, SiBluesky } from 'react-icons/si';
 
 const platformConfig = {
   linkedin: { Icon: FaLinkedin, gradient: 'from-blue-500 to-blue-600', name: 'LinkedIn' },
@@ -34,6 +34,7 @@ const platformConfig = {
   devto: { Icon: FaMedium, gradient: 'from-gray-900 to-black', name: 'Dev.to' },
   tumblr: { Icon: FaTumblr, gradient: 'from-blue-600 to-blue-700', name: 'Tumblr' },
   mastodon: { Icon: SiMastodon, gradient: 'from-purple-600 to-indigo-700', name: 'Mastodon' },
+  bluesky: { Icon: SiBluesky, gradient: 'from-blue-500 to-sky-600', name: 'Bluesky' },
 };
 
 export default function PlatformChip({ 

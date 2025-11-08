@@ -687,6 +687,42 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             }
           }
         }
+        else if (platform === 'bluesky') {
+          // Bluesky - AT Protocol social network
+          if (credentials.bluesky && Array.isArray(credentials.bluesky)) {
+            results.bluesky = [];
+            for (const account of credentials.bluesky) {
+              try {
+                const { postToBluesky, formatBlueskyText } = require('./bluesky');
+                
+                // Format text (handle 300 char limit)
+                const formattedText = formatBlueskyText(text, 300);
+                
+                const result = await postToBluesky(
+                  formattedText,
+                  image_url,
+                  account
+                );
+                
+                results.bluesky.push(result);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to Bluesky (@${account.handle}): ${result.url}`);
+                } else {
+                  console.log(`    ❌ Bluesky error: ${result.error}`);
+                }
+              } catch (err) {
+                console.error(`    ❌ Bluesky error:`, err.message);
+                results.bluesky.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'bluesky',
+                  account: account.handle || 'Bluesky'
+                });
+              }
+            }
+          }
+        }
 
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);

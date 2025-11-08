@@ -45,6 +45,9 @@ export default function ConnectAccounts() {
   const [showMastodonModal, setShowMastodonModal] = useState(false);
   const [mastodonAccessToken, setMastodonAccessToken] = useState('');
   const [mastodonInstanceUrl, setMastodonInstanceUrl] = useState('mastodon.social');
+  const [showBlueskyModal, setShowBlueskyModal] = useState(false);
+  const [blueskyHandle, setBlueskyHandle] = useState('');
+  const [blueskyAppPassword, setBlueskyAppPassword] = useState('');
 
   
   // Check if platform is already connected
@@ -295,6 +298,35 @@ export default function ConnectAccounts() {
     }
   };
 
+  const connectBluesky = () => {
+    setShowBlueskyModal(true);
+  };
+
+  const handleBlueskyConnect = async () => {
+    if (!blueskyHandle.trim() || !blueskyAppPassword.trim()) {
+      showError('Please fill in all fields');
+      return;
+    }
+
+    try {
+      const response = await api.post('/auth/bluesky/connect', {
+        handle: blueskyHandle,
+        appPassword: blueskyAppPassword
+      });
+      
+      if (response.data.success) {
+        showSuccess('Bluesky connected successfully!');
+        setShowBlueskyModal(false);
+        setBlueskyHandle('');
+        setBlueskyAppPassword('');
+        loadAccounts();
+      }
+    } catch (err) {
+      console.error('Error connecting Bluesky:', err);
+      showError(err.response?.data?.error || 'Failed to connect Bluesky');
+    }
+  };
+
   const handleComingSoon = (platform) => {
     setComingSoonPlatform(platform);
     setShowComingSoonModal(true);
@@ -542,6 +574,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'devto' && <FaMedium className="text-5xl text-gray-900" />}
                           {account?.platform === 'tumblr' && <FaTumblr className="text-5xl text-blue-500" />}
                           {account?.platform === 'mastodon' && <SiMastodon className="text-5xl text-purple-500" />}
+                          {account?.platform === 'bluesky' && <SiBluesky className="text-5xl text-blue-500" />}
                         </div>
                         <div className="relative text-5xl drop-shadow-lg">
                           {account?.platform === 'linkedin' && <FaLinkedin className="text-blue-400" />}
@@ -559,6 +592,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'devto' && <FaMedium className="text-gray-800" />}
                           {account?.platform === 'tumblr' && <FaTumblr className="text-blue-400" />}
                           {account?.platform === 'mastodon' && <SiMastodon className="text-purple-400" />}
+                          {account?.platform === 'bluesky' && <SiBluesky className="text-blue-400" />}
                         </div>
                       </div>
                       
@@ -799,6 +833,15 @@ export default function ConnectAccounts() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <SiMastodon className="relative text-4xl text-white drop-shadow-lg" />
               <span className="relative font-bold text-sm text-white">Mastodon</span>
+            </button>
+            )}
+            
+            {/* Bluesky - Working */}
+            {!isPlatformConnected('bluesky') && (
+            <button onClick={connectBluesky} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-500 to-sky-600 border-2 border-blue-400/50 rounded-xl hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <SiBluesky className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Bluesky</span>
             </button>
             )}
             
@@ -1121,6 +1164,68 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowMastodonModal(false)}
+                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Bluesky Modal */}
+      {showBlueskyModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+          >
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <SiBluesky className="text-2xl text-blue-400" />
+              Connect Bluesky
+            </h3>
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Handle <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={blueskyHandle}
+                  onChange={(e) => setBlueskyHandle(e.target.value)}
+                  placeholder="username.bsky.social"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Your Bluesky handle (e.g., ajay.bsky.social)
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  App Password <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="password"
+                  value={blueskyAppPassword}
+                  onChange={(e) => setBlueskyAppPassword(e.target.value)}
+                  placeholder="xxxx-xxxx-xxxx-xxxx"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Create at: <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Settings → App Passwords</a>
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleBlueskyConnect}
+                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Connect
+              </button>
+              <button
+                onClick={() => setShowBlueskyModal(false)}
                 className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
               >
                 Cancel

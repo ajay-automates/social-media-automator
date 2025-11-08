@@ -1023,7 +1023,8 @@ async function getUserCredentialsForPosting(userId) {
       medium: [],
       devto: [],
       tumblr: [],
-      mastodon: []
+      mastodon: [],
+      bluesky: []
     };
     
     accounts?.forEach(account => {
@@ -1186,6 +1187,14 @@ async function getUserCredentialsForPosting(userId) {
           accessToken: account.access_token,
           instanceUrl: metadata.instanceUrl || 'https://mastodon.social',
           username: account.platform_username
+        });
+      } else if (account.platform === 'bluesky') {
+        const metadata = account.platform_metadata ? JSON.parse(account.platform_metadata) : {};
+        credentials.bluesky.push({
+          accessJwt: account.access_token,
+          refreshJwt: account.refresh_token,
+          did: account.platform_user_id,
+          handle: account.platform_username
         });
       }
     });
