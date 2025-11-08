@@ -24,6 +24,7 @@ Post to 11 platforms simultaneously from one interface.
 - Telegram (Bot API)
 - Medium (OAuth 2.0) ⚠️ API restricted
 - Dev.to (API Key) ✅ Working
+- Tumblr (OAuth 1.0a) ✅ Working
 
 **Features:**
 - Post text, images, and videos

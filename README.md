@@ -13,7 +13,7 @@
 Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, and glassmorphism UI design.
 
 **Key Features:**
-- 🌐 **13 Platforms Integrated**: LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok, Pinterest, Reddit, Discord, Slack, Telegram, Medium, Dev.to
+- 🌐 **14 Platforms Integrated**: LinkedIn, Twitter, Instagram, Facebook, YouTube, TikTok, Pinterest, Reddit, Discord, Slack, Telegram, Medium, Dev.to, Tumblr
 - 🤖 **AI Suite** (Claude Sonnet 4):
   - Caption generation (3 variations per topic)
   - Platform-specific post variations (auto-adapt content)
@@ -43,7 +43,7 @@ Premium multi-platform social media automation SaaS with AI-powered content gene
 
 ## 🎯 Platform Status
 
-### ✅ Fully Integrated (13)
+### ✅ Fully Integrated (14)
 | Platform | Text | Images | Videos | OAuth/Webhook | Status |
 |----------|------|--------|--------|--------------|--------|
 | **LinkedIn** | ✅ | ✅ | ❌ | OAuth 2.0 | Live |
@@ -309,9 +309,9 @@ Built with:
 
 ## 📊 Project Stats
 
-- **Total Files**: 115+
-- **Lines of Code**: 24,500+
-- **Platforms**: 12 fully integrated (13 total)
+- **Total Files**: 118+
+- **Lines of Code**: 25,000+
+- **Platforms**: 13 fully integrated (14 total)
 - **API Endpoints**: 65+ (including 19 team collaboration endpoints)
 - **Database Tables**: 17 (5 new for team collaboration)
 - **React Components**: 47+

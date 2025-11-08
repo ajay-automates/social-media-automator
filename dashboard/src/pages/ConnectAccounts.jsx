@@ -249,6 +249,20 @@ export default function ConnectAccounts() {
     setShowDevToModal(true);
   };
 
+  const connectTumblr = async () => {
+    try {
+      const response = await api.post('/auth/tumblr/url');
+      if (response.data.success && response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        showError('Failed to generate Tumblr auth URL');
+      }
+    } catch (err) {
+      console.error('Error connecting Tumblr:', err);
+      showError(err.response?.data?.error || 'Failed to connect Tumblr');
+    }
+  };
+
   const handleComingSoon = (platform) => {
     setComingSoonPlatform(platform);
     setShowComingSoonModal(true);
@@ -494,6 +508,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'tiktok' && <FaTiktok className="text-5xl text-gray-300" />}
                           {account?.platform === 'medium' && <FaMedium className="text-5xl text-gray-100" />}
                           {account?.platform === 'devto' && <FaMedium className="text-5xl text-gray-900" />}
+                          {account?.platform === 'tumblr' && <FaTumblr className="text-5xl text-blue-500" />}
                         </div>
                         <div className="relative text-5xl drop-shadow-lg">
                           {account?.platform === 'linkedin' && <FaLinkedin className="text-blue-400" />}
@@ -509,6 +524,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'tiktok' && <FaTiktok className="text-gray-300" />}
                           {account?.platform === 'medium' && <FaMedium className="text-gray-50" />}
                           {account?.platform === 'devto' && <FaMedium className="text-gray-800" />}
+                          {account?.platform === 'tumblr' && <FaTumblr className="text-blue-400" />}
                         </div>
                       </div>
                       
@@ -734,6 +750,15 @@ export default function ConnectAccounts() {
             </button>
             )}
             
+            {/* Tumblr - Working */}
+            {!isPlatformConnected('tumblr') && (
+            <button onClick={connectTumblr} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-500/50 rounded-xl hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-600/50 hover:scale-105 transition-all duration-200">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <FaTumblr className="relative text-4xl text-white drop-shadow-lg" />
+              <span className="relative font-bold text-sm text-white">Tumblr</span>
+            </button>
+            )}
+            
             {/* Coming Soon Platforms - Keep Solid Bold Colors */}
             <button onClick={() => handleComingSoon('Pinterest')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -781,13 +806,6 @@ export default function ConnectAccounts() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <SiMastodon className="relative text-4xl text-white drop-shadow-lg" />
               <span className="relative font-semibold text-sm text-white">Mastodon</span>
-              <span className="relative text-xs text-white/80">Coming Soon</span>
-            </button>
-            
-            <button onClick={() => handleComingSoon('Tumblr')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-700 to-indigo-800 border-2 border-blue-600/50 rounded-xl hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-700/50 hover:scale-105 transition-all duration-200 opacity-75 hover:opacity-100">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <FaTumblr className="relative text-4xl text-white drop-shadow-lg" />
-              <span className="relative font-semibold text-sm text-white">Tumblr</span>
               <span className="relative text-xs text-white/80">Coming Soon</span>
             </button>
             

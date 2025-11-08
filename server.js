@@ -76,6 +76,8 @@ const {
   handlePinterestCallback,
   initiateMediumOAuth,
   handleMediumCallback,
+  initiateTumblrOAuth,
+  handleTumblrCallback,
   disconnectAccount,
   disconnectAccountById,
   getUserConnectedAccounts,
@@ -5507,6 +5509,73 @@ app.get('/api/pinterest/boards/:userId', verifyAuth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching Pinterest boards:', error);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// TUMBLR OAUTH ROUTES (OAuth 1.0a)
+// ============================================
+
+// Get Tumblr OAuth URL (Step 1)
+app.post('/api/auth/tumblr/url', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    if (!process.env.TUMBLR_CONSUMER_KEY) {
+      return res.status(503).json({
+        success: false,
+        error: 'Tumblr integration not configured. Please add TUMBLR_CONSUMER_KEY to environment variables.'
+      });
+    }
+
+    const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/tumblr/callback`;
+    const { authUrl } = await initiateTumblrOAuth(userId, redirectUri);
+    
+    console.log('📘 Tumblr OAuth URL generated for user:', userId);
+    
+    res.json({ 
+      success: true, 
+      url: authUrl 
+    });
+
+  } catch (error) {
+    console.error('Error generating Tumblr OAuth URL:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to generate Tumblr OAuth URL'
+    });
+  }
+});
+
+// Tumblr OAuth callback (Step 3)
+app.get('/auth/tumblr/callback', async (req, res) => {
+  try {
+    const { oauth_token, oauth_verifier, denied } = req.query;
+    
+    console.log('📘 Tumblr callback received');
+
+    // Handle user denial
+    if (denied) {
+      console.error('Tumblr OAuth denied by user');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=tumblr_denied`);
+    }
+
+    if (!oauth_token || !oauth_verifier) {
+      console.error('Tumblr callback missing parameters');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=tumblr_missing_params`);
+    }
+
+    // Complete OAuth flow
+    const result = await handleTumblrCallback(oauth_token, oauth_verifier);
+
+    console.log('✅ Tumblr account connected successfully:', result.blogName);
+    
+    // Redirect to settings with success message
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?success=tumblr_connected&blog=${encodeURIComponent(result.blogName)}`);
+
+  } catch (error) {
+    console.error('❌ Tumblr callback error:', error);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=tumblr_failed`);
   }
 });
 

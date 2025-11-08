@@ -1002,7 +1002,7 @@ async function getUserCredentialsForPosting(userId) {
     // Use supabaseAdmin to bypass RLS
     const { data: accounts, error } = await supabaseAdmin
       .from('user_accounts')
-      .select('platform, access_token, refresh_token, platform_user_id, token_expires_at')
+      .select('platform, access_token, refresh_token, platform_user_id, platform_username, platform_metadata, token_expires_at')
       .eq('user_id', userId)
       .eq('status', 'active');
     
@@ -1021,7 +1021,8 @@ async function getUserCredentialsForPosting(userId) {
       youtube: [],
       pinterest: [],
       medium: [],
-      devto: []
+      devto: [],
+      tumblr: []
     };
     
     accounts?.forEach(account => {
@@ -1167,6 +1168,17 @@ async function getUserCredentialsForPosting(userId) {
           apiKey: account.access_token,
           username: account.platform_username
         });
+      } else if (account.platform === 'tumblr') {
+        const metadata = account.platform_metadata ? JSON.parse(account.platform_metadata) : {};
+        const blogName = metadata.blogName || account.platform_username;
+        
+        credentials.tumblr.push({
+          accessToken: account.access_token,
+          accessTokenSecret: account.refresh_token, // Token secret stored as refresh_token
+          blogName: blogName,
+          blogTitle: metadata.blogTitle || blogName,
+          allBlogs: metadata.allBlogs || []
+        });
       }
     });
     
@@ -1265,6 +1277,145 @@ async function handlePinterestCallback(code, state, redirectUri) {
     };
   } catch (error) {
     console.error('Pinterest OAuth callback error:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
+// ============================================
+// TUMBLR OAUTH (OAuth 1.0a)
+// ============================================
+
+/**
+ * Initiate Tumblr OAuth flow
+ * @param {string} userId - User ID from Supabase auth
+ * @param {string} redirectUri - Callback URL
+ * @returns {Object} Authorization URL and request token secret (to store temporarily)
+ */
+async function initiateTumblrOAuth(userId, redirectUri) {
+  try {
+    const { getRequestToken } = require('./tumblr');
+    
+    if (!process.env.TUMBLR_CONSUMER_KEY) {
+      throw new Error('Tumblr OAuth not configured. Set TUMBLR_CONSUMER_KEY in environment variables.');
+    }
+
+    // Step 1: Get request token
+    const { requestToken, requestTokenSecret } = await getRequestToken(redirectUri);
+
+    // Store request token secret temporarily (needed for step 3)
+    // We'll use the oauth_states table for temporary storage
+    await supabaseAdmin
+      .from('oauth_states')
+      .insert({
+        state: requestToken,
+        code_verifier: requestTokenSecret, // Store token secret here
+        user_id: userId,
+        platform: 'tumblr',
+        expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 minutes
+      });
+
+    // Step 2: Build authorization URL
+    const authUrl = `https://www.tumblr.com/oauth/authorize?oauth_token=${requestToken}`;
+
+    console.log('✅ Tumblr OAuth flow initiated');
+
+    return {
+      authUrl,
+      requestToken
+    };
+
+  } catch (error) {
+    console.error('❌ Error initiating Tumblr OAuth:', error);
+    throw error;
+  }
+}
+
+/**
+ * Handle Tumblr OAuth callback
+ * @param {string} oauthToken - Request token from callback
+ * @param {string} oauthVerifier - Verifier from callback
+ * @returns {object} Account info
+ */
+async function handleTumblrCallback(oauthToken, oauthVerifier) {
+  try {
+    console.log('🔄 Processing Tumblr OAuth callback...');
+
+    // Get stored request token secret
+    const { data: stateRecord, error: stateError } = await supabaseAdmin
+      .from('oauth_states')
+      .select('user_id, code_verifier')
+      .eq('state', oauthToken)
+      .eq('platform', 'tumblr')
+      .single();
+
+    if (stateError || !stateRecord) {
+      console.error('OAuth state lookup error:', stateError);
+      throw new Error('Invalid or expired OAuth state');
+    }
+
+    const userId = stateRecord.user_id;
+    const requestTokenSecret = stateRecord.code_verifier;
+
+    // Delete the temporary state
+    await supabaseAdmin
+      .from('oauth_states')
+      .delete()
+      .eq('state', oauthToken);
+
+    // Step 3: Exchange for access token
+    const { getAccessToken, getTumblrUserInfo } = require('./tumblr');
+    const { accessToken, accessTokenSecret } = await getAccessToken(
+      oauthToken,
+      requestTokenSecret,
+      oauthVerifier
+    );
+
+    // Get user info and blogs
+    const userInfo = await getTumblrUserInfo(accessToken, accessTokenSecret);
+
+    // Store in database
+    const { data: account, error } = await supabaseAdmin
+      .from('user_accounts')
+      .upsert({
+        user_id: userId,
+        platform: 'tumblr',
+        platform_name: 'Tumblr',
+        oauth_provider: 'tumblr',
+        access_token: accessToken,
+        refresh_token: accessTokenSecret, // Store token secret as refresh_token
+        platform_user_id: userInfo.primaryBlog.uuid,
+        platform_username: userInfo.primaryBlog.name,
+        platform_metadata: JSON.stringify({
+          blogName: userInfo.primaryBlog.name,
+          blogTitle: userInfo.primaryBlog.title,
+          blogUrl: userInfo.primaryBlog.url,
+          allBlogs: userInfo.blogs.map(b => ({ name: b.name, title: b.title, url: b.url }))
+        }),
+        status: 'active',
+        connected_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,platform,platform_user_id'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving Tumblr credentials:', error);
+      throw error;
+    }
+
+    console.log(`✅ Tumblr connected successfully for user ${userId}: ${userInfo.primaryBlog.name}`);
+
+    return {
+      success: true,
+      accountId: account.id,
+      blogName: userInfo.primaryBlog.name,
+      blogTitle: userInfo.primaryBlog.title,
+      platform: 'tumblr'
+    };
+
+  } catch (error) {
+    console.error('❌ Tumblr OAuth callback error:', error.response?.data || error.message);
     throw error;
   }
 }
@@ -1417,6 +1568,10 @@ module.exports = {
   // Medium
   initiateMediumOAuth,
   handleMediumCallback,
+  
+  // Tumblr
+  initiateTumblrOAuth,
+  handleTumblrCallback,
   
   // Common
   disconnectAccount,

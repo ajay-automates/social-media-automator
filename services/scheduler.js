@@ -613,6 +613,43 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             }
           }
         }
+        else if (platform === 'tumblr') {
+          // Tumblr - supports text and photo posts
+          if (credentials.tumblr && Array.isArray(credentials.tumblr)) {
+            results.tumblr = [];
+            for (const account of credentials.tumblr) {
+              try {
+                const { formatTumblrPost, postToTumblr } = require('./tumblr');
+                
+                // Format post based on whether there's an image
+                const { type, data } = formatTumblrPost(text, image_url);
+                
+                const result = await postToTumblr(
+                  account.blogName,
+                  type,
+                  data,
+                  account
+                );
+                
+                results.tumblr.push(result);
+                
+                if (result.success) {
+                  console.log(`    ✅ Posted to Tumblr (${account.blogName}): ${result.url}`);
+                } else {
+                  console.log(`    ❌ Tumblr error: ${result.error}`);
+                }
+              } catch (err) {
+                console.error(`    ❌ Tumblr error:`, err.message);
+                results.tumblr.push({
+                  success: false,
+                  error: err.message,
+                  platform: 'tumblr',
+                  account: account.blogName || 'Tumblr'
+                });
+              }
+            }
+          }
+        }
 
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);

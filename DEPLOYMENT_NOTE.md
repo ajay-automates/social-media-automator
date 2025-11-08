@@ -1,8 +1,8 @@
-# 🚀 DEPLOYMENT NOTE - Medium & Dev.to Integration
+# 🚀 DEPLOYMENT NOTE - Medium, Dev.to & Tumblr Integration
 
 **Date:** November 8, 2025  
-**Version:** 4.2  
-**New Platforms:** Medium (code only), Dev.to (fully working)
+**Version:** 4.3 - Tumblr Edition  
+**New Platforms:** Medium (code only), Dev.to (fully working), Tumblr (fully working)
 
 ---
 
@@ -51,30 +51,33 @@ COMMENT ON CONSTRAINT user_accounts_platform_check ON user_accounts IS
 6. Click **"Run"** (or press Ctrl+Enter)
 7. Should see: **"Success. No rows returned"**
 
-### Step 2: Add Dev.to API Key to Railway
+### Step 2: Add API Keys to Railway
 
 **Railway Dashboard:**
 1. Go to https://railway.app/dashboard
 2. Find your project
 3. Click **"Variables"** tab
-4. Add variable:
-   ```
-   Name: DEV_TO_API_KEY
-   Value: Q3QMaaq53dyqJsebtZ6ry14N
-   ```
-5. Click **"Add"**
+4. Add these variables:
 
-**Note:** This is optional - users will provide their own Dev.to API keys. But good to have as fallback.
+```
+DEV_TO_API_KEY=Q3QMaaq53dyqJsebtZ6ry14N
+TUMBLR_CONSUMER_KEY=eWJKyTF66CcQVYawPVDjppzlLp2TzuUwt9MeKNUJgKwU7ikZs5
+TUMBLR_CONSUMER_SECRET=7zhQ23wAm47B3L4vOBvuLap9NoxrXlWn7LeuHg8VT05EsjeqHj
+```
+
+**Note:** Dev.to key is optional - users provide their own. Tumblr keys are required for OAuth.
 
 ---
 
 ## 📦 What's Being Deployed
 
-### New Files (3)
-- `services/devto.js` - Dev.to API integration
-- `services/medium.js` - Medium API integration (restricted access)
+### New Files (4)
+- `services/devto.js` - Dev.to API integration (235 lines)
+- `services/medium.js` - Medium API integration (250 lines)
+- `services/tumblr.js` - Tumblr OAuth 1.0a integration (344 lines)
 - `docs/platforms/devto.md` - Dev.to setup guide
 - `docs/platforms/medium.md` - Medium setup guide
+- `docs/platforms/tumblr.md` - Tumblr setup guide
 - `migrations/018_add_medium_devto_platforms.sql` - Database migration
 
 ### Modified Files (8)
@@ -89,6 +92,7 @@ COMMENT ON CONSTRAINT user_accounts_platform_check ON user_accounts IS
 
 ### Platform Status
 - **Dev.to:** ✅ Fully working (API key auth - super simple!)
+- **Tumblr:** ✅ Fully working (OAuth 1.0a - tested and verified!)
 - **Medium:** ⚠️ Code complete but API restricted (requires email approval)
 
 ---
