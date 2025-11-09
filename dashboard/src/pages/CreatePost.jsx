@@ -853,13 +853,13 @@ export default function CreatePost() {
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-bold text-gray-900 dark:bg-gradient-to-r dark:from-purple-300 dark:to-pink-300 dark:bg-clip-text dark:text-transparent"
+            className="text-4xl font-bold text-gray-900 tracking-tight dark:bg-gradient-to-r dark:from-purple-300 dark:to-pink-300 dark:bg-clip-text dark:text-transparent"
           >
             Create Post
           </motion.h1>
         </div>
         
-        <div className="bg-white dark:bg-gray-900/30 border border-gray-200 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-2xl p-8 space-y-6 relative z-10">
+        <div className="bg-white dark:bg-gray-900/30 border border-gray-200 dark:border-white/10 rounded-2xl shadow-lg shadow-gray-900/5 dark:shadow-2xl p-8 space-y-6 relative z-10">
           {/* Reddit-Specific Fields */}
           {platforms.includes('reddit') && (
             <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">
@@ -950,7 +950,7 @@ export default function CreatePost() {
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="What's on your mind?"
-              className="w-full p-4 bg-white dark:bg-gray-800/50 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-500 dark:placeholder:text-gray-400"
+              className="w-full p-4 bg-white dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:shadow-lg focus:shadow-blue-600/10 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-400"
               rows={6}
             />
             {/* Character Counter - Multi-Platform */}
@@ -1049,7 +1049,7 @@ export default function CreatePost() {
                       whileTap={{ scale: 0.95 }}
                       onClick={generateAIHashtags}
                       disabled={generatingHashtags}
-                      className="bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 dark:hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                      className="bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/20 dark:hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
                     >
                       {generatingHashtags ? (
                         <>

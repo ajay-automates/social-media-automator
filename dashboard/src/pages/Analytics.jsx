@@ -191,8 +191,8 @@ export default function Analytics() {
     >
         <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:bg-gradient-to-r dark:from-blue-300 dark:to-purple-300 dark:bg-clip-text dark:text-transparent mb-2">Analytics</h1>
-          <p className="text-gray-700 dark:text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
+          <h1 className="text-4xl font-bold text-gray-900 tracking-tight dark:bg-gradient-to-r dark:from-blue-300 dark:to-purple-300 dark:bg-clip-text dark:text-transparent mb-2">Analytics</h1>
+          <p className="text-gray-600 text-lg dark:text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
         </div>
         <div className="flex gap-3">
           <a
@@ -239,7 +239,7 @@ export default function Analytics() {
               loadAnalytics();
               loadHistory();
             }}
-            className="group relative bg-blue-600 dark:bg-blue-600/30 backdrop-blur-lg border dark:border-2 dark:border-blue-400/30 text-white dark:text-white px-6 py-3 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600/40 transition-all flex items-center gap-2 dark:shadow-lg dark:hover:shadow-blue-500/30 overflow-hidden"
+            className="group relative bg-blue-600 dark:bg-blue-600/30 backdrop-blur-lg border dark:border-2 dark:border-blue-400/30 text-white dark:text-white px-6 py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5 dark:hover:bg-blue-600/40 transition-all duration-200 flex items-center gap-2 dark:shadow-lg dark:hover:shadow-blue-500/30 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -293,7 +293,7 @@ export default function Analytics() {
         {/* Timeline Chart */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-sm dark:shadow-xl p-6 overflow-hidden"
+          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-lg shadow-gray-900/5 dark:shadow-xl p-6 overflow-hidden hover:-translate-y-0.5 transition-all duration-300"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -320,7 +320,7 @@ export default function Analytics() {
         {/* Platform Distribution */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-sm dark:shadow-xl p-6 overflow-hidden"
+          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-lg shadow-gray-900/5 dark:shadow-xl p-6 overflow-hidden hover:-translate-y-0.5 transition-all duration-300"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
