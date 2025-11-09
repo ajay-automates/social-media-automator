@@ -2223,12 +2223,12 @@ app.get('/auth/linkedin/callback', async (req, res) => {
     
     if (error) {
       console.error('LinkedIn OAuth error:', error);
-      return res.redirect('/dashboard?error=linkedin_denied');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_denied`);
     }
     
     if (!code || !state) {
       console.error('Missing code or state parameter');
-      return res.redirect('/dashboard?error=linkedin_missing_params');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_missing_params`);
     }
     
     // Decrypt state to get userId
@@ -2238,7 +2238,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       console.log('  - Decrypted user ID:', userId);
     } catch (stateError) {
       console.error('State decryption error:', stateError.message);
-      return res.redirect('/dashboard?error=linkedin_invalid_state');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_invalid_state`);
     }
     
     // Exchange code for access token
@@ -2261,7 +2261,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       });
     } catch (tokenError) {
       console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
-      return res.redirect('/dashboard?error=linkedin_token_exchange_failed');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_token_exchange_failed`);
     }
     
     const { access_token, expires_in } = tokenResponse.data;
@@ -2297,10 +2297,10 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       });
     
     console.log(`✅ LinkedIn account connected for user ${userId}`);
-    res.redirect('/connect-accounts?connected=linkedin&success=true');
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?connected=linkedin&success=true`);
   } catch (error) {
     console.error('Error in LinkedIn callback:', error.message);
-    res.redirect('/dashboard?error=linkedin_failed');
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_failed`);
   }
 });
 
@@ -2524,12 +2524,12 @@ app.get('/auth/twitter/callback', async (req, res) => {
     
     if (error) {
       console.error('Twitter OAuth error:', error);
-      return res.redirect('/dashboard?error=twitter_denied');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_denied`);
     }
     
     if (!code || !state) {
       console.error('Missing code or state parameter');
-      return res.redirect('/dashboard?error=twitter_missing_params');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_missing_params`);
     }
     
     // Get stored code_verifier - check both stores
@@ -2581,7 +2581,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.error('  - Looking for state:', state.substring(0, 20) + '...');
       console.error('  - Server may have restarted - PKCE state lost');
       console.error('  - Try connecting again within 10 minutes of deployment');
-      return res.redirect('/dashboard?error=twitter_expired');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_expired`);
     }
     
     const { codeVerifier, userId } = pkceData;
@@ -2610,7 +2610,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.log('  - Token exchange successful');
     } catch (tokenError) {
       console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
-      return res.redirect('/dashboard?error=twitter_token_exchange_failed');
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_token_exchange_failed`);
     }
     
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
@@ -2702,10 +2702,10 @@ app.get('/auth/twitter/callback', async (req, res) => {
     }
     
     console.log(`✅ Twitter account connected for user ${userId}`);
-    res.redirect('/connect-accounts?connected=twitter&success=true');
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?connected=twitter&success=true`);
   } catch (error) {
     console.error('Error in Twitter callback:', error.message);
-    res.redirect('/dashboard?error=twitter_failed');
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_failed`);
   }
 });
 
