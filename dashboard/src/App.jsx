@@ -65,16 +65,16 @@ function Navigation() {
               >
                 🚀
               </motion.span>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Social Media Automator</h1>
+              <h1 className="text-base xl:text-lg 2xl:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent whitespace-nowrap">Social Media Automator</h1>
             </motion.div>
             
             {/* Nav Items - Desktop Only */}
-            <div className="hidden xl:flex ml-10 items-center space-x-2">
+            <div className="hidden xl:flex ml-6 2xl:ml-10 items-center space-x-1 2xl:space-x-2">
               {navItems.map((item) => (
                 <Link 
                   key={item.path}
                   to={item.path} 
-                  className="relative group px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  className="relative group px-2 2xl:px-4 py-2 rounded-lg text-xs 2xl:text-sm font-medium transition-all whitespace-nowrap"
                 >
                   <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-blue-300' : 'text-gray-400 group-hover:text-blue-200'}`}>
                     <span>{item.icon}</span>
@@ -117,12 +117,12 @@ function Navigation() {
               </svg>
             </button>
             
-            <span className="hidden sm:block text-sm text-gray-400 truncate max-w-[150px]">{user?.email}</span>
+            <span className="hidden lg:block text-xs xl:text-sm text-gray-400 truncate max-w-[120px] xl:max-w-[180px]">{user?.email}</span>
             <motion.button 
               onClick={signOut}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="hidden sm:block relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium overflow-hidden group"
+              className="hidden sm:block relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 xl:px-4 py-2 rounded-lg text-xs xl:text-sm font-medium overflow-hidden group whitespace-nowrap"
             >
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
