@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { 
@@ -25,6 +26,7 @@ import {
 import { SiThreads, SiBluesky, SiMastodon } from 'react-icons/si';
 
 export default function ConnectAccounts() {
+  const navigate = useNavigate();
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showTelegramModal, setShowTelegramModal] = useState(false);
@@ -85,12 +87,16 @@ export default function ConnectAccounts() {
     if (wasOnboarding && (connected || success || params.get('instagram') === 'connected' || params.get('facebook') === 'connected')) {
       console.log('🎉 OAuth completed during onboarding! Redirecting to Dashboard...');
       console.log('✅ Account connected:', connected || success || 'instagram/facebook');
+      
+      // Instead of URL params, use localStorage to signal resume
+      localStorage.setItem('sma_resume_onboarding_step', '2');
       localStorage.removeItem('sma_oauth_onboarding');
-      console.log('🗑️ Removed onboarding flag from localStorage');
-      // Redirect to dashboard to resume onboarding at step 2 (FirstPostStep)
-      // Step 0: Welcome, Step 1: Connect, Step 2: First Post, Step 3: Review, Step 4: Success
-      console.log('🚀 Redirecting to: /dashboard?resumeOnboarding=true&step=2');
-      window.location.href = '/dashboard?resumeOnboarding=true&step=2';
+      console.log('💾 Set resume flag: sma_resume_onboarding_step = 2');
+      console.log('🗑️ Removed OAuth flag from localStorage');
+      
+      // Navigate to dashboard (will detect localStorage flag)
+      console.log('🚀 Navigating to Dashboard...');
+      navigate('/');
       return;
     } else {
       console.log('ℹ️ Not in onboarding mode, proceeding with normal flow');

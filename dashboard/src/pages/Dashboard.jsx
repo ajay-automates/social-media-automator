@@ -47,18 +47,16 @@ function DashboardContent() {
 
   // Resume onboarding after OAuth redirect
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const resumeOnboarding = urlParams.get('resumeOnboarding');
-    const step = urlParams.get('step');
+    // Check localStorage for resume flag (more reliable than URL params with React Router)
+    const resumeStep = localStorage.getItem('sma_resume_onboarding_step');
     
-    console.log('🔍 Dashboard mounted. Checking for resumeOnboarding...', {
-      resumeOnboarding,
-      step,
+    console.log('🔍 Dashboard mounted. Checking for resumeOnboarding in localStorage...', {
+      resumeStep,
       fullUrl: window.location.href
     });
     
-    if (resumeOnboarding === 'true') {
-      const stepNumber = parseInt(step) || 0;
+    if (resumeStep) {
+      const stepNumber = parseInt(resumeStep);
       console.log(`🎓 RESUMING ONBOARDING AT STEP ${stepNumber}!`);
       console.log(`   Step 0: Welcome`);
       console.log(`   Step 1: Connect Accounts`);
@@ -66,50 +64,57 @@ function DashboardContent() {
       console.log(`   Step 3: Review & Publish`);
       console.log(`   Step 4: Success`);
       
-      // Clean URL first
-      window.history.replaceState({}, '', '/dashboard');
-      console.log('✅ URL cleaned');
+      // Remove the resume flag immediately to prevent loops
+      localStorage.removeItem('sma_resume_onboarding_step');
+      console.log('🗑️ Removed resume flag from localStorage');
       
-      // Update localStorage directly to ensure step is set correctly
+      // Update onboarding state in localStorage
       const storageKey = 'sma_onboarding_state';
       try {
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           const state = JSON.parse(saved);
-          console.log('📝 Current localStorage state:', state);
+          console.log('📝 Current onboarding state:', state);
           state.currentStep = stepNumber;
           state.onboardingComplete = false;
           state.hasConnectedAccount = true; // Mark that account is connected
           localStorage.setItem(storageKey, JSON.stringify(state));
-          console.log(`✅ Updated localStorage to step ${stepNumber}`);
+          console.log(`✅ Updated onboarding state to step ${stepNumber}`);
         } else {
-          console.log('⚠️ No saved state found in localStorage');
+          console.log('⚠️ No saved onboarding state, creating new...');
+          // Create fresh state at step 2
+          localStorage.setItem(storageKey, JSON.stringify({
+            isNewUser: false,
+            currentStep: stepNumber,
+            hasConnectedAccount: true,
+            hasCreatedFirstPost: false,
+            onboardingComplete: false,
+            skipped: false,
+            skipCount: 0
+          }));
         }
       } catch (error) {
         console.error('❌ Error updating localStorage:', error);
       }
       
-      // Reload dashboard data to show newly connected accounts
-      console.log('🔄 Reloading dashboard data...');
-      
       // Set step in context
       console.log(`🎯 Calling goToStep(${stepNumber})...`);
       goToStep(stepNumber);
       
-      // Reload data and wait for it to update
+      // Reload data to show connected accounts
       setTimeout(() => {
         console.log('🔄 Loading dashboard data...');
         loadDashboardData();
       }, 100);
       
-      // Wait for state to update, then open modal
+      // Wait for everything to settle, then open modal
       setTimeout(() => {
         console.log(`🚀 Opening modal at step ${stepNumber}...`);
         setShowOnboarding(true);
-        console.log(`✅ showOnboarding set to TRUE`);
-      }, 500); // Increased to 500ms for safety
+        console.log(`✅ showOnboarding = TRUE, modal should appear!`);
+      }, 600);
     } else {
-      console.log('ℹ️ No resumeOnboarding param detected, normal dashboard load');
+      console.log('ℹ️ No resume flag detected, normal dashboard load');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goToStep]);
