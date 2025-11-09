@@ -26,22 +26,31 @@ function Navigation() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
   
+  // Core nav items (always visible on desktop)
   const navItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/create', label: 'Create Post', icon: '✨' },
-    { path: '/carousel', label: 'Create Carousel', icon: '📸' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
+    { path: '/analytics', label: 'Analytics', icon: '📈' },
+    { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
+    { path: '/team', label: 'Team', icon: '👥' },
+  ];
+  
+  // User dropdown items (secondary features)
+  const userMenuItems = [
+    { path: '/carousel', label: 'Create Carousel', icon: '📸' },
     { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤' },
     { path: '/templates', label: 'Templates', icon: '📝' },
-    { path: '/analytics', label: 'Analytics', icon: '📈' },
     { path: '/approvals', label: 'Approvals', icon: '⏳' },
-    { path: '/team', label: 'Team', icon: '👥' },
-    { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
     { path: '/pricing', label: 'Pricing', icon: '💎' },
   ];
+  
+  // All items for mobile menu
+  const allNavItems = [...navItems, ...userMenuItems];
   
   return (
     <motion.nav 
@@ -68,13 +77,13 @@ function Navigation() {
               <h1 className="text-base xl:text-lg 2xl:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent whitespace-nowrap">Social Media Automator</h1>
             </motion.div>
             
-            {/* Nav Items - Desktop Only */}
-            <div className="hidden xl:flex ml-6 2xl:ml-10 items-center space-x-1 2xl:space-x-2">
+            {/* Nav Items - Desktop Only (Core 6 items) */}
+            <div className="hidden lg:flex ml-10 items-center space-x-4">
               {navItems.map((item) => (
                 <Link 
                   key={item.path}
                   to={item.path} 
-                  className="relative group px-2 2xl:px-4 py-2 rounded-lg text-xs 2xl:text-sm font-medium transition-all whitespace-nowrap"
+                  className="relative group px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap"
                 >
                   <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-blue-300' : 'text-gray-400 group-hover:text-blue-200'}`}>
                     <span>{item.icon}</span>
@@ -100,13 +109,13 @@ function Navigation() {
           </div>
           
           {/* User Section */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-4">
             <NotificationBell />
             
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+              className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -117,21 +126,59 @@ function Navigation() {
               </svg>
             </button>
             
-            <span className="hidden lg:block text-xs xl:text-sm text-gray-400 truncate max-w-[120px] xl:max-w-[180px]">{user?.email}</span>
-            <motion.button 
-              onClick={signOut}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden sm:block relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 xl:px-4 py-2 rounded-lg text-xs xl:text-sm font-medium overflow-hidden group whitespace-nowrap"
-            >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-              <span className="relative z-10">Logout</span>
-            </motion.button>
+            {/* User Dropdown (Desktop) */}
+            <div className="hidden lg:block relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                  {user?.email?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <span className="text-sm truncate max-w-[150px]">{user?.email}</span>
+                <svg className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute right-0 mt-2 w-56 bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden z-50"
+                  >
+                    <div className="py-2">
+                      {userMenuItems.map((item) => (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setUserMenuOpen(false)}
+                          className={`flex items-center gap-3 px-4 py-3 transition-all ${
+                            isActive(item.path)
+                              ? 'bg-blue-600/20 text-blue-300'
+                              : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          <span className="text-lg">{item.icon}</span>
+                          <span className="text-sm font-medium">{item.label}</span>
+                        </Link>
+                      ))}
+                      <div className="border-t border-white/10 my-2"></div>
+                      <button
+                        onClick={signOut}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all"
+                      >
+                        <span className="text-lg">👋</span>
+                        <span className="text-sm font-medium">Logout</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
         
@@ -142,10 +189,10 @@ function Navigation() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="xl:hidden border-t border-white/10 overflow-hidden"
+              className="lg:hidden border-t border-white/10 overflow-hidden"
             >
               <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
-                {navItems.map((item) => (
+                {allNavItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
@@ -160,6 +207,7 @@ function Navigation() {
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 ))}
+                <div className="border-t border-white/10 my-2"></div>
                 <button
                   onClick={signOut}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium"
