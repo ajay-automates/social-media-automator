@@ -69,12 +69,12 @@ export default function Settings() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
-        <p className="text-gray-300">Manage your billing and usage</p>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
+        <p className="text-gray-700 dark:text-gray-300">Manage your billing and usage</p>
       </div>
 
       {/* Billing Section */}
-      <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mb-6">
+      <div className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mb-6">
         <BillingSettings />
       </div>
 
@@ -86,8 +86,8 @@ export default function Settings() {
           <div className="flex items-center gap-3 mb-6">
             <span className="text-3xl">📧</span>
             <div>
-              <h2 className="text-2xl font-bold text-white">Email Reports</h2>
-              <p className="text-gray-300">Get weekly analytics summaries delivered to your inbox</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Email Reports</h2>
+              <p className="text-gray-700 dark:text-gray-300">Get weekly analytics summaries delivered to your inbox</p>
             </div>
           </div>
 
@@ -95,7 +95,7 @@ export default function Settings() {
             {/* Enable/Disable Toggle */}
             <div className="flex items-center justify-between p-4 bg-gray-800/40 backdrop-blur-sm border border-white/10 rounded-xl">
               <div>
-                <h3 className="font-semibold text-white mb-1">Enable Weekly Reports</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Enable Weekly Reports</h3>
                 <p className="text-sm text-gray-400">Receive email summaries of your posting activity</p>
               </div>
               <button
@@ -128,7 +128,7 @@ export default function Settings() {
                     value={reportEmail}
                     onChange={(e) => setReportEmail(e.target.value)}
                     placeholder="your@email.com"
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-300 dark:border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                   />
                 </div>
 
@@ -140,7 +140,7 @@ export default function Settings() {
                   <select
                     value={reportFrequency}
                     onChange={(e) => setReportFrequency(e.target.value)}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-300 dark:border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                   >
                     <option value="weekly">Weekly (Every Monday)</option>
                     <option value="biweekly">Bi-weekly (Every 2 weeks)</option>
@@ -155,7 +155,7 @@ export default function Settings() {
                     whileTap={{ scale: 0.98 }}
                     onClick={saveEmailSettings}
                     disabled={saving}
-                    className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden disabled:opacity-50"
+                    className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden disabled:opacity-50"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                     <span className="relative">

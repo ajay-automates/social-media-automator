@@ -160,12 +160,12 @@ export default function CreateCarousel() {
         >
           <button
             onClick={() => navigate(-1)}
-            className="text-gray-300 hover:text-white mb-4 flex items-center gap-2"
+            className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:text-white mb-4 flex items-center gap-2"
           >
             ← Back
           </button>
-          <h1 className="text-4xl font-bold text-white mb-2">📸 Create Carousel Post</h1>
-          <p className="text-gray-300">Upload 2-10 images and let AI create captions for your slides</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">📸 Create Carousel Post</h1>
+          <p className="text-gray-700 dark:text-gray-300">Upload 2-10 images and let AI create captions for your slides</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -179,8 +179,8 @@ export default function CreateCarousel() {
                 className="bg-gray-800/50 backdrop-blur-xl border-2 border-dashed border-purple-500/50 rounded-2xl p-12 text-center"
               >
                 <FaImages className="text-6xl text-purple-400 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-white mb-2">Upload Your Images</h3>
-                <p className="text-gray-300 mb-6">Select 2-10 images to create your carousel</p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Upload Your Images</h3>
+                <p className="text-gray-700 dark:text-gray-300 mb-6">Select 2-10 images to create your carousel</p>
                 
                 <label className="cursor-pointer">
                   <input
@@ -194,7 +194,7 @@ export default function CreateCarousel() {
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg"
+                    className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg"
                   >
                     {uploading ? 'Uploading...' : '📤 Choose Images'}
                   </motion.div>
@@ -206,7 +206,7 @@ export default function CreateCarousel() {
               /* Image Grid */
               <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Your Slides ({images.length})</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Your Slides ({images.length})</h3>
                   <label className="cursor-pointer text-blue-400 hover:text-blue-300 text-sm font-semibold">
                     <input
                       type="file"
@@ -231,7 +231,7 @@ export default function CreateCarousel() {
                       onClick={() => setCurrentSlide(index)}
                     >
                       <img src={img} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
-                      <div className="absolute top-1 left-1 bg-black/70 text-white px-2 py-1 rounded text-xs font-bold">
+                      <div className="absolute top-1 left-1 bg-black/70 text-gray-900 dark:text-white px-2 py-1 rounded text-xs font-bold">
                         {index + 1}
                       </div>
                       <button
@@ -239,7 +239,7 @@ export default function CreateCarousel() {
                           e.stopPropagation();
                           removeImage(index);
                         }}
-                        className="absolute top-1 right-1 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600"
+                        className="absolute top-1 right-1 bg-red-500 text-gray-900 dark:text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600"
                       >
                         ×
                       </button>
@@ -259,13 +259,13 @@ export default function CreateCarousel() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6"
               >
-                <label className="block text-white font-bold mb-2">Carousel Topic (Optional)</label>
+                <label className="block text-gray-900 dark:text-white font-bold mb-2">Carousel Topic (Optional)</label>
                 <input
                   type="text"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   placeholder="e.g., Marketing tips, Product launch, Tutorial..."
-                  className="w-full bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full bg-gray-700/50 border-2 border-gray-600 text-gray-900 dark:text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 />
                 <p className="text-gray-400 text-sm mt-2">Helps AI generate better captions</p>
               </motion.div>
@@ -279,7 +279,7 @@ export default function CreateCarousel() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowCaptionModal(true)}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3"
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-gray-900 dark:text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3"
               >
                 <FaRobot className="text-2xl" />
                 Generate AI Captions for All Slides
@@ -296,7 +296,7 @@ export default function CreateCarousel() {
                 animate={{ opacity: 1, x: 0 }}
                 className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6"
               >
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <FaEye /> Preview Slide {currentSlide + 1}
                 </h3>
 
@@ -313,7 +313,7 @@ export default function CreateCarousel() {
                   <button
                     onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
                     disabled={currentSlide === 0}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg disabled:opacity-30 hover:bg-gray-600"
+                    className="px-4 py-2 bg-gray-700 text-gray-900 dark:text-white rounded-lg disabled:opacity-30 hover:bg-gray-600"
                   >
                     ← Prev
                   </button>
@@ -331,7 +331,7 @@ export default function CreateCarousel() {
                   <button
                     onClick={() => setCurrentSlide(Math.min(images.length - 1, currentSlide + 1))}
                     disabled={currentSlide === images.length - 1}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg disabled:opacity-30 hover:bg-gray-600"
+                    className="px-4 py-2 bg-gray-700 text-gray-900 dark:text-white rounded-lg disabled:opacity-30 hover:bg-gray-600"
                   >
                     Next →
                   </button>
@@ -339,13 +339,13 @@ export default function CreateCarousel() {
 
                 {/* Caption Editor */}
                 <div>
-                  <label className="block text-white font-bold mb-2">Caption for Slide {currentSlide + 1}</label>
+                  <label className="block text-gray-900 dark:text-white font-bold mb-2">Caption for Slide {currentSlide + 1}</label>
                   <textarea
                     value={captions[currentSlide] || ''}
                     onChange={(e) => updateCaption(currentSlide, e.target.value)}
                     placeholder="Enter caption for this slide..."
                     rows={4}
-                    className="w-full bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                    className="w-full bg-gray-700/50 border-2 border-gray-600 text-gray-900 dark:text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
                   />
                   <p className="text-gray-400 text-sm mt-1">{captions[currentSlide]?.length || 0} characters</p>
                 </div>
@@ -357,14 +357,14 @@ export default function CreateCarousel() {
                 animate={{ opacity: 1, x: 0 }}
                 className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6"
               >
-                <h3 className="text-xl font-bold text-white mb-4">Select Platform</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Select Platform</h3>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setPlatforms(['linkedin'])}
                     className={`flex-1 px-4 py-3 rounded-lg font-semibold ${
                       platforms.includes('linkedin')
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        ? 'bg-blue-600 text-gray-900 dark:text-white'
+                        : 'bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-600'
                     }`}
                   >
                     LinkedIn
@@ -386,7 +386,7 @@ export default function CreateCarousel() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handlePost}
                 disabled={posting || captions.filter(c => c.trim()).length === 0}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-gray-900 dark:text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
               >
                 <FaPaperPlane />
                 {posting ? 'Posting Carousel...' : 'Post Carousel to LinkedIn'}

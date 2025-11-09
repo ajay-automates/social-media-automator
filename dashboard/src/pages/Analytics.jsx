@@ -191,8 +191,8 @@ export default function Analytics() {
     >
         <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2">Analytics</h1>
-          <p className="text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300 bg-clip-text text-transparent mb-2">Analytics</h1>
+          <p className="text-gray-700 dark:text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
         </div>
         <div className="flex gap-3">
           <a
@@ -223,7 +223,7 @@ export default function Analytics() {
                 alert('Failed to export analytics. Make sure you have posts to export.');
               });
             }}
-            className="group relative bg-gradient-to-r from-green-600/30 to-emerald-600/30 backdrop-blur-lg border-2 border-green-400/30 text-white px-6 py-3 rounded-xl hover:from-green-600/40 hover:to-emerald-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-green-500/30 overflow-hidden"
+            className="group relative bg-gradient-to-r from-green-600/30 to-emerald-600/30 backdrop-blur-lg border-2 border-green-400/30 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:from-green-600/40 hover:to-emerald-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-green-500/30 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function Analytics() {
               loadAnalytics();
               loadHistory();
             }}
-            className="group relative bg-blue-600/30 backdrop-blur-lg border-2 border-blue-400/30 text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/30 overflow-hidden"
+            className="group relative bg-blue-600/30 backdrop-blur-lg border-2 border-blue-400/30 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/30 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -293,7 +293,7 @@ export default function Analytics() {
         {/* Timeline Chart */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+          className="group relative bg-white/60 dark:bg-gray-900/30 backdrop-blur-xl border-2 border-gray-300 dark:border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -320,7 +320,7 @@ export default function Analytics() {
         {/* Platform Distribution */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+          className="group relative bg-white/60 dark:bg-gray-900/30 backdrop-blur-xl border-2 border-gray-300 dark:border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">

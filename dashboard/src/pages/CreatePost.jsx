@@ -853,24 +853,24 @@ export default function CreatePost() {
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent"
+            className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-300 dark:to-pink-300 bg-clip-text text-transparent"
           >
             Create Post
           </motion.h1>
         </div>
         
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
+        <div className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
           {/* Reddit-Specific Fields */}
           {platforms.includes('reddit') && (
             <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-orange-300 font-semibold">
+              <div className="flex items-center gap-2 text-orange-600 dark:text-orange-300 font-semibold">
                 <span>🔴</span>
                 <span>Reddit Settings</span>
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Post Title <span className="text-red-400">*</span>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Post Title <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -878,22 +878,22 @@ export default function CreatePost() {
                   onChange={(e) => setRedditTitle(e.target.value)}
                   placeholder="Enter post title (required for Reddit, max 300 chars)"
                   maxLength={300}
-                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-400"
+                  className="w-full px-4 py-2 bg-white dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                   {redditTitle.length}/300 characters
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Subreddit <span className="text-red-400">*</span>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Subreddit <span className="text-red-500 dark:text-red-400">*</span>
                 </label>
                 {moderatedSubreddits.length > 0 ? (
                   <select
                     value={redditSubreddit}
                     onChange={(e) => setRedditSubreddit(e.target.value)}
-                    className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 bg-white dark:bg-gray-800/50 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
                     {moderatedSubreddits.map(sub => (
                       <option key={sub} value={sub}>
@@ -933,13 +933,13 @@ export default function CreatePost() {
           {/* Caption Input */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-300">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Caption
               </label>
               {!caption.trim() && (
                 <button
                   onClick={() => navigate('/', { state: { openContentIdeas: true } })}
-                  className="text-purple-400 hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
+                  className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
                 >
                   <span>💡</span>
                   Need ideas? Click here
@@ -950,7 +950,7 @@ export default function CreatePost() {
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="What's on your mind?"
-              className="w-full p-4 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-400"
+              className="w-full p-4 bg-white dark:bg-gray-800/50 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-500 dark:placeholder:text-gray-400"
               rows={6}
             />
             {/* Character Counter - Multi-Platform */}
@@ -961,7 +961,7 @@ export default function CreatePost() {
                 className="mt-3"
               >
                 <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-xs text-gray-400 font-semibold">Character Count:</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">Character Count:</span>
                   {characterCounts.map((count) => {
                     const getStatusColor = () => {
                       if (count.status === 'exceeded') return 'from-red-600 to-red-700 border-red-500/50';
@@ -1005,7 +1005,7 @@ export default function CreatePost() {
             )}
 
             <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
-              <div className="text-sm text-gray-400">{caption.length} characters total</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{caption.length} characters total</div>
               <div className="flex items-center gap-2">
                 {caption.length >= 10 && platforms.length > 0 && (
                   <motion.button

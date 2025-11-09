@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useTheme } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
@@ -25,6 +26,7 @@ import NotificationBell from './components/NotificationBell';
 function Navigation() {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
@@ -57,7 +59,7 @@ function Navigation() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-white/10 shadow-2xl"
+      className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 shadow-2xl transition-colors duration-300"
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -74,7 +76,7 @@ function Navigation() {
               >
                 🚀
               </motion.span>
-              <h1 className="text-base xl:text-lg 2xl:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent whitespace-nowrap">Social Media Automator</h1>
+              <h1 className="text-base xl:text-lg 2xl:text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent whitespace-nowrap">Social Media Automator</h1>
             </motion.div>
             
             {/* Nav Items - Desktop Only (Core 6 items) */}
@@ -85,7 +87,7 @@ function Navigation() {
                   to={item.path} 
                   className="relative group px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap"
                 >
-                  <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-blue-300' : 'text-gray-400 group-hover:text-blue-200'}`}>
+                  <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-blue-600 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-200'}`}>
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
                   </span>
@@ -101,7 +103,7 @@ function Navigation() {
                   
                   {/* Hover glow */}
                   <motion.div
-                    className="absolute inset-0 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute inset-0 rounded-lg bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
                   />
                 </Link>
               ))}
@@ -112,10 +114,26 @@ function Navigation() {
           <div className="flex items-center gap-4">
             <NotificationBell />
             
+            {/* Theme Toggle Button */}
+            <motion.button
+              onClick={toggleTheme}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2.5 rounded-xl glass border border-white/20 dark:border-white/20 hover:border-white/40 transition-all backdrop-blur-lg group"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
+              }}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              <span className="text-2xl group-hover:scale-110 transition-transform inline-block">
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </span>
+            </motion.button>
+            
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+              className="lg:hidden p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-all"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -130,9 +148,11 @@ function Navigation() {
             <div className="hidden lg:block relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-3 px-4 py-2 rounded-xl glass border border-white/20 text-gray-300 hover:text-white hover:border-white/40 transition-all backdrop-blur-lg"
+                className="flex items-center gap-3 px-4 py-2 rounded-xl glass border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-white/40 transition-all backdrop-blur-lg"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                  background: theme === 'dark' 
+                    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)'
+                    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.5) 100%)',
                 }}
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shadow-lg">
@@ -152,11 +172,15 @@ function Navigation() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-64 glass border-2 border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50"
+                    className="absolute right-0 mt-2 w-64 glass border-2 border-gray-300 dark:border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%)',
+                      background: theme === 'dark'
+                        ? 'linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%)'
+                        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%)',
                       backdropFilter: 'blur(20px)',
-                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                      boxShadow: theme === 'dark'
+                        ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                        : '0 8px 32px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1) inset'
                     }}
                   >
                     {/* Gradient overlay */}
@@ -170,18 +194,18 @@ function Navigation() {
                           onClick={() => setUserMenuOpen(false)}
                           className={`flex items-center gap-3 px-4 py-3 transition-all ${
                             isActive(item.path)
-                              ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-300 border-l-2 border-blue-400'
-                              : 'text-gray-300 hover:bg-white/10 hover:text-white hover:border-l-2 hover:border-purple-400/50'
+                              ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-600 dark:text-blue-300 border-l-2 border-blue-500 dark:border-blue-400'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white hover:border-l-2 hover:border-purple-400/50'
                           }`}
                         >
                           <span className="text-lg">{item.icon}</span>
                           <span className="text-sm font-medium">{item.label}</span>
                         </Link>
                       ))}
-                      <div className="border-t border-white/20 my-2 mx-3"></div>
+                      <div className="border-t border-gray-300 dark:border-white/20 my-2 mx-3"></div>
                       <button
                         onClick={signOut}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-pink-500/20 hover:text-red-300 transition-all group hover:border-l-2 hover:border-red-400"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-red-500 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-pink-500/20 hover:text-red-600 dark:hover:text-red-300 transition-all group hover:border-l-2 hover:border-red-400"
                       >
                         <span className="text-lg group-hover:scale-110 transition-transform">👋</span>
                         <span className="text-sm font-medium">Logout</span>
@@ -201,7 +225,7 @@ function Navigation() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="lg:hidden border-t border-white/10 overflow-hidden"
+              className="lg:hidden border-t border-gray-200 dark:border-white/10 overflow-hidden"
             >
               <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
                 {allNavItems.map((item) => (
@@ -211,18 +235,18 @@ function Navigation() {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                       isActive(item.path)
-                        ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                        ? 'bg-blue-600/20 text-blue-600 dark:text-blue-300 border border-blue-500/30'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                     }`}
                   >
                     <span className="text-xl">{item.icon}</span>
                     <span className="font-medium">{item.label}</span>
                   </Link>
                 ))}
-                <div className="border-t border-white/10 my-2"></div>
+                <div className="border-t border-gray-200 dark:border-white/10 my-2"></div>
                 <button
                   onClick={signOut}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
                 >
                   <span className="text-xl">👋</span>
                   <span>Logout</span>
@@ -241,7 +265,7 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <BrowserRouter>
-          <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors duration-300">
             <Navigation />
             
             <Routes>
@@ -266,6 +290,7 @@ function App() {
           <Toaster
             position="top-right"
             toastOptions={{
+              className: 'dark:bg-gray-800 dark:text-white',
               success: {
                 duration: 4000,
                 style: {

@@ -209,11 +209,11 @@ export default function BulkUpload() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-black text-white mb-2 flex items-center gap-3">
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2 flex items-center gap-3">
             <span className="text-5xl">📤</span>
             Bulk CSV Upload
           </h1>
-          <p className="text-gray-300 text-lg">Schedule hundreds of posts at once from a CSV file</p>
+          <p className="text-gray-700 dark:text-gray-300 text-lg">Schedule hundreds of posts at once from a CSV file</p>
         </motion.div>
 
         {/* Template Download Button */}
@@ -224,7 +224,7 @@ export default function BulkUpload() {
         >
           <button
             onClick={downloadTemplate}
-            className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition shadow-lg flex items-center gap-2"
+            className="bg-gradient-to-r from-green-600 to-emerald-600 text-gray-900 dark:text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition shadow-lg flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -268,16 +268,16 @@ export default function BulkUpload() {
                 {uploading ? (
                   <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
-                  <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-12 h-12 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 )}
               </div>
 
-              <h3 className="text-2xl font-bold text-white mb-2">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {dragging ? 'Drop your CSV file here' : uploading ? 'Processing...' : 'Upload CSV File'}
               </h3>
-              <p className="text-gray-300 mb-4">
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
                 Drag and drop your CSV file here, or click to browse
               </p>
               <p className="text-sm text-gray-400">
@@ -294,7 +294,7 @@ export default function BulkUpload() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-2xl border-2 border-white/20 rounded-2xl p-6 shadow-2xl mb-6"
           >
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span>📊</span>
               Upload Summary
             </h3>
@@ -302,29 +302,29 @@ export default function BulkUpload() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-blue-900/30 backdrop-blur-xl border border-blue-400/30 rounded-xl p-4">
                 <p className="text-blue-300 text-sm font-semibold mb-1">Total Posts</p>
-                <p className="text-3xl font-black text-white">{summary.total}</p>
+                <p className="text-3xl font-black text-gray-900 dark:text-white">{summary.total}</p>
               </div>
               
               <div className="bg-green-900/30 backdrop-blur-xl border border-green-400/30 rounded-xl p-4">
                 <p className="text-green-300 text-sm font-semibold mb-1">Valid Posts</p>
-                <p className="text-3xl font-black text-white">{summary.valid}</p>
+                <p className="text-3xl font-black text-gray-900 dark:text-white">{summary.valid}</p>
               </div>
               
               <div className="bg-red-900/30 backdrop-blur-xl border border-red-400/30 rounded-xl p-4">
                 <p className="text-red-300 text-sm font-semibold mb-1">Errors</p>
-                <p className="text-3xl font-black text-white">{summary.invalid}</p>
+                <p className="text-3xl font-black text-gray-900 dark:text-white">{summary.invalid}</p>
               </div>
               
               <div className="bg-yellow-900/30 backdrop-blur-xl border border-yellow-400/30 rounded-xl p-4">
                 <p className="text-yellow-300 text-sm font-semibold mb-1">Warnings</p>
-                <p className="text-3xl font-black text-white">{summary.withWarnings}</p>
+                <p className="text-3xl font-black text-gray-900 dark:text-white">{summary.withWarnings}</p>
               </div>
             </div>
 
             {/* Progress Bar */}
             {scheduling && (
               <div className="mt-6">
-                <div className="flex justify-between text-sm text-gray-300 mb-2">
+                <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300 mb-2">
                   <span>Scheduling posts...</span>
                   <span>{progress}%</span>
                 </div>
@@ -350,7 +350,7 @@ export default function BulkUpload() {
             <button
               onClick={handleScheduleAll}
               disabled={scheduling || summary.valid === 0}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-black text-lg hover:opacity-90 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-black text-lg hover:opacity-90 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {scheduling ? (
                 <>
@@ -366,7 +366,7 @@ export default function BulkUpload() {
 
             <button
               onClick={handleReset}
-              className="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition shadow-lg"
+              className="bg-gradient-to-r from-gray-700 to-gray-600 text-gray-900 dark:text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition shadow-lg"
             >
               ❌ Cancel & Upload New
             </button>
@@ -380,7 +380,7 @@ export default function BulkUpload() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-2xl border-2 border-white/20 rounded-2xl p-6 shadow-2xl overflow-hidden"
           >
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span>📋</span>
               Preview & Edit
             </h3>
@@ -389,12 +389,12 @@ export default function BulkUpload() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b-2 border-white/20">
-                    <th className="text-left text-white font-bold p-3">Row</th>
-                    <th className="text-left text-white font-bold p-3">Status</th>
-                    <th className="text-left text-white font-bold p-3">Date/Time</th>
-                    <th className="text-left text-white font-bold p-3">Caption</th>
-                    <th className="text-left text-white font-bold p-3">Platforms</th>
-                    <th className="text-left text-white font-bold p-3">Actions</th>
+                    <th className="text-left text-gray-900 dark:text-white font-bold p-3">Row</th>
+                    <th className="text-left text-gray-900 dark:text-white font-bold p-3">Status</th>
+                    <th className="text-left text-gray-900 dark:text-white font-bold p-3">Date/Time</th>
+                    <th className="text-left text-gray-900 dark:text-white font-bold p-3">Caption</th>
+                    <th className="text-left text-gray-900 dark:text-white font-bold p-3">Platforms</th>
+                    <th className="text-left text-gray-900 dark:text-white font-bold p-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -405,7 +405,7 @@ export default function BulkUpload() {
                         row.isValid ? 'bg-green-900/10' : 'bg-red-900/10'
                       }`}
                     >
-                      <td className="p-3 text-white font-mono">{row.rowNumber}</td>
+                      <td className="p-3 text-gray-900 dark:text-white font-mono">{row.rowNumber}</td>
                       <td className="p-3">
                         {row.isValid ? (
                           <span className="inline-flex items-center gap-1 bg-green-600/30 border border-green-400/50 text-green-200 px-2 py-1 rounded text-xs font-bold">
@@ -417,17 +417,17 @@ export default function BulkUpload() {
                           </span>
                         )}
                       </td>
-                      <td className="p-3 text-gray-300 text-sm">
+                      <td className="p-3 text-gray-700 dark:text-gray-300 text-sm">
                         {row.parsed.schedule_datetime 
                           ? new Date(row.parsed.schedule_datetime).toLocaleString()
                           : <span className="text-red-400">Invalid</span>}
                       </td>
-                      <td className="p-3 text-gray-300 text-sm max-w-md">
+                      <td className="p-3 text-gray-700 dark:text-gray-300 text-sm max-w-md">
                         {editingRow === row.rowNumber ? (
                           <textarea
                             value={editData.caption}
                             onChange={(e) => setEditData({ ...editData, caption: e.target.value })}
-                            className="w-full bg-gray-800 border border-gray-600 text-white rounded p-2 text-sm"
+                            className="w-full bg-gray-800 border border-gray-600 text-gray-900 dark:text-white rounded p-2 text-sm"
                             rows={2}
                           />
                         ) : (
@@ -451,13 +451,13 @@ export default function BulkUpload() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleSaveEdit(row.rowNumber)}
-                              className="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
+                              className="bg-green-600 text-gray-900 dark:text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
                             >
                               Save
                             </button>
                             <button
                               onClick={handleCancelEdit}
-                              className="bg-gray-600 text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
+                              className="bg-gray-600 text-gray-900 dark:text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
                             >
                               Cancel
                             </button>
@@ -465,7 +465,7 @@ export default function BulkUpload() {
                         ) : (
                           <button
                             onClick={() => handleEditRow(row)}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
+                            className="bg-blue-600 text-gray-900 dark:text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
                           >
                             Edit
                           </button>
