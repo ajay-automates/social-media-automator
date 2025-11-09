@@ -1049,7 +1049,7 @@ export default function CreatePost() {
                       whileTap={{ scale: 0.95 }}
                       onClick={generateAIHashtags}
                       disabled={generatingHashtags}
-                      className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                      className="bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-700 dark:hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
                     >
                       {generatingHashtags ? (
                         <>
@@ -1101,7 +1101,7 @@ export default function CreatePost() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => addHashtagToCaption(hashtag)}
-                      className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
+                      className="bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 dark:hover:opacity-90 transition text-sm"
                     >
                       {hashtag}
                     </motion.button>
@@ -1112,7 +1112,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={addAllHashtags}
-                  className="w-full bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
+                  className="w-full bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 dark:hover:opacity-90 transition"
                 >
                   ✨ Add All Hashtags to Caption
                 </motion.button>
@@ -1155,7 +1155,7 @@ export default function CreatePost() {
                   <button
                     onClick={toggleUseVariations}
                     className={`relative w-14 h-7 rounded-full transition-all ${
-                      useVariations ? 'bg-white dark:bg-gradient-to-r dark:from-green-500 to-emerald-500' : 'bg-gray-600'
+                        useVariations ? 'bg-blue-600 dark:bg-gradient-to-r dark:from-green-500 dark:to-emerald-500' : 'bg-gray-300 dark:bg-gray-600'
                     }`}
                   >
                     <div
@@ -1228,7 +1228,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowAIModal(true)}
-                  className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                  className="bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:opacity-90 transition"
                 >
                   ✨ Generate with AI
                 </motion.button>
@@ -1237,7 +1237,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowYoutubeModal(true)}
-                  className="bg-white dark:bg-gradient-to-r dark:from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                  className="bg-blue-600 dark:bg-gradient-to-r dark:from-red-600 dark:to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 dark:hover:opacity-90 transition"
                 >
                   📺 Generate from URL
                 </motion.button>
@@ -1280,7 +1280,7 @@ export default function CreatePost() {
                   whileTap={{ scale: 0.98 }}
                   onClick={generateImage}
                   disabled={generatingImage || !aiImagePrompt.trim()}
-                  className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {generatingImage ? 'Generating...' : '🎨 Generate Image'}
                 </motion.button>
@@ -1352,7 +1352,7 @@ export default function CreatePost() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowVideoModal(true)}
-                    className="w-full bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-blue-600 dark:bg-gradient-to-r dark:from-purple-600 dark:to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:bg-blue-700 dark:hover:opacity-90 transition flex items-center justify-center gap-2"
                   >
                     <span className="text-2xl">🎬</span>
                     <span>Search Stock Videos</span>
@@ -1570,7 +1570,7 @@ export default function CreatePost() {
                     setPlatforms(allPlatforms);
                     showSuccess(`Selected all ${allPlatforms.length} platforms! 🎯`);
                   }}
-                  className="px-4 py-2 bg-white dark:bg-gradient-to-r dark:from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                  className="px-4 py-2 bg-blue-600 dark:bg-gradient-to-r dark:from-green-600 dark:to-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 dark:hover:opacity-90 transition"
                 >
                   ✅ Select All
                 </motion.button>
@@ -2057,7 +2057,7 @@ export default function CreatePost() {
                     whileTap={{ scale: 0.98 }}
                     onClick={generateFromYoutube}
                     disabled={generatingFromYoutube || !youtubeUrl.trim()}
-                    className="flex-1 bg-white dark:bg-gradient-to-r dark:from-red-600 to-pink-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    className="flex-1 bg-blue-600 dark:bg-gradient-to-r dark:from-red-600 dark:to-pink-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                   >
                     {generatingFromYoutube ? 'Generating...' : '🔗 Generate'}
                   </motion.button>
@@ -2126,7 +2126,7 @@ export default function CreatePost() {
             className="bg-gray-900/95 backdrop-blur-xl border-2 border-white/20 rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl"
           >
             {/* Modal Header */}
-            <div className="bg-white dark:bg-gradient-to-r dark:from-purple-600/30 to-pink-600/30 backdrop-blur-lg border-b border-white/10 p-6">
+              <div className="bg-gray-50 dark:bg-gradient-to-r dark:from-purple-600/30 dark:to-pink-600/30 backdrop-blur-lg border-b border-gray-200 dark:border-white/10 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-white">📋 Load from Template</h2>
