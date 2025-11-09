@@ -130,27 +130,39 @@ function Navigation() {
             <div className="hidden lg:block relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all"
+                className="flex items-center gap-3 px-4 py-2 rounded-xl glass border border-white/20 text-gray-300 hover:text-white hover:border-white/40 transition-all backdrop-blur-lg"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                }}
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shadow-lg">
                   {user?.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
-                <span className="text-sm truncate max-w-[150px]">{user?.email}</span>
+                <span className="text-sm font-medium truncate max-w-[150px]">{user?.email}</span>
                 <svg className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu - Glassmorphism Style */}
               <AnimatePresence>
                 {userMenuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-56 bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden z-50"
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-64 glass border-2 border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%)',
+                      backdropFilter: 'blur(20px)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                    }}
                   >
-                    <div className="py-2">
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 pointer-events-none"></div>
+                    
+                    <div className="relative py-2">
                       {userMenuItems.map((item) => (
                         <Link
                           key={item.path}
@@ -158,20 +170,20 @@ function Navigation() {
                           onClick={() => setUserMenuOpen(false)}
                           className={`flex items-center gap-3 px-4 py-3 transition-all ${
                             isActive(item.path)
-                              ? 'bg-blue-600/20 text-blue-300'
-                              : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                              ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-300 border-l-2 border-blue-400'
+                              : 'text-gray-300 hover:bg-white/10 hover:text-white hover:border-l-2 hover:border-purple-400/50'
                           }`}
                         >
                           <span className="text-lg">{item.icon}</span>
                           <span className="text-sm font-medium">{item.label}</span>
                         </Link>
                       ))}
-                      <div className="border-t border-white/10 my-2"></div>
+                      <div className="border-t border-white/20 my-2 mx-3"></div>
                       <button
                         onClick={signOut}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-gradient-to-r hover:from-red-500/20 hover:to-pink-500/20 transition-all group"
                       >
-                        <span className="text-lg">👋</span>
+                        <span className="text-lg group-hover:scale-110 transition-transform">👋</span>
                         <span className="text-sm font-medium">Logout</span>
                       </button>
                     </div>
