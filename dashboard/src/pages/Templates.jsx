@@ -30,12 +30,12 @@ const PLATFORM_ICONS = {
   linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border border-blue-400/30' },
   twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border border-sky-400/30' },
   telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border border-cyan-400/30' },
-  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-blue-600 dark:text-pink-400 border border-pink-400/30' },
+  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border border-pink-400/30' },
   facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border border-blue-400/30' },
   youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border border-red-400/30' },
-  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-gray-900 dark:text-orange-400 border border-orange-400/30' },
+  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border border-orange-400/30' },
   discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border border-indigo-400/30' },
-  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-blue-600 dark:text-purple-400 border border-purple-400/30' },
+  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border border-purple-400/30' },
   tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border border-gray-400/30' }
 };
 
@@ -275,10 +275,10 @@ async function handleSaveTemplate() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8 relative">
-        <div className="group relative bg-white dark:bg-gradient-to-r dark:from-purple-600/20 via-blue-600/20 to-pink-600/20 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
+        <div className="group relative bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative">
-            <h1 className="text-4xl font-bold bg-white dark:bg-gradient-to-r dark:from-purple-300 via-blue-300 to-pink-300 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 via-blue-300 to-pink-300 bg-clip-text text-transparent">
               Post Templates
             </h1>
             <p className="text-gray-200 mt-3 text-lg">Save and reuse your best-performing posts</p>
@@ -338,7 +338,7 @@ async function handleSaveTemplate() {
                 placeholder="🔍 Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 placeholder:text-gray-400 transition-all shadow-lg"
+                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 placeholder:text-gray-400 transition-all shadow-lg"
               />
             </div>
 
@@ -348,7 +348,7 @@ async function handleSaveTemplate() {
                 resetForm();
                 setShowModal(true);
               }}
-              className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold whitespace-nowrap transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+              className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold whitespace-nowrap transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
               <span className="relative">➕ Create Template</span>
@@ -363,7 +363,7 @@ async function handleSaveTemplate() {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`group/cat relative px-5 py-2.5 rounded-xl whitespace-nowrap transition-all overflow-hidden font-medium ${
                   selectedCategory === cat.id
-                    ? 'bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/60 text-gray-900 dark:text-white shadow-xl shadow-blue-500/40'
+                    ? 'bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/60 text-white shadow-xl shadow-blue-500/40'
                     : 'bg-gray-800/60 backdrop-blur-lg text-gray-200 hover:bg-gray-700/60 border-2 border-white/20 hover:border-white/30 shadow-lg'
                 }`}
               >
@@ -383,14 +383,14 @@ async function handleSaveTemplate() {
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative">
             <div className="text-6xl mb-4">📋</div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No templates yet</h3>
-            <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg">Create your first template to get started!</p>
+            <h3 className="text-2xl font-bold text-white mb-3">No templates yet</h3>
+            <p className="text-gray-300 mb-6 text-lg">Create your first template to get started!</p>
             <button
               onClick={() => {
                 resetForm();
                 setShowModal(true);
               }}
-              className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-gray-900 dark:text-white px-8 py-4 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+              className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-8 py-4 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
               <span className="relative">Create Your First Template</span>
@@ -407,7 +407,7 @@ async function handleSaveTemplate() {
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{template.name}</h3>
+                    <h3 className="text-lg font-semibold text-white mb-1">{template.name}</h3>
                     {template.is_public && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500/30 to-purple-500/30 backdrop-blur-sm border border-blue-400/40 text-blue-200 rounded-full text-xs font-medium">
                         🌐 Public Template
@@ -426,7 +426,7 @@ async function handleSaveTemplate() {
 
                 {/* Description */}
                 {template.description && (
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{template.description}</p>
+                  <p className="text-sm text-gray-300 mb-3">{template.description}</p>
                 )}
 
                 {/* Content Preview */}
@@ -454,7 +454,7 @@ async function handleSaveTemplate() {
                 {/* Meta */}
                 <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
                   <span>Used {template.use_count} times</span>
-                  <span className="px-2 py-1 bg-gray-700/50 backdrop-blur-sm border border-white/10 rounded text-gray-700 dark:text-gray-300">{template.category}</span>
+                  <span className="px-2 py-1 bg-gray-700/50 backdrop-blur-sm border border-white/10 rounded text-gray-300">{template.category}</span>
                 </div>
 
                 {/* Actions */}
@@ -486,7 +486,7 @@ async function handleSaveTemplate() {
                   ) : (
                     <button
                       onClick={() => handleDuplicateTemplate(template.id)}
-                      className="group/btn relative flex-1 bg-white dark:bg-gradient-to-r dark:from-purple-600/30 to-blue-600/30 backdrop-blur-sm border-2 border-purple-400/40 text-purple-200 px-4 py-2 rounded-lg hover:from-purple-600/40 hover:to-blue-600/40 text-sm font-semibold transition-all overflow-hidden shadow-lg hover:shadow-purple-500/30"
+                      className="group/btn relative flex-1 bg-gradient-to-r from-purple-600/30 to-blue-600/30 backdrop-blur-sm border-2 border-purple-400/40 text-purple-200 px-4 py-2 rounded-lg hover:from-purple-600/40 hover:to-blue-600/40 text-sm font-semibold transition-all overflow-hidden shadow-lg hover:shadow-purple-500/30"
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                       <span className="relative">✨ Clone to My Templates</span>
@@ -517,7 +517,7 @@ async function handleSaveTemplate() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                     placeholder="e.g., Welcome Message"
                   />
                 </div>
@@ -529,7 +529,7 @@ async function handleSaveTemplate() {
                     type="text"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                     placeholder="Optional description"
                   />
                 </div>
@@ -540,7 +540,7 @@ async function handleSaveTemplate() {
                   <textarea
                     value={formData.text}
                     onChange={(e) => setFormData({ ...formData, text: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 h-32 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg resize-none"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 h-32 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg resize-none"
                     placeholder="Template content... Use {{variable}} for dynamic values"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -550,7 +550,7 @@ async function handleSaveTemplate() {
 
                 {/* Platforms */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Platforms *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Platforms *</label>
                   <div className="flex gap-2 flex-wrap">
                     {Object.entries(PLATFORM_ICONS).map(([platform, config]) => (
                       <button
@@ -574,7 +574,7 @@ async function handleSaveTemplate() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                   >
                     {CATEGORIES.filter(c => c.id !== 'all').map(cat => (
                       <option key={cat.id} value={cat.id}>
@@ -591,7 +591,7 @@ async function handleSaveTemplate() {
                     type="url"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                     placeholder="https://..."
                   />
                 </div>
@@ -601,7 +601,7 @@ async function handleSaveTemplate() {
               <div className="flex gap-4 mt-8">
                 <button
                   onClick={handleSaveTemplate}
-                  className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+                  className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                   <span className="relative">{editingTemplate ? 'Update Template' : 'Create Template'}</span>

@@ -191,8 +191,8 @@ export default function Analytics() {
     >
         <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 tracking-tight dark:bg-gradient-to-r dark:from-blue-300 dark:to-purple-300 dark:bg-clip-text dark:text-transparent mb-2">Analytics</h1>
-          <p className="text-gray-600 text-lg dark:text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Analytics</h1>
+          <p className="text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
         </div>
         <div className="flex gap-3">
           <a
@@ -223,7 +223,7 @@ export default function Analytics() {
                 alert('Failed to export analytics. Make sure you have posts to export.');
               });
             }}
-            className="group relative bg-white dark:bg-gradient-to-r dark:from-green-600/30 dark:to-emerald-600/30 backdrop-blur-lg border border-gray-200 dark:border-2 dark:border-green-400/30 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:bg-gray-50 dark:hover:from-green-600/40 dark:hover:to-emerald-600/40 transition-all flex items-center gap-2 dark:shadow-lg dark:hover:shadow-green-500/30 overflow-hidden"
+            className="group relative bg-gradient-to-r from-green-600/30 to-emerald-600/30 backdrop-blur-lg border-2 border-green-400/30 text-white px-6 py-3 rounded-xl hover:from-green-600/40 hover:to-emerald-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-green-500/30 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function Analytics() {
               loadAnalytics();
               loadHistory();
             }}
-            className="group relative bg-blue-600 dark:bg-blue-600/30 backdrop-blur-lg border dark:border-2 dark:border-blue-400/30 text-white dark:text-white px-6 py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5 dark:hover:bg-blue-600/40 transition-all duration-200 flex items-center gap-2 dark:shadow-lg dark:hover:shadow-blue-500/30 overflow-hidden"
+            className="group relative bg-blue-600/30 backdrop-blur-lg border-2 border-blue-400/30 text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/30 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -293,7 +293,7 @@ export default function Analytics() {
         {/* Timeline Chart */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-lg shadow-gray-900/5 dark:shadow-xl p-6 overflow-hidden hover:-translate-y-0.5 transition-all duration-300"
+          className="group relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -320,7 +320,7 @@ export default function Analytics() {
         {/* Platform Distribution */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-lg shadow-gray-900/5 dark:shadow-xl p-6 overflow-hidden hover:-translate-y-0.5 transition-all duration-300"
+          className="group relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -401,16 +401,16 @@ export default function Analytics() {
                   linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'LinkedIn' },
                   twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border-sky-400/30', name: 'Twitter' },
                   telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border-cyan-400/30', name: 'Telegram' },
-                  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-blue-600 dark:text-pink-400 border-pink-400/30', name: 'Instagram' },
+                  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border-pink-400/30', name: 'Instagram' },
                   facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Facebook' },
                   youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border-red-400/30', name: 'YouTube' },
-                  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-gray-900 dark:text-orange-400 border-orange-400/30', name: 'Reddit' },
+                  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
                   discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
-                  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-blue-600 dark:text-purple-400 border-purple-400/30', name: 'Slack' },
+                  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border-purple-400/30', name: 'Slack' },
                   tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: 'TikTok' },
                   tumblr: { Icon: FaTumblr, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Tumblr' },
                   devto: { Icon: FaMedium, color: 'bg-gray-900/20 text-gray-300 border-gray-300/30', name: 'Dev.to' },
-                  mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-blue-600 dark:text-purple-400 border-purple-400/30', name: 'Mastodon' },
+                  mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-purple-400 border-purple-400/30', name: 'Mastodon' },
                   bluesky: { Icon: SiBluesky, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'Bluesky' },
                   medium: { Icon: FaMedium, color: 'bg-gray-700/20 text-gray-300 border-gray-300/30', name: 'Medium' },
                   pinterest: { Icon: FaPinterest, color: 'bg-red-600/20 text-red-400 border-red-400/30', name: 'Pinterest' }

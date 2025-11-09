@@ -1,6 +1,5 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
 
 export default function Card3D({ 
   children, 
@@ -11,7 +10,6 @@ export default function Card3D({
   onClick = null,
   hover3D = true
 }) {
-  const { theme } = useTheme();
   const ref = useRef(null);
   
   const x = useMotionValue(0);
@@ -62,16 +60,14 @@ export default function Card3D({
         transition={{ type: "spring", stiffness: 150, damping: 15 }}
         className="relative"
       >
-        {/* 3D Shadow - only in dark mode */}
-        {theme === 'dark' && (
-          <motion.div
-            style={{
-              transform: "translateZ(-30px)",
-              background: shadowColor,
-            }}
-            className="absolute inset-0 rounded-2xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity"
-          />
-        )}
+        {/* 3D Shadow */}
+        <motion.div
+          style={{
+            transform: "translateZ(-30px)",
+            background: shadowColor,
+          }}
+          className="absolute inset-0 rounded-2xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity"
+        />
 
         {/* Main Card */}
         <motion.div
@@ -82,26 +78,24 @@ export default function Card3D({
           style={{
             transform: hover3D ? "translateZ(20px)" : "translateZ(0px)",
           }}
-          className={`relative ${theme === 'dark' ? `bg-gradient-to-br ${gradient} backdrop-blur-xl border-white/20 shadow-2xl` : 'bg-white border-gray-200 shadow-lg shadow-gray-900/5 hover:shadow-xl hover:shadow-blue-600/5 hover:-translate-y-0.5'} rounded-2xl border overflow-hidden transition-all duration-300`}
+          className={`relative bg-gradient-to-br ${gradient} backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden transition-all`}
         >
-          {/* Flowing gradient overlay - only in dark mode */}
-          {theme === 'dark' && (
-            <motion.div
-              className="absolute inset-0"
-              animate={{
-                background: [
-                  'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-                  'radial-gradient(circle at 100% 100%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-                  'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-                ],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          )}
+          {/* Flowing gradient overlay */}
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              background: [
+                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+                'radial-gradient(circle at 100% 100%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+                'radial-gradient(circle at 0% 0%, rgba(255,255,255,0.1) 0%, transparent 50%)',
+              ],
+            }}
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
 
           {/* Content */}
           <div 

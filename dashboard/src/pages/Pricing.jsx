@@ -158,16 +158,16 @@ export default function Pricing() {
       <div className="container mx-auto px-6 max-w-7xl overflow-visible">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-5xl font-bold text-white mb-4">
             Simple, Transparent Pricing
           </h1>
-          <p className="text-xl text-gray-700 dark:text-gray-300 mb-8">
+          <p className="text-xl text-gray-300 mb-8">
             Choose the perfect plan for your needs
           </p>
 
           {/* Billing Toggle */}
           <div className="inline-flex items-center gap-4 bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl p-2 shadow-xl">
-            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'monthly' ? 'text-gray-900 dark:text-white font-semibold bg-blue-500/30 backdrop-blur-sm border border-blue-400/30' : 'text-gray-400'}`}>
+            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'monthly' ? 'text-white font-semibold bg-blue-500/30 backdrop-blur-sm border border-blue-400/30' : 'text-gray-400'}`}>
               Monthly
             </span>
             <button
@@ -180,9 +180,9 @@ export default function Pricing() {
                 }`}
               />
             </button>
-            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'annual' ? 'text-gray-900 dark:text-white font-semibold bg-purple-500/30 backdrop-blur-sm border border-purple-400/30' : 'text-gray-400'}`}>
+            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'annual' ? 'text-white font-semibold bg-purple-500/30 backdrop-blur-sm border border-purple-400/30' : 'text-gray-400'}`}>
               Annual
-              <span className="ml-2 text-sm bg-green-500/80 backdrop-blur-sm text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-green-400/30">
+              <span className="ml-2 text-sm bg-green-500/80 backdrop-blur-sm text-white px-2 py-1 rounded-lg border border-green-400/30">
                 Save 17%
               </span>
             </span>
@@ -214,39 +214,39 @@ export default function Pricing() {
                 
                 {/* Popular Badge */}
                 {isPopular && (
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gradient-to-r dark:from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-50">
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-50">
                     ⭐ MOST POPULAR
                   </div>
                 )}
 
                 {/* Current Plan Badge */}
                 {isCurrent && !isPopular && (
-                  <div className="absolute -top-6 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-gray-900 dark:text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30 z-50">
+                  <div className="absolute -top-6 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30 z-50">
                     ✓ Current Plan
                   </div>
                 )}
 
                 <div className="relative mb-6">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{plan.name}</h3>
-                  <div className={`text-5xl font-bold mb-2 ${isPopular ? 'text-gray-900 dark:text-white' : 'text-gray-900 dark:text-white'}`}>
+                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                  <div className={`text-5xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-white'}`}>
                     ${isFree ? 0 : billingCycle === 'monthly' ? plan.price : Math.round(plan.annual / 12)}
-                    <span className={`text-lg ${isPopular ? 'text-blue-200' : 'text-gray-700 dark:text-gray-300'}`}>
+                    <span className={`text-lg ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
                       /{billingCycle === 'monthly' ? 'month' : 'month'}
                     </span>
                   </div>
                   {!isFree && billingCycle === 'annual' && (
-                    <p className={`text-sm ${isPopular ? 'text-blue-200' : 'text-gray-700 dark:text-gray-300'}`}>
+                    <p className={`text-sm ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
                       or ${plan.annual}/year (save ${getAnnualSavings(plan)})
                     </p>
                   )}
-                  {isFree && <p className="text-gray-700 dark:text-gray-300">Great for getting started</p>}
+                  {isFree && <p className="text-gray-300">Great for getting started</p>}
                 </div>
 
                 <ul className="relative space-y-3 mb-8 flex-grow">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className={`text-xl ${isPopular ? 'text-green-300' : 'text-blue-600 dark:text-green-400'}`}>✓</span>
-                      <span className={isPopular ? 'text-gray-900 dark:text-white' : 'text-gray-200'}>{feature}</span>
+                      <span className={`text-xl ${isPopular ? 'text-green-300' : 'text-green-400'}`}>✓</span>
+                      <span className={isPopular ? 'text-white' : 'text-gray-200'}>{feature}</span>
                     </li>
                   ))}
                   {plan.features_excluded?.map((feature, i) => (
@@ -276,7 +276,7 @@ export default function Pricing() {
                     className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all group/btn ${
                       isPopular
                         ? 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-2xl hover:shadow-white/30 border-2 border-white/50'
-                        : 'bg-gray-800/50 backdrop-blur-sm text-gray-900 dark:text-white hover:bg-gray-700/50 border-2 border-white/20 hover:border-white/30'
+                        : 'bg-gray-800/50 backdrop-blur-sm text-white hover:bg-gray-700/50 border-2 border-white/20 hover:border-white/30'
                     } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>

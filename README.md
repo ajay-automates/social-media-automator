@@ -10,21 +10,10 @@
 
 ## 📖 Overview
 
-Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, stunning light/dark themes, and premium UI design.
+Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, and glassmorphism UI design.
 
 **Key Features:**
-- 🎨 **Light/Dark Theme System** (NEW!):
-  - Beautiful premium light mode (white + blue, inspired by Linear/Notion)
-  - Stunning dark mode with glassmorphism effects
-  - Auto-detects system preference on first visit
-  - One-click theme toggle (☀️/🌙 button in header)
-  - Persistent theme choice (localStorage)
-  - Smooth transitions between themes (300ms)
-  - Complete coverage across all 16 pages
-  - Premium shadows, hover effects, and animations
-  - Light mode: Minimal, professional, ONE accent color (blue)
-  - Dark mode: Colorful gradients, 3D effects, animated overlays
-- 🎓 **5-Step Interactive Onboarding Tutorial**:
+- 🎓 **5-Step Onboarding Tutorial** (NEW!):
   - Interactive guided tour for new users (30-60 seconds to first post)
   - Step 1: Welcome & overview
   - Step 2: Connect social media accounts (OAuth integration)
@@ -59,13 +48,7 @@ Premium multi-platform social media automation SaaS with AI-powered content gene
 - 🔢 **Character Counter**: Real-time multi-platform validation with color-coded limits
 - 📝 **Template Library**: 15 pre-built templates + save your own
 - 📅 **Calendar View**: Visual calendar with hover previews for scheduled posts
-- 💎 **Premium UI Design**: 
-  - Light mode: Clean, minimal, professional (white + blue palette)
-  - Dark mode: Glassmorphism with colorful gradients
-  - Enhanced shadows with color tints
-  - Lift effects on hover
-  - Smooth micro-interactions
-  - Real brand icons and emojis
+- 💎 **Glassmorphism UI**: Premium glossy design with real brand icons
 - 💳 **Stripe Billing**: Multi-tier SaaS pricing ($29-$199/month) with usage tracking
 
 ---
@@ -214,15 +197,11 @@ Comprehensive documentation is organized in the `docs/` folder:
 ### Frontend
 - **Framework**: React 19
 - **Build Tool**: Vite 7
-- **Styling**: TailwindCSS v3.4 (with dark mode support)
-- **Theme System**: React Context + localStorage persistence
-- **Animations**: Framer Motion v12 (3D transforms, spring animations)
+- **Styling**: TailwindCSS v3.4
+- **Animations**: Framer Motion v12
 - **Routing**: React Router v7
 - **Icons**: React Icons (FontAwesome + Simple Icons)
-- **UI Design**: 
-  - Light mode: Minimal design with blue accents
-  - Dark mode: Glassmorphism with backdrop filters
-  - Premium shadows and hover effects
+- **UI Design**: Glassmorphism with backdrop filters
 - **Charts**: Recharts for analytics
 
 ### External Services
@@ -356,13 +335,11 @@ Built with:
 ## 📊 Project Stats
 
 - **Platforms**: 16 total (10 working, 5 pending, 1 restricted)
-- **Lines of Code**: 30,000+
+- **Lines of Code**: 28,000+
 - **API Endpoints**: 70+
 - **Service Files**: 26 platform integrations
-- **React Components**: 55+
-- **Context Providers**: 3 (Auth, Theme, Onboarding)
-- **Theme Variants**: 200+ dark: classes
-- **Documentation**: 22+ guides
+- **React Components**: 50+
+- **Documentation**: 20+ guides
 - **Success Rate**: 100% (all built platforms work!)
 
 ---
@@ -370,9 +347,6 @@ Built with:
 ## 🗺️ Roadmap
 
 ### ✅ Recently Completed (Nov 2025)
-- [x] **Light/Dark Theme System** 🎨 - Beautiful theme switcher with auto-detection, premium light mode
-- [x] **5-Step Onboarding Tutorial** 🎓 - Interactive guided tour with OAuth integration
-- [x] **Responsive Navigation** 📱 - 6-item nav + user dropdown, hamburger menu for mobile
 - [x] **Team Collaboration** 👥 - Multi-user workspaces, 4 roles, approval workflow, activity logging
 - [x] **AI Content Ideas Generator** - 20+ platform-specific ideas in seconds
 - [x] **AI Post Variations** - Auto-adapt content for each platform
@@ -427,14 +401,8 @@ social-media-automator/
 │   └── ... (20 more)
 ├── dashboard/                   # React frontend
 │   ├── src/
-│   │   ├── pages/              # Main pages (16)
-│   │   ├── components/         # Reusable UI components
-│   │   │   ├── onboarding/    # 7 onboarding components
-│   │   │   └── ui/             # Card3D, buttons, etc.
-│   │   ├── contexts/           # React contexts
-│   │   │   ├── AuthContext.jsx
-│   │   │   ├── ThemeContext.jsx (NEW)
-│   │   │   └── OnboardingContext.jsx
+│   │   ├── pages/              # Main pages (10)
+│   │   ├── components/         # Reusable UI
 │   │   └── lib/                # API client
 │   └── package.json
 ├── migrations/                  # Database migrations (20)
@@ -448,9 +416,8 @@ social-media-automator/
 
 ---
 
-**Version**: 7.0 - Premium Theme Edition  
+**Version**: 6.3 - Bluesky Edition  
 **Status**: ✅ Production Ready  
-**Last Updated**: November 9, 2025  
+**Last Updated**: November 8, 2025  
 **Working Platforms**: 10 (instant access)  
-**Pending Platforms**: 5 (approval needed)  
-**Themes**: Light + Dark (auto-switching)
+**Pending Platforms**: 5 (approval needed)

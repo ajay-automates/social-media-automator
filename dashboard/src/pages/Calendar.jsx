@@ -137,8 +137,8 @@ export default function Calendar() {
             onClick={() => onView('month')}
             className={`px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
               view === 'month'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-gray-900 dark:text-white shadow-blue-500/50'
-                : 'bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-gray-700/60'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-blue-500/50'
+                : 'bg-gray-800/60 text-gray-300 hover:bg-gray-700/60'
             }`}
           >
             📅 Month
@@ -150,8 +150,8 @@ export default function Calendar() {
             onClick={() => onView('week')}
             className={`px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
               view === 'week'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-gray-900 dark:text-white shadow-blue-500/50'
-                : 'bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-gray-700/60'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-blue-500/50'
+                : 'bg-gray-800/60 text-gray-300 hover:bg-gray-700/60'
             }`}
           >
             📊 Week
@@ -163,8 +163,8 @@ export default function Calendar() {
             onClick={() => onView('day')}
             className={`px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
               view === 'day'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-gray-900 dark:text-white shadow-blue-500/50'
-                : 'bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-gray-700/60'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-blue-500/50'
+                : 'bg-gray-800/60 text-gray-300 hover:bg-gray-700/60'
             }`}
           >
             📆 Day
@@ -176,8 +176,8 @@ export default function Calendar() {
             onClick={() => onView('agenda')}
             className={`px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
               view === 'agenda'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-gray-900 dark:text-white shadow-blue-500/50'
-                : 'bg-gray-800/60 text-gray-700 dark:text-gray-300 hover:bg-gray-700/60'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-blue-500/50'
+                : 'bg-gray-800/60 text-gray-300 hover:bg-gray-700/60'
             }`}
           >
             📋 Agenda
@@ -192,7 +192,7 @@ export default function Calendar() {
       {/* Simplified Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
             <span className="text-4xl">📅</span>
             Post Calendar
           </h1>
@@ -202,7 +202,7 @@ export default function Calendar() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={loadScheduledPosts}
-          className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-gray-900 dark:text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -218,16 +218,16 @@ export default function Calendar() {
         {loading ? (
           <div className="text-center py-20">
             <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-700 dark:text-gray-300">Loading calendar...</p>
+            <p className="text-gray-300">Loading calendar...</p>
           </div>
         ) : events.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">📅</div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">No Scheduled Posts</h3>
-            <p className="text-gray-700 dark:text-gray-300 mb-6">Schedule a post to see it on the calendar</p>
+            <h3 className="text-2xl font-bold text-white mb-3">No Scheduled Posts</h3>
+            <p className="text-gray-300 mb-6">Schedule a post to see it on the calendar</p>
             <a
               href="/create-post"
-              className="group/btn relative inline-block bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-gray-900 dark:text-white px-8 py-4 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+              className="group/btn relative inline-block bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-8 py-4 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
               <span className="relative">Create a Scheduled Post</span>
@@ -276,13 +276,13 @@ export default function Calendar() {
                           return (
                             <PlatformIcon 
                               key={idx} 
-                              className="text-gray-900 dark:text-white drop-shadow-lg" 
+                              className="text-white drop-shadow-lg" 
                               style={{ fontSize: '1.4rem' }}
                             />
                           );
                         })}
                         {platforms.length > 3 && (
-                          <span className="text-gray-900 dark:text-white text-xs font-bold">+{platforms.length - 3}</span>
+                          <span className="text-white text-xs font-bold">+{platforms.length - 3}</span>
                         )}
                       </div>
                     </div>
@@ -318,7 +318,7 @@ export default function Calendar() {
                   <span className="text-3xl">📝</span>
                   Post Preview
                 </p>
-                <p className="text-sm text-blue-600 dark:text-purple-600 font-bold bg-purple-50 px-3 py-1.5 rounded-lg">
+                <p className="text-sm text-purple-600 font-bold bg-purple-50 px-3 py-1.5 rounded-lg">
                   {hoveredEvent.start.toLocaleString('en-US', { 
                     month: 'short', 
                     day: 'numeric', 
@@ -344,7 +344,7 @@ export default function Calendar() {
                     return (
                       <span 
                         key={p} 
-                        className="inline-flex items-center gap-2 text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-gray-900 dark:text-white px-4 py-2 rounded-xl font-black shadow-lg hover:shadow-xl transition-all uppercase"
+                        className="inline-flex items-center gap-2 text-sm bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl font-black shadow-lg hover:shadow-xl transition-all uppercase"
                       >
                         <PlatformIcon style={{ fontSize: '1.1rem' }} />
                         {p}
@@ -376,8 +376,8 @@ export default function Calendar() {
             <div className="bg-gradient-to-r from-blue-600/30 to-purple-600/30 backdrop-blur-lg border-b border-white/10 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Scheduled Post Details</h2>
-                  <p className="text-gray-700 dark:text-gray-300 text-sm mt-1">
+                  <h2 className="text-2xl font-bold text-white">Scheduled Post Details</h2>
+                  <p className="text-gray-300 text-sm mt-1">
                     {selectedEvent.start.toLocaleString('en-US', { 
                       weekday: 'long', 
                       year: 'numeric', 
@@ -390,7 +390,7 @@ export default function Calendar() {
                 </div>
                 <button
                   onClick={() => setShowEventModal(false)}
-                  className="text-gray-400 hover:text-gray-900 dark:text-white transition p-2"
+                  className="text-gray-400 hover:text-white transition p-2"
                 >
                   <span className="text-2xl">✕</span>
                 </button>
@@ -402,7 +402,7 @@ export default function Calendar() {
               {/* Caption */}
               <div>
                 <label className="block text-sm font-semibold text-gray-200 mb-2">Caption</label>
-                <div className="bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 whitespace-pre-wrap">
+                <div className="bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 whitespace-pre-wrap">
                   {selectedEvent.text}
                 </div>
               </div>
@@ -445,7 +445,7 @@ export default function Calendar() {
               <div className="flex gap-4 pt-4">
                 <button
                   onClick={handleDeletePost}
-                  className="group relative flex-1 bg-red-600/30 backdrop-blur-lg border-2 border-red-400/30 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:bg-red-600/40 font-semibold transition-all shadow-lg hover:shadow-red-500/30 overflow-hidden"
+                  className="group relative flex-1 bg-red-600/30 backdrop-blur-lg border-2 border-red-400/30 text-white px-6 py-3 rounded-xl hover:bg-red-600/40 font-semibold transition-all shadow-lg hover:shadow-red-500/30 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                   <span className="relative">🗑️ Delete Post</span>

@@ -198,7 +198,7 @@ export default function Team() {
             {canInvite && (
               <motion.button
                 onClick={() => setShowInviteModal(true)}
-                className="px-6 py-3 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all"
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -214,8 +214,8 @@ export default function Team() {
             onClick={() => setActiveTab('members')}
             className={`pb-3 px-4 font-semibold transition-colors ${
               activeTab === 'members'
-                ? 'text-blue-600 dark:text-purple-400 border-b-2 border-purple-400'
-                : 'text-gray-400 hover:text-gray-900 dark:text-white'
+                ? 'text-purple-400 border-b-2 border-purple-400'
+                : 'text-gray-400 hover:text-white'
             }`}
           >
             Team Members ({members.length})
@@ -226,8 +226,8 @@ export default function Team() {
               onClick={() => setActiveTab('invitations')}
               className={`pb-3 px-4 font-semibold transition-colors relative ${
                 activeTab === 'invitations'
-                  ? 'text-blue-600 dark:text-purple-400 border-b-2 border-purple-400'
-                  : 'text-gray-400 hover:text-gray-900 dark:text-white'
+                  ? 'text-purple-400 border-b-2 border-purple-400'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               Pending Invitations ({invitations.length})
@@ -237,8 +237,8 @@ export default function Team() {
             onClick={() => setActiveTab('activity')}
             className={`pb-3 px-4 font-semibold transition-colors ${
               activeTab === 'activity'
-                ? 'text-blue-600 dark:text-purple-400 border-b-2 border-purple-400'
-                : 'text-gray-400 hover:text-gray-900 dark:text-white'
+                ? 'text-purple-400 border-b-2 border-purple-400'
+                : 'text-gray-400 hover:text-white'
             }`}
           >
             Activity Feed
@@ -332,11 +332,11 @@ function MemberCard({ member, isOwner, currentUserRole, onRemove, onChangeRole }
     >
       {/* Avatar & Name */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-gray-900 dark:text-white text-xl font-bold shadow-lg">
+        <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
           {member.name?.[0]?.toUpperCase() || '?'}
         </div>
         <div className="flex-1">
-          <h3 className="text-gray-900 dark:text-white font-bold text-lg">{member.name || 'Unknown'}</h3>
+          <h3 className="text-white font-bold text-lg">{member.name || 'Unknown'}</h3>
           <p className="text-gray-400 text-sm break-all">{member.email}</p>
         </div>
       </div>
@@ -366,7 +366,7 @@ function MemberCard({ member, isOwner, currentUserRole, onRemove, onChangeRole }
               setTimeout(() => setChangingRole(false), 1000);
             }}
             disabled={changingRole}
-            className="flex-1 bg-gray-700/50 border border-gray-600 text-gray-900 dark:text-white text-sm px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 transition disabled:opacity-50"
+            className="flex-1 bg-gray-700/50 border border-gray-600 text-white text-sm px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 transition disabled:opacity-50"
           >
             <option value="admin">Admin</option>
             <option value="editor">Editor</option>
@@ -405,11 +405,11 @@ function InvitationCard({ invitation, onCancel, onResend }) {
       className="bg-gray-800/50 backdrop-blur-xl border-2 border-yellow-500/30 rounded-xl p-6 shadow-xl"
     >
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-gray-900 dark:text-white text-xl shadow-lg">
+        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xl shadow-lg">
           📧
         </div>
         <div className="flex-1">
-          <h3 className="text-gray-900 dark:text-white font-bold">{invitation.email}</h3>
+          <h3 className="text-white font-bold">{invitation.email}</h3>
           <div className="mt-2">
             <RoleBadge role={invitation.role} size="sm" />
           </div>
@@ -438,7 +438,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
                 type="text"
                 value={inviteUrl}
                 readOnly
-                className="flex-1 bg-gray-800 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded border border-gray-600"
+                className="flex-1 bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded border border-gray-600"
               />
               <button
                 onClick={() => copyToClipboard(inviteUrl)}
@@ -454,7 +454,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
       <div className="flex gap-2">
         <button
           onClick={onResend}
-          className="flex-1 px-4 py-2 bg-purple-600/20 text-blue-600 dark:text-purple-400 border border-purple-500/50 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
+          className="flex-1 px-4 py-2 bg-purple-600/20 text-purple-400 border border-purple-500/50 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
         >
           Resend
         </button>
@@ -492,13 +492,13 @@ function ActivityFeed({ activities }) {
           >
             <div className="flex items-start gap-4">
               {/* Icon */}
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-gray-900 dark:text-white">
+              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white">
                 {getActivityIcon(activity.action)}
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <p className="text-gray-900 dark:text-white text-sm">
+                <p className="text-white text-sm">
                   {activity.formatted || activity.action}
                 </p>
                 <p className="text-gray-500 text-xs mt-1">
@@ -533,14 +533,14 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
           onClick={(e) => e.stopPropagation()}
           className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl p-8 max-w-md w-full shadow-2xl"
         >
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-white mb-6">
             Invite Team Member
           </h2>
 
           <form onSubmit={onSubmit} className="space-y-4">
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Email Address
               </label>
               <input
@@ -548,20 +548,20 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="colleague@company.com"
-                className="w-full bg-gray-700/50 border-2 border-gray-600 text-gray-900 dark:text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                className="w-full bg-gray-700/50 border-2 border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
                 required
               />
             </div>
 
             {/* Role Selector */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
                 Role
               </label>
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
-                className="w-full bg-gray-700/50 border-2 border-gray-600 text-gray-900 dark:text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 transition"
+                className="w-full bg-gray-700/50 border-2 border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 transition"
               >
                 <option value="admin">Admin - Can manage team and approve posts</option>
                 <option value="editor">Editor - Can create posts that require approval</option>
@@ -574,14 +574,14 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-3 bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+                className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
                 disabled={inviting}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-3 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-gray-900 dark:text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
                 disabled={inviting}
               >
                 {inviting ? 'Sending...' : 'Send Invitation'}

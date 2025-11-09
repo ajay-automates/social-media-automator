@@ -148,7 +148,7 @@ export default function Approvals() {
             className="bg-gray-800/50 backdrop-blur-xl border-2 border-gray-700/50 rounded-2xl p-12 text-center"
           >
             <div className="text-6xl mb-4">✅</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">All Clear!</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">All Clear!</h2>
             <p className="text-gray-400">No posts pending approval</p>
           </motion.div>
         ) : (
@@ -199,11 +199,11 @@ function ApprovalCard({ approval, index, onPreview }) {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-gray-900 dark:text-white font-bold">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
             {submitter.name?.[0]?.toUpperCase() || '?'}
           </div>
           <div>
-            <p className="text-gray-900 dark:text-white font-semibold">{submitter.name}</p>
+            <p className="text-white font-semibold">{submitter.name}</p>
             <p className="text-gray-400 text-xs">{submitter.email}</p>
           </div>
         </div>
@@ -214,7 +214,7 @@ function ApprovalCard({ approval, index, onPreview }) {
 
       {/* Caption Preview */}
       <div className="mb-4">
-        <p className="text-gray-700 dark:text-gray-300 text-sm line-clamp-4">
+        <p className="text-gray-300 text-sm line-clamp-4">
           {post.text || 'No caption'}
         </p>
       </div>
@@ -236,7 +236,7 @@ function ApprovalCard({ approval, index, onPreview }) {
         <span>
           Submitted {formatTimestamp(new Date(approval.submitted_at))}
         </span>
-        <span className="text-blue-600 dark:text-purple-400 font-semibold">Click to review →</span>
+        <span className="text-purple-400 font-semibold">Click to review →</span>
       </div>
     </motion.div>
   );
@@ -278,16 +278,16 @@ function PreviewModal({
           className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 p-6 flex items-center justify-between z-10">
+          <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between z-10">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Review Post</h2>
+              <h2 className="text-2xl font-bold text-white">Review Post</h2>
               <p className="text-purple-100 text-sm mt-1">
                 Submitted by {submitter.name} • {formatTimestamp(new Date(approval.submitted_at))}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-900 dark:text-white hover:bg-white/10 rounded-lg p-2 transition"
+              className="text-white hover:bg-white/10 rounded-lg p-2 transition"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -316,7 +316,7 @@ function PreviewModal({
             <div>
               <h3 className="text-sm font-bold text-gray-400 mb-2">CAPTION</h3>
               <div className="bg-gray-900/50 border-2 border-gray-700 rounded-lg p-4">
-                <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{post.text || 'No caption'}</p>
+                <p className="text-white whitespace-pre-wrap">{post.text || 'No caption'}</p>
               </div>
             </div>
 
@@ -332,7 +332,7 @@ function PreviewModal({
                           {platform.toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-gray-900 dark:text-white text-sm whitespace-pre-wrap">{text}</p>
+                      <p className="text-white text-sm whitespace-pre-wrap">{text}</p>
                     </div>
                   ))}
                 </div>
@@ -366,7 +366,7 @@ function PreviewModal({
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Add feedback for the creator..."
                 rows={4}
-                className="w-full bg-gray-900/50 border-2 border-gray-700 text-gray-900 dark:text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition resize-none"
+                className="w-full bg-gray-900/50 border-2 border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition resize-none"
               />
             </div>
 
@@ -377,7 +377,7 @@ function PreviewModal({
                 disabled={actionLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-white dark:bg-gradient-to-r dark:from-green-600 to-emerald-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-green-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:shadow-green-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Processing...' : '✅ Approve Post'}
               </motion.button>
@@ -387,7 +387,7 @@ function PreviewModal({
                 disabled={actionLoading || !feedback}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-white dark:bg-gradient-to-r dark:from-yellow-600 to-orange-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-yellow-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold rounded-lg shadow-lg hover:shadow-yellow-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Processing...' : '⚠️ Request Changes'}
               </motion.button>
@@ -397,7 +397,7 @@ function PreviewModal({
                 disabled={actionLoading || !feedback}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-white dark:bg-gradient-to-r dark:from-red-600 to-rose-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-red-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold rounded-lg shadow-lg hover:shadow-red-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Processing...' : '❌ Reject Post'}
               </motion.button>
