@@ -82,7 +82,7 @@ export default function Card3D({
           style={{
             transform: hover3D ? "translateZ(20px)" : "translateZ(0px)",
           }}
-          className={`relative ${theme === 'dark' ? `bg-gradient-to-br ${gradient} backdrop-blur-xl border-white/20 shadow-2xl` : 'bg-white border-gray-200 shadow-sm'} rounded-2xl border overflow-hidden transition-all`}
+          className={`relative ${theme === 'dark' ? `bg-gradient-to-br ${gradient} backdrop-blur-xl border-white/20 shadow-2xl` : 'bg-white border-gray-200 shadow-lg shadow-gray-900/5 hover:shadow-xl hover:shadow-blue-600/5 hover:-translate-y-0.5'} rounded-2xl border overflow-hidden transition-all duration-300`}
         >
           {/* Flowing gradient overlay - only in dark mode */}
           {theme === 'dark' && (

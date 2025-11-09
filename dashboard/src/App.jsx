@@ -59,7 +59,7 @@ function Navigation() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/80 backdrop-blur-xl border-b border-gray-200/80 dark:border-white/10 shadow-sm dark:shadow-2xl transition-colors duration-300"
+      className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-2xl border-b border-gray-200 dark:border-white/10 shadow-sm shadow-gray-900/5 dark:shadow-2xl transition-colors duration-300"
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -76,7 +76,7 @@ function Navigation() {
               >
                 🚀
               </motion.span>
-              <h1 className="text-base xl:text-lg 2xl:text-xl font-bold text-gray-900 dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400 dark:bg-clip-text dark:text-transparent whitespace-nowrap">Social Media Automator</h1>
+              <h1 className="text-base xl:text-lg 2xl:text-xl font-bold text-gray-900 tracking-tight dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400 dark:bg-clip-text dark:text-transparent whitespace-nowrap">Social Media Automator</h1>
             </motion.div>
             
             {/* Nav Items - Desktop Only (Core 6 items) */}
@@ -87,16 +87,16 @@ function Navigation() {
                   to={item.path} 
                   className="relative group px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap"
                 >
-                  <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-gray-900 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-blue-200'}`}>
+                  <span className={`flex items-center gap-2 font-medium ${isActive(item.path) ? 'text-blue-600 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-200'}`}>
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
                   </span>
                   
-                  {/* Gradient underline */}
+                  {/* Active underline */}
                   {isActive(item.path) && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-gradient-to-r dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 rounded-full"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
@@ -117,12 +117,9 @@ function Navigation() {
             {/* Theme Toggle Button */}
             <motion.button
               onClick={toggleTheme}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -1 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2.5 rounded-xl glass border border-white/20 dark:border-white/20 hover:border-white/40 transition-all backdrop-blur-lg group"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
-              }}
+              className="p-2.5 rounded-xl bg-gray-100 dark:glass border border-gray-200 dark:border-white/20 hover:bg-gray-200 hover:shadow-sm dark:hover:border-white/40 transition-all backdrop-blur-lg group"
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
               <span className="text-2xl group-hover:scale-110 transition-transform inline-block">
@@ -148,12 +145,7 @@ function Navigation() {
             <div className="hidden lg:block relative">
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-3 px-4 py-2 rounded-xl glass border border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-white/40 transition-all backdrop-blur-lg"
-                style={{
-                  background: theme === 'dark' 
-                    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)'
-                    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.5) 100%)',
-                }}
+                className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gray-100 dark:glass border border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:bg-gray-200 hover:shadow-sm dark:hover:text-white hover:border-gray-300 dark:hover:border-white/40 transition-all backdrop-blur-lg"
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shadow-lg">
                   {user?.email?.charAt(0).toUpperCase() || 'U'}
@@ -265,7 +257,7 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <BrowserRouter>
-          <div className="min-h-screen bg-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 dark:bg-gradient-to-br transition-colors duration-300">
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 transition-colors duration-300">
             <Navigation />
             
             <Routes>

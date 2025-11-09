@@ -255,17 +255,17 @@ function DashboardContent() {
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-4xl font-bold text-gray-900 dark:bg-gradient-to-r dark:from-blue-300 dark:to-purple-300 dark:bg-clip-text dark:text-transparent mb-2"
+          className="text-4xl font-bold text-gray-900 tracking-tight dark:bg-gradient-to-r dark:from-blue-300 dark:to-purple-300 dark:bg-clip-text dark:text-transparent mb-2"
         >
           Dashboard
         </motion.h1>
-        <p className="text-gray-500 dark:text-gray-400">Welcome back! Manage your social media posts from one place.</p>
+        <p className="text-gray-600 text-lg dark:text-gray-400">Welcome back! Manage your social media posts from one place.</p>
       </div>
       
       {/* Usage Summary */}
       {billingInfo && billingInfo.usage && billingInfo.usage.posts && billingInfo.plan && billingInfo.plan.name && (
         <div className="mb-6 relative z-10">
-          <div className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-lg p-4 flex items-center justify-between shadow-sm">
+          <div className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-5 flex items-center justify-between shadow-lg shadow-gray-900/5">
             <div className="flex items-center gap-3">
               <span className="text-2xl">📊</span>
               <div>
@@ -393,7 +393,7 @@ function DashboardContent() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/connect-accounts')}
-                className="bg-blue-600 dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-700 dark:hover:shadow-xl dark:hover:shadow-blue-500/50 transition-all inline-flex items-center gap-2"
+                className="bg-blue-600 dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5 dark:hover:shadow-xl dark:hover:shadow-blue-500/50 transition-all duration-200 inline-flex items-center gap-2"
               >
                 <span>🚀 Connect Accounts</span>
               </motion.button>
@@ -401,7 +401,7 @@ function DashboardContent() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRestartOnboarding}
-                className="bg-white dark:glass border border-gray-300 dark:border-2 dark:border-purple-400/50 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-all inline-flex items-center gap-2"
+                className="bg-white dark:glass border border-gray-300 dark:border-2 dark:border-purple-400/50 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 hover:shadow-md hover:-translate-y-0.5 dark:hover:bg-white/10 transition-all duration-200 inline-flex items-center gap-2"
               >
                 <span>🎓 Start Tutorial</span>
               </motion.button>
@@ -430,7 +430,7 @@ function DashboardContent() {
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4)" }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-blue-600 dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 hover:bg-blue-700 transition-all"
+                  className="bg-blue-600 dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5 transition-all duration-200"
                 >
                   ➕ Create New Post
                 </motion.button>
@@ -466,7 +466,7 @@ function DashboardContent() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-white dark:bg-white/10 backdrop-blur-sm text-gray-900 dark:text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-white/20 transition inline-flex items-center gap-2 border border-gray-200 dark:border-white/20 relative"
+                    className="bg-white dark:bg-white/10 backdrop-blur-sm text-gray-900 dark:text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 hover:shadow-md hover:-translate-y-0.5 dark:hover:bg-white/20 transition-all duration-200 inline-flex items-center gap-2 border border-gray-200 dark:border-white/20 relative"
                   >
                     📝 My Drafts
                     <span className="ml-1 bg-blue-500/30 text-blue-600 dark:text-blue-300 text-xs font-bold px-2 py-0.5 rounded-full">
@@ -515,9 +515,9 @@ function DashboardContent() {
         >
           <div className="p-6">
             <div className="text-5xl mb-4">📝</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Posts</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">Manage your social media content</p>
-            <Link to="/create" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold inline-flex items-center gap-1">
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight dark:text-gray-100 mb-2">Posts</h2>
+            <p className="text-gray-600 text-sm dark:text-gray-300 mb-4">Manage your social media content</p>
+            <Link to="/create" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold text-sm inline-flex items-center gap-1 group">
               Create Post →
             </Link>
           </div>
