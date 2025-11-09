@@ -382,7 +382,7 @@ function DashboardContent() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 relative z-10"
         >
-          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-lg border-2 border-blue-400/30 rounded-2xl p-8 text-center shadow-2xl shadow-blue-500/20">
+          <div className="bg-gray-100 dark:bg-gradient-to-r dark:from-blue-500/20 dark:to-purple-500/20 backdrop-blur-lg border border-gray-200 dark:border-2 dark:border-blue-400/30 rounded-2xl p-8 text-center shadow-sm dark:shadow-2xl dark:shadow-blue-500/20">
             <div className="text-6xl mb-4">🔗</div>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">No Platforms Connected</h2>
             <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg">
@@ -393,7 +393,7 @@ function DashboardContent() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/connect-accounts')}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all inline-flex items-center gap-2"
+                className="bg-gray-900 dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-800 dark:hover:shadow-xl dark:hover:shadow-blue-500/50 transition-all inline-flex items-center gap-2"
               >
                 <span>🚀 Connect Accounts</span>
               </motion.button>
@@ -401,7 +401,7 @@ function DashboardContent() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRestartOnboarding}
-                className="glass border-2 border-purple-400/50 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-semibold hover:bg-black/5 dark:hover:bg-white/10 transition-all inline-flex items-center gap-2"
+                className="bg-white dark:glass border border-gray-300 dark:border-2 dark:border-purple-400/50 text-gray-900 dark:text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-white/10 transition-all inline-flex items-center gap-2"
               >
                 <span>🎓 Start Tutorial</span>
               </motion.button>
@@ -430,7 +430,7 @@ function DashboardContent() {
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4)" }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg"
+                  className="bg-gray-900 dark:bg-gradient-to-r dark:from-blue-600 dark:to-purple-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 hover:bg-gray-800 transition-all"
                 >
                   ➕ Create New Post
                 </motion.button>
@@ -439,7 +439,7 @@ function DashboardContent() {
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(147, 51, 234, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowContentIdeas(true)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg"
+                className="bg-gray-700 dark:bg-gradient-to-r dark:from-purple-600 dark:to-pink-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 hover:bg-gray-600 transition-all"
               >
                 💡 Get Content Ideas
               </motion.button>
@@ -466,7 +466,7 @@ function DashboardContent() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gray-200/60 dark:bg-white/10 backdrop-blur-sm text-gray-900 dark:text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-300/60 dark:hover:bg-white/20 transition inline-flex items-center gap-2 border border-gray-400 dark:border-white/20 relative"
+                    className="bg-white dark:bg-white/10 backdrop-blur-sm text-gray-900 dark:text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-white/20 transition inline-flex items-center gap-2 border border-gray-200 dark:border-white/20 relative"
                   >
                     📝 My Drafts
                     <span className="ml-1 bg-blue-500/30 text-blue-600 dark:text-blue-300 text-xs font-bold px-2 py-0.5 rounded-full">
@@ -498,7 +498,7 @@ function DashboardContent() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRestartOnboarding}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-purple-500/50 transition inline-flex items-center gap-2"
+                className="bg-gray-700 dark:bg-gradient-to-r dark:from-purple-600 dark:to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-600 dark:hover:shadow-xl dark:hover:shadow-purple-500/50 transition inline-flex items-center gap-2"
               >
                 🎓 Start Tutorial
               </motion.button>
@@ -517,7 +517,7 @@ function DashboardContent() {
             <div className="text-5xl mb-4">📝</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Posts</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Manage your social media content</p>
-            <Link to="/create" className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-semibold inline-flex items-center gap-1">
+            <Link to="/create" className="text-gray-900 dark:text-blue-400 hover:text-gray-700 dark:hover:text-blue-300 font-semibold inline-flex items-center gap-1">
               Create Post →
             </Link>
           </div>
@@ -531,7 +531,7 @@ function DashboardContent() {
             <div className="text-5xl mb-4">📊</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Analytics</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Track performance metrics</p>
-            <Link to="/analytics" className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 font-semibold inline-flex items-center gap-1">
+            <Link to="/analytics" className="text-gray-900 dark:text-purple-400 hover:text-gray-700 dark:hover:text-purple-300 font-semibold inline-flex items-center gap-1">
               View Analytics →
             </Link>
           </div>
@@ -545,7 +545,7 @@ function DashboardContent() {
             <div className="text-5xl mb-4">⚙️</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Settings</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Configure your accounts</p>
-            <Link to="/settings" className="text-green-600 dark:text-green-400 hover:text-green-500 dark:hover:text-green-300 font-semibold inline-flex items-center gap-1">
+            <Link to="/settings" className="text-gray-900 dark:text-green-400 hover:text-gray-700 dark:hover:text-green-300 font-semibold inline-flex items-center gap-1">
               Open Settings →
             </Link>
           </div>
