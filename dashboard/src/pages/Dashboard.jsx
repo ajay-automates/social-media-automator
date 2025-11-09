@@ -382,10 +382,10 @@ function DashboardContent() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 relative z-10"
         >
-          <div className="bg-gray-100 dark:bg-gradient-to-r dark:from-blue-500/20 dark:to-purple-500/20 backdrop-blur-lg border border-gray-200 dark:border-2 dark:border-blue-400/30 rounded-2xl p-8 text-center shadow-sm dark:shadow-2xl dark:shadow-blue-500/20">
+          <div className="bg-blue-50/50 dark:bg-gradient-to-r dark:from-blue-500/20 dark:to-purple-500/20 backdrop-blur-lg border border-blue-100 dark:border-2 dark:border-blue-400/30 rounded-2xl p-8 text-center shadow-lg shadow-blue-600/5 dark:shadow-2xl dark:shadow-blue-500/20">
             <div className="text-6xl mb-4">🔗</div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">No Platforms Connected</h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-6 text-lg">
+            <h2 className="text-3xl font-bold text-gray-900 tracking-tight dark:text-white mb-3">No Platforms Connected</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg">
               Connect your social media accounts to start posting across multiple platforms instantly!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -424,7 +424,7 @@ function DashboardContent() {
           hover3D={false}
         >
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h2>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight dark:text-gray-100 mb-4">Quick Actions</h2>
             <div className="flex gap-4 flex-wrap">
               <Link to="/create">
                 <motion.button
