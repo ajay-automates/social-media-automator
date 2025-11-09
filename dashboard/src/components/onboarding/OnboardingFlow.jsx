@@ -1,4 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
 import { useOnboarding } from '../../contexts/OnboardingContext';
 import WelcomeModal from './WelcomeModal';
 import ConnectAccountsStep from './ConnectAccountsStep';
@@ -9,11 +10,12 @@ import SuccessModal from './SuccessModal';
 export default function OnboardingFlow({ onComplete }) {
   const { currentStep, isComplete, postResults } = useOnboarding();
 
-  // If onboarding is complete, close the flow
-  if (isComplete && onComplete) {
-    onComplete();
-    return null;
-  }
+  // If onboarding is complete, close the flow (defer to useEffect to avoid render-phase state updates)
+  useEffect(() => {
+    if (isComplete && onComplete) {
+      onComplete();
+    }
+  }, [isComplete, onComplete]);
 
   return (
     <AnimatePresence mode="wait">

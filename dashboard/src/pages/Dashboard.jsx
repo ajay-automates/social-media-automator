@@ -11,11 +11,10 @@ import Card3D from '../components/ui/Card3D';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
 import ContentIdeasModal from '../components/ContentIdeasModal';
-// Onboarding temporarily disabled to fix React hooks error
-// import { useOnboarding, OnboardingProvider } from '../contexts/OnboardingContext';
-// import OnboardingFlow from '../components/onboarding/OnboardingFlow';
+import { OnboardingProvider, useOnboarding } from '../contexts/OnboardingContext';
+import OnboardingFlow from '../components/onboarding/OnboardingFlow';
 
-export default function Dashboard() {
+function DashboardContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(true);
@@ -27,8 +26,8 @@ export default function Dashboard() {
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
   const [draftsCount, setDraftsCount] = useState(0);
   const [userRole, setUserRole] = useState(null);
-  // const [showOnboarding, setShowOnboarding] = useState(false);
-  // const { isNewUser, isComplete, hasConnectedAccount, restartOnboarding } = useOnboarding();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const { restartOnboarding } = useOnboarding();
 
   useEffect(() => {
     loadDashboardData();
@@ -36,10 +35,8 @@ export default function Dashboard() {
     loadTeamData();
   }, []);
 
-  // DISABLED AUTO-TRIGGER to prevent infinite loops
-  // Users will see helpful banner and can manually click "Restart Tutorial"
-  // This is actually BETTER UX - gives users control instead of forcing onboarding
-
+  // MANUAL TRIGGER ONLY - No auto-trigger to prevent infinite loops
+  
   // Auto-open Content Ideas modal if requested from Create Post page
   useEffect(() => {
     if (location.state?.openContentIdeas) {
@@ -143,12 +140,11 @@ export default function Dashboard() {
     navigate('/create');
   };
 
-  // const handleRestartOnboarding = () => {
-  //   console.log('🎓 Restarting onboarding tutorial...');
-  //   restartOnboarding();
-  //   setShowOnboarding(true);
-  //   console.log('✅ Onboarding modal state set to true');
-  // };
+  const handleRestartOnboarding = () => {
+    console.log('🎓 Starting onboarding tutorial...');
+    restartOnboarding(); // Reset context state
+    setShowOnboarding(true);
+  };
 
   if (loading) {
     return (
@@ -191,6 +187,9 @@ export default function Dashboard() {
 
   return (
     <>
+      {/* Onboarding Flow - Manual Trigger Only */}
+      {showOnboarding && <OnboardingFlow onComplete={() => setShowOnboarding(false)} />}
+      
       {/* Regular Dashboard */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -346,7 +345,14 @@ export default function Dashboard() {
               >
                 <span>🚀 Connect Accounts</span>
               </motion.button>
-              {/* Restart Tutorial button temporarily disabled */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleRestartOnboarding}
+                className="glass border-2 border-purple-400/50 text-white px-8 py-4 rounded-xl font-semibold hover:bg-white/10 transition-all inline-flex items-center gap-2"
+              >
+                <span>🎓 Start Tutorial</span>
+              </motion.button>
             </div>
           </div>
         </motion.div>
@@ -436,6 +442,14 @@ export default function Dashboard() {
                   📊 View Analytics
                 </motion.button>
               </Link>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleRestartOnboarding}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-purple-500/50 transition inline-flex items-center gap-2"
+              >
+                🎓 Start Tutorial
+              </motion.button>
             </div>
           </div>
         </Card3D>
@@ -500,6 +514,14 @@ export default function Dashboard() {
       />
       </motion.div>
     </>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <OnboardingProvider>
+      <DashboardContent />
+    </OnboardingProvider>
   );
 }
 

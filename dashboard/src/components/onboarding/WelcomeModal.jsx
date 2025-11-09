@@ -20,7 +20,10 @@ export default function WelcomeModal() {
   };
 
   const confirmSkip = () => {
-    skipOnboarding();
+    // Defer state update to next tick to avoid render-phase update warning
+    setTimeout(() => {
+      skipOnboarding();
+    }, 0);
   };
 
   const cancelSkip = () => {
