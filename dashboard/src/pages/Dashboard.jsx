@@ -52,18 +52,37 @@ function DashboardContent() {
     const step = urlParams.get('step');
     
     if (resumeOnboarding === 'true') {
-      console.log(`🎓 Resuming onboarding at step ${step}...`);
-      // Clean URL
-      window.history.replaceState({}, '', '/dashboard');
-      // Reset context and set the correct step
       const stepNumber = parseInt(step) || 0;
-      restartOnboarding();
+      console.log(`🎓 Resuming onboarding at step ${stepNumber}...`);
+      
+      // Clean URL first
+      window.history.replaceState({}, '', '/dashboard');
+      
+      // Update localStorage directly to ensure step is set correctly
+      const storageKey = 'sma_onboarding_state';
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const state = JSON.parse(saved);
+          state.currentStep = stepNumber;
+          state.onboardingComplete = false;
+          localStorage.setItem(storageKey, JSON.stringify(state));
+          console.log(`📝 Updated localStorage to step ${stepNumber}`);
+        }
+      } catch (error) {
+        console.error('Error updating localStorage:', error);
+      }
+      
+      // Set step in context
+      goToStep(stepNumber);
+      
+      // Wait for state to update, then open modal
       setTimeout(() => {
-        goToStep(stepNumber);
         setShowOnboarding(true);
-      }, 100);
+        console.log(`✅ Onboarding modal opened at step ${stepNumber}`);
+      }, 300);
     }
-  }, [restartOnboarding, goToStep]);
+  }, [goToStep]);
 
   const loadBillingInfo = async () => {
     try {
