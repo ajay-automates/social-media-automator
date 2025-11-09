@@ -50,23 +50,11 @@ function DashboardContent() {
     // Check localStorage for resume flag (more reliable than URL params with React Router)
     const resumeStep = localStorage.getItem('sma_resume_onboarding_step');
     
-    console.log('🔍 Dashboard mounted. Checking for resumeOnboarding in localStorage...', {
-      resumeStep,
-      fullUrl: window.location.href
-    });
-    
     if (resumeStep) {
       const stepNumber = parseInt(resumeStep);
-      console.log(`🎓 RESUMING ONBOARDING AT STEP ${stepNumber}!`);
-      console.log(`   Step 0: Welcome`);
-      console.log(`   Step 1: Connect Accounts`);
-      console.log(`   Step 2: Create First Post ← GOING HERE`);
-      console.log(`   Step 3: Review & Publish`);
-      console.log(`   Step 4: Success`);
       
       // Remove the resume flag immediately to prevent loops
       localStorage.removeItem('sma_resume_onboarding_step');
-      console.log('🗑️ Removed resume flag from localStorage');
       
       // Update onboarding state in localStorage
       const storageKey = 'sma_onboarding_state';
@@ -74,15 +62,12 @@ function DashboardContent() {
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           const state = JSON.parse(saved);
-          console.log('📝 Current onboarding state:', state);
           state.currentStep = stepNumber;
           state.onboardingComplete = false;
-          state.hasConnectedAccount = true; // Mark that account is connected
+          state.hasConnectedAccount = true;
           localStorage.setItem(storageKey, JSON.stringify(state));
-          console.log(`✅ Updated onboarding state to step ${stepNumber}`);
         } else {
-          console.log('⚠️ No saved onboarding state, creating new...');
-          // Create fresh state at step 2
+          // Create fresh state at specified step
           localStorage.setItem(storageKey, JSON.stringify({
             isNewUser: false,
             currentStep: stepNumber,
@@ -94,27 +79,21 @@ function DashboardContent() {
           }));
         }
       } catch (error) {
-        console.error('❌ Error updating localStorage:', error);
+        console.error('Error updating onboarding state:', error);
       }
       
       // Set step in context
-      console.log(`🎯 Calling goToStep(${stepNumber})...`);
       goToStep(stepNumber);
       
       // Reload data to show connected accounts
       setTimeout(() => {
-        console.log('🔄 Loading dashboard data...');
         loadDashboardData();
       }, 100);
       
       // Wait for everything to settle, then open modal
       setTimeout(() => {
-        console.log(`🚀 Opening modal at step ${stepNumber}...`);
         setShowOnboarding(true);
-        console.log(`✅ showOnboarding = TRUE, modal should appear!`);
       }, 600);
-    } else {
-      console.log('ℹ️ No resume flag detected, normal dashboard load');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goToStep]);
@@ -215,8 +194,7 @@ function DashboardContent() {
   };
 
   const handleRestartOnboarding = () => {
-    console.log('🎓 Starting onboarding tutorial...');
-    restartOnboarding(); // Reset context state
+    restartOnboarding();
     setShowOnboarding(true);
   };
 

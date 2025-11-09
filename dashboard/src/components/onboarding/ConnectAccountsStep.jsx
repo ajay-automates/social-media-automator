@@ -67,7 +67,6 @@ export default function ConnectAccountsStep() {
       // Handle different response formats
       const accountsData = response.data?.accounts || response.data || [];
       const accounts = Array.isArray(accountsData) ? accountsData : [];
-      console.log('📊 Fetched accounts:', accounts);
       setConnectedAccounts(accounts);
       
       // Update onboarding progress
@@ -84,25 +83,17 @@ export default function ConnectAccountsStep() {
 
   const handleOAuthConnect = async (platform) => {
     try {
-      console.log(`🔗 Connecting to ${platform}...`);
       const response = await api.post(`/auth/${platform}/url`);
-      console.log(`✅ Response from ${platform}:`, response.data);
       
       if (response.data.authUrl || response.data.oauthUrl) {
         const authUrl = response.data.authUrl || response.data.oauthUrl;
-        console.log(`🚀 Redirecting to OAuth: ${authUrl}`);
         // Store onboarding flag so we can resume after OAuth
-        console.log('💾 Setting localStorage flag: sma_oauth_onboarding = true');
         localStorage.setItem('sma_oauth_onboarding', 'true');
-        console.log('✅ Flag set! Now redirecting to OAuth provider...');
         window.location.href = authUrl;
       } else {
-        console.error(`❌ No authUrl in response:`, response.data);
         showError(`Failed to generate ${platformNames[platform]} auth URL`);
       }
     } catch (error) {
-      console.error(`❌ Error connecting to ${platform}:`, error);
-      console.error('Error response:', error.response?.data);
       const errorMsg = error.response?.data?.error || error.message || `Failed to connect ${platformNames[platform]}`;
       showError(errorMsg);
     }

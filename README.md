@@ -13,6 +13,16 @@
 Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, and glassmorphism UI design.
 
 **Key Features:**
+- 🎓 **5-Step Onboarding Tutorial** (NEW!):
+  - Interactive guided tour for new users (30-60 seconds to first post)
+  - Step 1: Welcome & overview
+  - Step 2: Connect social media accounts (OAuth integration)
+  - Step 3: Create first post (with quick-start suggestions)
+  - Step 4: Review & publish to all platforms
+  - Step 5: Success celebration with confetti animation
+  - Seamless OAuth flow (auto-resumes tutorial after authentication)
+  - Skip confirmation with multi-attempt protection
+  - Restart tutorial button in Dashboard Quick Actions
 - 🌐 **16 Platforms Integrated**: 10 Fully Working + 5 Pending Approval + 1 API Restricted
   - **Working Now:** LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky
   - **Pending Approval:** Facebook, Instagram, YouTube, Pinterest, TikTok
@@ -24,7 +34,7 @@ Premium multi-platform social media automation SaaS with AI-powered content gene
   - Content ideas generator (20+ ideas in seconds)
   - Image generation (Stability AI)
   - URL/YouTube content extraction
-- 👥 **Team Collaboration** (NEW!):
+- 👥 **Team Collaboration**:
   - Multi-user workspaces with role-based permissions
   - 4 roles: Owner, Admin, Editor, Viewer
   - Approval workflow for posts (Editor → Submit → Owner/Admin → Approve)

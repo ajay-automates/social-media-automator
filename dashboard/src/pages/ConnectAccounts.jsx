@@ -63,8 +63,6 @@ export default function ConnectAccounts() {
   }, []);
 
   useEffect(() => {
-    console.log('🔍 ConnectAccounts page loaded');
-    
     // Check for platform connection status in URL params
     const params = new URLSearchParams(window.location.search);
     const connected = params.get('connected');
@@ -72,34 +70,15 @@ export default function ConnectAccounts() {
     const error = params.get('error');
     const message = params.get('message');
     
-    console.log('📋 URL params:', {
-      connected,
-      success,
-      error,
-      message,
-      fullUrl: window.location.href
-    });
-    
     // Check if we're returning from OAuth during onboarding
     const wasOnboarding = localStorage.getItem('sma_oauth_onboarding');
-    console.log('🎯 Onboarding flag in localStorage:', wasOnboarding);
     
     if (wasOnboarding && (connected || success || params.get('instagram') === 'connected' || params.get('facebook') === 'connected')) {
-      console.log('🎉 OAuth completed during onboarding! Redirecting to Dashboard...');
-      console.log('✅ Account connected:', connected || success || 'instagram/facebook');
-      
-      // Instead of URL params, use localStorage to signal resume
+      // OAuth completed during onboarding - resume tutorial at step 2
       localStorage.setItem('sma_resume_onboarding_step', '2');
       localStorage.removeItem('sma_oauth_onboarding');
-      console.log('💾 Set resume flag: sma_resume_onboarding_step = 2');
-      console.log('🗑️ Removed OAuth flag from localStorage');
-      
-      // Navigate to dashboard (will detect localStorage flag)
-      console.log('🚀 Navigating to Dashboard...');
       navigate('/');
       return;
-    } else {
-      console.log('ℹ️ Not in onboarding mode, proceeding with normal flow');
     }
     
     // Handle successful connections (normal flow)

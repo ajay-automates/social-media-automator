@@ -1,8 +1,9 @@
 # 📚 Documentation Index
 
-**Version:** 6.3 - Bluesky Edition  
-**Updated:** November 8, 2025  
-**Platforms:** 16 total (10 working, 5 pending, 1 restricted)
+**Version:** 6.4 - Onboarding Edition  
+**Updated:** November 9, 2025  
+**Platforms:** 16 total (10 working, 5 pending, 1 restricted)  
+**Features:** 15 core features (Interactive Onboarding + 14 production features)
 
 ---
 
@@ -47,6 +48,7 @@
 - [Medium](platforms/medium.md) - Email approval required
 
 ### **Features**
+- [Interactive Onboarding](features/onboarding.md) - 5-step guided tutorial (NEW!)
 - [AI Generation](features/ai-generation.md) - Claude + Stability AI
 - [URL Content](features/url-content-generation.md) - Generate from URLs
 - [Templates](features/templates.md) - Save & reuse

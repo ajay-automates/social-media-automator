@@ -1,13 +1,41 @@
 # ✨ Social Media Automator - Complete Feature List
 
-**Version 6.3 - Bluesky Edition**  
-**Last Updated:** November 8, 2025
+**Version 6.4 - Onboarding Edition**  
+**Last Updated:** November 9, 2025
 
 ---
 
-## 🎯 14 Core Features (All Production-Ready)
+## 🎯 15 Core Features (All Production-Ready)
 
-### 1. 🌐 Multi-Platform Posting
+### 1. 🎓 Interactive Onboarding Tutorial (NEW!)
+5-step guided tour that gets new users posting in 30-60 seconds.
+
+**Tutorial Steps:**
+1. **Welcome Modal** - Overview of the platform and 3-step process
+2. **Connect Accounts** - OAuth integration for Twitter, LinkedIn, etc.
+3. **Create First Post** - Quick-start suggestions and post composer
+4. **Review & Publish** - Multi-platform selector and instant posting
+5. **Success Celebration** - Confetti animation and next steps
+
+**Features:**
+- Seamless OAuth integration (auto-resumes after authentication)
+- Smart redirect system using localStorage (works with React Router)
+- Skip confirmation with multi-attempt protection
+- Restart tutorial anytime from Dashboard Quick Actions
+- Progress tracking and state persistence
+- Automatic data refresh after account connection
+- Mobile-responsive design
+
+**Technical Implementation:**
+- React Context API for state management
+- Framer Motion for smooth animations
+- LocalStorage for persistent state
+- useCallback/useMemo for optimized performance
+- OAuth flow integration with platform connection
+
+---
+
+### 2. 🌐 Multi-Platform Posting
 Post to 16 platforms (10 fully working, 5 pending approval, 1 API restricted).
 
 **✅ FULLY WORKING PLATFORMS (10 - No Approval Needed):**
@@ -40,7 +68,7 @@ Post to 16 platforms (10 fully working, 5 pending approval, 1 API restricted).
 
 ---
 
-### 2. 🤖 AI Caption Generation
+### 3. 🤖 AI Caption Generation
 Generate 3 caption variations using Claude Sonnet 4.
 
 **How it works:**
@@ -415,4 +443,3 @@ TWITTER_CLIENT_SECRET=...
 ---
 
 **Built with ❤️ using AI-first development**
-

@@ -50,7 +50,6 @@ export default function ReviewStep() {
       // Handle different response formats
       const accountsData = response.data?.accounts || response.data || [];
       const accounts = Array.isArray(accountsData) ? accountsData : [];
-      console.log('📊 Fetched accounts:', accounts);
       setConnectedAccounts(accounts);
       // Pre-select all connected platforms
       setSelectedPlatforms(accounts.map(acc => acc.platform));
@@ -76,19 +75,12 @@ export default function ReviewStep() {
       return;
     }
 
-    console.log('📝 Posting data:', {
-      caption: firstPostData?.caption,
-      platforms: selectedPlatforms,
-      hasImage: !!firstPostData?.image
-    });
-
     setPosting(true);
 
     try {
       // Upload image first if present
       let imageUrl = null;
       if (firstPostData?.image) {
-        console.log('📤 Uploading image first...');
         const imageFormData = new FormData();
         imageFormData.append('image', firstPostData.image);
         
@@ -97,9 +89,8 @@ export default function ReviewStep() {
             headers: { 'Content-Type': 'multipart/form-data' }
           });
           imageUrl = uploadResponse.data.url;
-          console.log('✅ Image uploaded:', imageUrl);
         } catch (uploadError) {
-          console.error('❌ Image upload failed:', uploadError);
+          console.error('Image upload failed:', uploadError);
           showError('Failed to upload image');
           setPosting(false);
           return;
@@ -107,14 +98,11 @@ export default function ReviewStep() {
       }
 
       // Send post request with correct format
-      console.log('🚀 Sending post request...');
       const response = await api.post('/post/now', {
         text: firstPostData?.caption || '',
         platforms: selectedPlatforms,
         imageUrl: imageUrl
       });
-
-      console.log('✅ Post successful!', response.data);
 
       // Update onboarding progress after a brief delay to avoid React warning
       setTimeout(() => {
