@@ -198,7 +198,7 @@ export default function Team() {
             {canInvite && (
               <motion.button
                 onClick={() => setShowInviteModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all"
+                className="px-6 py-3 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -214,7 +214,7 @@ export default function Team() {
             onClick={() => setActiveTab('members')}
             className={`pb-3 px-4 font-semibold transition-colors ${
               activeTab === 'members'
-                ? 'text-purple-400 border-b-2 border-purple-400'
+                ? 'text-blue-600 dark:text-purple-400 border-b-2 border-purple-400'
                 : 'text-gray-400 hover:text-gray-900 dark:text-white'
             }`}
           >
@@ -226,7 +226,7 @@ export default function Team() {
               onClick={() => setActiveTab('invitations')}
               className={`pb-3 px-4 font-semibold transition-colors relative ${
                 activeTab === 'invitations'
-                  ? 'text-purple-400 border-b-2 border-purple-400'
+                  ? 'text-blue-600 dark:text-purple-400 border-b-2 border-purple-400'
                   : 'text-gray-400 hover:text-gray-900 dark:text-white'
               }`}
             >
@@ -237,7 +237,7 @@ export default function Team() {
             onClick={() => setActiveTab('activity')}
             className={`pb-3 px-4 font-semibold transition-colors ${
               activeTab === 'activity'
-                ? 'text-purple-400 border-b-2 border-purple-400'
+                ? 'text-blue-600 dark:text-purple-400 border-b-2 border-purple-400'
                 : 'text-gray-400 hover:text-gray-900 dark:text-white'
             }`}
           >
@@ -454,7 +454,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
       <div className="flex gap-2">
         <button
           onClick={onResend}
-          className="flex-1 px-4 py-2 bg-purple-600/20 text-purple-400 border border-purple-500/50 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
+          className="flex-1 px-4 py-2 bg-purple-600/20 text-blue-600 dark:text-purple-400 border border-purple-500/50 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
         >
           Resend
         </button>
@@ -581,7 +581,7 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-gray-900 dark:text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-gray-900 dark:text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
                 disabled={inviting}
               >
                 {inviting ? 'Sending...' : 'Send Invitation'}

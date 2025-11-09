@@ -236,7 +236,7 @@ function ApprovalCard({ approval, index, onPreview }) {
         <span>
           Submitted {formatTimestamp(new Date(approval.submitted_at))}
         </span>
-        <span className="text-purple-400 font-semibold">Click to review →</span>
+        <span className="text-blue-600 dark:text-purple-400 font-semibold">Click to review →</span>
       </div>
     </motion.div>
   );
@@ -278,7 +278,7 @@ function PreviewModal({
           className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
         >
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between z-10">
+          <div className="sticky top-0 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 p-6 flex items-center justify-between z-10">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Review Post</h2>
               <p className="text-purple-100 text-sm mt-1">
@@ -377,7 +377,7 @@ function PreviewModal({
                 disabled={actionLoading}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-green-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-4 bg-white dark:bg-gradient-to-r dark:from-green-600 to-emerald-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-green-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Processing...' : '✅ Approve Post'}
               </motion.button>
@@ -387,7 +387,7 @@ function PreviewModal({
                 disabled={actionLoading || !feedback}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-yellow-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-4 bg-white dark:bg-gradient-to-r dark:from-yellow-600 to-orange-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-yellow-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Processing...' : '⚠️ Request Changes'}
               </motion.button>
@@ -397,7 +397,7 @@ function PreviewModal({
                 disabled={actionLoading || !feedback}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-red-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-4 bg-white dark:bg-gradient-to-r dark:from-red-600 to-rose-600 text-gray-900 dark:text-white font-bold rounded-lg shadow-lg hover:shadow-red-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {actionLoading ? 'Processing...' : '❌ Reject Post'}
               </motion.button>

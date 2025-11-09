@@ -223,7 +223,7 @@ export default function Analytics() {
                 alert('Failed to export analytics. Make sure you have posts to export.');
               });
             }}
-            className="group relative bg-gradient-to-r from-green-600/30 to-emerald-600/30 backdrop-blur-lg border-2 border-green-400/30 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:from-green-600/40 hover:to-emerald-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-green-500/30 overflow-hidden"
+            className="group relative bg-white dark:bg-gradient-to-r dark:from-green-600/30 dark:to-emerald-600/30 backdrop-blur-lg border border-gray-200 dark:border-2 dark:border-green-400/30 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:bg-gray-50 dark:hover:from-green-600/40 dark:hover:to-emerald-600/40 transition-all flex items-center gap-2 dark:shadow-lg dark:hover:shadow-green-500/30 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function Analytics() {
               loadAnalytics();
               loadHistory();
             }}
-            className="group relative bg-blue-600/30 backdrop-blur-lg border-2 border-blue-400/30 text-gray-900 dark:text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/30 overflow-hidden"
+            className="group relative bg-blue-600 dark:bg-blue-600/30 backdrop-blur-lg border dark:border-2 dark:border-blue-400/30 text-white dark:text-white px-6 py-3 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600/40 transition-all flex items-center gap-2 dark:shadow-lg dark:hover:shadow-blue-500/30 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -401,16 +401,16 @@ export default function Analytics() {
                   linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'LinkedIn' },
                   twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border-sky-400/30', name: 'Twitter' },
                   telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border-cyan-400/30', name: 'Telegram' },
-                  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border-pink-400/30', name: 'Instagram' },
+                  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-blue-600 dark:text-pink-400 border-pink-400/30', name: 'Instagram' },
                   facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Facebook' },
                   youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border-red-400/30', name: 'YouTube' },
-                  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
+                  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-gray-900 dark:text-orange-400 border-orange-400/30', name: 'Reddit' },
                   discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
-                  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border-purple-400/30', name: 'Slack' },
+                  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-blue-600 dark:text-purple-400 border-purple-400/30', name: 'Slack' },
                   tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: 'TikTok' },
                   tumblr: { Icon: FaTumblr, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Tumblr' },
                   devto: { Icon: FaMedium, color: 'bg-gray-900/20 text-gray-300 border-gray-300/30', name: 'Dev.to' },
-                  mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-purple-400 border-purple-400/30', name: 'Mastodon' },
+                  mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-blue-600 dark:text-purple-400 border-purple-400/30', name: 'Mastodon' },
                   bluesky: { Icon: SiBluesky, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'Bluesky' },
                   medium: { Icon: FaMedium, color: 'bg-gray-700/20 text-gray-300 border-gray-300/30', name: 'Medium' },
                   pinterest: { Icon: FaPinterest, color: 'bg-red-600/20 text-red-400 border-red-400/30', name: 'Pinterest' }

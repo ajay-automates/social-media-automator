@@ -214,7 +214,7 @@ export default function Pricing() {
                 
                 {/* Popular Badge */}
                 {isPopular && (
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-50">
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gradient-to-r dark:from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-50">
                     ⭐ MOST POPULAR
                   </div>
                 )}
@@ -245,7 +245,7 @@ export default function Pricing() {
                 <ul className="relative space-y-3 mb-8 flex-grow">
                   {plan.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className={`text-xl ${isPopular ? 'text-green-300' : 'text-green-400'}`}>✓</span>
+                      <span className={`text-xl ${isPopular ? 'text-green-300' : 'text-blue-600 dark:text-green-400'}`}>✓</span>
                       <span className={isPopular ? 'text-gray-900 dark:text-white' : 'text-gray-200'}>{feature}</span>
                     </li>
                   ))}

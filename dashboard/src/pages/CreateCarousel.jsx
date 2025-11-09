@@ -178,7 +178,7 @@ export default function CreateCarousel() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="bg-gray-800/50 backdrop-blur-xl border-2 border-dashed border-purple-500/50 rounded-2xl p-12 text-center"
               >
-                <FaImages className="text-6xl text-purple-400 mx-auto mb-4" />
+                <FaImages className="text-6xl text-blue-600 dark:text-purple-400 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Upload Your Images</h3>
                 <p className="text-gray-700 dark:text-gray-300 mb-6">Select 2-10 images to create your carousel</p>
                 
@@ -279,7 +279,7 @@ export default function CreateCarousel() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowCaptionModal(true)}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-gray-900 dark:text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3"
+                className="w-full bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-gray-900 dark:text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3"
               >
                 <FaRobot className="text-2xl" />
                 Generate AI Captions for All Slides
@@ -386,7 +386,7 @@ export default function CreateCarousel() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handlePost}
                 disabled={posting || captions.filter(c => c.trim()).length === 0}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-gray-900 dark:text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                className="w-full bg-white dark:bg-gradient-to-r dark:from-green-600 to-emerald-600 text-gray-900 dark:text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
               >
                 <FaPaperPlane />
                 {posting ? 'Posting Carousel...' : 'Post Carousel to LinkedIn'}

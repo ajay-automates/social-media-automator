@@ -78,7 +78,7 @@ export default function AcceptInvitation() {
             <p className="text-gray-400">
               You've successfully joined the workspace. Redirecting you to the dashboard...
             </p>
-            <div className="flex items-center justify-center gap-2 text-purple-400">
+            <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-purple-400">
               <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
               <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
               <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
@@ -109,7 +109,7 @@ export default function AcceptInvitation() {
             </div>
             <button
               onClick={() => navigate('/login')}
-              className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition"
+              className="w-full px-6 py-3 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:opacity-90 transition"
             >
               Go to Login
             </button>
@@ -135,7 +135,7 @@ export default function AcceptInvitation() {
             <button
               onClick={handleAcceptInvitation}
               disabled={loading || !token}
-              className="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-6 py-4 bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">

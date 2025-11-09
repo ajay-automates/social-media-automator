@@ -30,12 +30,12 @@ const PLATFORM_ICONS = {
   linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border border-blue-400/30' },
   twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border border-sky-400/30' },
   telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border border-cyan-400/30' },
-  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border border-pink-400/30' },
+  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-blue-600 dark:text-pink-400 border border-pink-400/30' },
   facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border border-blue-400/30' },
   youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border border-red-400/30' },
-  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border border-orange-400/30' },
+  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-gray-900 dark:text-orange-400 border border-orange-400/30' },
   discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border border-indigo-400/30' },
-  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border border-purple-400/30' },
+  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-blue-600 dark:text-purple-400 border border-purple-400/30' },
   tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border border-gray-400/30' }
 };
 
@@ -275,10 +275,10 @@ async function handleSaveTemplate() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8 relative">
-        <div className="group relative bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
+        <div className="group relative bg-white dark:bg-gradient-to-r dark:from-purple-600/20 via-blue-600/20 to-pink-600/20 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 via-blue-300 to-pink-300 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-white dark:bg-gradient-to-r dark:from-purple-300 via-blue-300 to-pink-300 bg-clip-text text-transparent">
               Post Templates
             </h1>
             <p className="text-gray-200 mt-3 text-lg">Save and reuse your best-performing posts</p>
@@ -486,7 +486,7 @@ async function handleSaveTemplate() {
                   ) : (
                     <button
                       onClick={() => handleDuplicateTemplate(template.id)}
-                      className="group/btn relative flex-1 bg-gradient-to-r from-purple-600/30 to-blue-600/30 backdrop-blur-sm border-2 border-purple-400/40 text-purple-200 px-4 py-2 rounded-lg hover:from-purple-600/40 hover:to-blue-600/40 text-sm font-semibold transition-all overflow-hidden shadow-lg hover:shadow-purple-500/30"
+                      className="group/btn relative flex-1 bg-white dark:bg-gradient-to-r dark:from-purple-600/30 to-blue-600/30 backdrop-blur-sm border-2 border-purple-400/40 text-purple-200 px-4 py-2 rounded-lg hover:from-purple-600/40 hover:to-blue-600/40 text-sm font-semibold transition-all overflow-hidden shadow-lg hover:shadow-purple-500/30"
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                       <span className="relative">✨ Clone to My Templates</span>

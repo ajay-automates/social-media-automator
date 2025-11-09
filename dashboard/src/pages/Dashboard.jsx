@@ -273,7 +273,7 @@ function DashboardContent() {
                   You've used {billingInfo.usage.posts.used}/{billingInfo.usage.posts.limit} posts this month
                 </p>
                 {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && (
-                  <p className={`text-xs mt-1 ${billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? 'text-red-500 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+                  <p className={`text-xs mt-1 ${billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? 'text-red-500 dark:text-red-400' : 'text-yellow-600 dark:text-gray-900 dark:text-yellow-400'}`}>
                     {billingInfo.usage.posts.used >= billingInfo.usage.posts.limit ? '❌ Limit reached' : '⚠️ Approaching limit'}
                   </p>
                 )}
@@ -450,7 +450,7 @@ function DashboardContent() {
                   <motion.button
                     whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(234, 179, 8, 0.4)" }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg relative"
+                    className="bg-white dark:bg-gradient-to-r dark:from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg relative"
                   >
                     ⏳ Pending Approvals
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
@@ -531,7 +531,7 @@ function DashboardContent() {
             <div className="text-5xl mb-4">📊</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Analytics</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Track performance metrics</p>
-            <Link to="/analytics" className="text-blue-600 dark:text-purple-400 hover:text-blue-700 dark:hover:text-purple-300 font-semibold inline-flex items-center gap-1">
+            <Link to="/analytics" className="text-blue-600 dark:text-blue-600 dark:text-purple-400 hover:text-blue-700 dark:hover:text-purple-300 font-semibold inline-flex items-center gap-1">
               View Analytics →
             </Link>
           </div>
@@ -545,7 +545,7 @@ function DashboardContent() {
             <div className="text-5xl mb-4">⚙️</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Settings</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-4">Configure your accounts</p>
-            <Link to="/settings" className="text-blue-600 dark:text-green-400 hover:text-blue-700 dark:hover:text-green-300 font-semibold inline-flex items-center gap-1">
+            <Link to="/settings" className="text-blue-600 dark:text-blue-600 dark:text-green-400 hover:text-blue-700 dark:hover:text-green-300 font-semibold inline-flex items-center gap-1">
               Open Settings →
             </Link>
           </div>

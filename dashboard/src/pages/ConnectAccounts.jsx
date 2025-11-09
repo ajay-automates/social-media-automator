@@ -593,10 +593,10 @@ export default function ConnectAccounts() {
                           {account?.platform === 'linkedin' && <FaLinkedin className="text-blue-400" />}
                           {account?.platform === 'twitter' && <FaTwitter className="text-sky-400" />}
                           {account?.platform === 'telegram' && <FaTelegram className="text-cyan-400" />}
-                          {account?.platform === 'slack' && <FaSlack className="text-purple-400" />}
+                          {account?.platform === 'slack' && <FaSlack className="text-blue-600 dark:text-purple-400" />}
                           {account?.platform === 'discord' && <FaDiscord className="text-indigo-400" />}
-                          {account?.platform === 'reddit' && <FaReddit className="text-orange-400" />}
-                          {account?.platform === 'instagram' && <FaInstagram className="text-pink-400" />}
+                          {account?.platform === 'reddit' && <FaReddit className="text-gray-900 dark:text-orange-400" />}
+                          {account?.platform === 'instagram' && <FaInstagram className="text-blue-600 dark:text-pink-400" />}
                           {account?.platform === 'facebook' && <FaFacebook className="text-blue-500" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-red-400" />}
                           {account?.platform === 'pinterest' && <FaPinterest className="text-red-500" />}
@@ -604,7 +604,7 @@ export default function ConnectAccounts() {
                           {account?.platform === 'medium' && <FaMedium className="text-gray-50" />}
                           {account?.platform === 'devto' && <FaMedium className="text-gray-800" />}
                           {account?.platform === 'tumblr' && <FaTumblr className="text-blue-400" />}
-                          {account?.platform === 'mastodon' && <SiMastodon className="text-purple-400" />}
+                          {account?.platform === 'mastodon' && <SiMastodon className="text-blue-600 dark:text-purple-400" />}
                           {account?.platform === 'bluesky' && <SiBluesky className="text-blue-400" />}
                         </div>
                       </div>
@@ -667,7 +667,7 @@ export default function ConnectAccounts() {
                           
                           {/* Default Badge */}
                           {account.is_default ? (
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-200 border border-yellow-400/50 backdrop-blur-sm">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-white dark:bg-gradient-to-r dark:from-yellow-500/30 to-orange-500/30 text-yellow-200 border border-yellow-400/50 backdrop-blur-sm">
                               <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                               </svg>
@@ -715,7 +715,7 @@ export default function ConnectAccounts() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">Available to Connect</h3>
-              <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-400/30">
+              <span className="bg-green-500/20 text-blue-600 dark:text-green-400 text-xs font-bold px-3 py-1 rounded-full border border-green-400/30">
                 ✓ NOW
               </span>
             </div>
@@ -936,7 +936,7 @@ export default function ConnectAccounts() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">Coming Soon</h3>
-              <span className="bg-purple-500/20 text-purple-400 text-xs font-bold px-3 py-1 rounded-full border border-purple-400/30">
+              <span className="bg-purple-500/20 text-blue-600 dark:text-purple-400 text-xs font-bold px-3 py-1 rounded-full border border-purple-400/30">
                 🚀 2025
               </span>
             </div>
@@ -1169,7 +1169,7 @@ export default function ConnectAccounts() {
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500"
                 />
                 <p className="text-xs text-gray-400 mt-1">
-                  Get your API key from <a href="https://dev.to/settings/extensions" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">Dev.to Settings → Extensions</a>
+                  Get your API key from <a href="https://dev.to/settings/extensions" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-purple-400 hover:underline">Dev.to Settings → Extensions</a>
                 </p>
               </div>
             </div>
@@ -1200,7 +1200,7 @@ export default function ConnectAccounts() {
             className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <SiMastodon className="text-2xl text-purple-400" />
+              <SiMastodon className="text-2xl text-blue-600 dark:text-purple-400" />
               Connect Mastodon
             </h3>
             <div className="space-y-4 mb-6">

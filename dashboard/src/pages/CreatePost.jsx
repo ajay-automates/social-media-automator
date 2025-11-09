@@ -939,7 +939,7 @@ export default function CreatePost() {
               {!caption.trim() && (
                 <button
                   onClick={() => navigate('/', { state: { openContentIdeas: true } })}
-                  className="text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
+                  className="text-blue-600 dark:text-blue-600 dark:text-purple-400 hover:text-blue-700 dark:hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
                 >
                   <span>💡</span>
                   Need ideas? Click here
@@ -1015,7 +1015,7 @@ export default function CreatePost() {
                     whileTap={{ scale: 0.95 }}
                     onClick={generateVariations}
                     disabled={generatingVariations}
-                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 shadow-lg"
+                    className="bg-white dark:bg-gradient-to-r dark:from-pink-600 dark:to-purple-600 text-gray-900 dark:text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-50 dark:hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 border border-gray-200 dark:border-0 dark:shadow-lg"
                   >
                     {generatingVariations ? (
                       <>
@@ -1049,7 +1049,7 @@ export default function CreatePost() {
                       whileTap={{ scale: 0.95 }}
                       onClick={generateAIHashtags}
                       disabled={generatingHashtags}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                      className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
                     >
                       {generatingHashtags ? (
                         <>
@@ -1101,7 +1101,7 @@ export default function CreatePost() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => addHashtagToCaption(hashtag)}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
+                      className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
                     >
                       {hashtag}
                     </motion.button>
@@ -1112,7 +1112,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={addAllHashtags}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
+                  className="w-full bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
                 >
                   ✨ Add All Hashtags to Caption
                 </motion.button>
@@ -1155,7 +1155,7 @@ export default function CreatePost() {
                   <button
                     onClick={toggleUseVariations}
                     className={`relative w-14 h-7 rounded-full transition-all ${
-                      useVariations ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-600'
+                      useVariations ? 'bg-white dark:bg-gradient-to-r dark:from-green-500 to-emerald-500' : 'bg-gray-600'
                     }`}
                   >
                     <div
@@ -1228,7 +1228,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowAIModal(true)}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                  className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
                 >
                   ✨ Generate with AI
                 </motion.button>
@@ -1237,7 +1237,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowYoutubeModal(true)}
-                  className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                  className="bg-white dark:bg-gradient-to-r dark:from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
                 >
                   📺 Generate from URL
                 </motion.button>
@@ -1280,7 +1280,7 @@ export default function CreatePost() {
                   whileTap={{ scale: 0.98 }}
                   onClick={generateImage}
                   disabled={generatingImage || !aiImagePrompt.trim()}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="bg-white dark:bg-gradient-to-r dark:from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   {generatingImage ? 'Generating...' : '🎨 Generate Image'}
                 </motion.button>
@@ -1337,7 +1337,7 @@ export default function CreatePost() {
                 <h3 className="text-xl font-bold text-white mb-4">🎬 Stock Video Library</h3>
                 
                 <p className="text-gray-300 text-sm mb-4">
-                  Search and attach professional HD/4K stock videos to your posts. <span className="text-green-400 font-semibold">100% FREE!</span> Powered by Pexels.
+                  Search and attach professional HD/4K stock videos to your posts. <span className="text-blue-600 dark:text-green-400 font-semibold">100% FREE!</span> Powered by Pexels.
                 </p>
 
                 {/* Selected Video Preview */}
@@ -1352,7 +1352,7 @@ export default function CreatePost() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setShowVideoModal(true)}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-white dark:bg-gradient-to-r dark:from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
                   >
                     <span className="text-2xl">🎬</span>
                     <span>Search Stock Videos</span>
@@ -1546,7 +1546,7 @@ export default function CreatePost() {
                   <p className="font-semibold text-green-300">
                     {mediaType === 'video' ? 'Video' : 'Image'} attached and ready to post!
                   </p>
-                  <p className="text-sm text-green-400">
+                  <p className="text-sm text-blue-600 dark:text-green-400">
                     Click &quot;Post Now&quot; to share across platforms
                   </p>
                 </div>
@@ -1570,7 +1570,7 @@ export default function CreatePost() {
                     setPlatforms(allPlatforms);
                     showSuccess(`Selected all ${allPlatforms.length} platforms! 🎯`);
                   }}
-                  className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                  className="px-4 py-2 bg-white dark:bg-gradient-to-r dark:from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
                 >
                   ✅ Select All
                 </motion.button>
@@ -1684,7 +1684,7 @@ export default function CreatePost() {
               <span className="text-2xl">⚠️</span>
               <div>
                 <div className="font-semibold text-yellow-300">Image Required</div>
-                <div className="text-sm text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
+                <div className="text-sm text-gray-900 dark:text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
               </div>
             </div>
           )}
@@ -2057,7 +2057,7 @@ export default function CreatePost() {
                     whileTap={{ scale: 0.98 }}
                     onClick={generateFromYoutube}
                     disabled={generatingFromYoutube || !youtubeUrl.trim()}
-                    className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    className="flex-1 bg-white dark:bg-gradient-to-r dark:from-red-600 to-pink-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                   >
                     {generatingFromYoutube ? 'Generating...' : '🔗 Generate'}
                   </motion.button>
@@ -2126,7 +2126,7 @@ export default function CreatePost() {
             className="bg-gray-900/95 backdrop-blur-xl border-2 border-white/20 rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-2xl"
           >
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-lg border-b border-white/10 p-6">
+            <div className="bg-white dark:bg-gradient-to-r dark:from-purple-600/30 to-pink-600/30 backdrop-blur-lg border-b border-white/10 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-white">📋 Load from Template</h2>
@@ -2245,7 +2245,7 @@ export default function CreatePost() {
                           </div>
 
                           {/* Click hint */}
-                          <div className="mt-3 text-center text-xs text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="mt-3 text-center text-xs text-blue-600 dark:text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
                             Click to load →
                           </div>
                         </div>
