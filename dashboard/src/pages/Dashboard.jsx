@@ -51,12 +51,24 @@ function DashboardContent() {
     const resumeOnboarding = urlParams.get('resumeOnboarding');
     const step = urlParams.get('step');
     
+    console.log('🔍 Dashboard mounted. Checking for resumeOnboarding...', {
+      resumeOnboarding,
+      step,
+      fullUrl: window.location.href
+    });
+    
     if (resumeOnboarding === 'true') {
       const stepNumber = parseInt(step) || 0;
-      console.log(`🎓 Resuming onboarding at step ${stepNumber}...`);
+      console.log(`🎓 RESUMING ONBOARDING AT STEP ${stepNumber}!`);
+      console.log(`   Step 0: Welcome`);
+      console.log(`   Step 1: Connect Accounts`);
+      console.log(`   Step 2: Create First Post ← GOING HERE`);
+      console.log(`   Step 3: Review & Publish`);
+      console.log(`   Step 4: Success`);
       
       // Clean URL first
       window.history.replaceState({}, '', '/dashboard');
+      console.log('✅ URL cleaned');
       
       // Update localStorage directly to ensure step is set correctly
       const storageKey = 'sma_onboarding_state';
@@ -64,31 +76,40 @@ function DashboardContent() {
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           const state = JSON.parse(saved);
+          console.log('📝 Current localStorage state:', state);
           state.currentStep = stepNumber;
           state.onboardingComplete = false;
+          state.hasConnectedAccount = true; // Mark that account is connected
           localStorage.setItem(storageKey, JSON.stringify(state));
-          console.log(`📝 Updated localStorage to step ${stepNumber}`);
+          console.log(`✅ Updated localStorage to step ${stepNumber}`);
+        } else {
+          console.log('⚠️ No saved state found in localStorage');
         }
       } catch (error) {
-        console.error('Error updating localStorage:', error);
+        console.error('❌ Error updating localStorage:', error);
       }
       
       // Reload dashboard data to show newly connected accounts
-      console.log('🔄 Reloading dashboard data to show connected accounts...');
+      console.log('🔄 Reloading dashboard data...');
       
       // Set step in context
+      console.log(`🎯 Calling goToStep(${stepNumber})...`);
       goToStep(stepNumber);
       
       // Reload data and wait for it to update
       setTimeout(() => {
+        console.log('🔄 Loading dashboard data...');
         loadDashboardData();
       }, 100);
       
       // Wait for state to update, then open modal
       setTimeout(() => {
+        console.log(`🚀 Opening modal at step ${stepNumber}...`);
         setShowOnboarding(true);
-        console.log(`✅ Onboarding modal opened at step ${stepNumber}`);
-      }, 300);
+        console.log(`✅ showOnboarding set to TRUE`);
+      }, 500); // Increased to 500ms for safety
+    } else {
+      console.log('ℹ️ No resumeOnboarding param detected, normal dashboard load');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goToStep]);

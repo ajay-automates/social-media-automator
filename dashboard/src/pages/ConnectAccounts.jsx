@@ -61,6 +61,8 @@ export default function ConnectAccounts() {
   }, []);
 
   useEffect(() => {
+    console.log('🔍 ConnectAccounts page loaded');
+    
     // Check for platform connection status in URL params
     const params = new URLSearchParams(window.location.search);
     const connected = params.get('connected');
@@ -68,14 +70,30 @@ export default function ConnectAccounts() {
     const error = params.get('error');
     const message = params.get('message');
     
+    console.log('📋 URL params:', {
+      connected,
+      success,
+      error,
+      message,
+      fullUrl: window.location.href
+    });
+    
     // Check if we're returning from OAuth during onboarding
     const wasOnboarding = localStorage.getItem('sma_oauth_onboarding');
+    console.log('🎯 Onboarding flag in localStorage:', wasOnboarding);
+    
     if (wasOnboarding && (connected || success || params.get('instagram') === 'connected' || params.get('facebook') === 'connected')) {
       console.log('🎉 OAuth completed during onboarding! Redirecting to Dashboard...');
+      console.log('✅ Account connected:', connected || success || 'instagram/facebook');
       localStorage.removeItem('sma_oauth_onboarding');
-      // Redirect to dashboard to resume onboarding
-      window.location.href = '/dashboard?resumeOnboarding=true&step=3';
+      console.log('🗑️ Removed onboarding flag from localStorage');
+      // Redirect to dashboard to resume onboarding at step 2 (FirstPostStep)
+      // Step 0: Welcome, Step 1: Connect, Step 2: First Post, Step 3: Review, Step 4: Success
+      console.log('🚀 Redirecting to: /dashboard?resumeOnboarding=true&step=2');
+      window.location.href = '/dashboard?resumeOnboarding=true&step=2';
       return;
+    } else {
+      console.log('ℹ️ Not in onboarding mode, proceeding with normal flow');
     }
     
     // Handle successful connections (normal flow)
