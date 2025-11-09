@@ -255,17 +255,17 @@ function DashboardContent() {
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300 bg-clip-text text-transparent mb-2"
+          className="text-4xl font-bold text-gray-900 dark:bg-gradient-to-r dark:from-blue-300 dark:to-purple-300 dark:bg-clip-text dark:text-transparent mb-2"
         >
           Dashboard
         </motion.h1>
-        <p className="text-gray-600 dark:text-gray-400">Welcome back! Manage your social media posts from one place.</p>
+        <p className="text-gray-500 dark:text-gray-400">Welcome back! Manage your social media posts from one place.</p>
       </div>
       
       {/* Usage Summary */}
       {billingInfo && billingInfo.usage && billingInfo.usage.posts && billingInfo.plan && billingInfo.plan.name && (
         <div className="mb-6 relative z-10">
-          <div className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-lg p-4 flex items-center justify-between">
+          <div className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-lg p-4 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
               <span className="text-2xl">📊</span>
               <div>

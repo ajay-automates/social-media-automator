@@ -191,7 +191,7 @@ export default function Analytics() {
     >
         <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-300 dark:to-purple-300 bg-clip-text text-transparent mb-2">Analytics</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:bg-gradient-to-r dark:from-blue-300 dark:to-purple-300 dark:bg-clip-text dark:text-transparent mb-2">Analytics</h1>
           <p className="text-gray-700 dark:text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
         </div>
         <div className="flex gap-3">
@@ -293,7 +293,7 @@ export default function Analytics() {
         {/* Timeline Chart */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-white/60 dark:bg-gray-900/30 backdrop-blur-xl border-2 border-gray-300 dark:border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-sm dark:shadow-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -320,7 +320,7 @@ export default function Analytics() {
         {/* Platform Distribution */}
         <motion.div 
           whileHover={{ y: -5 }}
-          className="group relative bg-white/60 dark:bg-gray-900/30 backdrop-blur-xl border-2 border-gray-300 dark:border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+          className="group relative bg-white dark:bg-gray-900/30 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-sm dark:shadow-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">

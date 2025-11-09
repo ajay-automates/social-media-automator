@@ -527,7 +527,7 @@ export default function ConnectAccounts() {
       </div>
 
       {/* Connected Accounts Section */}
-      <div className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-2xl shadow-2xl p-6 mb-8">
+      <div className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-100 mb-4">Connected Accounts</h2>
         
         {loading ? (
@@ -562,7 +562,7 @@ export default function ConnectAccounts() {
               return (
                 <div 
                   key={idx} 
-                  className={`group relative overflow-hidden border-2 border-gray-300 dark:border-white/10 bg-gradient-to-br ${gradient} backdrop-blur-xl rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] hover:border-white/20 transition-all duration-300`}
+                  className={`group relative overflow-hidden border-2 border-gray-200 dark:border-white/10 bg-gradient-to-br ${gradient} backdrop-blur-xl rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] hover:border-white/20 transition-all duration-300`}
                 >
                   {/* Glossy shine effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -709,7 +709,7 @@ export default function ConnectAccounts() {
         )}
         
         {/* Connect New Platform Section - Restructured */}
-        <div className="border-t border-gray-300 dark:border-white/10 pt-6 space-y-8">
+        <div className="border-t border-gray-200 dark:border-white/10 pt-6 space-y-8">
           
           {/* Section 1: Available to Connect (10 Working Platforms) */}
           <div>
@@ -991,7 +991,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Connect Telegram</h3>
             <div className="space-y-4 mb-6">
@@ -1044,7 +1044,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Connect Slack</h3>
             <div className="space-y-4 mb-6">
@@ -1097,7 +1097,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Connect Discord</h3>
             <div className="space-y-4 mb-6">
@@ -1150,7 +1150,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <FaMedium className="text-2xl" />
@@ -1197,7 +1197,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <SiMastodon className="text-2xl text-purple-400" />
@@ -1259,7 +1259,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <SiBluesky className="text-2xl text-blue-400" />
@@ -1321,7 +1321,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-xl p-8 max-w-md w-full text-center"
+            className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-gray-200 dark:border-white/10 rounded-xl p-8 max-w-md w-full text-center"
           >
             <div className="text-6xl mb-4">🚧</div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{comingSoonPlatform} Integration</h3>

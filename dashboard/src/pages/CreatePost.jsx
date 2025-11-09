@@ -853,13 +853,13 @@ export default function CreatePost() {
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-300 dark:to-pink-300 bg-clip-text text-transparent"
+            className="text-4xl font-bold text-gray-900 dark:bg-gradient-to-r dark:from-purple-300 dark:to-pink-300 dark:bg-clip-text dark:text-transparent"
           >
             Create Post
           </motion.h1>
         </div>
         
-        <div className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-gray-300 dark:border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
+        <div className="bg-white dark:bg-gray-900/30 border border-gray-200 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-2xl p-8 space-y-6 relative z-10">
           {/* Reddit-Specific Fields */}
           {platforms.includes('reddit') && (
             <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">

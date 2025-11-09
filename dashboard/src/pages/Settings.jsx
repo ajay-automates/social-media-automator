@@ -74,7 +74,7 @@ export default function Settings() {
       </div>
 
       {/* Billing Section */}
-      <div className="bg-white/60 dark:bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mb-6">
+      <div className="bg-white dark:bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mb-6">
         <BillingSettings />
       </div>
 
@@ -128,7 +128,7 @@ export default function Settings() {
                     value={reportEmail}
                     onChange={(e) => setReportEmail(e.target.value)}
                     placeholder="your@email.com"
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-300 dark:border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-200 dark:border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                   />
                 </div>
 
@@ -140,7 +140,7 @@ export default function Settings() {
                   <select
                     value={reportFrequency}
                     onChange={(e) => setReportFrequency(e.target.value)}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-300 dark:border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-200 dark:border-gray-600/50 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
                   >
                     <option value="weekly">Weekly (Every Monday)</option>
                     <option value="biweekly">Bi-weekly (Every 2 weeks)</option>
