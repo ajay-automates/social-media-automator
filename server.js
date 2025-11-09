@@ -115,6 +115,27 @@ const {
   processTemplateVariables
 } = require('./services/templates');
 
+// Helper function to get frontend URL
+function getFrontendUrl() {
+  // If explicitly set, use it
+  if (process.env.FRONTEND_URL) {
+    return process.env.FRONTEND_URL;
+  }
+  
+  // In production (Railway), derive from APP_URL or use production domain
+  if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
+    // Railway auto-provides RAILWAY_PUBLIC_DOMAIN
+    if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+      return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+    }
+    // Fallback to known production URL
+    return 'https://capable-motivation-production-7a75.up.railway.app';
+  }
+  
+  // Local development
+  return 'http://localhost:5173';
+}
+
 const app = express();
 
 // Configure Cloudinary
@@ -2223,12 +2244,12 @@ app.get('/auth/linkedin/callback', async (req, res) => {
     
     if (error) {
       console.error('LinkedIn OAuth error:', error);
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_denied`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_denied`);
     }
     
     if (!code || !state) {
       console.error('Missing code or state parameter');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_missing_params`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_missing_params`);
     }
     
     // Decrypt state to get userId
@@ -2238,7 +2259,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       console.log('  - Decrypted user ID:', userId);
     } catch (stateError) {
       console.error('State decryption error:', stateError.message);
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_invalid_state`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_invalid_state`);
     }
     
     // Exchange code for access token
@@ -2261,7 +2282,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       });
     } catch (tokenError) {
       console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_token_exchange_failed`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_token_exchange_failed`);
     }
     
     const { access_token, expires_in } = tokenResponse.data;
@@ -2297,10 +2318,10 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       });
     
     console.log(`✅ LinkedIn account connected for user ${userId}`);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?connected=linkedin&success=true`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?connected=linkedin&success=true`);
   } catch (error) {
     console.error('Error in LinkedIn callback:', error.message);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=linkedin_failed`);
+    res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_failed`);
   }
 });
 
@@ -2524,12 +2545,12 @@ app.get('/auth/twitter/callback', async (req, res) => {
     
     if (error) {
       console.error('Twitter OAuth error:', error);
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_denied`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_denied`);
     }
     
     if (!code || !state) {
       console.error('Missing code or state parameter');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_missing_params`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_missing_params`);
     }
     
     // Get stored code_verifier - check both stores
@@ -2581,7 +2602,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.error('  - Looking for state:', state.substring(0, 20) + '...');
       console.error('  - Server may have restarted - PKCE state lost');
       console.error('  - Try connecting again within 10 minutes of deployment');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_expired`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_expired`);
     }
     
     const { codeVerifier, userId } = pkceData;
@@ -2610,7 +2631,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.log('  - Token exchange successful');
     } catch (tokenError) {
       console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_token_exchange_failed`);
+      return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_token_exchange_failed`);
     }
     
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
@@ -2702,10 +2723,10 @@ app.get('/auth/twitter/callback', async (req, res) => {
     }
     
     console.log(`✅ Twitter account connected for user ${userId}`);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?connected=twitter&success=true`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?connected=twitter&success=true`);
   } catch (error) {
     console.error('Error in Twitter callback:', error.message);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard?error=twitter_failed`);
+    res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_failed`);
   }
 });
 
@@ -5459,22 +5480,22 @@ app.get('/auth/pinterest/callback', async (req, res) => {
     
     if (error) {
       console.error('Pinterest OAuth error:', error);
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=pinterest_denied`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=pinterest_denied`);
     }
     
     if (!code || !state) {
       console.error('Pinterest callback missing params');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=pinterest_missing_params`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=pinterest_missing_params`);
     }
     
     const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/pinterest/callback`;
     await handlePinterestCallback(code, state, redirectUri);
     
     console.log('✅ Pinterest account connected successfully');
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?success=pinterest_connected`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?success=pinterest_connected`);
   } catch (error) {
     console.error('Pinterest callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=pinterest_failed`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?error=pinterest_failed`);
   }
 });
 
@@ -5559,12 +5580,12 @@ app.get('/auth/tumblr/callback', async (req, res) => {
     // Handle user denial
     if (denied) {
       console.error('Tumblr OAuth denied by user');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=tumblr_denied`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=tumblr_denied`);
     }
 
     if (!oauth_token || !oauth_verifier) {
       console.error('Tumblr callback missing parameters');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=tumblr_missing_params`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=tumblr_missing_params`);
     }
 
     // Complete OAuth flow
@@ -5573,11 +5594,11 @@ app.get('/auth/tumblr/callback', async (req, res) => {
     console.log('✅ Tumblr account connected successfully:', result.blogName);
     
     // Redirect to settings with success message
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?success=tumblr_connected&blog=${encodeURIComponent(result.blogName)}`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?success=tumblr_connected&blog=${encodeURIComponent(result.blogName)}`);
 
   } catch (error) {
     console.error('❌ Tumblr callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=tumblr_failed`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?error=tumblr_failed`);
   }
 });
 
@@ -5881,12 +5902,12 @@ app.get('/auth/medium/callback', async (req, res) => {
     // Handle OAuth error
     if (error) {
       console.error('Medium OAuth error:', error);
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=medium_denied`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=medium_denied`);
     }
 
     if (!code || !state) {
       console.error('Medium callback missing parameters');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=medium_missing_params`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=medium_missing_params`);
     }
 
     const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/medium/callback`;
@@ -5897,11 +5918,11 @@ app.get('/auth/medium/callback', async (req, res) => {
     console.log('✅ Medium account connected successfully:', result.username);
     
     // Redirect to settings with success message
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?success=medium_connected&username=${encodeURIComponent(result.username)}`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?success=medium_connected&username=${encodeURIComponent(result.username)}`);
 
   } catch (error) {
     console.error('❌ Medium callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/connect-accounts?error=medium_failed`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?error=medium_failed`);
   }
 });
 
