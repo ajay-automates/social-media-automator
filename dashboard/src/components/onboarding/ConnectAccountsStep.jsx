@@ -91,6 +91,8 @@ export default function ConnectAccountsStep() {
       if (response.data.authUrl || response.data.oauthUrl) {
         const authUrl = response.data.authUrl || response.data.oauthUrl;
         console.log(`🚀 Redirecting to: ${authUrl}`);
+        // Store onboarding flag so we can resume after OAuth
+        localStorage.setItem('sma_oauth_onboarding', 'true');
         window.location.href = authUrl;
       } else {
         console.error(`❌ No authUrl in response:`, response.data);

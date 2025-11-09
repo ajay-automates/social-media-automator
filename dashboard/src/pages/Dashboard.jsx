@@ -27,7 +27,7 @@ function DashboardContent() {
   const [draftsCount, setDraftsCount] = useState(0);
   const [userRole, setUserRole] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const { restartOnboarding } = useOnboarding();
+  const { restartOnboarding, goToStep } = useOnboarding();
 
   useEffect(() => {
     loadDashboardData();
@@ -44,6 +44,26 @@ function DashboardContent() {
       window.history.replaceState({}, '');
     }
   }, [location]);
+
+  // Resume onboarding after OAuth redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const resumeOnboarding = urlParams.get('resumeOnboarding');
+    const step = urlParams.get('step');
+    
+    if (resumeOnboarding === 'true') {
+      console.log(`🎓 Resuming onboarding at step ${step}...`);
+      // Clean URL
+      window.history.replaceState({}, '', '/dashboard');
+      // Reset context and set the correct step
+      const stepNumber = parseInt(step) || 0;
+      restartOnboarding();
+      setTimeout(() => {
+        goToStep(stepNumber);
+        setShowOnboarding(true);
+      }, 100);
+    }
+  }, [restartOnboarding, goToStep]);
 
   const loadBillingInfo = async () => {
     try {

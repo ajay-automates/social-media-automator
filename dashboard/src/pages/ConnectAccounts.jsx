@@ -68,7 +68,17 @@ export default function ConnectAccounts() {
     const error = params.get('error');
     const message = params.get('message');
     
-    // Handle successful connections
+    // Check if we're returning from OAuth during onboarding
+    const wasOnboarding = localStorage.getItem('sma_oauth_onboarding');
+    if (wasOnboarding && (connected || success || params.get('instagram') === 'connected' || params.get('facebook') === 'connected')) {
+      console.log('🎉 OAuth completed during onboarding! Redirecting to Dashboard...');
+      localStorage.removeItem('sma_oauth_onboarding');
+      // Redirect to dashboard to resume onboarding
+      window.location.href = '/dashboard?resumeOnboarding=true&step=3';
+      return;
+    }
+    
+    // Handle successful connections (normal flow)
     if (connected && success) {
       showSuccess(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
       loadAccounts();
