@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -24,6 +25,7 @@ import NotificationBell from './components/NotificationBell';
 function Navigation() {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
   
   const navItems = [
@@ -66,8 +68,8 @@ function Navigation() {
               <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Social Media Automator</h1>
             </motion.div>
             
-            {/* Nav Items */}
-            <div className="ml-10 flex items-center space-x-2">
+            {/* Nav Items - Desktop Only */}
+            <div className="hidden xl:flex ml-10 items-center space-x-2">
               {navItems.map((item) => (
                 <Link 
                   key={item.path}
@@ -98,14 +100,29 @@ function Navigation() {
           </div>
           
           {/* User Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <NotificationBell />
-            <span className="text-sm text-gray-400">{user?.email}</span>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="xl:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+            
+            <span className="hidden sm:block text-sm text-gray-400 truncate max-w-[150px]">{user?.email}</span>
             <motion.button 
               onClick={signOut}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium overflow-hidden group"
+              className="hidden sm:block relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium overflow-hidden group"
             >
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
@@ -117,6 +134,43 @@ function Navigation() {
             </motion.button>
           </div>
         </div>
+        
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="xl:hidden border-t border-white/10 overflow-hidden"
+            >
+              <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                      isActive(item.path)
+                        ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
+                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-xl">{item.icon}</span>
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                ))}
+                <button
+                  onClick={signOut}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium"
+                >
+                  <span className="text-xl">👋</span>
+                  <span>Logout</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.nav>
   );

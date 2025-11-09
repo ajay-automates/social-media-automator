@@ -296,7 +296,7 @@ function DashboardContent() {
         variants={staggerContainer}
         initial="initial"
         animate="animate"
-        className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 relative z-10"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 relative z-10"
       >
         <Card3D 
           gradient="from-blue-400/80 via-blue-500/60 to-cyan-500/80"
@@ -508,7 +508,7 @@ function DashboardContent() {
       </div>
       
       {/* Feature Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10">
         <Card3D 
           gradient="from-blue-500/20 via-cyan-500/20 to-blue-600/20"
           shadowColor="rgba(59, 130, 246, 0.3)"
