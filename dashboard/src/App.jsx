@@ -164,15 +164,15 @@ function Navigation() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-64 glass border-2 border-gray-300 dark:border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50"
+                    className="absolute right-0 mt-2 w-64 glass border border-gray-200 dark:border-2 dark:border-white/20 rounded-2xl shadow-xl shadow-gray-900/10 dark:shadow-2xl overflow-hidden z-50"
                     style={{
                       background: theme === 'dark'
                         ? 'linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%)'
-                        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%)',
+                        : 'rgba(255, 255, 255, 0.98)',
                       backdropFilter: 'blur(20px)',
                       boxShadow: theme === 'dark'
                         ? '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
-                        : '0 8px 32px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1) inset'
+                        : '0 12px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04) inset'
                     }}
                   >
                     {/* Gradient overlay */}
@@ -184,20 +184,20 @@ function Navigation() {
                           key={item.path}
                           to={item.path}
                           onClick={() => setUserMenuOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-3 transition-all ${
+                          className={`flex items-center gap-3 px-4 py-3 transition-all duration-200 ${
                             isActive(item.path)
-                              ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-600 dark:text-blue-300 border-l-2 border-blue-500 dark:border-blue-400'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white hover:border-l-2 hover:border-purple-400/50'
+                              ? 'bg-blue-50 dark:bg-gradient-to-r dark:from-blue-600/30 dark:to-purple-600/30 text-blue-600 dark:text-blue-300 border-l-2 border-blue-600 dark:border-blue-400'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
                           }`}
                         >
                           <span className="text-lg">{item.icon}</span>
                           <span className="text-sm font-medium">{item.label}</span>
                         </Link>
                       ))}
-                      <div className="border-t border-gray-300 dark:border-white/20 my-2 mx-3"></div>
+                      <div className="border-t border-gray-200 dark:border-white/20 my-2 mx-3"></div>
                       <button
                         onClick={signOut}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-red-500 dark:text-red-400 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-pink-500/20 hover:text-red-600 dark:hover:text-red-300 transition-all group hover:border-l-2 hover:border-red-400"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gradient-to-r dark:hover:from-red-500/20 dark:hover:to-pink-500/20 hover:text-red-700 dark:hover:text-red-300 transition-all duration-200 group"
                       >
                         <span className="text-lg group-hover:scale-110 transition-transform">👋</span>
                         <span className="text-sm font-medium">Logout</span>
