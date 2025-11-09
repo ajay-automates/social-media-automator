@@ -73,8 +73,16 @@ function DashboardContent() {
         console.error('Error updating localStorage:', error);
       }
       
+      // Reload dashboard data to show newly connected accounts
+      console.log('🔄 Reloading dashboard data to show connected accounts...');
+      
       // Set step in context
       goToStep(stepNumber);
+      
+      // Reload data and wait for it to update
+      setTimeout(() => {
+        loadDashboardData();
+      }, 100);
       
       // Wait for state to update, then open modal
       setTimeout(() => {
@@ -82,6 +90,7 @@ function DashboardContent() {
         console.log(`✅ Onboarding modal opened at step ${stepNumber}`);
       }, 300);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [goToStep]);
 
   const loadBillingInfo = async () => {
