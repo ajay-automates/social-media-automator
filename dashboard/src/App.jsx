@@ -181,7 +181,7 @@ function Navigation() {
                       <div className="border-t border-white/20 my-2 mx-3"></div>
                       <button
                         onClick={signOut}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-white hover:bg-gradient-to-r hover:from-red-500/20 hover:to-pink-500/20 transition-all group"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-pink-500/20 hover:text-red-300 transition-all group hover:border-l-2 hover:border-red-400"
                       >
                         <span className="text-lg group-hover:scale-110 transition-transform">👋</span>
                         <span className="text-sm font-medium">Logout</span>
