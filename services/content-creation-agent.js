@@ -510,13 +510,10 @@ async function approvePost(postId, approvedBy) {
       .from('posts')
       .insert({
         user_id: agentPost.user_id,
-        workspace_id: agentPost.workspace_id,
-        caption: agentPost.caption,
+        text: agentPost.caption,
         platforms: agentPost.platforms,
-        hashtags: agentPost.hashtags,
-        scheduled_time: agentPost.scheduled_time,
-        status: 'pending',
-        created_via: 'content-agent'
+        schedule_time: agentPost.scheduled_time,
+        status: 'queued'
       })
       .select()
       .single();

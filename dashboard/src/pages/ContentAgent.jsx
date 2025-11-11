@@ -127,24 +127,26 @@ export default function ContentAgent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 p-6">
+    <div className="relative w-full px-4 sm:px-6 lg:px-8 py-8">
       <AnimatedBackground />
 
       <motion.div
         variants={staggerContainer}
         initial="initial"
         animate="animate"
-        className="max-w-7xl mx-auto space-y-6"
+        className="max-w-7xl mx-auto space-y-6 relative z-10"
       >
         {/* Header */}
-        <motion.div>
+        <motion.div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl shadow-lg">
                 <FaRobot className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">Content Creation Agent</h1>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mb-2">
+                  Content Creation Agent
+                </h1>
                 <p className="text-gray-400">AI-powered content generation for your social media</p>
               </div>
             </div>
