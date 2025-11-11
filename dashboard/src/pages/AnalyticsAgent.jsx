@@ -318,7 +318,7 @@ export default function AnalyticsAgent() {
                             )}
 
                             <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                              <p className="text-sm text-cyan-400 font-semibold mb-2">💡 Recommendation:</p>
+                              <p className="text-sm text-gray-400 font-semibold mb-2">💡 Recommendation:</p>
                               <p className="text-white">{insight.recommendation}</p>
                             </div>
                           </div>

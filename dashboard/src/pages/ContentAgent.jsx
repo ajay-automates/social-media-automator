@@ -162,7 +162,7 @@ export default function ContentAgent() {
                   <p className="text-gray-400 text-sm">Posts Generated</p>
                   <p className="text-3xl font-bold text-white">{stats.postsGenerated}</p>
                 </div>
-                <FaMagic className="w-8 h-8 text-purple-400" />
+                <FaMagic className="w-8 h-8 text-gray-400" />
               </div>
             </Card3D>
 
@@ -172,7 +172,7 @@ export default function ContentAgent() {
                   <p className="text-gray-400 text-sm">Avg Quality Score</p>
                   <p className="text-3xl font-bold text-white">{stats.avgQualityScore}/100</p>
                 </div>
-                <FaChartLine className="w-8 h-8 text-green-400" />
+                <FaChartLine className="w-8 h-8 text-gray-400" />
               </div>
             </Card3D>
 
@@ -182,7 +182,7 @@ export default function ContentAgent() {
                   <p className="text-gray-400 text-sm">Generation Time</p>
                   <p className="text-3xl font-bold text-white">{stats.generationTime}s</p>
                 </div>
-                <FaClock className="w-8 h-8 text-blue-400" />
+                <FaClock className="w-8 h-8 text-gray-400" />
               </div>
             </Card3D>
 
@@ -192,7 +192,7 @@ export default function ContentAgent() {
                   <p className="text-gray-400 text-sm">Trends Used</p>
                   <p className="text-3xl font-bold text-white">{stats.trendingTopicsUsed}</p>
                 </div>
-                <FaFire className="w-8 h-8 text-orange-400" />
+                <FaFire className="w-8 h-8 text-gray-400" />
               </div>
             </Card3D>
           </div>
@@ -207,7 +207,7 @@ export default function ContentAgent() {
             {/* Generator Card */}
             <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <FaMagic className="text-purple-400" />
+                <FaMagic className="text-gray-400" />
                 Generate Content Calendar
               </h2>
 
@@ -300,7 +300,7 @@ export default function ContentAgent() {
             {/* Generated Posts */}
             <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <FaCalendar className="text-blue-400" />
+                <FaCalendar className="text-gray-400" />
                 Generated Posts ({generatedPosts.length})
               </h2>
 
@@ -330,7 +330,7 @@ export default function ContentAgent() {
                             <span>Engagement: {post.engagement_prediction}/100</span>
                           </div>
                         </div>
-                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
+                        <span className="px-2 py-1 bg-white/10 text-gray-400 text-xs rounded-full">
                           {post.content_type}
                         </span>
                       </div>
@@ -394,7 +394,7 @@ export default function ContentAgent() {
             {/* Brand Voice */}
             <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <FaEdit className="text-green-400" />
+                <FaEdit className="text-gray-400" />
                 Brand Voice
               </h2>
 
@@ -437,7 +437,7 @@ export default function ContentAgent() {
             {/* Trending Topics */}
             <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <FaFire className="text-orange-400" />
+                <FaFire className="text-gray-400" />
                 Trending Topics
               </h2>
 
@@ -452,7 +452,7 @@ export default function ContentAgent() {
                         <p className="text-white text-sm font-medium flex-1">
                           {trend.trend_topic}
                         </p>
-                        <span className="text-xs text-orange-400 ml-2">
+                        <span className="text-xs text-gray-400 ml-2">
                           {trend.trend_score}/100
                         </span>
                       </div>
