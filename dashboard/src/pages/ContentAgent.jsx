@@ -44,6 +44,11 @@ export default function ContentAgent() {
   // Trending refresh
   const [trendsRefreshing, setTrendsRefreshing] = useState(false);
 
+  // News agent
+  const [news, setNews] = useState({});
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [selectedNewsCategory, setSelectedNewsCategory] = useState(null);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -68,10 +73,27 @@ export default function ContentAgent() {
       if (trendsRes.data.success) {
         setTrends(trendsRes.data.trends);
       }
+
+      // Load trending news
+      loadTrendingNews();
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadTrendingNews = async () => {
+    setNewsLoading(true);
+    try {
+      const response = await api.get('/api/news/trending?limit=30');
+      if (response.data.success) {
+        setNews(response.data.news || {});
+      }
+    } catch (error) {
+      console.error('Error loading news:', error);
+    } finally {
+      setNewsLoading(false);
     }
   };
 
@@ -216,6 +238,33 @@ export default function ContentAgent() {
       showError(error.response?.data?.error || 'Failed to refresh trends');
     } finally {
       setTrendsRefreshing(false);
+    }
+  };
+
+  const handleOpenNewsLink = (url) => {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  };
+
+  const handleUseNewsForContent = (newsArticle) => {
+    // Set the keyword to the news title and trigger generation
+    setCustomKeyword(newsArticle.title.split(' ').slice(0, 3).join(' '));
+    showSuccess(`Using: "${newsArticle.title.substring(0, 50)}..."`);
+  };
+
+  const handleRefreshNews = async () => {
+    setNewsLoading(true);
+    try {
+      const response = await api.get('/api/news/trending?limit=30');
+      if (response.data.success) {
+        setNews(response.data.news || {});
+        showSuccess(`Updated! Found ${response.data.total} news articles`);
+      }
+    } catch (error) {
+      showError('Failed to refresh news');
+    } finally {
+      setNewsLoading(false);
     }
   };
 
@@ -747,6 +796,110 @@ export default function ContentAgent() {
             </motion.div>
           </motion.div>
         )}
+
+        {/* Trending News Section */}
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="mt-12 space-y-6"
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+              📰 Trending News Today
+            </h2>
+            <button
+              onClick={handleRefreshNews}
+              disabled={newsLoading}
+              className="p-2 text-gray-400 hover:text-cyan-400 hover:bg-white/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Refresh news"
+            >
+              <FaSync className={newsLoading ? 'animate-spin' : ''} />
+            </button>
+          </div>
+
+          <p className="text-gray-400 max-w-2xl">
+            Real-time news and articles from today's trending topics. Click "Open Link" to read the full article or "Use This" to generate content based on the news.
+          </p>
+
+          {newsLoading ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-400">Loading today's news...</p>
+            </div>
+          ) : Object.keys(news).length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.entries(news).map(([category, articles]) => {
+                if (!articles || articles.length === 0) return null;
+
+                const categoryLabels = {
+                  ai: 'AI & Technology',
+                  stocks: 'Stocks & Finance',
+                  sports: 'Sports',
+                  technology: 'Technology',
+                  business: 'Business',
+                  entertainment: 'Entertainment'
+                };
+
+                const categoryColors = {
+                  ai: 'from-purple-500/20 to-blue-500/20 border-purple-500/30',
+                  stocks: 'from-green-500/20 to-emerald-500/20 border-green-500/30',
+                  sports: 'from-orange-500/20 to-red-500/20 border-orange-500/30',
+                  technology: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
+                  business: 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30',
+                  entertainment: 'from-pink-500/20 to-rose-500/20 border-pink-500/30'
+                };
+
+                return (
+                  <motion.div
+                    key={category}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`bg-gradient-to-br ${categoryColors[category] || categoryColors.technology} backdrop-blur-md border rounded-2xl p-6 space-y-4`}
+                  >
+                    <h3 className="text-xl font-bold text-white">
+                      {categoryLabels[category] || 'News'}
+                    </h3>
+
+                    <div className="space-y-3">
+                      {articles.slice(0, 3).map((article, idx) => (
+                        <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors">
+                          <h4 className="text-sm font-semibold text-white mb-2 line-clamp-2">
+                            {article.title}
+                          </h4>
+                          <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+                            {article.description || article.source}
+                          </p>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleOpenNewsLink(article.url)}
+                              className="flex-1 px-3 py-1.5 bg-blue-500/30 text-blue-300 text-xs rounded hover:bg-blue-500/50 transition-all flex items-center justify-center gap-1"
+                            >
+                              <span>🔗</span> Open
+                            </button>
+                            <button
+                              onClick={() => handleUseNewsForContent(article)}
+                              className="flex-1 px-3 py-1.5 bg-cyan-500/30 text-cyan-300 text-xs rounded hover:bg-cyan-500/50 transition-all flex items-center justify-center gap-1"
+                            >
+                              <span>✨</span> Use
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2">
+                            {article.source}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-white/5 rounded-2xl border border-white/10">
+              <p className="text-gray-400">No news available yet. Click refresh to load today's trending news.</p>
+            </div>
+          )}
+        </motion.div>
 
       </motion.div>
     </div>

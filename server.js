@@ -125,6 +125,7 @@ const {
 } = require('./services/content-creation-agent');
 const { analyzeBrandVoice, getBrandVoiceProfile } = require('./services/brand-voice-analyzer');
 const { getTrendAlerts, monitorTrendsForUser, fetchAllTrends, fetchKeywordTrendingData } = require('./services/trend-monitor');
+const { fetchTrendingNews, getNewsByCategory, searchNews } = require('./services/news-agent');
 const {
   analyzeUserPatterns,
   generateInsights,
@@ -2514,6 +2515,137 @@ app.post('/api/content-agent/generate-from-keyword', verifyAuth, async (req, res
     });
   }
 });
+
+// ============================================
+// NEWS AGENT ROUTES
+// ============================================
+
+/**
+ * GET /api/news/trending
+ * Get trending news categorized by topic
+ */
+app.get('/api/news/trending', verifyAuth, async (req, res) => {
+  try {
+    const { limit = 20 } = req.query;
+
+    console.log(`📰 Fetching trending news...`);
+
+    const news = await fetchTrendingNews(parseInt(limit));
+
+    // Group by category
+    const grouped = {};
+    for (const article of news) {
+      // Categorize
+      const category = determineCategoryForArticle(article);
+      if (!grouped[category]) {
+        grouped[category] = [];
+      }
+      grouped[category].push({
+        ...article,
+        category
+      });
+    }
+
+    res.json({
+      success: true,
+      news: grouped,
+      total: news.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/news/trending:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch trending news'
+    });
+  }
+});
+
+/**
+ * GET /api/news/category/:category
+ * Get news by specific category
+ */
+app.get('/api/news/category/:category', verifyAuth, async (req, res) => {
+  try {
+    const { category } = req.params;
+    const { limit = 10 } = req.query;
+
+    console.log(`📰 Fetching news for category: ${category}`);
+
+    const news = await getNewsByCategory(category, parseInt(limit));
+
+    res.json({
+      success: true,
+      category,
+      news,
+      total: Object.values(news).reduce((sum, cat) => sum + cat.articles.length, 0)
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/news/category:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch news'
+    });
+  }
+});
+
+/**
+ * POST /api/news/search
+ * Search for news about a specific keyword or topic
+ */
+app.post('/api/news/search', verifyAuth, async (req, res) => {
+  try {
+    const { keyword, limit = 10 } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Keyword is required'
+      });
+    }
+
+    console.log(`📰 Searching news for: "${keyword}"`);
+
+    const result = await searchNews(keyword, parseInt(limit));
+
+    res.json({
+      success: result.success,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/news/search:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to search news'
+    });
+  }
+});
+
+// Helper function to determine category
+function determineCategoryForArticle(article) {
+  const NEWS_CATEGORIES = {
+    ai: ['artificial intelligence', 'AI', 'machine learning', 'GPT', 'neural', 'deep learning', 'LLM'],
+    stocks: ['stock market', 'crypto', 'bitcoin', 'nasdaq', 'market', 'trading', 'investment', 'finance'],
+    sports: ['sports', 'cricket', 'football', 'soccer', 'basketball', 'tennis', 'game', 'match'],
+    technology: ['tech', 'software', 'app', 'startup', 'cloud', 'data', 'digital'],
+    business: ['business', 'company', 'economy', 'industry', 'corporate', 'entrepreneur'],
+    entertainment: ['movie', 'music', 'celebrity', 'film', 'show', 'entertainment', 'actor']
+  };
+
+  const text = `${(article.title || '').toLowerCase()} ${(article.description || '').toLowerCase()}`;
+
+  for (const [category, keywords] of Object.entries(NEWS_CATEGORIES)) {
+    for (const keyword of keywords) {
+      if (text.includes(keyword.toLowerCase())) {
+        return category;
+      }
+    }
+  }
+
+  return 'technology';
+}
 
 // ============================================
 // ANALYTICS INSIGHTS AGENT ROUTES
