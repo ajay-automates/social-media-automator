@@ -183,7 +183,27 @@ async function generateTopicIdeas(userId, brandVoice, count, options = {}) {
     const niches = brandVoice.topics_of_interest?.join(', ') || options.niches?.join(', ') || 'business, technology';
     const avoidTopics = options.avoidTopics?.join(', ') || 'none';
 
-    const prompt = `Generate ${count} unique social media post topic ideas for someone in these niches: ${niches}.
+    // If focusKeyword is provided, generate topics specifically about that keyword
+    let prompt;
+    if (options.focusKeyword && options.keywordContext) {
+      prompt = `Generate ${count} unique social media post ideas specifically about: "${options.focusKeyword}"
+
+Context about this topic:
+${options.keywordContext}
+
+Requirements:
+- ALL topics must be directly related to "${options.focusKeyword}"
+- Create diverse angles/perspectives on this topic
+- Mix of educational, promotional, engaging, and trending aspects
+- Vary the focus (news, tips, insights, trends, questions, etc.)
+- Actionable and specific (not vague)
+- Good for social media (shareable, engaging)
+- Avoid these topics: ${avoidTopics}
+
+Return ONLY a JSON array of topic strings, no additional text:
+["Topic 1", "Topic 2", "Topic 3", ...]`;
+    } else {
+      prompt = `Generate ${count} unique social media post topic ideas for someone in these niches: ${niches}.
 
 Requirements:
 - Mix of educational, promotional, engaging, and trending topics
@@ -194,6 +214,7 @@ Requirements:
 
 Return ONLY a JSON array of topic strings, no additional text:
 ["Topic 1", "Topic 2", "Topic 3", ...]`;
+    }
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
