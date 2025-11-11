@@ -318,7 +318,7 @@ export default function ContentAgent() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-all"
+                      className="bg-white/5 border border-white/10 rounded-lg p-4"
                     >
                       {/* Post Header */}
                       <div className="flex items-start justify-between mb-3">
@@ -344,7 +344,7 @@ export default function ContentAgent() {
                       {post.hashtags && post.hashtags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-3">
                           {post.hashtags.slice(0, 5).map((tag, i) => (
-                            <span key={i} className="text-xs text-blue-400">
+                            <span key={i} className="text-xs text-gray-400">
                               {tag}
                             </span>
                           ))}
@@ -367,14 +367,14 @@ export default function ContentAgent() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleApprove(post.id)}
-                            className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded hover:bg-green-500/30 transition-all flex items-center gap-1"
+                            className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded transition-all flex items-center gap-1"
                           >
                             <FaCheckCircle />
                             Approve
                           </button>
                           <button
                             onClick={() => handleReject(post.id)}
-                            className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded hover:bg-red-500/30 transition-all flex items-center gap-1"
+                            className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded transition-all flex items-center gap-1"
                           >
                             <FaTimesCircle />
                             Reject
@@ -446,7 +446,7 @@ export default function ContentAgent() {
                   {trends.slice(0, 5).map((trend, index) => (
                     <div
                       key={trend.id}
-                      className="p-3 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-all"
+                      className="p-3 bg-white/5 rounded-lg border border-white/10"
                     >
                       <div className="flex items-start justify-between mb-1">
                         <p className="text-white text-sm font-medium flex-1">

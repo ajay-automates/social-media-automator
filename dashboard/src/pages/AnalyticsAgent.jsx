@@ -94,12 +94,12 @@ export default function AnalyticsAgent() {
 
   const getInsightIcon = (type) => {
     const icons = {
-      best_time: <FaClock className="text-blue-400" />,
-      best_day: <FaCalendar className="text-green-400" />,
-      content_type: <FaLightbulb className="text-yellow-400" />,
-      hashtag_performance: <FaHashtag className="text-pink-400" />,
-      platform_performance: <FaServer className="text-purple-400" />,
-      overall_trend: <FaChartLine className="text-cyan-400" />,
+      best_time: <FaClock className="text-gray-400" />,
+      best_day: <FaCalendar className="text-gray-400" />,
+      content_type: <FaLightbulb className="text-gray-400" />,
+      hashtag_performance: <FaHashtag className="text-gray-400" />,
+      platform_performance: <FaServer className="text-gray-400" />,
+      overall_trend: <FaChartLine className="text-gray-400" />,
     };
     return icons[type] || <FaBrain className="text-gray-400" />;
   };
@@ -192,7 +192,7 @@ export default function AnalyticsAgent() {
         {!hasData ? (
           <motion.div variants={itemVariants} className="text-center py-16">
             <div className="glass border-2 border-white/20 rounded-2xl p-12 max-w-2xl mx-auto">
-              <FaBrain className="w-20 h-20 text-cyan-400 mx-auto mb-6" />
+              <FaBrain className="w-20 h-20 text-gray-400 mx-auto mb-6" />
               <h2 className="text-2xl font-bold text-white mb-4">No insights yet</h2>
               <p className="text-gray-400 mb-8">
                 You need at least 10 posts to generate insights. The AI will analyze your posting patterns
@@ -225,7 +225,7 @@ export default function AnalyticsAgent() {
                 {stats.bestTime && (
                   <div className="glass border border-white/20 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
-                      <FaClock className="text-blue-400 text-2xl" />
+                      <FaClock className="text-gray-400 text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Time</h3>
                     </div>
                     <p className="text-3xl font-bold text-white">{stats.bestTime.characteristics?.hourLabel}</p>
@@ -236,7 +236,7 @@ export default function AnalyticsAgent() {
                 {stats.bestDay && (
                   <div className="glass border border-white/20 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
-                      <FaCalendar className="text-green-400 text-2xl" />
+                      <FaCalendar className="text-gray-400 text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Day</h3>
                     </div>
                     <p className="text-3xl font-bold text-white">{stats.bestDay.characteristics?.dayName}</p>
@@ -247,7 +247,7 @@ export default function AnalyticsAgent() {
                 {stats.bestContent && (
                   <div className="glass border border-white/20 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
-                      <FaLightbulb className="text-yellow-400 text-2xl" />
+                      <FaLightbulb className="text-gray-400 text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Content</h3>
                     </div>
                     <p className="text-3xl font-bold text-white capitalize">{stats.bestContent.characteristics?.contentType}</p>
@@ -258,7 +258,7 @@ export default function AnalyticsAgent() {
                 {stats.bestPlatform && (
                   <div className="glass border border-white/20 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
-                      <FaTrophy className="text-purple-400 text-2xl" />
+                      <FaTrophy className="text-gray-400 text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Platform</h3>
                     </div>
                     <p className="text-3xl font-bold text-white capitalize">{stats.bestPlatform.characteristics?.platform}</p>
@@ -272,7 +272,7 @@ export default function AnalyticsAgent() {
             {insights.length > 0 && (
               <motion.div variants={itemVariants}>
                 <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                  <FaBrain className="text-cyan-400" />
+                  <FaBrain className="text-gray-400" />
                   AI Insights
                 </h2>
 
@@ -325,7 +325,7 @@ export default function AnalyticsAgent() {
 
                           <button
                             onClick={() => handleDismissInsight(insight.id)}
-                            className="text-gray-400 hover:text-white transition p-2 rounded-lg hover:bg-white/10"
+                            className="text-gray-400 transition p-2 rounded-lg"
                             title="Dismiss insight"
                           >
                             <FaTimes />
