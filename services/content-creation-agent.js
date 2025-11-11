@@ -481,25 +481,54 @@ async function getGeneratedPosts(userId, status = null, limit = 50) {
  */
 async function approvePost(postId, approvedBy) {
   try {
-    const { data, error } = await supabase
+    // 1. Get the generated post
+    const { data: agentPost, error: fetchError } = await supabase
+      .from('content_agent_posts')
+      .select('*')
+      .eq('id', postId)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!agentPost) throw new Error('Post not found');
+
+    // 2. Update status to approved
+    const { error: updateError } = await supabase
       .from('content_agent_posts')
       .update({
         status: 'approved',
         approved_by: approvedBy,
         approved_at: new Date().toISOString()
       })
-      .eq('id', postId)
+      .eq('id', postId);
+
+    if (updateError) throw updateError;
+
+    // 3. Schedule the post by inserting into posts table
+    console.log(`📅 Scheduling approved post ${postId} to queue...`);
+
+    const { data: scheduledPost, error: scheduleError } = await supabase
+      .from('posts')
+      .insert({
+        user_id: agentPost.user_id,
+        workspace_id: agentPost.workspace_id,
+        caption: agentPost.caption,
+        platforms: agentPost.platforms,
+        hashtags: agentPost.hashtags,
+        scheduled_time: agentPost.scheduled_time,
+        status: 'pending',
+        created_via: 'content-agent'
+      })
       .select()
       .single();
 
-    if (error) throw error;
+    if (scheduleError) throw scheduleError;
 
-    // TODO: Actually schedule the post in the queue
-    // This will be integrated with the existing scheduler
+    console.log(`✅ Post scheduled successfully! Queue ID: ${scheduledPost.id}`);
 
     return {
       success: true,
-      post: data
+      post: agentPost,
+      scheduledPost: scheduledPost
     };
   } catch (error) {
     console.error('❌ Error approving post:', error);
