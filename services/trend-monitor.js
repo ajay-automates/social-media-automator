@@ -351,6 +351,103 @@ async function getTrendAlerts(userId, limit = 20) {
 }
 
 /**
+ * Fetch trending data for a specific keyword
+ * @param {string} keyword - Keyword to fetch trends for
+ * @param {number} days - Number of past days to look at (default: 7)
+ * @returns {Promise<Object>} Keyword trending data with context
+ */
+async function fetchKeywordTrendingData(keyword, days = 7) {
+  try {
+    console.log(`\n🔍 Fetching trending data for keyword: "${keyword}" (last ${days} days)...`);
+
+    if (!keyword || keyword.trim().length === 0) {
+      return {
+        keyword,
+        success: false,
+        error: 'Invalid keyword'
+      };
+    }
+
+    // 1. Fetch all current trends
+    const allTrends = await fetchAllTrends();
+
+    // 2. Search for keyword in trends
+    const keywordLower = keyword.toLowerCase();
+    const relatedTrends = allTrends.filter(trend =>
+      trend.topic.toLowerCase().includes(keywordLower) ||
+      keywordLower.includes(trend.topic.toLowerCase().split(' ')[0])
+    );
+
+    // 3. Fetch Reddit posts related to keyword
+    let redditPosts = [];
+    try {
+      // Search multiple subreddits that might have the keyword
+      const subreddits = ['all', 'news', 'technology', 'business', 'sports', 'entertainment'];
+      const redditResults = [];
+
+      for (const subreddit of subreddits) {
+        const posts = await fetchRedditTrending(subreddit, 15);
+        const filtered = posts.filter(p =>
+          p.topic.toLowerCase().includes(keywordLower)
+        );
+        redditResults.push(...filtered);
+      }
+
+      redditPosts = redditResults.slice(0, 5);
+    } catch (error) {
+      console.log(`   ⚠️  Error fetching Reddit posts for keyword`);
+    }
+
+    // 4. Get context about the keyword using AI
+    let keywordContext = '';
+    if (process.env.ANTHROPIC_API_KEY) {
+      try {
+        const anthropic = new Anthropic({
+          apiKey: process.env.ANTHROPIC_API_KEY
+        });
+
+        const message = await anthropic.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 500,
+          temperature: 0.5,
+          messages: [{
+            role: 'user',
+            content: `Provide a brief overview (2-3 sentences) about recent trends and news about "${keyword}" in the last ${days} days. Focus on factual information that would be useful for social media content creation.`
+          }]
+        });
+
+        keywordContext = message.content[0].text;
+      } catch (error) {
+        console.log(`   ⚠️  Could not generate keyword context`);
+      }
+    }
+
+    // 5. Combine and return data
+    const trendingData = {
+      keyword,
+      success: true,
+      context: keywordContext,
+      relatedTrends,
+      redditPosts,
+      totalSources: (relatedTrends.length > 0 ? 1 : 0) + (redditPosts.length > 0 ? 1 : 0),
+      lastUpdated: new Date().toISOString()
+    };
+
+    console.log(`   ✅ Found data about "${keyword}": ${relatedTrends.length} trending topics, ${redditPosts.length} reddit posts`);
+
+    return trendingData;
+
+  } catch (error) {
+    console.error(`❌ Error fetching keyword trending data:`, error);
+    return {
+      keyword,
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+/**
  * Monitor trends for user and create alerts
  * @param {string} userId - User ID
  * @param {Array} userNiches - User's topics of interest
@@ -422,5 +519,6 @@ module.exports = {
   matchTrendsToNiche,
   saveTrendAlert,
   getTrendAlerts,
-  monitorTrendsForUser
+  monitorTrendsForUser,
+  fetchKeywordTrendingData
 };

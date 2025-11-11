@@ -124,7 +124,7 @@ const {
   generateTopicIdeas
 } = require('./services/content-creation-agent');
 const { analyzeBrandVoice, getBrandVoiceProfile } = require('./services/brand-voice-analyzer');
-const { getTrendAlerts, monitorTrendsForUser, fetchAllTrends } = require('./services/trend-monitor');
+const { getTrendAlerts, monitorTrendsForUser, fetchAllTrends, fetchKeywordTrendingData } = require('./services/trend-monitor');
 const {
   analyzeUserPatterns,
   generateInsights,
@@ -2420,6 +2420,97 @@ app.get('/api/content-agent/brand-voice', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to fetch brand voice'
+    });
+  }
+});
+
+/**
+ * POST /api/content-agent/keyword-trends
+ * Fetch trending data for a specific keyword
+ */
+app.post('/api/content-agent/keyword-trends', verifyAuth, async (req, res) => {
+  try {
+    const { keyword, days = 7 } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Keyword is required'
+      });
+    }
+
+    console.log(`🔍 Fetching keyword trends for: "${keyword}"`);
+
+    const trendingData = await fetchKeywordTrendingData(keyword, days);
+
+    res.json({
+      success: true,
+      ...trendingData
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/keyword-trends:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch keyword trends'
+    });
+  }
+});
+
+/**
+ * POST /api/content-agent/generate-from-keyword
+ * Generate 7-day content calendar from a keyword with preview
+ */
+app.post('/api/content-agent/generate-from-keyword', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { keyword, days = 7, platforms = ['linkedin', 'twitter'] } = req.body;
+
+    if (!keyword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Keyword is required'
+      });
+    }
+
+    console.log(`\n🤖 Generating ${days}-day content from keyword "${keyword}" for user ${userId}...`);
+
+    // 1. Fetch trending data about the keyword
+    const trendingData = await fetchKeywordTrendingData(keyword, days);
+
+    if (!trendingData.success) {
+      return res.status(400).json({
+        success: false,
+        error: `Failed to fetch data about "${keyword}": ${trendingData.error}`
+      });
+    }
+
+    // 2. Generate content calendar with the keyword context
+    const result = await generateContentCalendar(userId, days, {
+      platforms,
+      niches: [keyword],
+      keywordContext: trendingData.context,
+      focusKeyword: keyword
+    });
+
+    // 3. Increment AI usage
+    await incrementUsage(userId, 'ai', days);
+
+    // 4. Return preview with trending data context
+    res.json({
+      success: true,
+      keyword,
+      trendingContext: trendingData.context,
+      relatedTrends: trendingData.relatedTrends.slice(0, 3),
+      preview: true,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/generate-from-keyword:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate content from keyword'
     });
   }
 });
