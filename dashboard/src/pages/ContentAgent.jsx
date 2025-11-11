@@ -86,7 +86,7 @@ export default function ContentAgent() {
   const loadTrendingNews = async () => {
     setNewsLoading(true);
     try {
-      const response = await api.get('/api/news/trending?limit=30');
+      const response = await api.get('/news/trending?limit=30');
       if (response.data.success) {
         setNews(response.data.news || {});
       }
@@ -256,7 +256,7 @@ export default function ContentAgent() {
   const handleRefreshNews = async () => {
     setNewsLoading(true);
     try {
-      const response = await api.get('/api/news/trending?limit=30');
+      const response = await api.get('/news/trending?limit=30');
       if (response.data.success) {
         setNews(response.data.news || {});
         showSuccess(`Updated! Found ${response.data.total} news articles`);
