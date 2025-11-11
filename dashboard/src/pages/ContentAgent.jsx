@@ -156,7 +156,7 @@ export default function ContentAgent() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Posts Generated</p>
@@ -166,7 +166,7 @@ export default function ContentAgent() {
               </div>
             </Card3D>
 
-            <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Avg Quality Score</p>
@@ -176,7 +176,7 @@ export default function ContentAgent() {
               </div>
             </Card3D>
 
-            <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Generation Time</p>
@@ -186,7 +186,7 @@ export default function ContentAgent() {
               </div>
             </Card3D>
 
-            <Card3D className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-400 text-sm">Trends Used</p>
@@ -205,7 +205,7 @@ export default function ContentAgent() {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Generator Card */}
-            <Card3D gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <FaMagic className="text-gray-400" />
                 Generate Content Calendar
@@ -298,7 +298,7 @@ export default function ContentAgent() {
             </Card3D>
 
             {/* Generated Posts */}
-            <Card3D gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <FaCalendar className="text-gray-400" />
                 Generated Posts ({generatedPosts.length})
@@ -392,7 +392,7 @@ export default function ContentAgent() {
           <div className="space-y-6">
 
             {/* Brand Voice */}
-            <Card3D gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <FaEdit className="text-gray-400" />
                 Brand Voice
@@ -435,7 +435,7 @@ export default function ContentAgent() {
             </Card3D>
 
             {/* Trending Topics */}
-            <Card3D gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
+            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <FaFire className="text-gray-400" />
                 Trending Topics
