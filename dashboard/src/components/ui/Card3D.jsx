@@ -66,19 +66,16 @@ export default function Card3D({
             transform: "translateZ(-30px)",
             background: shadowColor,
           }}
-          className="absolute inset-0 rounded-2xl blur-2xl opacity-40 group-hover:opacity-60 transition-opacity"
+          className="absolute inset-0 rounded-2xl blur-2xl opacity-20"
         />
 
         {/* Main Card */}
         <motion.div
-          whileHover={hover3D ? { 
-            scale: 1.02,
-            transition: { duration: 0.3 }
-          } : {}}
+          whileHover={hover3D ? {} : {}}
           style={{
             transform: hover3D ? "translateZ(20px)" : "translateZ(0px)",
           }}
-          className={`relative bg-gradient-to-br ${gradient} backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden transition-all`}
+          className={`relative bg-gradient-to-br ${gradient} backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl overflow-hidden`}
         >
           {/* Flowing gradient overlay */}
           <motion.div
