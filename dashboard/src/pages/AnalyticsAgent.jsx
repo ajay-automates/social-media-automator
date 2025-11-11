@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
-import { FaChartLine, FaLightbulb, FaBrain, FaTrophy, FaClock, FaHashtag, FaCalendar, FaPlatform, FaSync, FaTimes } from 'react-icons/fa';
+import { FaChartLine, FaLightbulb, FaBrain, FaTrophy, FaClock, FaHashtag, FaCalendar, FaServer, FaSync, FaTimes } from 'react-icons/fa';
 
 export default function AnalyticsAgent() {
   const [loading, setLoading] = useState(true);
@@ -98,7 +98,7 @@ export default function AnalyticsAgent() {
       best_day: <FaCalendar className="text-green-400" />,
       content_type: <FaLightbulb className="text-yellow-400" />,
       hashtag_performance: <FaHashtag className="text-pink-400" />,
-      platform_performance: <FaPlatform className="text-purple-400" />,
+      platform_performance: <FaServer className="text-purple-400" />,
       overall_trend: <FaChartLine className="text-cyan-400" />,
     };
     return icons[type] || <FaBrain className="text-gray-400" />;
