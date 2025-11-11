@@ -1,55 +1,108 @@
 # 🚀 Social Media Automator
 
-**Multi-platform social media automation SaaS with AI-powered content generation.**
+**Enterprise-grade multi-platform social media automation SaaS with 2 AI-powered autonomous agents.**
 
 [![Production Ready](https://img.shields.io/badge/status-production-green)]()
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)]()
+[![React](https://img.shields.io/badge/react-19.0-blue)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]()
 
 ---
 
 ## 📖 Overview
 
-Premium multi-platform social media automation SaaS with AI-powered content generation, real-time analytics, and glassmorphism UI design.
+Premium multi-platform social media automation SaaS featuring **2 autonomous AI agents**, real-time analytics, team collaboration, and glassmorphism UI design.
 
-**Key Features:**
-- 🎓 **5-Step Onboarding Tutorial** (NEW!):
-  - Interactive guided tour for new users (30-60 seconds to first post)
-  - Step 1: Welcome & overview
-  - Step 2: Connect social media accounts (OAuth integration)
-  - Step 3: Create first post (with quick-start suggestions)
-  - Step 4: Review & publish to all platforms
-  - Step 5: Success celebration with confetti animation
-  - Seamless OAuth flow (auto-resumes tutorial after authentication)
-  - Skip confirmation with multi-attempt protection
-  - Restart tutorial button in Dashboard Quick Actions
-- 🌐 **16 Platforms Integrated**: 10 Fully Working + 5 Pending Approval + 1 API Restricted
-  - **Working Now:** LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky
-  - **Pending Approval:** Facebook, Instagram, YouTube, Pinterest, TikTok
-- 🤖 **AI Suite** (Claude Sonnet 4):
-  - Caption generation (3 variations per topic)
-  - Platform-specific post variations (auto-adapt content)
-  - AI hashtag generator (platform-optimized)
-  - Best time to post recommendations
-  - Content ideas generator (20+ ideas in seconds)
-  - Image generation (Stability AI)
-  - URL/YouTube content extraction
-- 👥 **Team Collaboration**:
-  - Multi-user workspaces with role-based permissions
-  - 4 roles: Owner, Admin, Editor, Viewer
-  - Approval workflow for posts (Editor → Submit → Owner/Admin → Approve)
-  - Email invitation system with 7-day expiry
-  - Activity logging & audit trail
-  - Real-time notifications with count badges
-- 📅 **Smart Scheduling**: Post immediately, schedule with calendar view, auto-posting with cron
-- 👥 **Multi-Account**: Connect & label unlimited accounts per platform with default settings
-- 📊 **Analytics Suite**: Real-time stats, CSV export, weekly email reports, posting heatmap
-- 📤 **Bulk Upload**: Schedule 100+ posts via CSV with drag-and-drop interface
-- 🔢 **Character Counter**: Real-time multi-platform validation with color-coded limits
-- 📝 **Template Library**: 15 pre-built templates + save your own
-- 📅 **Calendar View**: Visual calendar with hover previews for scheduled posts
-- 💎 **Glassmorphism UI**: Premium glossy design with real brand icons
-- 💳 **Stripe Billing**: Multi-tier SaaS pricing ($29-$199/month) with usage tracking
+### 🤖 **NEW: Dual AI Agent System**
+
+#### 1. **Content Creation Agent** 🎨
+Autonomously generates and schedules content calendars:
+- **Brand Voice Analysis**: Learns your unique writing style from past posts
+- **Trend Monitoring**: Fetches real-time trends from Google Trends + Reddit
+- **Smart Generation**: Creates 7-30 day content calendars automatically
+- **Quality Scoring**: Rates posts 0-100 based on engagement potential
+- **Approval Workflow**: Review and approve before scheduling
+- **Platform Optimization**: Auto-adapts content for each platform
+
+**[View Content Agent Docs →](docs/agents/CONTENT-AGENT-README.md)**
+
+#### 2. **Analytics Insights Agent** 📊
+AI-powered pattern detection and actionable recommendations:
+- **7 Pattern Types**: Time slots, days, content formats, caption length, hashtags, emojis, platforms
+- **AI Insights**: Claude Sonnet 4 generates 5-8 personalized recommendations
+- **Impact Scoring**: Each insight rated for impact (0-100) and confidence (0-100)
+- **Predictive Scoring**: Score draft posts before publishing (backend ready)
+- **Data-Driven**: Analyzes YOUR posting history (last 90 days, min 10 posts)
+- **Beautiful Dashboard**: Glassmorphism UI with dismissable insights
+
+**[View Analytics Agent Docs →](docs/agents/ANALYTICS-AGENT-README.md)**
+
+---
+
+## ✨ Core Features
+
+### 🌐 **16 Platforms Integrated**
+- **✅ Working Now (10):** LinkedIn, Twitter/X, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky
+- **⏳ Pending Approval (5):** Facebook, Instagram, YouTube, Pinterest, TikTok
+- **⚠️ API Restricted (1):** Medium
+
+### 🎓 **5-Step Onboarding Tutorial**
+- Interactive guided tour (30-60 seconds to first post)
+- Seamless OAuth flow integration
+- Skip confirmation with multi-attempt protection
+- Restart option in Dashboard Quick Actions
+
+### 🤖 **AI Content Suite** (Claude Sonnet 4 + Stability AI)
+- **Caption Generator**: 3 variations per topic
+- **Platform Variations**: Auto-adapt content for each platform
+- **Hashtag Generator**: Platform-optimized hashtags (3-5 per post)
+- **Best Time to Post**: AI-powered scheduling recommendations
+- **Content Ideas**: 20+ platform-specific ideas in seconds
+- **Image Generation**: AI-powered image creation (Stability AI)
+- **URL/YouTube Extraction**: Generate posts from any URL or YouTube video
+
+### 👥 **Team Collaboration**
+- Multi-user workspaces with role-based permissions
+- 4 roles: Owner, Admin, Editor, Viewer
+- Approval workflow (Editor → Submit → Owner/Admin → Approve)
+- Email invitation system (7-day expiry)
+- Activity logging & audit trail
+- Real-time notifications with count badges
+
+### 📊 **Analytics Suite**
+- Real-time stats dashboard
+- Platform performance comparison
+- CSV export for all data
+- Weekly email reports (automated)
+- Posting heatmap visualization
+- Post history with search & filters
+
+### 📅 **Smart Scheduling**
+- Post immediately or schedule for later
+- Visual calendar view with hover previews
+- Auto-posting with cron (checks every minute)
+- Best time recommendations (AI-powered)
+- Bulk CSV upload (100+ posts at once)
+
+### 👥 **Multi-Account Management**
+- Connect unlimited accounts per platform
+- Custom labels for each account
+- Set default accounts per platform
+- Easy account switching
+
+### 💎 **Premium Features**
+- **Glassmorphism UI**: Stunning modern design
+- **Character Counter**: Real-time multi-platform validation
+- **Template Library**: 15 pre-built + save your own
+- **Bulk Upload**: Drag-and-drop CSV interface
+- **AI Image Generation**: Create images from text prompts
+- **URL Content Extraction**: Generate posts from any webpage
+
+### 💳 **Stripe Billing**
+- Multi-tier SaaS pricing ($29-$199/month)
+- Usage tracking & limits
+- 14-day free trial on all paid plans
+- Automatic billing & invoicing
 
 ---
 
@@ -150,12 +203,17 @@ cd dashboard && npm run dev  # Frontend on port 5173
 
 ## 📚 Documentation
 
-Comprehensive documentation is organized in the `docs/` folder:
-
 ### 🚀 Getting Started
-- **[Quick Start](docs/getting-started/quick-start.md)** - 5-minute setup
-- **[Environment Setup](docs/getting-started/environment-setup.md)** - Configure .env
+- **[Quick Start](docs/getting-started/quick-start.md)** - 5-minute setup guide
+- **[Environment Setup](docs/getting-started/environment-setup.md)** - Configure .env file
+- **[Supabase Setup](docs/getting-started/supabase-setup.md)** - Database configuration
 - **[Project Overview](docs/getting-started/project-overview.md)** - Architecture & tech stack
+
+### 🤖 AI Agents
+- **[Content Creation Agent](docs/agents/CONTENT-AGENT-README.md)** - Autonomous content generation
+- **[Analytics Insights Agent](docs/agents/ANALYTICS-AGENT-README.md)** - Pattern detection & recommendations
+- **[Analytics Agent Summary](docs/agents/ANALYTICS-AGENT-SUMMARY.md)** - Quick reference
+- **[Deployment Checklist](docs/agents/DEPLOYMENT-CHECKLIST.md)** - Agent deployment guide
 
 ### 🔌 Platform Guides
 - **[LinkedIn](docs/platforms/linkedin.md)** - OAuth & posting
@@ -167,21 +225,24 @@ Comprehensive documentation is organized in the `docs/` folder:
 - **[Instagram](docs/platforms/instagram.md)** - Facebook Graph API
 - **[Facebook](docs/platforms/facebook.md)** - Page posting
 - **[YouTube](docs/platforms/youtube.md)** - Video uploads (Shorts)
-- **[TikTok](docs/platforms/tiktok.md)** - Video posting
+- **[All 16 platforms →](docs/platforms/)**
 
 ### ✨ Features
-- **[AI Generation](docs/features/ai-generation.md)** - Claude AI & Stability AI
+- **[AI Generation](docs/features/ai-generation.md)** - Claude AI & Stability AI integration
 - **[Post Templates](docs/features/templates.md)** - Save & reuse content
 - **[Billing & Pricing](docs/features/billing-pricing.md)** - Stripe integration
-- **[OAuth Configuration](docs/features/oauth.md)** - Multi-platform auth
+- **[OAuth Configuration](docs/features/oauth.md)** - Multi-platform authentication
+- **[Onboarding](docs/features/onboarding.md)** - Interactive tutorial system
+- **[URL Content Generation](docs/features/url-content-generation.md)** - Extract from any URL
 
 ### 🚀 Deployment
+- **[Deployment Guide](docs/deployment/DEPLOYMENT_GUIDE.md)** - Production deployment
 - **[Platform Status](docs/deployment/platform-status.md)** - Current integrations
-- **[Testing Guide](docs/deployment/testing-guide.md)** - How to test
-- **[API Reference](docs/deployment/api-reference.md)** - Complete API docs
-- **[URLs Reference](docs/deployment/urls-reference.md)** - All URLs & callbacks
+- **[Testing Guide](docs/deployment/testing-guide.md)** - How to test platforms
+- **[API Reference](docs/deployment/api-reference.md)** - Complete API documentation
+- **[URLs Reference](docs/deployment/urls-reference.md)** - All URLs & OAuth callbacks
 
-**📖 [Full Documentation Index →](docs/README.md)**
+**[📖 Full Documentation Index →](docs/README.md)**
 
 ---
 
@@ -218,22 +279,25 @@ Comprehensive documentation is organized in the `docs/` folder:
 
 ---
 
-## 💰 Pricing
+## 💰 Pricing Tiers
 
-| Plan | Price | Posts | Accounts | AI |
-|------|-------|-------|----------|-----|
-| **Free** | $0 | 10/mo | 1 | ❌ |
-| **Pro** | $29/mo | Unlimited | 3 | 100/mo |
-| **Business** | $99/mo | Unlimited | 10 | Unlimited |
+| Plan | Price | Posts | Accounts | AI | Team |
+|------|-------|-------|----------|-----|------|
+| **Free** | $0 | 10/mo | 1 | ❌ | ❌ |
+| **Pro** | $29/mo | Unlimited | 3 | 100/mo | 1 user |
+| **Business** | $99/mo | Unlimited | 10 | Unlimited | 5 users |
+| **Enterprise** | $199/mo | Unlimited | Unlimited | Unlimited | Unlimited |
 
 **All paid plans include:**
 - 14-day free trial
-- All platforms
+- All 16 platforms
 - CSV bulk upload
 - Post templates
-- Analytics
+- Analytics dashboard
+- Email reports
+- Priority support
 
-**[View Full Pricing →](docs/features/billing-pricing.md)**
+**[View Full Pricing Details →](docs/features/billing-pricing.md)**
 
 ---
 
@@ -334,46 +398,70 @@ Built with:
 
 ## 📊 Project Stats
 
-- **Platforms**: 16 total (10 working, 5 pending, 1 restricted)
-- **Lines of Code**: 28,000+
-- **API Endpoints**: 70+
-- **Service Files**: 26 platform integrations
-- **React Components**: 50+
-- **Documentation**: 20+ guides
+- **Total Platforms**: 16 (10 working, 5 pending, 1 restricted)
+- **Lines of Code**: 30,000+
+- **API Endpoints**: 85+
+- **Service Files**: 26 platform + 3 AI agent services
+- **React Components**: 60+
+- **Database Tables**: 35+
+- **Migrations**: 22
+- **Documentation Pages**: 30+
+- **AI Agents**: 2 (Content Creation + Analytics Insights)
 - **Success Rate**: 100% (all built platforms work!)
 
 ---
 
 ## 🗺️ Roadmap
 
-### ✅ Recently Completed (Nov 2025)
-- [x] **Team Collaboration** 👥 - Multi-user workspaces, 4 roles, approval workflow, activity logging
-- [x] **AI Content Ideas Generator** - 20+ platform-specific ideas in seconds
+### ✅ Recently Completed (November 2025)
+
+**AI Agents:**
+- [x] **Content Creation Agent** 🤖 - Autonomous 7-30 day content calendars
+- [x] **Analytics Insights Agent** 📊 - Pattern detection & AI recommendations
+- [x] **Brand Voice Analysis** - Learn user's unique writing style
+- [x] **Trend Monitoring** - Real-time Google Trends + Reddit integration
+
+**Core Features:**
+- [x] **Team Collaboration** 👥 - Multi-user workspaces, 4 roles, approval workflow
+- [x] **AI Content Ideas Generator** - 20+ platform-specific ideas
 - [x] **AI Post Variations** - Auto-adapt content for each platform
 - [x] **Bulk CSV Upload** - Schedule 100+ posts at once
-- [x] **Character Counter** - Multi-platform validation with color codes
+- [x] **Character Counter** - Multi-platform validation
 - [x] **Multi-Account Labels** - Name & set defaults for accounts
 - [x] **Calendar View** - Visual schedule with hover previews
 - [x] **Analytics Export** - Download data to CSV
 - [x] **Email Reports** - Automated weekly summaries
 - [x] **AI Hashtag Generator** - Platform-optimized hashtags
-- [x] **Best Time to Post** - AI-powered scheduling recommendations
+- [x] **Best Time to Post** - AI-powered recommendations
 - [x] **Template Library** - 15 pre-built templates
 
-### 🔜 Next Up (Phase 2)
-- [ ] **Content Recycling Engine** - Auto-repost best-performing content (2 hrs)
-- [ ] **Engagement Prediction** - AI scores posts before publishing (2 hrs)
-- [ ] **Client Management Dashboard** - Manage multiple client accounts (3 hrs)
-- [ ] **Hashtag Performance Tracking** - Analytics per hashtag (2 hrs)
-- [ ] **Custom Branding** - White-label for agencies (4 hrs)
+### 🔜 Next Up (Phase 3 - December 2025)
 
-### 🚀 Future (Phase 3)
-- [ ] White-label offering for agencies
+**Analytics & Optimization:**
+- [ ] **Draft Post Scorer UI** - Integrate predictive scoring in CreatePost (backend ready)
+- [ ] **Engagement Prediction** - Predict likes/comments before publishing
+- [ ] **Hashtag Performance Tracking** - Analytics per hashtag
+- [ ] **A/B Testing** - Test different versions of posts
+
+**Content & Automation:**
+- [ ] **Content Recycling Engine** - Auto-repost best-performing content
+- [ ] **RSS Feed Integration** - Auto-generate posts from RSS feeds
+- [ ] **Competitor Analysis** - Track competitor posting patterns
+
+**Team & Agency:**
+- [ ] **Client Management Dashboard** - Manage multiple client accounts
+- [ ] **Custom Branding** - White-label for agencies
+- [ ] **Advanced Team Permissions** - Granular role controls
+
+### 🚀 Future (Phase 4)
+
 - [ ] Mobile app (React Native)
-- [ ] Browser extension
-- [ ] Advanced team roles & permissions
+- [ ] Browser extension (Chrome/Firefox)
 - [ ] Public API with Zapier integration
-- [ ] Competitor analysis tools
+- [ ] Video editing tools (trim, add captions)
+- [ ] Social listening & monitoring
+- [ ] Advanced analytics (sentiment analysis)
+- [ ] Multi-language support
 
 ---
 
@@ -383,41 +471,65 @@ Built with:
 
 ---
 
-## 📁 Project Structure
+### Project Structure
 
 ```
 social-media-automator/
-├── README.md                    # Main documentation
-├── FEATURES.md                  # Feature list
+├── server.js                    # Main Express server (3,600+ lines)
 ├── package.json                 # Backend dependencies
-├── server.js                    # Main Express server
+│
 ├── services/                    # Platform integrations (26 files)
 │   ├── linkedin.js
 │   ├── twitter.js
-│   ├── devto.js
-│   ├── tumblr.js
-│   ├── mastodon.js
-│   ├── bluesky.js
-│   └── ... (20 more)
+│   ├── brand-voice-analyzer.js  # Content Agent
+│   ├── trend-monitor.js         # Content Agent
+│   ├── content-creation-agent.js # Content Agent
+│   ├── analytics-insights-agent.js # Analytics Agent
+│   └── ... (20 more platforms)
+│
 ├── dashboard/                   # React frontend
 │   ├── src/
-│   │   ├── pages/              # Main pages (10)
-│   │   ├── components/         # Reusable UI
-│   │   └── lib/                # API client
+│   │   ├── pages/              # Main pages (14)
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── CreatePost.jsx
+│   │   │   ├── ContentAgent.jsx       # NEW
+│   │   │   ├── AnalyticsAgent.jsx     # NEW
+│   │   │   └── ... (10 more)
+│   │   ├── components/         # Reusable UI components
+│   │   └── lib/                # API client & utilities
 │   └── package.json
-├── migrations/                  # Database migrations (20)
-└── docs/                        # Documentation
-    ├── MASTER_INDEX.md         # Doc index
-    ├── platforms/              # Platform guides (16)
-    ├── deployment/             # Deploy guides
-    ├── features/               # Feature docs
-    └── getting-started/        # Setup guides
+│
+├── landing/                     # Landing page (React + Vite)
+│   └── src/
+│
+├── migrations/                  # Database migrations (22 files)
+│   ├── 001_initial_schema.sql
+│   ├── 021_add_content_creation_agent.sql  # Content Agent
+│   ├── 022_add_analytics_insights_agent.sql # Analytics Agent
+│   └── ... (19 more)
+│
+├── docs/                        # Documentation
+│   ├── agents/                 # AI Agent docs (NEW)
+│   │   ├── CONTENT-AGENT-README.md
+│   │   ├── ANALYTICS-AGENT-README.md
+│   │   ├── ANALYTICS-AGENT-SUMMARY.md
+│   │   └── DEPLOYMENT-CHECKLIST.md
+│   ├── platforms/              # Platform guides (16)
+│   ├── deployment/             # Deploy guides
+│   ├── features/               # Feature documentation
+│   └── getting-started/        # Setup guides
+│
+├── config/                      # Configuration files
+├── utilities/                   # Helper functions
+├── scripts/                     # Automation scripts
+└── supabase/                    # Supabase specific files
 ```
 
 ---
 
-**Version**: 6.3 - Bluesky Edition  
-**Status**: ✅ Production Ready  
-**Last Updated**: November 8, 2025  
-**Working Platforms**: 10 (instant access)  
-**Pending Platforms**: 5 (approval needed)
+**Version**: 7.0 - Dual AI Agent Edition
+**Status**: ✅ Production Ready
+**Last Updated**: November 11, 2025
+**Working Platforms**: 10 (instant access)
+**AI Agents**: 2 (Content Creation + Analytics Insights)
+**Total Lines of Code**: 30,000+
