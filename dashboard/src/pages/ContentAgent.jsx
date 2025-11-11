@@ -603,55 +603,6 @@ export default function ContentAgent() {
               )}
             </Card3D>
 
-            {/* Trending Topics */}
-            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <FaFire className="text-gray-400" />
-                  Trending Topics
-                </h2>
-                <button
-                  onClick={handleRefreshTrends}
-                  disabled={trendsRefreshing}
-                  className="p-2 text-gray-400 hover:text-cyan-400 hover:bg-white/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Refresh trends (today's news)"
-                >
-                  <FaSync className={trendsRefreshing ? 'animate-spin' : ''} />
-                </button>
-              </div>
-
-              {trends.length > 0 ? (
-                <div className="space-y-3">
-                  {trends.slice(0, 5).map((trend, index) => (
-                    <div
-                      key={trend.id}
-                      onClick={() => handleTrendingClick(trend.trend_topic)}
-                      className="p-3 bg-white/5 rounded-lg border border-white/10 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all group"
-                    >
-                      <div className="flex items-start justify-between mb-1">
-                        <p className="text-white text-sm font-medium flex-1 group-hover:text-cyan-300 transition-colors">
-                          {trend.trend_topic}
-                        </p>
-                        <span className="text-xs text-gray-400 ml-2">
-                          {trend.trend_score}/100
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 capitalize">
-                        {trend.trend_source}
-                      </p>
-                      <p className="text-xs text-cyan-400 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Click to add to niches
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-400 text-sm text-center py-4">
-                  No trends available
-                </p>
-              )}
-            </Card3D>
-
           </div>
         </div>
 
