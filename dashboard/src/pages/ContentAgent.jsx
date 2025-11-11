@@ -16,7 +16,8 @@ import {
   FaMagic,
   FaChartLine,
   FaLightbulb,
-  FaClock
+  FaClock,
+  FaSync
 } from 'react-icons/fa';
 
 export default function ContentAgent() {
@@ -39,6 +40,9 @@ export default function ContentAgent() {
   const [previewPosts, setPreviewPosts] = useState([]);
   const [previewContext, setPreviewContext] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+
+  // Trending refresh
+  const [trendsRefreshing, setTrendsRefreshing] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -188,6 +192,30 @@ export default function ContentAgent() {
       await loadData();
     } catch (error) {
       showError('Failed to approve posts');
+    }
+  };
+
+  const handleRefreshTrends = async () => {
+    setTrendsRefreshing(true);
+    try {
+      // Call monitor trends endpoint to fetch fresh trending data
+      const response = await api.post('/content-agent/trends/monitor', {
+        niches: niches.length > 0 ? niches : ['general']
+      });
+
+      if (response.data.success) {
+        // Reload the trends to show updated data
+        const trendsRes = await api.get('/content-agent/trends?limit=10');
+        if (trendsRes.data.success) {
+          setTrends(trendsRes.data.trends);
+          showSuccess(`Updated! Found ${trendsRes.data.trends.length} trending topics for today`);
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing trends:', error);
+      showError(error.response?.data?.error || 'Failed to refresh trends');
+    } finally {
+      setTrendsRefreshing(false);
     }
   };
 
@@ -528,10 +556,20 @@ export default function ContentAgent() {
 
             {/* Trending Topics */}
             <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 backdrop-blur-md border border-white/20 p-6">
-              <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <FaFire className="text-gray-400" />
-                Trending Topics
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <FaFire className="text-gray-400" />
+                  Trending Topics
+                </h2>
+                <button
+                  onClick={handleRefreshTrends}
+                  disabled={trendsRefreshing}
+                  className="p-2 text-gray-400 hover:text-cyan-400 hover:bg-white/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Refresh trends (today's news)"
+                >
+                  <FaSync className={trendsRefreshing ? 'animate-spin' : ''} />
+                </button>
+              </div>
 
               {trends.length > 0 ? (
                 <div className="space-y-3">
