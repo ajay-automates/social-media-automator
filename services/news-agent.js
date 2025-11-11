@@ -101,39 +101,39 @@ function generateMockNews() {
     {
       title: 'Latest AI Breakthrough: New Language Model Reaches Human-Level Performance',
       description: 'Researchers announce significant advancement in artificial intelligence with new model surpassing previous benchmarks',
-      url: 'https://example.com/ai-breakthrough',
-      source: 'Tech News Daily',
+      url: 'https://www.techcrunch.com/ai/',
+      source: 'TechCrunch',
       publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
       category: 'ai'
     },
     {
       title: 'Stock Market Hits Record High as Tech Stocks Surge',
       description: 'Major tech companies post strong earnings leading to market rally',
-      url: 'https://example.com/stocks-rally',
-      source: 'Financial Times',
+      url: 'https://www.bloomberg.com/markets',
+      source: 'Bloomberg',
       publishedAt: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
       category: 'stocks'
     },
     {
       title: 'Cricket World Cup: India Wins Thrilling Semi-Final Match',
       description: 'India advances to finals with spectacular victory in high-scoring encounter',
-      url: 'https://example.com/cricket-win',
-      source: 'Sports Central',
+      url: 'https://www.espncricinfo.com/',
+      source: 'ESPNcricinfo',
       publishedAt: new Date(now - 1 * 60 * 60 * 1000).toISOString(),
       category: 'sports'
     },
     {
       title: 'Major Tech Company Announces Revolutionary Product Launch',
       description: 'New device combines AI and quantum computing for unprecedented capabilities',
-      url: 'https://example.com/tech-launch',
-      source: 'Technology Review',
+      url: 'https://www.theverge.com/tech',
+      source: 'The Verge',
       publishedAt: new Date(now - 4 * 60 * 60 * 1000).toISOString(),
       category: 'technology'
     },
     {
       title: 'Global Economic Summit Focuses on AI Regulation',
       description: 'World leaders discuss framework for responsible AI development and deployment',
-      url: 'https://example.com/ai-regulation',
+      url: 'https://www.bloomberg.com/news',
       source: 'Bloomberg',
       publishedAt: new Date(now - 5 * 60 * 60 * 1000).toISOString(),
       category: 'business'
@@ -141,8 +141,8 @@ function generateMockNews() {
     {
       title: 'Blockchain Technology Reshapes Supply Chain Management',
       description: 'Companies adopt distributed ledger technology for enhanced transparency',
-      url: 'https://example.com/blockchain-supply',
-      source: 'Crypto News',
+      url: 'https://www.coindesk.com/',
+      source: 'CoinDesk',
       publishedAt: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
       category: 'stocks'
     }
