@@ -20,6 +20,7 @@ import PaymentCancel from './pages/PaymentCancel';
 import Team from './pages/Team';
 import Approvals from './pages/Approvals';
 import AcceptInvitation from './pages/AcceptInvitation';
+import ContentAgent from './pages/ContentAgent';
 import NotificationBell from './components/NotificationBell';
 
 function Navigation() {
@@ -33,6 +34,7 @@ function Navigation() {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/create', label: 'Create Post', icon: '✨' },
+    { path: '/content-agent', label: 'AI Agent', icon: '🤖' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
     { path: '/analytics', label: 'Analytics', icon: '📈' },
     { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
@@ -247,6 +249,7 @@ function App() {
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+              <Route path="/content-agent" element={<ProtectedRoute><ContentAgent /></ProtectedRoute>} />
               <Route path="/carousel" element={<ProtectedRoute><CreateCarousel /></ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
               <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />

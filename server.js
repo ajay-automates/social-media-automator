@@ -115,6 +115,17 @@ const {
   processTemplateVariables
 } = require('./services/templates');
 
+// Content Creation Agent
+const {
+  generateContentCalendar,
+  getGeneratedPosts,
+  approvePost,
+  rejectPost,
+  generateTopicIdeas
+} = require('./services/content-creation-agent');
+const { analyzeBrandVoice, getBrandVoiceProfile } = require('./services/brand-voice-analyzer');
+const { getTrendAlerts, monitorTrendsForUser, fetchAllTrends } = require('./services/trend-monitor');
+
 // Helper function to get frontend URL
 function getFrontendUrl() {
   // If explicitly set, use it
@@ -2174,6 +2185,234 @@ app.post('/api/ai/variations', verifyAuth, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: error.message || 'Failed to generate post variations'
+    });
+  }
+});
+
+// ============================================
+// CONTENT CREATION AGENT API ENDPOINTS
+// ============================================
+
+/**
+ * POST /api/content-agent/generate
+ * Generate AI content calendar for X days
+ */
+app.post('/api/content-agent/generate', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { days = 30, platforms = ['linkedin', 'twitter'], niches, contentMix } = req.body;
+
+    console.log(`\n🤖 Generating ${days}-day content calendar for user ${userId}...`);
+
+    const result = await generateContentCalendar(userId, days, {
+      platforms,
+      niches,
+      contentMix
+    });
+
+    // Increment AI usage
+    await incrementUsage(userId, 'ai', days); // Count as days * AI calls
+
+    res.json({
+      success: true,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/generate:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate content calendar'
+    });
+  }
+});
+
+/**
+ * GET /api/content-agent/posts
+ * Get AI-generated posts for user
+ */
+app.get('/api/content-agent/posts', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { status, limit = 50 } = req.query;
+
+    const posts = await getGeneratedPosts(userId, status, parseInt(limit));
+
+    res.json({
+      success: true,
+      posts,
+      count: posts.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/posts:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch generated posts'
+    });
+  }
+});
+
+/**
+ * POST /api/content-agent/approve/:id
+ * Approve a generated post for scheduling
+ */
+app.post('/api/content-agent/approve/:id', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const postId = req.params.id;
+
+    console.log(`✅ Approving post ${postId} by user ${userId}`);
+
+    const result = await approvePost(postId, userId);
+
+    res.json({
+      success: true,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/approve:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to approve post'
+    });
+  }
+});
+
+/**
+ * DELETE /api/content-agent/reject/:id
+ * Reject a generated post
+ */
+app.delete('/api/content-agent/reject/:id', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const postId = req.params.id;
+
+    console.log(`❌ Rejecting post ${postId} by user ${userId}`);
+
+    const result = await rejectPost(postId);
+
+    res.json({
+      success: true,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/reject:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to reject post'
+    });
+  }
+});
+
+/**
+ * GET /api/content-agent/trends
+ * Get current trend alerts for user
+ */
+app.get('/api/content-agent/trends', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 20 } = req.query;
+
+    const trends = await getTrendAlerts(userId, parseInt(limit));
+
+    res.json({
+      success: true,
+      trends,
+      count: trends.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/trends:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch trends'
+    });
+  }
+});
+
+/**
+ * POST /api/content-agent/trends/monitor
+ * Monitor trends for user and create alerts
+ */
+app.post('/api/content-agent/trends/monitor', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { niches = ['business', 'technology'] } = req.body;
+
+    console.log(`🔥 Monitoring trends for user ${userId}...`);
+
+    const result = await monitorTrendsForUser(userId, niches);
+
+    res.json({
+      success: true,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/trends/monitor:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to monitor trends'
+    });
+  }
+});
+
+/**
+ * POST /api/content-agent/brand-voice/analyze
+ * Analyze user's brand voice from post history
+ */
+app.post('/api/content-agent/brand-voice/analyze', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    console.log(`🎨 Analyzing brand voice for user ${userId}...`);
+
+    const result = await analyzeBrandVoice(userId);
+
+    res.json({
+      success: true,
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/brand-voice/analyze:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to analyze brand voice'
+    });
+  }
+});
+
+/**
+ * GET /api/content-agent/brand-voice
+ * Get user's brand voice profile
+ */
+app.get('/api/content-agent/brand-voice', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const brandVoice = await getBrandVoiceProfile(userId);
+
+    if (!brandVoice) {
+      return res.json({
+        success: false,
+        message: 'No brand voice profile found. Analyze your posts first.'
+      });
+    }
+
+    res.json({
+      success: true,
+      brandVoice
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/content-agent/brand-voice:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch brand voice'
     });
   }
 });
