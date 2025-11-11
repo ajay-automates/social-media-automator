@@ -21,6 +21,7 @@ import Team from './pages/Team';
 import Approvals from './pages/Approvals';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ContentAgent from './pages/ContentAgent';
+import AnalyticsAgent from './pages/AnalyticsAgent';
 import NotificationBell from './components/NotificationBell';
 
 function Navigation() {
@@ -37,6 +38,7 @@ function Navigation() {
     { path: '/content-agent', label: 'AI Agent', icon: '🤖' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
     { path: '/analytics', label: 'Analytics', icon: '📈' },
+    { path: '/analytics-agent', label: 'Insights', icon: '🧠' },
     { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
     { path: '/team', label: 'Team', icon: '👥' },
   ];
@@ -255,6 +257,7 @@ function App() {
               <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
               <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              <Route path="/analytics-agent" element={<ProtectedRoute><AnalyticsAgent /></ProtectedRoute>} />
               <Route path="/approvals" element={<ProtectedRoute><Approvals /></ProtectedRoute>} />
               <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
               <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitation /></ProtectedRoute>} />

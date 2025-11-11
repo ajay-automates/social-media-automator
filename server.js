@@ -125,6 +125,13 @@ const {
 } = require('./services/content-creation-agent');
 const { analyzeBrandVoice, getBrandVoiceProfile } = require('./services/brand-voice-analyzer');
 const { getTrendAlerts, monitorTrendsForUser, fetchAllTrends } = require('./services/trend-monitor');
+const {
+  analyzeUserPatterns,
+  generateInsights,
+  scoreDraftPost,
+  getUserInsights,
+  getUserPatterns
+} = require('./services/analytics-insights-agent');
 
 // Helper function to get frontend URL
 function getFrontendUrl() {
@@ -2413,6 +2420,192 @@ app.get('/api/content-agent/brand-voice', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to fetch brand voice'
+    });
+  }
+});
+
+// ============================================
+// ANALYTICS INSIGHTS AGENT ROUTES
+// ============================================
+
+/**
+ * POST /api/analytics-agent/analyze
+ * Analyze user patterns and generate insights
+ */
+app.post('/api/analytics-agent/analyze', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    console.log(`📊 Analyzing patterns and generating insights for user ${userId}...`);
+
+    // Step 1: Analyze patterns
+    const patternResult = await analyzeUserPatterns(userId);
+
+    // Step 2: Generate AI insights
+    const insightResult = await generateInsights(userId);
+
+    res.json({
+      success: true,
+      ...patternResult,
+      ...insightResult,
+      message: 'Analysis complete'
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/analytics-agent/analyze:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to analyze patterns'
+    });
+  }
+});
+
+/**
+ * GET /api/analytics-agent/insights
+ * Get active insights for user
+ */
+app.get('/api/analytics-agent/insights', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const insights = await getUserInsights(userId);
+
+    res.json({
+      success: true,
+      insights,
+      count: insights.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/analytics-agent/insights:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch insights'
+    });
+  }
+});
+
+/**
+ * GET /api/analytics-agent/patterns
+ * Get detected patterns for user
+ */
+app.get('/api/analytics-agent/patterns', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const patterns = await getUserPatterns(userId);
+
+    res.json({
+      success: true,
+      patterns,
+      count: patterns.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/analytics-agent/patterns:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch patterns'
+    });
+  }
+});
+
+/**
+ * POST /api/analytics-agent/score-draft
+ * Score a draft post before publishing
+ */
+app.post('/api/analytics-agent/score-draft', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { caption, platforms = [], hasImage = false, hasVideo = false } = req.body;
+
+    if (!caption || caption.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Caption is required'
+      });
+    }
+
+    console.log(`⭐ Scoring draft post for user ${userId}...`);
+
+    // Increment AI usage count
+    await incrementUsage(userId, 'ai');
+
+    const score = await scoreDraftPost(userId, caption, platforms, hasImage, hasVideo);
+
+    res.json({
+      success: true,
+      score
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/analytics-agent/score-draft:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to score draft'
+    });
+  }
+});
+
+/**
+ * PUT /api/analytics-agent/insights/:id/dismiss
+ * Dismiss an insight
+ */
+app.put('/api/analytics-agent/insights/:id/dismiss', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const insightId = req.params.id;
+
+    const { data, error } = await supabase
+      .from('analytics_insights')
+      .update({ dismissed_at: new Date().toISOString() })
+      .eq('id', insightId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: 'Insight dismissed'
+    });
+
+  } catch (error) {
+    console.error('❌ Error dismissing insight:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to dismiss insight'
+    });
+  }
+});
+
+/**
+ * PUT /api/analytics-agent/insights/:id/viewed
+ * Mark insight as viewed
+ */
+app.put('/api/analytics-agent/insights/:id/viewed', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const insightId = req.params.id;
+
+    const { data, error } = await supabase
+      .from('analytics_insights')
+      .update({ viewed_at: new Date().toISOString() })
+      .eq('id', insightId)
+      .eq('user_id', userId)
+      .is('viewed_at', null);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: 'Insight marked as viewed'
+    });
+
+  } catch (error) {
+    console.error('❌ Error marking insight as viewed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to mark insight as viewed'
     });
   }
 });
