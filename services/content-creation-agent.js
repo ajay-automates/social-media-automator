@@ -787,7 +787,15 @@ Return ONLY valid JSON (no markdown, no code blocks):
           }]
         });
 
-        const responseText = message.content[0].text.trim();
+        let responseText = message.content[0].text.trim();
+
+        // Remove markdown code blocks if present
+        if (responseText.startsWith('```json')) {
+          responseText = responseText.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+        } else if (responseText.startsWith('```')) {
+          responseText = responseText.replace(/^```\n?/, '').replace(/\n?```$/, '');
+        }
+
         const postData = JSON.parse(responseText);
 
         // Create post record in database
@@ -802,12 +810,8 @@ Return ONLY valid JSON (no markdown, no code blocks):
             quality_score: postData.quality_score,
             engagement_prediction: postData.engagement_prediction,
             content_type: postData.content_type,
-            status: 'draft',
-            metadata: {
-              source: 'news',
-              article_url: article.url,
-              article_source: article.source
-            }
+            status: 'pending',
+            created_by: 'news-agent'
           })
           .select()
           .single();

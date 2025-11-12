@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import { supabase } from '../lib/supabase';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { staggerContainer } from '../utils/animations';
 import Card3D from '../components/ui/Card3D';
@@ -324,24 +325,43 @@ export default function ContentAgent() {
     }
   };
 
-  const handleApproveNewsPosts = async () => {
+  const handlePostNewsNow = async () => {
     if (newsGeneratedPosts.length === 0) {
-      showError('No posts to approve');
+      showError('No posts to post');
       return;
     }
 
     try {
-      let approved = 0;
+      let posted = 0;
+
       for (const post of newsGeneratedPosts) {
         try {
+          // Update post with immediate schedule time and platforms
+          const now = new Date();
+          const { data: updatedPost, error: updateError } = await supabase
+            .from('content_agent_posts')
+            .update({
+              scheduled_time: now.toISOString(), // Post immediately
+              platforms: selectedPlatforms
+            })
+            .eq('id', post.id)
+            .select()
+            .single();
+
+          if (updateError) {
+            console.error(`Failed to update post ${post.id}:`, updateError);
+            continue;
+          }
+
+          // Approve and post
           await api.post(`/content-agent/approve/${post.id}`);
-          approved++;
+          posted++;
         } catch (error) {
-          console.error(`Failed to approve post ${post.id}`);
+          console.error(`Failed to post ${post.id}:`, error);
         }
       }
 
-      showSuccess(`Approved ${approved}/${newsGeneratedPosts.length} posts`);
+      showSuccess(`Posted ${posted}/${newsGeneratedPosts.length} posts immediately`);
       setNewsGenerationModal(false);
       setSelectedArticle(null);
       setNewsGeneratedPosts([]);
@@ -349,7 +369,79 @@ export default function ContentAgent() {
       setNewsPostMode('single');
       await loadData();
     } catch (error) {
-      showError('Failed to approve posts');
+      showError('Failed to post immediately');
+    }
+  };
+
+  const handleScheduleNewsPosts = async () => {
+    if (newsGeneratedPosts.length === 0) {
+      showError('No posts to schedule');
+      return;
+    }
+
+    try {
+      let approved = 0;
+
+      // Calculate schedule times based on selected options
+      const now = new Date();
+      const scheduleTime = new Date(now.getTime() + 30000); // 30 seconds from now by default
+
+      for (let idx = 0; idx < newsGeneratedPosts.length; idx++) {
+        const post = newsGeneratedPosts[idx];
+        try {
+          // Calculate schedule time for this post
+          let postScheduleTime = new Date(scheduleTime);
+
+          if (newsSchedulingMode === 'spread' && newsGeneratedPosts.length > 1) {
+            // Spread posts across days
+            const daysOffset = idx * newsSpreadInterval;
+            const [year, month, day] = newsStartDate.split('-');
+            const baseDate = new Date(year, month - 1, day);
+            const [hours, minutes] = newsPostTime.split(':');
+            postScheduleTime = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + daysOffset, hours, minutes);
+          } else {
+            // Post all today
+            const [hours, minutes] = newsPostTime.split(':');
+            postScheduleTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
+            // If time has passed, schedule for tomorrow
+            if (postScheduleTime < now) {
+              postScheduleTime.setDate(postScheduleTime.getDate() + 1);
+            }
+          }
+
+          // Update post with scheduled_time and platforms before approval
+          const { data: updatedPost, error: updateError } = await supabase
+            .from('content_agent_posts')
+            .update({
+              scheduled_time: postScheduleTime.toISOString(),
+              platforms: selectedPlatforms
+            })
+            .eq('id', post.id)
+            .select()
+            .single();
+
+          if (updateError) {
+            console.error(`Failed to update post ${post.id}:`, updateError);
+            continue;
+          }
+
+          // Now approve the post
+          await api.post(`/content-agent/approve/${post.id}`);
+          approved++;
+        } catch (error) {
+          console.error(`Failed to approve post ${post.id}:`, error);
+        }
+      }
+
+      showSuccess(`Scheduled ${approved}/${newsGeneratedPosts.length} posts`);
+      setNewsGenerationModal(false);
+      setSelectedArticle(null);
+      setNewsGeneratedPosts([]);
+      setShowNewsPostPreview(false);
+      setNewsPostMode('single');
+      await loadData();
+    } catch (error) {
+      showError('Failed to schedule posts');
     }
   };
 
@@ -1022,7 +1114,7 @@ export default function ContentAgent() {
                 )}
 
                 {/* Generate Options */}
-                {newsPostMode === 'single' || newsPostMode === 'multiple' && newsGeneratedPosts.length === 0 && (
+                {(newsPostMode === 'single' || (newsPostMode === 'multiple' && newsGeneratedPosts.length === 0)) && (
                   <div className="space-y-4">
                     {newsPostMode === 'single' ? (
                       <div className="text-center py-6 bg-white/5 rounded-lg border border-white/10">
@@ -1134,6 +1226,39 @@ export default function ContentAgent() {
                   </div>
                 )}
 
+                {/* Platform Selection */}
+                {(newsPostMode === 'options' || showNewsPostPreview) && newsGeneratedPosts.length > 0 && (
+                  <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
+                    <label className="block text-sm font-medium text-gray-300">Post to Platforms</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['linkedin', 'twitter', 'facebook', 'instagram', 'tiktok'].map(platform => (
+                        <button
+                          key={platform}
+                          onClick={() => {
+                            setSelectedPlatforms(prev =>
+                              prev.includes(platform)
+                                ? prev.filter(p => p !== platform)
+                                : [...prev, platform]
+                            );
+                          }}
+                          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                            selectedPlatforms.includes(platform)
+                              ? 'bg-cyan-600 text-white border border-cyan-400'
+                              : 'bg-white/10 text-gray-300 border border-white/20 hover:bg-white/20'
+                          }`}
+                        >
+                          {platform === 'linkedin' && '💼'}
+                          {platform === 'twitter' && '𝕏'}
+                          {platform === 'facebook' && '👍'}
+                          {platform === 'instagram' && '📷'}
+                          {platform === 'tiktok' && '🎵'}
+                          {' ' + platform.charAt(0).toUpperCase() + platform.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Preview Multiple Posts */}
                 {showNewsPostPreview && newsGeneratedPosts.length > 0 && (
                   <div className="space-y-4">
@@ -1164,13 +1289,21 @@ export default function ContentAgent() {
                   Close
                 </button>
                 {(newsPostMode === 'options' || showNewsPostPreview) && newsGeneratedPosts.length > 0 && (
-                  <button
-                    onClick={handleApproveNewsPosts}
-                    className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-colors flex items-center gap-2"
-                  >
-                    <FaCheckCircle />
-                    Schedule {newsGeneratedPosts.length} Post{newsGeneratedPosts.length !== 1 ? 's' : ''}
-                  </button>
+                  <>
+                    <button
+                      onClick={handlePostNewsNow}
+                      className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-colors flex items-center gap-2 font-medium"
+                    >
+                      🚀 Post Now
+                    </button>
+                    <button
+                      onClick={handleScheduleNewsPosts}
+                      className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-colors flex items-center gap-2 font-medium"
+                    >
+                      <FaCheckCircle />
+                      Schedule {newsGeneratedPosts.length} Post{newsGeneratedPosts.length !== 1 ? 's' : ''}
+                    </button>
+                  </>
                 )}
               </div>
             </motion.div>

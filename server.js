@@ -2622,7 +2622,7 @@ app.post('/api/news/search', verifyAuth, async (req, res) => {
  */
 app.post('/api/news/generate-posts', verifyAuth, async (req, res) => {
   try {
-    const { userId } = req.user;
+    const userId = req.user.id;
     const { article, count = 1, multipleAngles = false, platforms = ['linkedin', 'twitter'] } = req.body;
 
     if (!article || !article.title) {
