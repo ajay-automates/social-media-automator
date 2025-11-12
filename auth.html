@@ -342,6 +342,12 @@
       }
     }
 
+    // Get the current domain for redirects
+    function getRedirectUrl(path) {
+      const origin = window.location.origin;
+      return origin + path;
+    }
+
     // Social login functions
     async function signInWithGoogle() {
       if (!supabaseClient) {
@@ -365,10 +371,12 @@
           signUpBtn.querySelector('#signUpGoogleText').textContent = 'Connecting...';
         }
 
+        console.log('Initiating Google OAuth with redirect to:', getRedirectUrl('/auth.html'));
+
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: window.location.origin + '/auth.html'
+            redirectTo: getRedirectUrl('/auth.html')
           }
         });
 
@@ -399,10 +407,12 @@
       }
 
       try {
+        console.log('Initiating GitHub OAuth with redirect to:', getRedirectUrl('/dashboard'));
+
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'github',
           options: {
-            redirectTo: window.location.origin + '/dashboard'
+            redirectTo: getRedirectUrl('/dashboard')
           }
         });
 
@@ -429,12 +439,12 @@
           // Get the current session (Supabase should have set it from the hash)
           const { data: { session }, error } = await supabaseClient.auth.getSession();
 
-          console.log('Session check result:', { hasSession: !!session, error });
+          console.log('Session check result:', { hasSession: !!session, error, domain: window.location.origin });
 
           if (session && !error) {
-            console.log('User authenticated, redirecting to dashboard');
-            // Clear the hash before redirecting
-            window.location.href = '/dashboard';
+            console.log('User authenticated, redirecting to dashboard at:', getRedirectUrl('/dashboard'));
+            // Clear the hash before redirecting to same domain dashboard
+            window.location.href = getRedirectUrl('/dashboard');
             return;
           }
         }
@@ -442,8 +452,8 @@
         // Check if user is already logged in (no OAuth callback)
         const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (session && !error) {
-          console.log('User already logged in, redirecting to dashboard');
-          window.location.href = '/dashboard';
+          console.log('User already logged in, redirecting to dashboard at:', getRedirectUrl('/dashboard'));
+          window.location.href = getRedirectUrl('/dashboard');
         }
       } catch (err) {
         console.error('Error in handleOAuthCallback:', err);
