@@ -186,23 +186,38 @@ async function generateTopicIdeas(userId, brandVoice, count, options = {}) {
     // If focusKeyword is provided, generate topics specifically about that keyword
     let prompt;
     if (options.focusKeyword && options.keywordContext) {
-      prompt = `Generate ${count} unique social media post ideas specifically about: "${options.focusKeyword}"
+      console.log(`   🎯 Generating ${count} topics specifically about: "${options.focusKeyword}"`);
+      console.log(`   📝 Using context: ${options.keywordContext.substring(0, 100)}...`);
 
-Context about this topic:
+      prompt = `You are a social media content strategist. Generate exactly ${count} unique social media post ideas that are ALL specifically about: "${options.focusKeyword}"
+
+Context/News about this topic:
 ${options.keywordContext}
 
-Requirements:
-- ALL topics must be directly related to "${options.focusKeyword}"
-- Create diverse angles/perspectives on this topic
-- Mix of educational, promotional, engaging, and trending aspects
-- Vary the focus (news, tips, insights, trends, questions, etc.)
-- Actionable and specific (not vague)
-- Good for social media (shareable, engaging)
-- Avoid these topics: ${avoidTopics}
+CRITICAL CONSTRAINTS:
+- EVERY SINGLE TOPIC MUST BE DIRECTLY ABOUT "${options.focusKeyword}" - this is non-negotiable
+- NO off-topic ideas allowed
+- NO generic ideas allowed
+- NO ideas about other topics
+- Each topic should offer a different angle on "${options.focusKeyword}"
+- Include diverse perspectives: news, analysis, tips, debates, trends, history, comparisons, future outlook, expert opinions
+- All topics must be suitable for social media (engaging, shareable, relevant)
 
-Return ONLY a JSON array of topic strings, no additional text:
-["Topic 1", "Topic 2", "Topic 3", ...]`;
+Examples of good angles for "${options.focusKeyword}":
+- Latest news/developments in ${options.focusKeyword}
+- Tips and strategies related to ${options.focusKeyword}
+- Trends in the ${options.focusKeyword} space
+- Common questions about ${options.focusKeyword}
+- Controversies or debates about ${options.focusKeyword}
+- Success stories in ${options.focusKeyword}
+- How to get started with ${options.focusKeyword}
+- Predictions or future of ${options.focusKeyword}
+
+Return ONLY a valid JSON array of exactly ${count} topic strings. Nothing else. No explanation, no commentary.
+Example format: ["Topic 1 about ${options.focusKeyword}", "Topic 2 about ${options.focusKeyword}", ...]`;
     } else {
+      console.log(`   💡 Generating ${count} general topics for niches: ${niches}`);
+
       prompt = `Generate ${count} unique social media post topic ideas for someone in these niches: ${niches}.
 
 Requirements:
@@ -227,6 +242,7 @@ Return ONLY a JSON array of topic strings, no additional text:
     });
 
     const responseText = message.content[0].text.trim();
+    console.log(`   📤 AI Response: ${responseText.substring(0, 150)}...`);
 
     // Extract JSON array
     const jsonMatch = responseText.match(/\[([\s\S]*)\]/);
@@ -235,6 +251,11 @@ Return ONLY a JSON array of topic strings, no additional text:
     }
 
     const topics = JSON.parse(jsonMatch[0]);
+
+    if (options.focusKeyword) {
+      console.log(`   ✅ Generated ${topics.length} topics about "${options.focusKeyword}"`);
+      topics.forEach((t, i) => console.log(`      ${i + 1}. ${t}`));
+    }
 
     return topics.map(topic => ({ topic, type: null }));
 
