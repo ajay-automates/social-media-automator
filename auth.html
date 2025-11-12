@@ -368,7 +368,7 @@
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: window.location.origin + '/dashboard'
+            redirectTo: window.location.origin + '/auth.html'
           }
         });
 
@@ -415,29 +415,38 @@
 
     // Handle OAuth callback and redirect
     async function handleOAuthCallback() {
-      // Check if we have an access token in the URL hash (OAuth callback)
-      const hash = window.location.hash;
-      if (hash && hash.includes('access_token')) {
-        try {
+      try {
+        // Check if we have an access token in the URL hash (OAuth callback)
+        const hash = window.location.hash;
+        console.log('Checking for OAuth callback. Hash present:', !!hash);
+
+        if (hash && hash.includes('access_token')) {
+          console.log('OAuth callback detected, waiting for session...');
+
+          // Wait a bit for Supabase to process the token
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
           // Get the current session (Supabase should have set it from the hash)
           const { data: { session }, error } = await supabaseClient.auth.getSession();
 
+          console.log('Session check result:', { hasSession: !!session, error });
+
           if (session && !error) {
-            // Wait a moment for session to be fully established
-            setTimeout(() => {
-              window.location.href = '/dashboard';
-            }, 500);
+            console.log('User authenticated, redirecting to dashboard');
+            // Clear the hash before redirecting
+            window.location.href = '/dashboard';
             return;
           }
-        } catch (err) {
-          console.error('Error handling OAuth callback:', err);
         }
-      }
 
-      // Check if user is already logged in
-      const { data: { session }, error } = await supabaseClient.auth.getSession();
-      if (session && !error) {
-        window.location.href = '/dashboard';
+        // Check if user is already logged in (no OAuth callback)
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (session && !error) {
+          console.log('User already logged in, redirecting to dashboard');
+          window.location.href = '/dashboard';
+        }
+      } catch (err) {
+        console.error('Error in handleOAuthCallback:', err);
       }
     }
 
