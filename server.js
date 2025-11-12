@@ -121,7 +121,8 @@ const {
   getGeneratedPosts,
   approvePost,
   rejectPost,
-  generateTopicIdeas
+  generateTopicIdeas,
+  generatePostsFromNews
 } = require('./services/content-creation-agent');
 const { analyzeBrandVoice, getBrandVoiceProfile } = require('./services/brand-voice-analyzer');
 const { getTrendAlerts, monitorTrendsForUser, fetchAllTrends, fetchKeywordTrendingData } = require('./services/trend-monitor');
@@ -2611,6 +2612,57 @@ app.post('/api/news/search', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to search news'
+    });
+  }
+});
+
+/**
+ * POST /api/news/generate-posts
+ * Generate social media posts from a news article
+ */
+app.post('/api/news/generate-posts', verifyAuth, async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { article, count = 1, multipleAngles = false, platforms = ['linkedin', 'twitter'] } = req.body;
+
+    if (!article || !article.title) {
+      return res.status(400).json({
+        success: false,
+        error: 'Article data required (title, description, url, source)'
+      });
+    }
+
+    if (count < 1 || count > 10) {
+      return res.status(400).json({
+        success: false,
+        error: 'Count must be between 1 and 10'
+      });
+    }
+
+    console.log(`📰 POST /api/news/generate-posts - Generating ${count} posts from news`);
+
+    const result = await generatePostsFromNews(
+      userId,
+      article,
+      parseInt(count),
+      multipleAngles,
+      platforms
+    );
+
+    res.json({
+      success: result.success,
+      posts: result.posts || [],
+      count: result.count || 0,
+      totalRequested: result.totalRequested || count,
+      generationTime: result.generationTime || 0,
+      error: result.error || null
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/news/generate-posts:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to generate posts from news'
     });
   }
 });

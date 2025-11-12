@@ -49,6 +49,20 @@ export default function ContentAgent() {
   const [newsLoading, setNewsLoading] = useState(false);
   const [selectedNewsCategory, setSelectedNewsCategory] = useState(null);
 
+  // News-based post generation
+  const [newsGenerationModal, setNewsGenerationModal] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+  const [newsPostMode, setNewsPostMode] = useState('single'); // 'single' or 'multiple'
+  const [newsPostCount, setNewsPostCount] = useState(3);
+  const [newsMultipleAngles, setNewsMultipleAngles] = useState(true);
+  const [newsSchedulingMode, setNewsSchedulingMode] = useState('today'); // 'today' or 'spread'
+  const [newsSpreadInterval, setNewsSpreadInterval] = useState(1); // days
+  const [newsStartDate, setNewsStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [newsPostTime, setNewsPostTime] = useState('09:00');
+  const [newsGenerating, setNewsGenerating] = useState(false);
+  const [newsGeneratedPosts, setNewsGeneratedPosts] = useState([]);
+  const [showNewsPostPreview, setShowNewsPostPreview] = useState(false);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -249,9 +263,94 @@ export default function ContentAgent() {
   };
 
   const handleUseNewsForContent = (newsArticle) => {
-    // Set the keyword to the news title and trigger generation
-    setCustomKeyword(newsArticle.title.split(' ').slice(0, 3).join(' '));
-    showSuccess(`Using: "${newsArticle.title.substring(0, 50)}..."`);
+    // Open news generation modal instead of just setting keyword
+    setSelectedArticle(newsArticle);
+    setNewsGenerationModal(true);
+    showSuccess(`Selected: "${newsArticle.title.substring(0, 50)}..."`);
+  };
+
+  const handleGenerateNewsPost = async () => {
+    if (!selectedArticle) {
+      showError('No article selected');
+      return;
+    }
+
+    if (newsPostMode === 'single') {
+      // Generate single post
+      setNewsGenerating(true);
+      try {
+        const response = await api.post('/news/generate-posts', {
+          article: selectedArticle,
+          count: 1,
+          multipleAngles: false,
+          platforms: selectedPlatforms
+        });
+
+        if (response.data.success && response.data.posts.length > 0) {
+          setNewsGeneratedPosts(response.data.posts);
+          setNewsPostMode('options');
+          showSuccess(`Generated post in ${response.data.generationTime}s`);
+        } else {
+          showError('Failed to generate post');
+        }
+      } catch (error) {
+        showError(error.response?.data?.error || 'Error generating post');
+      } finally {
+        setNewsGenerating(false);
+      }
+    } else {
+      // Generate multiple posts
+      setNewsGenerating(true);
+      try {
+        const response = await api.post('/news/generate-posts', {
+          article: selectedArticle,
+          count: parseInt(newsPostCount),
+          multipleAngles: newsMultipleAngles,
+          platforms: selectedPlatforms
+        });
+
+        if (response.data.success && response.data.posts.length > 0) {
+          setNewsGeneratedPosts(response.data.posts);
+          setShowNewsPostPreview(true);
+          showSuccess(`Generated ${response.data.count} posts in ${response.data.generationTime}s`);
+        } else {
+          showError('Failed to generate posts');
+        }
+      } catch (error) {
+        showError(error.response?.data?.error || 'Error generating posts');
+      } finally {
+        setNewsGenerating(false);
+      }
+    }
+  };
+
+  const handleApproveNewsPosts = async () => {
+    if (newsGeneratedPosts.length === 0) {
+      showError('No posts to approve');
+      return;
+    }
+
+    try {
+      let approved = 0;
+      for (const post of newsGeneratedPosts) {
+        try {
+          await api.post(`/content-agent/approve/${post.id}`);
+          approved++;
+        } catch (error) {
+          console.error(`Failed to approve post ${post.id}`);
+        }
+      }
+
+      showSuccess(`Approved ${approved}/${newsGeneratedPosts.length} posts`);
+      setNewsGenerationModal(false);
+      setSelectedArticle(null);
+      setNewsGeneratedPosts([]);
+      setShowNewsPostPreview(false);
+      setNewsPostMode('single');
+      await loadData();
+    } catch (error) {
+      showError('Failed to approve posts');
+    }
   };
 
   const handleRefreshNews = async () => {
@@ -852,6 +951,231 @@ export default function ContentAgent() {
             </div>
           )}
         </motion.div>
+
+        {/* News Generation Modal */}
+        {newsGenerationModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setNewsGenerationModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-900/95 border border-white/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            >
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-slate-900/95 border-b border-white/10 px-6 py-4 flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-white">
+                  📰 Generate Posts from News
+                </h2>
+                <button
+                  onClick={() => setNewsGenerationModal(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6 space-y-6">
+                {/* Article Info */}
+                {selectedArticle && (
+                  <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
+                    <h3 className="text-cyan-300 font-semibold mb-2">Selected Article</h3>
+                    <p className="text-white font-medium">{selectedArticle.title}</p>
+                    <p className="text-gray-400 text-sm mt-2">{selectedArticle.description}</p>
+                    <p className="text-xs text-gray-500 mt-2">Source: {selectedArticle.source}</p>
+                  </div>
+                )}
+
+                {/* Single Post Preview */}
+                {newsPostMode === 'options' && newsGeneratedPosts.length > 0 && (
+                  <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
+                    <h3 className="text-lg font-bold text-white">Quick Preview</h3>
+                    <div>
+                      <p className="text-gray-300 text-sm mb-3">{newsGeneratedPosts[0].caption}</p>
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {newsGeneratedPosts[0].hashtags?.slice(0, 6).map((tag, i) => (
+                          <span key={i} className="text-xs text-cyan-400">{tag}</span>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="px-2 py-1 bg-white/10 text-gray-400 text-xs rounded">Quality: {newsGeneratedPosts[0].quality_score}/100</span>
+                        <span className="px-2 py-1 bg-white/10 text-gray-400 text-xs rounded">Engagement: {newsGeneratedPosts[0].engagement_prediction}/100</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-white/10">
+                      <button
+                        onClick={() => {setNewsPostMode('multiple'); setNewsGeneratedPosts([]);}}
+                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
+                      >
+                        Generate More Posts
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Generate Options */}
+                {newsPostMode === 'single' || newsPostMode === 'multiple' && newsGeneratedPosts.length === 0 && (
+                  <div className="space-y-4">
+                    {newsPostMode === 'single' ? (
+                      <div className="text-center py-6 bg-white/5 rounded-lg border border-white/10">
+                        <p className="text-gray-400 mb-4">Ready to generate a quick post?</p>
+                        <button
+                          onClick={handleGenerateNewsPost}
+                          disabled={newsGenerating}
+                          className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
+                        >
+                          {newsGenerating ? '⏳ Generating...' : '✨ Generate Post (3-5s)'}
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Number of Posts</label>
+                          <select
+                            value={newsPostCount}
+                            onChange={(e) => setNewsPostCount(parseInt(e.target.value))}
+                            className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white"
+                          >
+                            {[3, 5, 7, 10].map(num => <option key={num} value={num}>{num} posts</option>)}
+                          </select>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            id="multiAngles"
+                            checked={newsMultipleAngles}
+                            onChange={(e) => setNewsMultipleAngles(e.target.checked)}
+                            className="rounded"
+                          />
+                          <label htmlFor="multiAngles" className="text-sm text-gray-300">
+                            Different angles (educational, opinion, news, case study, etc.)
+                          </label>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Scheduling</label>
+                          <div className="space-y-2">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="scheduling"
+                                value="today"
+                                checked={newsSchedulingMode === 'today'}
+                                onChange={(e) => setNewsSchedulingMode(e.target.value)}
+                                className="rounded"
+                              />
+                              <span className="text-sm text-gray-300">Post all today</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="scheduling"
+                                value="spread"
+                                checked={newsSchedulingMode === 'spread'}
+                                onChange={(e) => setNewsSchedulingMode(e.target.value)}
+                                className="rounded"
+                              />
+                              <span className="text-sm text-gray-300">Spread across days</span>
+                            </label>
+                          </div>
+
+                          {newsSchedulingMode === 'spread' && (
+                            <div className="mt-3 space-y-2 ml-6">
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Interval (days)</label>
+                                <select
+                                  value={newsSpreadInterval}
+                                  onChange={(e) => setNewsSpreadInterval(parseInt(e.target.value))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+                                >
+                                  {[1, 2, 3].map(days => <option key={days} value={days}>Every {days} day(s)</option>)}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Start Date</label>
+                                <input
+                                  type="date"
+                                  value={newsStartDate}
+                                  onChange={(e) => setNewsStartDate(e.target.value)}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-400 mb-1">Time</label>
+                                <input
+                                  type="time"
+                                  value={newsPostTime}
+                                  onChange={(e) => setNewsPostTime(e.target.value)}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={handleGenerateNewsPost}
+                          disabled={newsGenerating}
+                          className="w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all disabled:opacity-50"
+                        >
+                          {newsGenerating ? `⏳ Generating ${newsPostCount} posts...` : `✨ Generate ${newsPostCount} Posts`}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Preview Multiple Posts */}
+                {showNewsPostPreview && newsGeneratedPosts.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-white">Generated Posts ({newsGeneratedPosts.length})</h3>
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {newsGeneratedPosts.map((post, idx) => (
+                        <div key={idx} className="bg-white/5 border border-white/10 rounded-lg p-3">
+                          <p className="text-sm text-white mb-2">{post.caption}</p>
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {post.hashtags?.slice(0, 5).map((tag, i) => (
+                              <span key={i} className="text-xs text-cyan-400">{tag}</span>
+                            ))}
+                          </div>
+                          <div className="text-xs text-gray-500">Quality: {post.quality_score}/100 | Engagement: {post.engagement_prediction}/100</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Actions */}
+              <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/10 px-6 py-4 flex gap-3 justify-end">
+                <button
+                  onClick={() => setNewsGenerationModal(false)}
+                  className="px-6 py-2 bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 transition-colors"
+                >
+                  Close
+                </button>
+                {(newsPostMode === 'options' || showNewsPostPreview) && newsGeneratedPosts.length > 0 && (
+                  <button
+                    onClick={handleApproveNewsPosts}
+                    className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-colors flex items-center gap-2"
+                  >
+                    <FaCheckCircle />
+                    Schedule {newsGeneratedPosts.length} Post{newsGeneratedPosts.length !== 1 ? 's' : ''}
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
 
       </motion.div>
     </div>

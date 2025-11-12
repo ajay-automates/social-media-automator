@@ -234,7 +234,7 @@ Return ONLY a JSON array of topic strings, no additional text:
     }
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 2048,
       temperature: 0.9, // High creativity
       messages: [{
@@ -701,11 +701,162 @@ async function logGeneration(userId, stats) {
   }
 }
 
+/**
+ * Generate posts from a news article with different content angles
+ * @param {string} userId - User ID
+ * @param {Object} article - News article data {title, description, url, source}
+ * @param {number} count - Number of posts to generate (1-10)
+ * @param {boolean} multipleAngles - Generate varied perspectives if true
+ * @param {Array} platforms - Target platforms
+ * @returns {Promise<Array>} Generated posts
+ */
+async function generatePostsFromNews(userId, article, count = 1, multipleAngles = false, platforms = ['linkedin', 'twitter']) {
+  try {
+    const startTime = Date.now();
+    console.log(`\n📰 Generating ${count} posts from news article...`);
+    console.log(`   Article: "${article.title.substring(0, 60)}..."`);
+    console.log(`   Source: ${article.source}`);
+
+    // Get brand voice profile
+    let brandVoice = await getBrandVoiceProfile(userId);
+    if (!brandVoice) {
+      brandVoice = getDefaultBrandVoice();
+    }
+
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const posts = [];
+
+    // Generate posts with different angles
+    for (let i = 0; i < count; i++) {
+      let angle = 'general commentary';
+
+      if (multipleAngles && count > 1) {
+        const angles = [
+          'educational explanation of the topic',
+          'opinion and perspective on the topic',
+          'breaking news announcement style',
+          'case study or real-world example',
+          'question to engage audience discussion',
+          'statistical insight or data point',
+          'prediction or future impact',
+          'how-to or actionable advice'
+        ];
+        angle = angles[i % angles.length];
+      }
+
+      const prompt = `Based on this news article, create a social media post with a ${angle} style.
+
+Article Title: ${article.title}
+Article Description: ${article.description}
+Source: ${article.source}
+Article URL: ${article.url}
+
+Brand Voice Profile:
+- Tone: ${brandVoice.tone || 'professional'}
+- Style: ${brandVoice.style || 'informative'}
+- Topics: ${(brandVoice.topics_of_interest || []).join(', ') || 'general'}
+
+CRITICAL CONSTRAINTS:
+- The post MUST be directly related to the article
+- The post MUST include the article URL
+- Keep caption concise and engaging
+- Generate 5-8 relevant hashtags
+- Estimate quality score (0-100) based on relevance and engagement potential
+- Estimate engagement prediction (0-100)
+
+Return ONLY valid JSON (no markdown, no code blocks):
+{
+  "caption": "...",
+  "hashtags": ["#tag1", "#tag2"],
+  "quality_score": 85,
+  "engagement_prediction": 78,
+  "content_type": "news_commentary"
+}`;
+
+      try {
+        const message = await anthropic.messages.create({
+          model: 'claude-sonnet-4-5-20250929',
+          max_tokens: 500,
+          temperature: 0.7,
+          messages: [{
+            role: 'user',
+            content: prompt
+          }]
+        });
+
+        const responseText = message.content[0].text.trim();
+        const postData = JSON.parse(responseText);
+
+        // Create post record in database
+        const { data: post, error } = await supabase
+          .from('content_agent_posts')
+          .insert({
+            user_id: userId,
+            topic: article.title,
+            caption: postData.caption,
+            hashtags: postData.hashtags,
+            platforms: platforms,
+            quality_score: postData.quality_score,
+            engagement_prediction: postData.engagement_prediction,
+            content_type: postData.content_type,
+            status: 'draft',
+            metadata: {
+              source: 'news',
+              article_url: article.url,
+              article_source: article.source
+            }
+          })
+          .select()
+          .single();
+
+        if (error) {
+          console.error(`   ❌ Database error saving post ${i + 1}:`, error.message);
+        } else {
+          posts.push(post);
+          console.log(`   ✅ Post ${i + 1}/${count} generated (Quality: ${postData.quality_score})`);
+        }
+
+      } catch (parseError) {
+        console.error(`   ❌ Error generating post ${i + 1}:`, parseError.message);
+        continue;
+      }
+
+      // Add small delay between generations to avoid rate limits
+      if (i < count - 1) {
+        await sleep(500);
+      }
+    }
+
+    const generationTime = Math.round((Date.now() - startTime) / 1000);
+    console.log(`\n✅ Generated ${posts.length}/${count} posts in ${generationTime}s`);
+
+    return {
+      success: posts.length > 0,
+      posts,
+      count: posts.length,
+      totalRequested: count,
+      generationTime
+    };
+
+  } catch (error) {
+    console.error('❌ Error generating posts from news:', error);
+    return {
+      success: false,
+      posts: [],
+      error: error.message
+    };
+  }
+}
+
 module.exports = {
   generateContentCalendar,
   generateSinglePost,
   getGeneratedPosts,
   approvePost,
   rejectPost,
-  generateTopicIdeas
+  generateTopicIdeas,
+  generatePostsFromNews
 };
