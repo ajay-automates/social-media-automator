@@ -247,10 +247,22 @@ Return ONLY a JSON array of topic strings, no additional text:
     // Extract JSON array
     const jsonMatch = responseText.match(/\[([\s\S]*)\]/);
     if (!jsonMatch) {
+      console.error('❌ Failed to extract JSON from response:', responseText);
       throw new Error('Could not parse topics from AI response');
     }
 
-    const topics = JSON.parse(jsonMatch[0]);
+    let topics;
+    try {
+      topics = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('❌ Failed to parse JSON array:', jsonMatch[0]);
+      throw new Error('Could not parse topics JSON: ' + parseError.message);
+    }
+
+    if (!Array.isArray(topics) || topics.length === 0) {
+      console.error('❌ AI returned empty or invalid topics array');
+      throw new Error('AI returned empty topics array');
+    }
 
     if (options.focusKeyword) {
       console.log(`   ✅ Generated ${topics.length} topics about "${options.focusKeyword}"`);
@@ -260,8 +272,15 @@ Return ONLY a JSON array of topic strings, no additional text:
     return topics.map(topic => ({ topic, type: null }));
 
   } catch (error) {
-    console.error('❌ Error generating topic ideas:', error);
-    // Fallback to default topics
+    console.error('❌ Error generating topic ideas:', error.message);
+
+    // If we have a focusKeyword, generate keyword-focused fallback topics
+    if (options.focusKeyword) {
+      console.log(`   ⚠️  Using fallback topics for "${options.focusKeyword}"`);
+      return generateKeywordFallbackTopics(options.focusKeyword, count);
+    }
+
+    // Otherwise use default fallback
     return generateFallbackTopics(count);
   }
 }
@@ -620,6 +639,26 @@ function getDefaultBrandVoice() {
     topics_of_interest: ['business', 'technology'],
     best_performing_topics: []
   };
+}
+
+/**
+ * Generate fallback topics when API is unavailable but keyword is provided
+ */
+function generateKeywordFallbackTopics(keyword, count) {
+  const fallbackTemplates = [
+    `Latest news about ${keyword}`,
+    `Tips and tricks for ${keyword}`,
+    `How to get started with ${keyword}`,
+    `Best practices in ${keyword}`,
+    `Trends in the ${keyword} world`,
+    `Common questions about ${keyword}`,
+    `Expert insights on ${keyword}`,
+    `Success stories in ${keyword}`,
+    `Challenges in the ${keyword} industry`,
+    `Future outlook for ${keyword}`
+  ];
+
+  return fallbackTemplates.slice(0, count).map(topic => ({ topic, type: null }));
 }
 
 function generateFallbackTopics(count) {
