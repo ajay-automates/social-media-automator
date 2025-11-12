@@ -336,26 +336,19 @@ export default function ContentAgent() {
 
       for (const post of newsGeneratedPosts) {
         try {
-          // Update post with immediate schedule time and platforms
-          const now = new Date();
-          const { data: updatedPost, error: updateError } = await supabase
-            .from('content_agent_posts')
-            .update({
-              scheduled_time: now.toISOString(), // Post immediately
-              platforms: selectedPlatforms
-            })
-            .eq('id', post.id)
-            .select()
-            .single();
+          // Post immediately using /post/now endpoint
+          const response = await api.post('/post/now', {
+            text: post.caption,
+            platforms: selectedPlatforms,
+            hashtags: post.hashtags,
+            video: null
+          });
 
-          if (updateError) {
-            console.error(`Failed to update post ${post.id}:`, updateError);
-            continue;
+          if (response.data.success) {
+            posted++;
+          } else {
+            console.error(`Failed to post ${post.id}:`, response.data.error);
           }
-
-          // Approve and post
-          await api.post(`/content-agent/approve/${post.id}`);
-          posted++;
         } catch (error) {
           console.error(`Failed to post ${post.id}:`, error);
         }
