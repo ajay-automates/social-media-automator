@@ -413,13 +413,37 @@
       }
     }
 
-    // Check if user is already logged in
-    if (supabaseClient) {
-      supabaseClient.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          window.location.href = '/dashboard';
+    // Handle OAuth callback and redirect
+    async function handleOAuthCallback() {
+      // Check if we have an access token in the URL hash (OAuth callback)
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token')) {
+        try {
+          // Get the current session (Supabase should have set it from the hash)
+          const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+          if (session && !error) {
+            // Wait a moment for session to be fully established
+            setTimeout(() => {
+              window.location.href = '/dashboard';
+            }, 500);
+            return;
+          }
+        } catch (err) {
+          console.error('Error handling OAuth callback:', err);
         }
-      });
+      }
+
+      // Check if user is already logged in
+      const { data: { session }, error } = await supabaseClient.auth.getSession();
+      if (session && !error) {
+        window.location.href = '/dashboard';
+      }
+    }
+
+    // Run callback handler on page load
+    if (supabaseClient) {
+      handleOAuthCallback();
     }
   </script>
 </body>
