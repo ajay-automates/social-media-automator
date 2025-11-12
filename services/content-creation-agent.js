@@ -747,7 +747,8 @@ async function generatePostsFromNews(userId, article, count = 1, multipleAngles 
         angle = angles[i % angles.length];
       }
 
-      const prompt = `Based on this news article, create a social media post with a ${angle} style.
+      const prompt = `Based on this news article, create a UNIQUE social media post with a ${angle} style.
+Make this post VERY DIFFERENT from any other posts about this article - use completely different wording, structure, and hooks.
 
 Article Title: ${article.title}
 Article Description: ${article.description}
@@ -760,12 +761,14 @@ Brand Voice Profile:
 - Topics: ${(brandVoice.topics_of_interest || []).join(', ') || 'general'}
 
 CRITICAL CONSTRAINTS:
+- Create a post with a UNIQUE ANGLE: ${angle}
 - The post MUST be directly related to the article
 - The post MUST include the article URL
-- Keep caption concise and engaging
-- Generate 5-8 relevant hashtags
+- Keep caption concise and engaging (different wording from other angles)
+- Generate 5-8 relevant hashtags (varied based on angle)
 - Estimate quality score (0-100) based on relevance and engagement potential
 - Estimate engagement prediction (0-100)
+- Make each angle post STRUCTURALLY and TEXTUALLY different
 
 Return ONLY valid JSON (no markdown, no code blocks):
 {
@@ -780,7 +783,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
         const message = await anthropic.messages.create({
           model: 'claude-sonnet-4-5-20250929',
           max_tokens: 500,
-          temperature: 0.7,
+          temperature: 0.95,
           messages: [{
             role: 'user',
             content: prompt
