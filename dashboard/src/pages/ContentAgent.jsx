@@ -64,6 +64,16 @@ export default function ContentAgent() {
   const [newsGeneratedPosts, setNewsGeneratedPosts] = useState([]);
   const [showNewsPostPreview, setShowNewsPostPreview] = useState(false);
 
+  // Post editing
+  const [editingPost, setEditingPost] = useState(null);
+  const [editingCaption, setEditingCaption] = useState('');
+  const [editingHashtags, setEditingHashtags] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  // Batch operations
+  const [selectedPostIds, setSelectedPostIds] = useState(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -158,6 +168,119 @@ export default function ContentAgent() {
       }
     } catch (error) {
       showError(error.response?.data?.error || 'Failed to reject post');
+    }
+  };
+
+  // Post editing handlers
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setEditingCaption(post.caption);
+    setEditingHashtags((post.hashtags || []).join(', '));
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingPost) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('content_agent_posts')
+        .update({
+          caption: editingCaption,
+          hashtags: editingHashtags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        })
+        .eq('id', editingPost.id)
+        .select()
+        .single();
+
+      if (error) {
+        showError(error.message);
+        return;
+      }
+
+      setGeneratedPosts(prev =>
+        prev.map(p => p.id === editingPost.id ? data : p)
+      );
+
+      showSuccess('Post updated successfully');
+      setShowEditModal(false);
+      setEditingPost(null);
+    } catch (error) {
+      showError('Failed to save edit');
+    }
+  };
+
+  // Batch operation handlers
+  const togglePostSelect = (postId) => {
+    const newSelection = new Set(selectedPostIds);
+    if (newSelection.has(postId)) {
+      newSelection.delete(postId);
+    } else {
+      newSelection.add(postId);
+    }
+    setSelectedPostIds(newSelection);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectAll) {
+      setSelectedPostIds(new Set());
+      setSelectAll(false);
+    } else {
+      const allIds = new Set(generatedPosts.map(p => p.id));
+      setSelectedPostIds(allIds);
+      setSelectAll(true);
+    }
+  };
+
+  const batchApprove = async () => {
+    if (selectedPostIds.size === 0) {
+      showError('No posts selected');
+      return;
+    }
+
+    try {
+      let approved = 0;
+      for (const postId of selectedPostIds) {
+        try {
+          await api.post(`/content-agent/approve/${postId}`);
+          approved++;
+        } catch (error) {
+          console.error(`Failed to approve post ${postId}`);
+        }
+      }
+
+      showSuccess(`Approved ${approved}/${selectedPostIds.size} posts`);
+      setGeneratedPosts(prev => prev.filter(p => !selectedPostIds.has(p.id)));
+      setSelectedPostIds(new Set());
+      setSelectAll(false);
+    } catch (error) {
+      showError('Failed to batch approve posts');
+    }
+  };
+
+  const batchReject = async () => {
+    if (selectedPostIds.size === 0) {
+      showError('No posts selected');
+      return;
+    }
+
+    try {
+      let rejected = 0;
+      for (const postId of selectedPostIds) {
+        try {
+          await api.delete(`/content-agent/reject/${postId}`);
+          rejected++;
+        } catch (error) {
+          console.error(`Failed to reject post ${postId}`);
+        }
+      }
+
+      showSuccess(`Rejected ${rejected}/${selectedPostIds.size} posts`);
+      setGeneratedPosts(prev => prev.filter(p => !selectedPostIds.has(p.id)));
+      setSelectedPostIds(new Set());
+      setSelectAll(false);
+    } catch (error) {
+      showError('Failed to batch reject posts');
     }
   };
 
@@ -666,23 +789,68 @@ export default function ContentAgent() {
                   <p className="text-sm text-gray-500">Click "Generate Calendar" to create AI-powered content</p>
                 </div>
               ) : (
-                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                <>
+                  {/* Batch Actions */}
+                  {selectedPostIds.size > 0 && (
+                    <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-between">
+                      <span className="text-sm text-blue-300">{selectedPostIds.size} post{selectedPostIds.size !== 1 ? 's' : ''} selected</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={batchApprove}
+                          className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded transition-all hover:bg-green-500/30"
+                        >
+                          Approve All
+                        </button>
+                        <button
+                          onClick={batchReject}
+                          className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded transition-all hover:bg-red-500/30"
+                        >
+                          Reject All
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Select All Checkbox */}
+                  <div className="mb-3 flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 rounded cursor-pointer"
+                    />
+                    <label className="text-sm text-gray-400 cursor-pointer">Select All</label>
+                  </div>
+
+                  <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
                   {generatedPosts.map((post, index) => (
                     <motion.div
                       key={post.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="bg-white/5 border border-white/10 rounded-lg p-4"
+                      className={`bg-white/5 border rounded-lg p-4 transition-all ${
+                        selectedPostIds.has(post.id)
+                          ? 'border-blue-500/50 bg-blue-500/10'
+                          : 'border-white/10'
+                      }`}
                     >
-                      {/* Post Header */}
+                      {/* Post Header with Checkbox */}
                       <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="text-white font-medium mb-1">{post.topic}</h3>
-                          <div className="flex items-center gap-2 text-sm text-gray-400">
-                            <span>Quality: {post.quality_score}/100</span>
-                            <span>•</span>
-                            <span>Engagement: {post.engagement_prediction}/100</span>
+                        <div className="flex items-start gap-3 flex-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedPostIds.has(post.id)}
+                            onChange={() => togglePostSelect(post.id)}
+                            className="w-4 h-4 mt-1 rounded cursor-pointer"
+                          />
+                          <div className="flex-1">
+                            <h3 className="text-white font-medium mb-1">{post.topic}</h3>
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                              <span>Quality: {post.quality_score}/100</span>
+                              <span>•</span>
+                              <span>Engagement: {post.engagement_prediction}/100</span>
+                            </div>
                           </div>
                         </div>
                         <span className="px-2 py-1 bg-white/10 text-gray-400 text-xs rounded-full">
@@ -691,13 +859,13 @@ export default function ContentAgent() {
                       </div>
 
                       {/* Caption Preview */}
-                      <p className="text-gray-300 text-sm mb-3 line-clamp-3">
+                      <p className="text-gray-300 text-sm mb-3 line-clamp-3 ml-7">
                         {post.caption}
                       </p>
 
                       {/* Hashtags */}
                       {post.hashtags && post.hashtags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
+                        <div className="flex flex-wrap gap-1 mb-3 ml-7">
                           {post.hashtags.slice(0, 5).map((tag, i) => (
                             <span key={i} className="text-xs text-gray-400">
                               {tag}
@@ -707,7 +875,7 @@ export default function ContentAgent() {
                       )}
 
                       {/* Platforms & Actions */}
-                      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10 ml-7">
                         <div className="flex gap-2">
                           {post.platforms.map(platform => (
                             <span
@@ -721,15 +889,22 @@ export default function ContentAgent() {
 
                         <div className="flex gap-2">
                           <button
+                            onClick={() => handleEditPost(post)}
+                            className="px-3 py-1 bg-blue-500/20 text-blue-400 text-sm rounded transition-all hover:bg-blue-500/30 flex items-center gap-1"
+                          >
+                            <FaEdit />
+                            Edit
+                          </button>
+                          <button
                             onClick={() => handleApprove(post.id)}
-                            className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded transition-all flex items-center gap-1"
+                            className="px-3 py-1 bg-green-500/20 text-green-400 text-sm rounded transition-all hover:bg-green-500/30 flex items-center gap-1"
                           >
                             <FaCheckCircle />
                             Approve
                           </button>
                           <button
                             onClick={() => handleReject(post.id)}
-                            className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded transition-all flex items-center gap-1"
+                            className="px-3 py-1 bg-red-500/20 text-red-400 text-sm rounded transition-all hover:bg-red-500/30 flex items-center gap-1"
                           >
                             <FaTimesCircle />
                             Reject
@@ -739,6 +914,7 @@ export default function ContentAgent() {
                     </motion.div>
                   ))}
                 </div>
+                </>
               )}
             </Card3D>
           </div>
@@ -1302,6 +1478,150 @@ export default function ContentAgent() {
             </motion.div>
           </motion.div>
         )}
+
+        {/* Post Edit Modal */}
+        <AnimatePresence>
+          {showEditModal && editingPost && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onClick={() => setShowEditModal(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-slate-900/95 border border-white/20 rounded-2xl w-full max-w-2xl shadow-2xl"
+              >
+                {/* Modal Header */}
+                <div className="bg-slate-900/95 border-b border-white/10 px-6 py-4 flex items-center justify-between sticky top-0">
+                  <div>
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                      <FaEdit className="text-blue-400" />
+                      Edit Post
+                    </h2>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {editingPost.topic}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="text-gray-400 hover:text-white transition-colors text-2xl leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Modal Content */}
+                <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                  {/* Current Stats */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <p className="text-xs text-gray-400 uppercase mb-1">Quality Score</p>
+                      <p className="text-xl font-bold text-white">{editingPost.quality_score}/100</p>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                      <p className="text-xs text-gray-400 uppercase mb-1">Engagement Prediction</p>
+                      <p className="text-xl font-bold text-white">{editingPost.engagement_prediction}/100</p>
+                    </div>
+                  </div>
+
+                  {/* Content Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Content Type
+                    </label>
+                    <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-gray-400 capitalize">
+                      {editingPost.content_type}
+                    </div>
+                  </div>
+
+                  {/* Caption Editor */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Caption ({editingCaption.length} characters)
+                    </label>
+                    <textarea
+                      value={editingCaption}
+                      onChange={(e) => setEditingCaption(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows="6"
+                      placeholder="Edit your post caption..."
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Tip: Keep captions concise and engaging for better performance
+                    </p>
+                  </div>
+
+                  {/* Hashtags Editor */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Hashtags (comma-separated)
+                    </label>
+                    <textarea
+                      value={editingHashtags}
+                      onChange={(e) => setEditingHashtags(e.target.value)}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows="3"
+                      placeholder="e.g., #AI, #Technology, #Innovation"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Current hashtags: {editingHashtags.split(',').filter(t => t.trim()).length}
+                    </p>
+                  </div>
+
+                  {/* Platforms Info */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Posting Platforms
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {editingPost.platforms && editingPost.platforms.map(platform => (
+                        <span
+                          key={platform}
+                          className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-lg text-sm capitalize flex items-center gap-1"
+                        >
+                          {platform === 'linkedin' && '💼'}
+                          {platform === 'twitter' && '𝕏'}
+                          {platform === 'facebook' && '👍'}
+                          {platform === 'instagram' && '📷'}
+                          {platform === 'tiktok' && '🎵'}
+                          {platform}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Created Info */}
+                  <div className="bg-white/5 rounded-lg p-3 border border-white/10 text-xs text-gray-400">
+                    <p>Created: {new Date(editingPost.created_at).toLocaleDateString()} at {new Date(editingPost.created_at).toLocaleTimeString()}</p>
+                    {editingPost.source && <p>Source: {editingPost.source}</p>}
+                  </div>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/10 px-6 py-4 flex gap-3 justify-end">
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="px-6 py-2 bg-white/5 text-gray-300 rounded-lg hover:bg-white/10 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveEdit}
+                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-colors flex items-center gap-2 font-medium"
+                  >
+                    <FaCheckCircle />
+                    Save Changes
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </motion.div>
     </div>
