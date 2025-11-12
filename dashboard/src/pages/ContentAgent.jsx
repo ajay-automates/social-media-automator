@@ -782,7 +782,8 @@ export default function ContentAgent() {
             </div>
           ) : Object.keys(news).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(news).map(([category, articles]) => {
+              {Object.entries(news).map(([category, categoryData]) => {
+                const articles = categoryData?.articles || [];
                 if (!articles || articles.length === 0) return null;
 
                 const categoryLabels = {

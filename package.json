@@ -38,6 +38,7 @@
     "papaparse": "^5.4.1",
     "sharp": "^0.34.4",
     "stripe": "^19.1.0",
+    "xml2js": "^0.6.2",
     "youtubei.js": "^16.0.1"
   },
   "devDependencies": {

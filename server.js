@@ -125,7 +125,7 @@ const {
 } = require('./services/content-creation-agent');
 const { analyzeBrandVoice, getBrandVoiceProfile } = require('./services/brand-voice-analyzer');
 const { getTrendAlerts, monitorTrendsForUser, fetchAllTrends, fetchKeywordTrendingData } = require('./services/trend-monitor');
-const { fetchTrendingNews, getNewsByCategory, searchNews } = require('./services/news-agent');
+const { fetchTrendingNews, getNewsByCategory, searchNews, fetchNewsByCategory } = require('./services/news-agent');
 const {
   analyzeUserPatterns,
   generateInsights,
