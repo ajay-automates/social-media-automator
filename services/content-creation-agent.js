@@ -185,14 +185,16 @@ async function generateTopicIdeas(userId, brandVoice, count, options = {}) {
 
     // If focusKeyword is provided, generate topics specifically about that keyword
     let prompt;
-    if (options.focusKeyword && options.keywordContext) {
+    if (options.focusKeyword) {
       console.log(`   🎯 Generating ${count} topics specifically about: "${options.focusKeyword}"`);
-      console.log(`   📝 Using context: ${options.keywordContext.substring(0, 100)}...`);
+      if (options.keywordContext) {
+        console.log(`   📝 Using context: ${options.keywordContext.substring(0, 100)}...`);
+      }
 
       prompt = `You are a social media content strategist. Generate exactly ${count} unique social media post ideas that are ALL specifically about: "${options.focusKeyword}"
 
-Context/News about this topic:
-${options.keywordContext}
+${options.keywordContext ? `Context/News about this topic:
+${options.keywordContext}` : 'Generate posts based on the keyword provided.'}
 
 CRITICAL CONSTRAINTS:
 - EVERY SINGLE TOPIC MUST BE DIRECTLY ABOUT "${options.focusKeyword}" - this is non-negotiable
