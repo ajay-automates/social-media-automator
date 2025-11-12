@@ -1,218 +1,227 @@
 /**
  * News Agent Service
- * Fetches real-time news from multiple sources (NewsAPI, RSS feeds, etc.)
- * Categorizes news and provides trending information by category
+ * Fetches real-time news from Google News RSS (Free, no API key needed)
+ * 5 Categories: Technology, Business, Sports, World, Lifestyle
+ * 2 articles per category = 10 total articles
+ * Smart fallback: 24h → 48h → 72h if insufficient news found
  */
 
 const axios = require('axios');
+const xml2js = require('xml2js');
 
+/**
+ * News Categories (New 5-category system)
+ */
 const NEWS_CATEGORIES = {
-  ai: { label: 'AI & Technology', keywords: ['artificial intelligence', 'AI', 'machine learning', 'GPT', 'neural', 'deep learning', 'LLM'] },
-  stocks: { label: 'Stocks & Finance', keywords: ['stock market', 'crypto', 'bitcoin', 'nasdaq', 'market', 'trading', 'investment', 'finance'] },
-  sports: { label: 'Sports', keywords: ['sports', 'cricket', 'football', 'soccer', 'basketball', 'tennis', 'game', 'match'] },
-  technology: { label: 'Technology', keywords: ['tech', 'software', 'app', 'startup', 'cloud', 'data', 'digital'] },
-  business: { label: 'Business & Economy', keywords: ['business', 'company', 'economy', 'industry', 'corporate', 'entrepreneur'] },
-  entertainment: { label: 'Entertainment', keywords: ['movie', 'music', 'celebrity', 'film', 'show', 'entertainment', 'actor'] }
+  technology: {
+    label: 'Technology & Innovation',
+    keywords: ['AI', 'technology', 'software', 'startup', 'innovation', 'crypto', 'app', 'digital'],
+    rssQuery: 'technology OR AI OR software OR startup OR innovation'
+  },
+  business: {
+    label: 'Business & Finance',
+    keywords: ['business', 'stock', 'finance', 'economy', 'market', 'trading', 'investment', 'corporate'],
+    rssQuery: 'business OR stock market OR finance OR economy OR corporate'
+  },
+  sports: {
+    label: 'Sports & Entertainment',
+    keywords: ['sports', 'cricket', 'football', 'entertainment', 'movies', 'music', 'game', 'match'],
+    rssQuery: 'sports OR cricket OR football OR entertainment OR movies'
+  },
+  world: {
+    label: 'World & Politics',
+    keywords: ['politics', 'world', 'government', 'international', 'election', 'policy', 'global'],
+    rssQuery: 'politics OR world news OR international OR government OR global'
+  },
+  lifestyle: {
+    label: 'Lifestyle & Culture',
+    keywords: ['health', 'science', 'culture', 'climate', 'wellness', 'fashion', 'food', 'travel'],
+    rssQuery: 'health OR science OR culture OR climate OR wellness OR lifestyle'
+  }
+};
+
+// Cache for news articles (expires every 6 hours)
+const newsCache = {
+  data: {},
+  timestamp: {},
+  CACHE_DURATION: 6 * 60 * 60 * 1000 // 6 hours
 };
 
 /**
- * Fetch news from NewsAPI
- * Free tier: 100 requests/day, limited to 30-day old articles
+ * Fetch news from Google News RSS
+ * Completely free, no API key needed
+ * @param {string} category - Category key
+ * @param {number} hoursBack - How many hours back to search (24, 48, or 72)
+ * @returns {Promise<Array>} Array of articles
  */
-async function fetchFromNewsAPI(query = 'news', category = null) {
+async function fetchGoogleNewsRSS(category, hoursBack = 24) {
   try {
-    const apiKey = process.env.NEWS_API_KEY;
-    if (!apiKey) {
-      console.log('   ⚠️  NEWS_API_KEY not configured');
+    if (!NEWS_CATEGORIES[category]) {
+      console.error(`❌ Unknown category: ${category}`);
       return [];
     }
 
-    const searchQuery = query && query !== 'news' ? query : 'trending OR breaking';
-    const url = `https://newsapi.org/v2/everything`;
+    const query = NEWS_CATEGORIES[category].rssQuery;
+    const timeFilter = hoursBack === 24 ? '7d' : hoursBack === 48 ? '7d' : '30d';
 
-    const params = {
-      q: searchQuery,
-      sortBy: 'publishedAt',
-      language: 'en',
-      pageSize: 20,
-      apiKey: apiKey
-    };
+    // Google News RSS URL with time-based filtering
+    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
 
-    const response = await axios.get(url, { params, timeout: 8000 });
+    console.log(`   🔍 Fetching ${category} news from Google (${hoursBack}h window)...`);
 
-    if (!response.data.articles) {
+    const response = await axios.get(rssUrl, {
+      timeout: 5000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; SocialMediaAutomator/1.0)'
+      }
+    });
+
+    // Parse XML
+    const parser = new xml2js.Parser();
+    const result = await parser.parseStringPromise(response.data);
+
+    if (!result.rss || !result.rss.channel || !result.rss.channel[0].item) {
       return [];
     }
 
-    return response.data.articles.map(article => ({
-      title: article.title,
-      description: article.description,
-      url: article.url,
-      urlToImage: article.urlToImage,
-      source: article.source.name,
-      publishedAt: article.publishedAt,
-      author: article.author,
-      content: article.content
-    }));
+    const items = result.rss.channel[0].item || [];
+    const articles = items.map(item => {
+      const pubDate = item.pubDate ? new Date(item.pubDate[0]) : new Date();
+      const hoursOld = (Date.now() - pubDate.getTime()) / (1000 * 60 * 60);
+
+      // Only include articles within the requested time window
+      if (hoursOld > hoursBack) {
+        return null;
+      }
+
+      return {
+        title: item.title ? item.title[0] : 'No Title',
+        description: item.description ? item.description[0].replace(/<[^>]*>/g, '').substring(0, 200) : '',
+        url: item.link ? item.link[0] : '',
+        source: item.source && item.source[0] && item.source[0].$ ? item.source[0].$.url : 'Google News',
+        publishedAt: pubDate.toISOString(),
+        category: category,
+        hoursOld: Math.round(hoursOld)
+      };
+    }).filter(article => article !== null);
+
+    console.log(`   ✅ Fetched ${articles.length} articles for ${category}`);
+    return articles;
 
   } catch (error) {
-    console.error('❌ NewsAPI fetch error:', error.message);
+    console.error(`❌ Error fetching Google News RSS for ${category}:`, error.message);
     return [];
   }
 }
 
 /**
- * Fetch trending news from multiple sources
- * Falls back to mock data if APIs unavailable
+ * Fetch news for a specific category with intelligent fallback
+ * 24h → 48h → 72h
+ * @param {string} category - Category key
+ * @returns {Promise<Array>} Array of 2 articles for this category
  */
-async function fetchTrendingNews(limit = 20) {
+async function fetchNewsByCategoryWithFallback(category) {
   try {
-    console.log('\n📰 Fetching trending news from all sources...');
+    // Try 24 hours first
+    let articles = await fetchGoogleNewsRSS(category, 24);
 
-    // Try NewsAPI first
-    let articles = [];
-
-    if (process.env.NEWS_API_KEY) {
-      articles = await fetchFromNewsAPI('trending OR breaking');
-      console.log(`   ✅ Fetched ${articles.length} articles from NewsAPI`);
+    // If less than 2 articles, try 48 hours
+    if (articles.length < 2) {
+      console.log(`   ⚠️  Only ${articles.length} articles in 24h, trying 48h...`);
+      const articles48 = await fetchGoogleNewsRSS(category, 48);
+      articles = [...new Map([...articles, ...articles48].map(item => [item.url, item])).values()];
     }
 
-    // If no articles from API, use mock data for demo
-    if (articles.length === 0) {
-      console.log('   📝 Using mock news data for demonstration');
-      articles = generateMockNews();
+    // If still less than 2, try 72 hours
+    if (articles.length < 2) {
+      console.log(`   ⚠️  Only ${articles.length} articles in 48h, trying 72h...`);
+      const articles72 = await fetchGoogleNewsRSS(category, 72);
+      articles = [...new Map([...articles, ...articles72].map(item => [item.url, item])).values()];
     }
 
-    // Filter to limit
-    return articles.slice(0, limit);
+    // Return top 2 articles
+    return articles.slice(0, 2);
 
   } catch (error) {
-    console.error('❌ Error fetching trending news:', error);
-    return generateMockNews();
+    console.error(`❌ Error fetching news for ${category}:`, error);
+    return [];
   }
 }
 
 /**
- * Generate mock news data for testing
+ * Fetch all news articles (2 per category = 10 total)
+ * Uses caching to avoid repeated API calls
+ * @param {boolean} bypassCache - If true, fetch fresh data
+ * @returns {Promise<Object>} News grouped by category
  */
-function generateMockNews() {
-  const now = new Date();
-  const mockArticles = [
-    {
-      title: 'Latest AI Breakthrough: New Language Model Reaches Human-Level Performance',
-      description: 'Researchers announce significant advancement in artificial intelligence with new model surpassing previous benchmarks',
-      url: 'https://www.techcrunch.com/ai/',
-      source: 'TechCrunch',
-      publishedAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
-      category: 'ai'
-    },
-    {
-      title: 'Stock Market Hits Record High as Tech Stocks Surge',
-      description: 'Major tech companies post strong earnings leading to market rally',
-      url: 'https://www.bloomberg.com/markets',
-      source: 'Bloomberg',
-      publishedAt: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
-      category: 'stocks'
-    },
-    {
-      title: 'Cricket World Cup: India Wins Thrilling Semi-Final Match',
-      description: 'India advances to finals with spectacular victory in high-scoring encounter',
-      url: 'https://www.espncricinfo.com/',
-      source: 'ESPNcricinfo',
-      publishedAt: new Date(now - 1 * 60 * 60 * 1000).toISOString(),
-      category: 'sports'
-    },
-    {
-      title: 'Major Tech Company Announces Revolutionary Product Launch',
-      description: 'New device combines AI and quantum computing for unprecedented capabilities',
-      url: 'https://www.theverge.com/tech',
-      source: 'The Verge',
-      publishedAt: new Date(now - 4 * 60 * 60 * 1000).toISOString(),
-      category: 'technology'
-    },
-    {
-      title: 'Global Economic Summit Focuses on AI Regulation',
-      description: 'World leaders discuss framework for responsible AI development and deployment',
-      url: 'https://www.bloomberg.com/news',
-      source: 'Bloomberg',
-      publishedAt: new Date(now - 5 * 60 * 60 * 1000).toISOString(),
-      category: 'business'
-    },
-    {
-      title: 'Blockchain Technology Reshapes Supply Chain Management',
-      description: 'Companies adopt distributed ledger technology for enhanced transparency',
-      url: 'https://www.coindesk.com/',
-      source: 'CoinDesk',
-      publishedAt: new Date(now - 6 * 60 * 60 * 1000).toISOString(),
-      category: 'stocks'
-    }
-  ];
+async function fetchNewsByCategory(bypassCache = false) {
+  try {
+    console.log('\n📰 Fetching news from all categories...');
 
-  return mockArticles;
-}
-
-/**
- * Categorize articles by keywords
- */
-function categorizeArticles(articles) {
-  return articles.map(article => {
-    const title = (article.title || '').toLowerCase();
-    const description = (article.description || '').toLowerCase();
-    const combinedText = `${title} ${description}`;
-
-    // Find best matching category
-    let bestCategory = 'technology';
-    let bestMatch = 0;
-
-    for (const [catKey, catData] of Object.entries(NEWS_CATEGORIES)) {
-      const matches = catData.keywords.filter(keyword =>
-        combinedText.includes(keyword.toLowerCase())
-      ).length;
-
-      if (matches > bestMatch) {
-        bestMatch = matches;
-        bestCategory = catKey;
+    // Check cache
+    const cacheKey = 'allNews';
+    if (!bypassCache && newsCache.data[cacheKey] && newsCache.timestamp[cacheKey]) {
+      const cacheAge = Date.now() - newsCache.timestamp[cacheKey];
+      if (cacheAge < newsCache.CACHE_DURATION) {
+        console.log(`   💾 Using cached news (${Math.round(cacheAge / 60000)} minutes old)`);
+        return newsCache.data[cacheKey];
       }
     }
 
-    return {
-      ...article,
-      category: bestCategory,
-      categoryLabel: NEWS_CATEGORIES[bestCategory].label
-    };
-  });
-}
-
-/**
- * Get news by category
- */
-async function getNewsByCategory(category = null, limit = 20) {
-  try {
-    console.log(`\n📰 Fetching news${category ? ` for category: ${category}` : ''}`);
-
-    let articles = await fetchTrendingNews(100);
-    articles = categorizeArticles(articles);
-
-    if (category && NEWS_CATEGORIES[category]) {
-      articles = articles.filter(a => a.category === category);
-    }
+    // Fetch news for all categories in parallel
+    const categoryKeys = Object.keys(NEWS_CATEGORIES);
+    const newsPromises = categoryKeys.map(cat => fetchNewsByCategoryWithFallback(cat));
+    const allNews = await Promise.all(newsPromises);
 
     // Group by category
     const grouped = {};
-    for (const [catKey, catData] of Object.entries(NEWS_CATEGORIES)) {
-      grouped[catKey] = {
-        label: catData.label,
-        articles: articles.filter(a => a.category === catKey).slice(0, 4)
+    categoryKeys.forEach((category, index) => {
+      grouped[category] = {
+        label: NEWS_CATEGORIES[category].label,
+        articles: allNews[index] || []
       };
-    }
+    });
 
-    console.log(`   ✅ Categorized articles by topic`);
+    // Update cache
+    newsCache.data[cacheKey] = grouped;
+    newsCache.timestamp[cacheKey] = Date.now();
 
+    console.log(`   ✅ Fetched ${Object.values(grouped).reduce((sum, cat) => sum + cat.articles.length, 0)} total articles`);
     return grouped;
 
   } catch (error) {
-    console.error('❌ Error getting news by category:', error);
+    console.error('❌ Error fetching news by category:', error);
+
+    // Return cached data if available, even if expired
+    if (newsCache.data['allNews']) {
+      console.log('   ⚠️  Using expired cached news');
+      return newsCache.data['allNews'];
+    }
+
     return {};
+  }
+}
+
+/**
+ * Get trending news (legacy function for compatibility)
+ */
+async function fetchTrendingNews(limit = 20) {
+  try {
+    console.log('\n📰 Fetching trending news...');
+
+    const grouped = await fetchNewsByCategory();
+
+    // Flatten and return articles
+    const articles = [];
+    for (const [category, data] of Object.entries(grouped)) {
+      articles.push(...data.articles);
+    }
+
+    return articles.slice(0, limit);
+
+  } catch (error) {
+    console.error('❌ Error fetching trending news:', error);
+    return [];
   }
 }
 
@@ -231,16 +240,35 @@ async function searchNews(keyword, limit = 10) {
       };
     }
 
-    const articles = await fetchFromNewsAPI(keyword, null);
-    const categorized = categorizeArticles(articles);
+    // Try to fetch using Google News RSS for the keyword
+    const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(keyword)}&hl=en-US&gl=US&ceid=US:en`;
 
-    console.log(`   ✅ Found ${categorized.length} articles about "${keyword}"`);
+    const response = await axios.get(rssUrl, {
+      timeout: 5000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; SocialMediaAutomator/1.0)'
+      }
+    });
+
+    const parser = new xml2js.Parser();
+    const result = await parser.parseStringPromise(response.data);
+
+    const items = result.rss?.channel?.[0]?.item || [];
+    const articles = items.slice(0, limit).map(item => ({
+      title: item.title ? item.title[0] : 'No Title',
+      description: item.description ? item.description[0].replace(/<[^>]*>/g, '').substring(0, 200) : '',
+      url: item.link ? item.link[0] : '',
+      source: 'Google News',
+      publishedAt: item.pubDate ? new Date(item.pubDate[0]).toISOString() : new Date().toISOString()
+    }));
+
+    console.log(`   ✅ Found ${articles.length} articles about "${keyword}"`);
 
     return {
       keyword,
       success: true,
-      articles: categorized.slice(0, limit),
-      count: categorized.length
+      articles: articles,
+      count: articles.length
     };
 
   } catch (error) {
@@ -253,10 +281,21 @@ async function searchNews(keyword, limit = 10) {
   }
 }
 
+/**
+ * Clear news cache (useful for testing or forcing refresh)
+ */
+function clearNewsCache() {
+  newsCache.data = {};
+  newsCache.timestamp = {};
+  console.log('✅ News cache cleared');
+}
+
 module.exports = {
   fetchTrendingNews,
-  getNewsByCategory,
+  fetchNewsByCategory,
   searchNews,
+  clearNewsCache,
   NEWS_CATEGORIES,
-  categorizeArticles
+  fetchGoogleNewsRSS,
+  fetchNewsByCategoryWithFallback
 };

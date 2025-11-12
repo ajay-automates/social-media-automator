@@ -86,6 +86,7 @@ export default function ContentAgent() {
   const loadTrendingNews = async () => {
     setNewsLoading(true);
     try {
+      // Initial load uses cache, refresh=false by default
       const response = await api.get('/news/trending?limit=30');
       if (response.data.success) {
         setNews(response.data.news || {});
@@ -256,7 +257,8 @@ export default function ContentAgent() {
   const handleRefreshNews = async () => {
     setNewsLoading(true);
     try {
-      const response = await api.get('/news/trending?limit=30');
+      // Pass refresh=true to bypass cache and get fresh news
+      const response = await api.get('/news/trending?limit=30&refresh=true');
       if (response.data.success) {
         setNews(response.data.news || {});
         showSuccess(`Updated! Found ${response.data.total} news articles`);
@@ -784,21 +786,19 @@ export default function ContentAgent() {
                 if (!articles || articles.length === 0) return null;
 
                 const categoryLabels = {
-                  ai: 'AI & Technology',
-                  stocks: 'Stocks & Finance',
-                  sports: 'Sports',
-                  technology: 'Technology',
-                  business: 'Business',
-                  entertainment: 'Entertainment'
+                  technology: 'Technology & Innovation',
+                  business: 'Business & Finance',
+                  sports: 'Sports & Entertainment',
+                  world: 'World & Politics',
+                  lifestyle: 'Lifestyle & Culture'
                 };
 
                 const categoryColors = {
-                  ai: 'from-purple-500/20 to-blue-500/20 border-purple-500/30',
-                  stocks: 'from-green-500/20 to-emerald-500/20 border-green-500/30',
+                  technology: 'from-purple-500/20 to-blue-500/20 border-purple-500/30',
+                  business: 'from-green-500/20 to-emerald-500/20 border-green-500/30',
                   sports: 'from-orange-500/20 to-red-500/20 border-orange-500/30',
-                  technology: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
-                  business: 'from-indigo-500/20 to-purple-500/20 border-indigo-500/30',
-                  entertainment: 'from-pink-500/20 to-rose-500/20 border-pink-500/30'
+                  world: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
+                  lifestyle: 'from-pink-500/20 to-rose-500/20 border-pink-500/30'
                 };
 
                 return (
@@ -813,7 +813,7 @@ export default function ContentAgent() {
                     </h3>
 
                     <div className="space-y-3">
-                      {articles.slice(0, 3).map((article, idx) => (
+                      {articles.slice(0, 2).map((article, idx) => (
                         <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors">
                           <h4 className="text-sm font-semibold text-white mb-2 line-clamp-2">
                             {article.title}

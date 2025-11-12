@@ -2526,30 +2526,22 @@ app.post('/api/content-agent/generate-from-keyword', verifyAuth, async (req, res
  */
 app.get('/api/news/trending', verifyAuth, async (req, res) => {
   try {
-    const { limit = 20 } = req.query;
+    const { limit = 30, refresh = false } = req.query;
 
-    console.log(`📰 Fetching trending news...`);
+    console.log(`📰 Fetching trending news (refresh=${refresh})...`);
 
-    const news = await fetchTrendingNews(parseInt(limit));
+    // Use new fetchNewsByCategory function which returns pre-grouped news
+    // bypass cache if refresh=true
+    const grouped = await fetchNewsByCategory(refresh === 'true');
 
-    // Group by category
-    const grouped = {};
-    for (const article of news) {
-      // Categorize
-      const category = determineCategoryForArticle(article);
-      if (!grouped[category]) {
-        grouped[category] = [];
-      }
-      grouped[category].push({
-        ...article,
-        category
-      });
-    }
+    // Calculate total articles
+    const total = Object.values(grouped).reduce((sum, cat) => sum + cat.articles.length, 0);
 
     res.json({
       success: true,
       news: grouped,
-      total: news.length
+      total: total,
+      timestamp: new Date().toISOString()
     });
 
   } catch (error) {
