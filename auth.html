@@ -431,21 +431,41 @@
         console.log('Checking for OAuth callback. Hash present:', !!hash);
 
         if (hash && hash.includes('access_token')) {
-          console.log('OAuth callback detected, waiting for session...');
+          console.log('OAuth callback detected, processing session...');
 
-          // Wait a bit for Supabase to process the token
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Multiple attempts to get the session as Supabase processes the token
+          let session = null;
+          let attempts = 0;
+          const maxAttempts = 5;
 
-          // Get the current session (Supabase should have set it from the hash)
-          const { data: { session }, error } = await supabaseClient.auth.getSession();
+          while (!session && attempts < maxAttempts) {
+            // Wait before checking
+            await new Promise(resolve => setTimeout(resolve, 500));
 
-          console.log('Session check result:', { hasSession: !!session, error, domain: window.location.origin });
+            const { data: { session: currentSession }, error } = await supabaseClient.auth.getSession();
 
-          if (session && !error) {
-            console.log('User authenticated, redirecting to dashboard at:', getRedirectUrl('/dashboard'));
-            // Clear the hash before redirecting to same domain dashboard
+            console.log(`Session check attempt ${attempts + 1}:`, {
+              hasSession: !!currentSession,
+              error,
+              domain: window.location.origin
+            });
+
+            if (currentSession && !error) {
+              session = currentSession;
+              break;
+            }
+
+            attempts++;
+          }
+
+          if (session) {
+            console.log('User authenticated successfully, redirecting to dashboard at:', getRedirectUrl('/dashboard'));
+            // Clear the hash from URL before redirecting
+            window.history.replaceState({}, document.title, window.location.pathname);
             window.location.href = getRedirectUrl('/dashboard');
             return;
+          } else {
+            console.warn('Session not established after OAuth callback');
           }
         }
 
