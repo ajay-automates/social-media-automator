@@ -167,6 +167,29 @@ const {
   getWebhookStats
 } = require('./services/webhooks');
 
+// A/B Testing Engine
+const {
+  createABTest,
+  getUserABTests,
+  getTestResults,
+  updateVariationMetrics,
+  declareWinner,
+  cancelTest,
+  getABTestingInsights
+} = require('./services/ab-testing');
+
+// Hashtag Performance Tracker
+const {
+  extractHashtags,
+  trackHashtagsFromPost,
+  updateHashtagEngagement,
+  getTopHashtags,
+  getWorstHashtags,
+  getHashtagSuggestions,
+  analyzeHashtagTrends,
+  getHashtagAnalytics
+} = require('./services/hashtag-tracker');
+
 // Helper function to get frontend URL
 function getFrontendUrl() {
   // If explicitly set, use it
@@ -3412,6 +3435,305 @@ app.get('/api/webhooks/events', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+// ============================================
+// A/B TESTING ENGINE
+// ============================================
+
+/**
+ * GET /api/ab-tests
+ * Get all user's A/B tests
+ */
+app.get('/api/ab-tests', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const status = req.query.status || null;
+
+    const tests = await getUserABTests(userId, status);
+
+    res.json({
+      success: true,
+      tests,
+      count: tests.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting A/B tests:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get A/B tests'
+    });
+  }
+});
+
+/**
+ * POST /api/ab-tests
+ * Create new A/B test
+ */
+app.post('/api/ab-tests', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const testData = req.body;
+
+    const result = await createABTest(userId, testData);
+
+    res.json({
+      success: true,
+      message: 'A/B test created successfully',
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error creating A/B test:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to create A/B test'
+    });
+  }
+});
+
+/**
+ * GET /api/ab-tests/:id/results
+ * Get results for a specific test
+ */
+app.get('/api/ab-tests/:id/results', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const testId = parseInt(req.params.id);
+
+    const results = await getTestResults(userId, testId);
+
+    res.json({
+      success: true,
+      results
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting test results:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get test results'
+    });
+  }
+});
+
+/**
+ * POST /api/ab-tests/:id/declare-winner
+ * Manually declare winner for a test
+ */
+app.post('/api/ab-tests/:id/declare-winner', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const testId = parseInt(req.params.id);
+    const { variation_id } = req.body;
+
+    if (!variation_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'variation_id is required'
+      });
+    }
+
+    const result = await declareWinner(userId, testId, variation_id);
+
+    res.json({
+      success: true,
+      message: 'Winner declared successfully',
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error declaring winner:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to declare winner'
+    });
+  }
+});
+
+/**
+ * POST /api/ab-tests/:id/cancel
+ * Cancel an A/B test
+ */
+app.post('/api/ab-tests/:id/cancel', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const testId = parseInt(req.params.id);
+
+    await cancelTest(userId, testId);
+
+    res.json({
+      success: true,
+      message: 'Test cancelled successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error cancelling test:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to cancel test'
+    });
+  }
+});
+
+/**
+ * GET /api/ab-tests/insights
+ * Get A/B testing insights
+ */
+app.get('/api/ab-tests/insights', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const insights = await getABTestingInsights(userId);
+
+    res.json({
+      success: true,
+      ...insights
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting A/B insights:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get insights'
+    });
+  }
+});
+
+// ============================================
+// HASHTAG PERFORMANCE TRACKER
+// ============================================
+
+/**
+ * GET /api/hashtags/analytics
+ * Get hashtag analytics summary
+ */
+app.get('/api/hashtags/analytics', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const platform = req.query.platform || null;
+
+    const analytics = await getHashtagAnalytics(userId, platform);
+
+    res.json({
+      success: true,
+      ...analytics
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting hashtag analytics:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get hashtag analytics'
+    });
+  }
+});
+
+/**
+ * GET /api/hashtags/top
+ * Get top performing hashtags
+ */
+app.get('/api/hashtags/top', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const platform = req.query.platform || null;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const hashtags = await getTopHashtags(userId, platform, limit);
+
+    res.json({
+      success: true,
+      hashtags,
+      count: hashtags.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting top hashtags:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get top hashtags'
+    });
+  }
+});
+
+/**
+ * GET /api/hashtags/worst
+ * Get worst performing hashtags
+ */
+app.get('/api/hashtags/worst', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const platform = req.query.platform || null;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const hashtags = await getWorstHashtags(userId, platform, limit);
+
+    res.json({
+      success: true,
+      hashtags,
+      count: hashtags.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting worst hashtags:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get worst hashtags'
+    });
+  }
+});
+
+/**
+ * GET /api/hashtags/suggestions
+ * Get hashtag suggestions based on performance
+ */
+app.get('/api/hashtags/suggestions', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const platform = req.query.platform || 'linkedin';
+    const current = req.query.current ? req.query.current.split(',') : [];
+
+    const suggestions = await getHashtagSuggestions(userId, platform, current);
+
+    res.json({
+      success: true,
+      suggestions,
+      count: suggestions.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting hashtag suggestions:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get suggestions'
+    });
+  }
+});
+
+/**
+ * POST /api/hashtags/analyze-trends
+ * Analyze hashtag trends
+ */
+app.post('/api/hashtags/analyze-trends', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const result = await analyzeHashtagTrends(userId);
+
+    res.json({
+      success: true,
+      message: 'Trends analyzed successfully',
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error analyzing trends:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to analyze trends'
     });
   }
 });

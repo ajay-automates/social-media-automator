@@ -782,6 +782,14 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
       } catch (webhookError) {
         console.error('⚠️ Webhook trigger error (non-critical):', webhookError.message);
       }
+
+      // Track hashtags from post
+      try {
+        const { trackHashtagsFromPost } = require('./hashtag-tracker');
+        await trackHashtagsFromPost(user_id, id, text, platforms, !hasErrors);
+      } catch (hashtagError) {
+        console.error('⚠️ Hashtag tracking error (non-critical):', hashtagError.message);
+      }
     }
     
     // Return results for immediate posting
