@@ -12,7 +12,10 @@ export default function AnalyticsAgent() {
   const [patterns, setPatterns] = useState([]);
   const [stats, setStats] = useState(null);
   const [showInsights, setShowInsights] = useState(false);
-  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  const [hasAnalyzed, setHasAnalyzed] = useState(() => {
+    // Check sessionStorage to see if user analyzed in this session
+    return sessionStorage.getItem('analyticsAnalyzed') === 'true';
+  });
 
   useEffect(() => {
     // Clean up insights when component unmounts (user leaves the page)
@@ -21,7 +24,8 @@ export default function AnalyticsAgent() {
       setPatterns([]);
       setStats(null);
       setShowInsights(false);
-      setHasAnalyzed(false);
+      // Clear the sessionStorage flag so insights reset on next visit
+      sessionStorage.removeItem('analyticsAnalyzed');
     };
   }, []);
 
@@ -81,6 +85,8 @@ export default function AnalyticsAgent() {
       const response = await api.post('/analytics-agent/analyze');
       if (response.data.success) {
         showSuccess('Analysis complete! New insights generated.');
+        // Set flag in sessionStorage to persist across navigation
+        sessionStorage.setItem('analyticsAnalyzed', 'true');
         setHasAnalyzed(true);
         await loadData();
       }
