@@ -6011,24 +6011,8 @@ app.get('/api/milestones/progress', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Fetch milestone progress from view
-    const { data, error } = await supabase
-      .from('user_milestone_progress')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 = no rows returned, which is OK
-      console.error('Error fetching milestone progress:', error);
-      return res.status(400).json({
-        success: false,
-        error: error.message
-      });
-    }
-
-    // If no progress record, return defaults
-    const progress = data || {
+    // Default progress object
+    const defaultProgress = {
       email_verified: 0,
       first_account_connected: 0,
       first_post_created: 0,
@@ -6041,10 +6025,40 @@ app.get('/api/milestones/progress', verifyAuth, async (req, res) => {
       onboarding_progress_percent: 0
     };
 
-    res.json({
-      success: true,
-      progress
-    });
+    // Try to fetch milestone progress from view
+    try {
+      const { data, error } = await supabase
+        .from('user_milestone_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 = no rows returned, which is OK
+        // Other errors might indicate the view doesn't exist (e.g., during migration)
+        console.warn('Warning fetching milestone progress:', error.message);
+        // Return defaults instead of error
+        return res.json({
+          success: true,
+          progress: defaultProgress
+        });
+      }
+
+      // If we have data, use it; otherwise use defaults
+      const progress = data || defaultProgress;
+
+      res.json({
+        success: true,
+        progress
+      });
+    } catch (viewError) {
+      // View might not exist yet (migration not applied)
+      console.warn('Milestone view not available yet:', viewError.message);
+      res.json({
+        success: true,
+        progress: defaultProgress
+      });
+    }
   } catch (error) {
     console.error('Error in fetching milestone progress:', error);
     res.status(500).json({

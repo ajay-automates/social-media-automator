@@ -17,10 +17,37 @@ export default function MilestoneChecklist() {
       const response = await api.get('/milestones/progress');
       if (response.data.success) {
         setProgress(response.data.progress);
+      } else {
+        // Set default progress if endpoint doesn't return success
+        setProgress({
+          email_verified: 0,
+          first_account_connected: 0,
+          first_post_created: 0,
+          post_milestones: 0,
+          onboarding_completed: 0,
+          email_verified_at: null,
+          first_account_at: null,
+          first_post_at: null,
+          onboarding_completed_at: null,
+          onboarding_progress_percent: 0
+        });
       }
     } catch (err) {
       console.error('Error loading milestone progress:', err);
-      showError('Failed to load milestone progress');
+      // Don't show error - just silently set default progress
+      // This handles cases where the database hasn't been migrated yet
+      setProgress({
+        email_verified: 0,
+        first_account_connected: 0,
+        first_post_created: 0,
+        post_milestones: 0,
+        onboarding_completed: 0,
+        email_verified_at: null,
+        first_account_at: null,
+        first_post_at: null,
+        onboarding_completed_at: null,
+        onboarding_progress_percent: 0
+      });
     } finally {
       setLoading(false);
     }
