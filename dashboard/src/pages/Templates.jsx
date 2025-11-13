@@ -2,18 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../lib/api';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
-import { 
-  FaLinkedin, 
-  FaTwitter, 
-  FaInstagram, 
-  FaFacebook, 
-  FaTiktok, 
-  FaYoutube, 
-  FaReddit, 
-  FaDiscord, 
-  FaSlack, 
-  FaTelegram
-} from 'react-icons/fa';
+import PlatformChip from '../components/ui/PlatformChip';
 
 const CATEGORIES = [
   { id: 'all', name: 'All Templates', icon: '📋' },
@@ -26,18 +15,7 @@ const CATEGORIES = [
   { id: 'general', name: 'General', icon: '✨' }
 ];
 
-const PLATFORM_ICONS = {
-  linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border border-blue-400/30' },
-  twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border border-sky-400/30' },
-  telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border border-cyan-400/30' },
-  instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border border-pink-400/30' },
-  facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border border-blue-400/30' },
-  youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border border-red-400/30' },
-  reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border border-orange-400/30' },
-  discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border border-indigo-400/30' },
-  slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border border-purple-400/30' },
-  tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border border-gray-400/30' }
-};
+const AVAILABLE_PLATFORMS = ['linkedin', 'twitter', 'instagram', 'facebook', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'youtube'];
 
 export default function Templates() {
   const [templates, setTemplates] = useState([]);
@@ -551,19 +529,15 @@ async function handleSaveTemplate() {
                 {/* Platforms */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Platforms *</label>
-                  <div className="flex gap-2 flex-wrap">
-                    {Object.entries(PLATFORM_ICONS).map(([platform, config]) => (
-                      <button
+                  <div className="flex gap-3 flex-wrap">
+                    {AVAILABLE_PLATFORMS.map((platform) => (
+                      <PlatformChip
                         key={platform}
+                        platform={platform}
+                        selected={formData.platforms.includes(platform)}
                         onClick={() => togglePlatform(platform)}
-                        className={`px-4 py-2 rounded-lg border-2 transition-colors ${
-                          formData.platforms.includes(platform)
-                            ? 'border-blue-600 bg-blue-50 text-blue-600'
-                            : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                      >
-                        {config.icon} {platform}
-                      </button>
+                        size="sm"
+                      />
                     ))}
                   </div>
                 </div>

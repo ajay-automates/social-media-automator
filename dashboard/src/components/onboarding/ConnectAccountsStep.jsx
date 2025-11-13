@@ -3,30 +3,7 @@ import { useState, useEffect } from 'react';
 import { useOnboarding } from '../../contexts/OnboardingContext';
 import api from '../../lib/api';
 import { showError, showSuccess } from '../ui/Toast';
-import {
-  FaLinkedin,
-  FaTwitter,
-  FaTelegram,
-  FaSlack,
-  FaDiscord,
-  FaReddit,
-  FaTumblr
-} from 'react-icons/fa';
-import { SiBluesky, SiMastodon } from 'react-icons/si';
-
-// Platform icons mapping
-const platformIcons = {
-  linkedin: FaLinkedin,
-  twitter: FaTwitter,
-  telegram: FaTelegram,
-  slack: FaSlack,
-  discord: FaDiscord,
-  reddit: FaReddit,
-  devto: null, // Special case - use text
-  tumblr: FaTumblr,
-  mastodon: SiMastodon,
-  bluesky: SiBluesky
-};
+import PlatformChip from '../ui/PlatformChip';
 
 const platformNames = {
   linkedin: 'LinkedIn',
@@ -39,20 +16,6 @@ const platformNames = {
   tumblr: 'Tumblr',
   mastodon: 'Mastodon',
   bluesky: 'Bluesky'
-};
-
-// Platform colors (matching their brand colors)
-const platformColors = {
-  linkedin: 'from-blue-600 to-blue-700',
-  twitter: 'from-blue-400 to-blue-500',
-  telegram: 'from-blue-500 to-blue-600',
-  slack: 'from-purple-500 to-purple-600',
-  discord: 'from-indigo-600 to-indigo-700',
-  reddit: 'from-orange-500 to-orange-600',
-  devto: 'from-gray-700 to-gray-800',
-  tumblr: 'from-blue-900 to-gray-900',
-  mastodon: 'from-purple-600 to-purple-700',
-  bluesky: 'from-sky-400 to-sky-500'
 };
 
 // Working platforms (10 total)
@@ -209,48 +172,23 @@ export default function ConnectAccountsStep() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
+          <div className="flex flex-wrap gap-4 justify-center mb-8">
             {workingPlatforms.map((platform, index) => {
               const isConnected = isPlatformConnected(platform);
               return (
-                <motion.button
+                <motion.div
                   key={platform}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: isConnected ? 1 : 1.05, y: isConnected ? 0 : -5 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handlePlatformClick(platform)}
-                  disabled={isConnected}
-                  className={`relative p-6 rounded-2xl border-2 transition-all ${
-                    isConnected
-                      ? 'bg-green-500/20 border-green-400 cursor-default'
-                      : `bg-gradient-to-br ${platformColors[platform]} border-white/20 hover:border-white/40 hover:shadow-lg`
-                  }`}
                 >
-                  <div className="text-4xl mb-2 flex justify-center">
-                    {platformIcons[platform] ? (
-                      // Render icon component
-                      <span className="inline-block text-white">
-                        {(() => {
-                          const IconComponent = platformIcons[platform];
-                          return <IconComponent className="w-10 h-10 text-white" />;
-                        })()}
-                      </span>
-                    ) : (
-                      // Special case for devto - use text
-                      <span className="inline-block font-bold text-white text-sm">Dev.to</span>
-                    )}
-                  </div>
-                  <div className="text-white font-semibold text-sm mb-1">{platformNames[platform]}</div>
-                  {isConnected && (
-                    <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1">
-                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
-                </motion.button>
+                  <PlatformChip
+                    platform={platform}
+                    selected={isConnected}
+                    onClick={() => !isConnected && handlePlatformClick(platform)}
+                    size="md"
+                  />
+                </motion.div>
               );
             })}
           </div>

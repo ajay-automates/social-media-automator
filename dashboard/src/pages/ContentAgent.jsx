@@ -7,6 +7,7 @@ import { showSuccess, showError } from '../components/ui/Toast';
 import { staggerContainer } from '../utils/animations';
 import Card3D from '../components/ui/Card3D';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
+import PlatformChip from '../components/ui/PlatformChip';
 import {
   FaRobot,
   FaFire,
@@ -696,10 +697,12 @@ export default function ContentAgent() {
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Platforms
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {['linkedin', 'twitter', 'instagram', 'facebook', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
-                      <button
+                      <PlatformChip
                         key={platform}
+                        platform={platform}
+                        selected={selectedPlatforms.includes(platform)}
                         onClick={() => {
                           setSelectedPlatforms(prev =>
                             prev.includes(platform)
@@ -707,14 +710,8 @@ export default function ContentAgent() {
                               : [...prev, platform]
                           );
                         }}
-                        className={`px-4 py-2 rounded-lg font-medium capitalize transition-all ${
-                          selectedPlatforms.includes(platform)
-                            ? 'bg-purple-500 text-white'
-                            : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                        }`}
-                      >
-                        {platform === 'devto' ? 'dev.to' : platform}
-                      </button>
+                        size="sm"
+                      />
                     ))}
                   </div>
                 </div>
@@ -1412,10 +1409,12 @@ export default function ContentAgent() {
                 {(newsPostMode === 'options' || showNewsPostPreview) && newsGeneratedPosts.length > 0 && (
                   <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
                     <label className="block text-sm font-medium text-gray-300">Post to Platforms</label>
-                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                    <div className="flex flex-wrap gap-3">
                       {['linkedin', 'twitter', 'facebook', 'instagram', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
-                        <button
+                        <PlatformChip
                           key={platform}
+                          platform={platform}
+                          selected={selectedPlatforms.includes(platform)}
                           onClick={() => {
                             setSelectedPlatforms(prev =>
                               prev.includes(platform)
@@ -1423,26 +1422,8 @@ export default function ContentAgent() {
                                 : [...prev, platform]
                             );
                           }}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                            selectedPlatforms.includes(platform)
-                              ? 'bg-cyan-600 text-white border border-cyan-400'
-                              : 'bg-white/10 text-gray-300 border border-white/20 hover:bg-white/20'
-                          }`}
-                        >
-                          {platform === 'linkedin' && '💼'}
-                          {platform === 'twitter' && '𝕏'}
-                          {platform === 'facebook' && '👍'}
-                          {platform === 'instagram' && '📷'}
-                          {platform === 'tiktok' && '🎵'}
-                          {platform === 'telegram' && '✈️'}
-                          {platform === 'slack' && '💬'}
-                          {platform === 'discord' && '🎮'}
-                          {platform === 'reddit' && '🔥'}
-                          {platform === 'devto' && '💻'}
-                          {platform === 'mastodon' && '🐘'}
-                          {platform === 'bluesky' && '☁️'}
-                          {' ' + (platform === 'devto' ? 'dev.to' : platform.charAt(0).toUpperCase() + platform.slice(1))}
-                        </button>
+                          size="sm"
+                        />
                       ))}
                     </div>
                   </div>
