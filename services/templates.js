@@ -18,8 +18,6 @@ const supabase = createClient(
  */
 async function getTemplates(userId, filters = {}) {
   try {
-    console.log(`🔍 DEBUG: Fetching templates for user: ${userId}`);
-
     // Build the base query - get user's personal templates
     let query = supabase
       .from('post_templates')
@@ -51,8 +49,6 @@ async function getTemplates(userId, filters = {}) {
     const { data, error } = await query;
 
     if (error) throw error;
-
-    console.log(`✅ DEBUG: Found ${(data || []).length} templates for user ${userId}`);
 
     // Add a flag to indicate if user owns the template
     const templates = (data || []).map(template => ({
