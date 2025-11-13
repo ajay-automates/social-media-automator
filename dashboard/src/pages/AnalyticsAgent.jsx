@@ -6,15 +6,23 @@ import AnimatedBackground from '../components/ui/AnimatedBackground';
 import { FaChartLine, FaLightbulb, FaBrain, FaTrophy, FaClock, FaHashtag, FaCalendar, FaServer, FaSync, FaTimes } from 'react-icons/fa';
 
 export default function AnalyticsAgent() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [insights, setInsights] = useState([]);
   const [patterns, setPatterns] = useState([]);
   const [stats, setStats] = useState(null);
   const [showInsights, setShowInsights] = useState(false);
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   useEffect(() => {
-    loadData();
+    // Clean up insights when component unmounts (user leaves the page)
+    return () => {
+      setInsights([]);
+      setPatterns([]);
+      setStats(null);
+      setShowInsights(false);
+      setHasAnalyzed(false);
+    };
   }, []);
 
   const loadData = async () => {
@@ -73,6 +81,7 @@ export default function AnalyticsAgent() {
       const response = await api.post('/analytics-agent/analyze');
       if (response.data.success) {
         showSuccess('Analysis complete! New insights generated.');
+        setHasAnalyzed(true);
         await loadData();
       }
     } catch (error) {
@@ -172,10 +181,10 @@ export default function AnalyticsAgent() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleAnalyze}
-              disabled={analyzing}
+              disabled={analyzing || loading}
               className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg"
             >
-              {analyzing ? (
+              {analyzing || loading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   Analyzing...
@@ -190,21 +199,24 @@ export default function AnalyticsAgent() {
           </div>
         </motion.div>
 
-        {!hasData ? (
+        {!hasAnalyzed ? (
           <motion.div variants={itemVariants} className="text-center py-16">
             <div className="glass border-2 border-white/20 rounded-2xl p-12 max-w-2xl mx-auto">
               <FaBrain className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-              <h2 className="text-2xl font-bold text-white mb-4">No insights yet</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">Ready to analyze your posts?</h2>
               <p className="text-gray-400 mb-8">
-                You need at least 10 posts to generate insights. The AI will analyze your posting patterns
-                and provide actionable recommendations.
+                Click "Analyze Now" to get AI-powered insights from your posting patterns.
+                <br />
+                <span className="text-sm text-gray-500 mt-2 block">
+                  You need at least 10 posts for best results.
+                </span>
               </p>
               <button
                 onClick={handleAnalyze}
-                disabled={analyzing}
+                disabled={analyzing || loading}
                 className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 inline-flex items-center gap-2"
               >
-                {analyzing ? (
+                {analyzing || loading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     Analyzing...
