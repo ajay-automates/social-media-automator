@@ -53,6 +53,7 @@ function Navigation() {
     { path: '/templates', label: 'Templates', icon: '📝' },
     { path: '/ab-testing', label: 'A/B Testing', icon: '🧪' },
     { path: '/hashtag-analytics', label: 'Hashtag Analytics', icon: '#️⃣' },
+    { path: '/content-recycling', label: 'Content Recycling', icon: '♻️' },
     { path: '/webhooks', label: 'Webhooks', icon: '🔔' },
     { path: '/approvals', label: 'Approvals', icon: '⏳' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
