@@ -371,12 +371,12 @@
           signUpBtn.querySelector('#signUpGoogleText').textContent = 'Connecting...';
         }
 
-        console.log('Initiating Google OAuth with redirect to:', getRedirectUrl('/auth.html'));
+        console.log('Initiating Google OAuth with redirect to:', getRedirectUrl('/dashboard'));
 
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: getRedirectUrl('/auth.html')
+            redirectTo: getRedirectUrl('/dashboard')
           }
         });
 
