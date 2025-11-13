@@ -18,11 +18,11 @@ const supabase = createClient(
  */
 async function getTemplates(userId, filters = {}) {
   try {
-    // Get user's personal templates AND public templates
+    // Build the base query - get user's personal templates
     let query = supabase
       .from('post_templates')
       .select('*')
-      .or(`user_id.eq.${userId},is_public.eq.true`);
+      .eq('user_id', userId);
 
     // Filter by category
     if (filters.category && filters.category !== 'all') {
@@ -31,7 +31,7 @@ async function getTemplates(userId, filters = {}) {
 
     // Filter by favorite (only for user's own templates)
     if (filters.favorite === true) {
-      query = query.eq('is_favorite', true).eq('user_id', userId);
+      query = query.eq('is_favorite', true);
     }
 
     // Search by name, description, or text
@@ -41,11 +41,10 @@ async function getTemplates(userId, filters = {}) {
       );
     }
 
-    // Sort: Public templates first, then by creation date
+    // Sort: by creation date
     const sortBy = filters.sort || 'created_at';
     const sortOrder = filters.order || 'desc';
-    query = query.order('is_public', { ascending: false }) // Public templates first
-                 .order(sortBy, { ascending: sortOrder === 'asc' });
+    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
 
     const { data, error } = await query;
 
@@ -468,6 +467,8 @@ async function getTemplateStats(userId) {
       const category = template.category || 'general';
       stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
     });
+
+    console.log(`📊 Template Stats: ${data.length} total templates for user ${userId}`);
 
     return stats;
   } catch (error) {
