@@ -5690,6 +5690,197 @@ app.post('/api/templates/process', verifyAuth, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/templates/export
+ * Export templates as JSON or CSV
+ */
+app.get('/api/templates/export', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const format = req.query.format || 'json'; // json or csv
+    const ids = req.query.ids ? req.query.ids.split(',').map(id => parseInt(id)) : null;
+
+    // Get templates (either specific IDs or all user's templates)
+    let query = supabase
+      .from('post_templates')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (ids && ids.length > 0) {
+      query = query.in('id', ids);
+    }
+
+    const { data: templates, error } = await query;
+
+    if (error) throw error;
+    if (!templates || templates.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'No templates found to export'
+      });
+    }
+
+    if (format === 'csv') {
+      // Convert to CSV format
+      const csv = convertTemplatesToCSV(templates);
+      res.header('Content-Type', 'text/csv');
+      res.header('Content-Disposition', `attachment; filename="templates-${Date.now()}.csv"`);
+      res.send(csv);
+    } else {
+      // JSON format (default)
+      res.header('Content-Type', 'application/json');
+      res.header('Content-Disposition', `attachment; filename="templates-${Date.now()}.json"`);
+      res.json({
+        success: true,
+        count: templates.length,
+        exportDate: new Date().toISOString(),
+        templates: templates.map(t => ({
+          name: t.name,
+          description: t.description,
+          text: t.text,
+          image_url: t.image_url,
+          platforms: t.platforms,
+          category: t.category,
+          tags: t.tags
+        }))
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error exporting templates:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/templates/import
+ * Import templates from JSON file
+ */
+app.post('/api/templates/import', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { templates } = req.body;
+
+    if (!Array.isArray(templates) || templates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Templates array is required and must not be empty'
+      });
+    }
+
+    // Validate and import each template
+    const imported = [];
+    const errors = [];
+
+    for (let i = 0; i < templates.length; i++) {
+      try {
+        const template = templates[i];
+
+        // Validate required fields
+        if (!template.name?.trim()) {
+          throw new Error('Template name is required');
+        }
+        if (!template.text?.trim()) {
+          throw new Error('Template text is required');
+        }
+        if (!template.platforms || !Array.isArray(template.platforms) || template.platforms.length === 0) {
+          throw new Error('At least one platform is required');
+        }
+
+        // Insert template
+        const { data, error } = await supabase
+          .from('post_templates')
+          .insert([{
+            user_id: userId,
+            name: template.name.trim(),
+            description: template.description?.trim() || '',
+            text: template.text.trim(),
+            image_url: template.image_url || null,
+            platforms: template.platforms,
+            category: template.category || 'general',
+            tags: template.tags || [],
+            use_count: 0,
+            is_favorite: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        imported.push({
+          name: data.name,
+          id: data.id,
+          status: 'success'
+        });
+      } catch (err) {
+        errors.push({
+          index: i,
+          templateName: templates[i].name || `Template ${i + 1}`,
+          error: err.message
+        });
+      }
+    }
+
+    res.status(201).json({
+      success: imported.length > 0,
+      message: `Imported ${imported.length} template(s)`,
+      imported,
+      errors: errors.length > 0 ? errors : undefined,
+      summary: {
+        total: templates.length,
+        successful: imported.length,
+        failed: errors.length
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error importing templates:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/templates/variables
+ * Get available template variables with descriptions
+ */
+app.get('/api/templates/variables', verifyAuth, async (req, res) => {
+  try {
+    const variables = getAvailableVariables();
+
+    res.json({
+      success: true,
+      variables
+    });
+  } catch (error) {
+    console.error('❌ Error fetching variables:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Helper function to convert templates to CSV
+function convertTemplatesToCSV(templates) {
+  const headers = ['Name', 'Description', 'Category', 'Platforms', 'Tags', 'Text'];
+  const rows = templates.map(t => [
+    `"${(t.name || '').replace(/"/g, '""')}"`,
+    `"${(t.description || '').replace(/"/g, '""')}"`,
+    `"${(t.category || '').replace(/"/g, '""')}"`,
+    `"${(t.platforms || []).join(', ')}"`,
+    `"${(t.tags || []).join(', ')}"`,
+    `"${(t.text || '').replace(/"/g, '""').replace(/\n/g, '\\n')}"`
+  ]);
+
+  return [headers, ...rows].map(row => row.join(',')).join('\n');
+}
+
 // ============================================
 // BILLING ENDPOINTS (Protected)
 // ============================================

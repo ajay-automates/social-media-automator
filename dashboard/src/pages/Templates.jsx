@@ -25,6 +25,14 @@ export default function Templates() {
   const [showModal, setShowModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [stats, setStats] = useState(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [previewVariables, setPreviewVariables] = useState({});
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [selectedPlatformFilter, setSelectedPlatformFilter] = useState([]);
+  const [sortBy, setSortBy] = useState('created_at');
+  const [importing, setImporting] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -248,6 +256,89 @@ async function handleSaveTemplate() {
         : [...prev.platforms, platform]
     }));
   }
+
+  async function handleExportTemplates() {
+    try {
+      const response = await api.get('/templates/export?format=json');
+      if (response.data.templates) {
+        const dataStr = JSON.stringify(response.data.templates, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `templates-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        toast.success(`Exported ${response.data.templates.length} template(s)`);
+      }
+    } catch (error) {
+      toast.error('Failed to export templates');
+      console.error(error);
+    }
+  }
+
+  async function handleImportTemplates(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      setImporting(true);
+      const fileContent = await file.text();
+      const templates = JSON.parse(fileContent);
+
+      if (!Array.isArray(templates)) {
+        toast.error('Invalid file format. Expected array of templates.');
+        return;
+      }
+
+      const response = await api.post('/templates/import', { templates });
+
+      if (response.data.success) {
+        toast.success(`${response.data.summary.successful} template(s) imported successfully`);
+        setShowImportModal(false);
+        fetchTemplates();
+      } else {
+        toast.error(`Import completed with ${response.data.summary.failed} error(s)`);
+      }
+    } catch (error) {
+      toast.error('Failed to import templates. Please ensure the file is valid JSON.');
+      console.error(error);
+    } finally {
+      setImporting(false);
+      event.target.value = '';
+    }
+  }
+
+  function handlePreviewTemplate(template) {
+    setPreviewTemplate(template);
+    setShowPreviewModal(true);
+    setPreviewVariables({});
+  }
+
+  const filteredTemplates = templates.filter(t => {
+    // Filter by favorites
+    if (showFavoritesOnly && !t.is_favorite) return false;
+
+    // Filter by selected platforms
+    if (selectedPlatformFilter.length > 0) {
+      const hasPlatform = selectedPlatformFilter.some(p => t.platforms?.includes(p));
+      if (!hasPlatform) return false;
+    }
+
+    return true;
+  });
+
+  // Sort templates
+  const sortedTemplates = [...filteredTemplates].sort((a, b) => {
+    if (sortBy === 'use_count') {
+      return b.use_count - a.use_count;
+    } else if (sortBy === 'name') {
+      return a.name.localeCompare(b.name);
+    } else {
+      // created_at (default)
+      return new Date(b.created_at) - new Date(a.created_at);
+    }
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
