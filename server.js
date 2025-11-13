@@ -2531,6 +2531,11 @@ app.get('/api/news/trending', verifyAuth, async (req, res) => {
 
     console.log(`📰 Fetching trending news (refresh=${refresh})...`);
 
+    // Prevent browser caching of news responses
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     // Use new fetchNewsByCategory function which returns pre-grouped news
     // bypass cache if refresh=true
     const grouped = await fetchNewsByCategory(refresh === 'true');

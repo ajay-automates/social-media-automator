@@ -158,8 +158,15 @@ async function fetchNewsByCategory(bypassCache = false) {
   try {
     console.log('\n📰 Fetching news from all categories...');
 
-    // Check cache
+    // If bypassing cache, clear it first to force fresh fetch
     const cacheKey = 'allNews';
+    if (bypassCache) {
+      console.log('   🔄 Clearing cache and fetching fresh news...');
+      delete newsCache.data[cacheKey];
+      delete newsCache.timestamp[cacheKey];
+    }
+
+    // Check cache (only if not bypassing)
     if (!bypassCache && newsCache.data[cacheKey] && newsCache.timestamp[cacheKey]) {
       const cacheAge = Date.now() - newsCache.timestamp[cacheKey];
       if (cacheAge < newsCache.CACHE_DURATION) {
