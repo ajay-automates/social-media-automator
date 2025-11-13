@@ -697,7 +697,7 @@ export default function ContentAgent() {
                     Platforms
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {['linkedin', 'twitter', 'instagram', 'facebook'].map(platform => (
+                    {['linkedin', 'twitter', 'instagram', 'facebook', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
                       <button
                         key={platform}
                         onClick={() => {
@@ -713,7 +713,7 @@ export default function ContentAgent() {
                             : 'bg-white/5 text-gray-400 hover:bg-white/10'
                         }`}
                       >
-                        {platform}
+                        {platform === 'devto' ? 'dev.to' : platform}
                       </button>
                     ))}
                   </div>
@@ -1412,8 +1412,8 @@ export default function ContentAgent() {
                 {(newsPostMode === 'options' || showNewsPostPreview) && newsGeneratedPosts.length > 0 && (
                   <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
                     <label className="block text-sm font-medium text-gray-300">Post to Platforms</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {['linkedin', 'twitter', 'facebook', 'instagram', 'tiktok'].map(platform => (
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                      {['linkedin', 'twitter', 'facebook', 'instagram', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
                         <button
                           key={platform}
                           onClick={() => {
@@ -1434,7 +1434,14 @@ export default function ContentAgent() {
                           {platform === 'facebook' && '👍'}
                           {platform === 'instagram' && '📷'}
                           {platform === 'tiktok' && '🎵'}
-                          {' ' + platform.charAt(0).toUpperCase() + platform.slice(1)}
+                          {platform === 'telegram' && '✈️'}
+                          {platform === 'slack' && '💬'}
+                          {platform === 'discord' && '🎮'}
+                          {platform === 'reddit' && '🔥'}
+                          {platform === 'devto' && '💻'}
+                          {platform === 'mastodon' && '🐘'}
+                          {platform === 'bluesky' && '☁️'}
+                          {' ' + (platform === 'devto' ? 'dev.to' : platform.charAt(0).toUpperCase() + platform.slice(1))}
                         </button>
                       ))}
                     </div>
