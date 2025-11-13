@@ -1314,6 +1314,75 @@ app.get('/api/posts/scheduled', verifyAuth, async (req, res) => {
 });
 
 /**
+ * PUT /api/posts/:id/reschedule
+ * Reschedule a post (drag-and-drop from calendar)
+ */
+app.put('/api/posts/:id/reschedule', verifyAuth, async (req, res) => {
+  try {
+    const postId = parseInt(req.params.id);
+    const userId = req.user.id;
+    const { schedule_time } = req.body;
+
+    if (!schedule_time) {
+      return res.status(400).json({
+        success: false,
+        error: 'schedule_time is required'
+      });
+    }
+
+    // Verify post belongs to user
+    const { data: existingPost, error: fetchError } = await supabaseAdmin
+      .from('posts')
+      .select('id, user_id, status')
+      .eq('id', postId)
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError || !existingPost) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found'
+      });
+    }
+
+    // Only allow rescheduling queued posts
+    if (existingPost.status !== 'queued') {
+      return res.status(400).json({
+        success: false,
+        error: 'Can only reschedule queued posts'
+      });
+    }
+
+    // Update schedule_time
+    const { error: updateError } = await supabaseAdmin
+      .from('posts')
+      .update({ 
+        schedule_time: new Date(schedule_time).toISOString()
+      })
+      .eq('id', postId)
+      .eq('user_id', userId);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    console.log(`✅ Post ${postId} rescheduled to ${schedule_time}`);
+
+    res.json({
+      success: true,
+      message: 'Post rescheduled successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error rescheduling post:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to reschedule post'
+    });
+  }
+});
+
+/**
  * GET /api/analytics/best-times
  * Get best times to post recommendations (protected)
  */
