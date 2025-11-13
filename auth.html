@@ -429,30 +429,41 @@
         // Check if we have an access token in the URL hash (OAuth callback)
         const hash = window.location.hash;
         console.log('Checking for OAuth callback. Hash present:', !!hash);
+        console.log('Current domain:', window.location.origin);
+        console.log('Current URL:', window.location.href);
 
         if (hash && hash.includes('access_token')) {
           console.log('OAuth callback detected, processing session...');
 
+          // Check localStorage directly for the token
+          const localStorage_auth = localStorage.getItem('sb-gzchblilbthkfuxqhoyo-auth-token');
+          console.log('localStorage auth token present:', !!localStorage_auth);
+
           // Multiple attempts to get the session as Supabase processes the token
           let session = null;
           let attempts = 0;
-          const maxAttempts = 5;
+          const maxAttempts = 8;
 
           while (!session && attempts < maxAttempts) {
             // Wait before checking
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 300));
 
-            const { data: { session: currentSession }, error } = await supabaseClient.auth.getSession();
+            try {
+              const { data: { session: currentSession }, error } = await supabaseClient.auth.getSession();
 
-            console.log(`Session check attempt ${attempts + 1}:`, {
-              hasSession: !!currentSession,
-              error,
-              domain: window.location.origin
-            });
+              console.log(`Session check attempt ${attempts + 1}:`, {
+                hasSession: !!currentSession,
+                sessionUser: currentSession?.user?.email,
+                error,
+                domain: window.location.origin
+              });
 
-            if (currentSession && !error) {
-              session = currentSession;
-              break;
+              if (currentSession && !error) {
+                session = currentSession;
+                break;
+              }
+            } catch (e) {
+              console.error(`Session check attempt ${attempts + 1} error:`, e);
             }
 
             attempts++;
@@ -462,10 +473,15 @@
             console.log('User authenticated successfully, redirecting to dashboard at:', getRedirectUrl('/dashboard'));
             // Clear the hash from URL before redirecting
             window.history.replaceState({}, document.title, window.location.pathname);
+            await new Promise(resolve => setTimeout(resolve, 100));
             window.location.href = getRedirectUrl('/dashboard');
             return;
           } else {
-            console.warn('Session not established after OAuth callback');
+            console.warn('Session not established after OAuth callback. All attempts failed.');
+            console.log('Checking if we can redirect anyway...');
+            // Try to redirect anyway - the session might be established on dashboard page
+            window.location.href = getRedirectUrl('/dashboard');
+            return;
           }
         }
 
