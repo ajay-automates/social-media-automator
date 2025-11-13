@@ -27,7 +27,8 @@ function DashboardContent() {
   const [draftsCount, setDraftsCount] = useState(0);
   const [userRole, setUserRole] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const { restartOnboarding, goToStep } = useOnboarding();
+  const [onboardingCheckComplete, setOnboardingCheckComplete] = useState(false);
+  const { restartOnboarding, goToStep, isNewUser } = useOnboarding();
 
   useEffect(() => {
     loadDashboardData();
@@ -35,8 +36,42 @@ function DashboardContent() {
     loadTeamData();
   }, []);
 
-  // MANUAL TRIGGER ONLY - No auto-trigger to prevent infinite loops
-  
+  // Auto-open tutorial for first-time users or users without connected accounts
+  useEffect(() => {
+    if (loading || onboardingCheckComplete) return;
+
+    const checkAndOpenOnboarding = async () => {
+      try {
+        // Check if it's a brand new user
+        if (isNewUser) {
+          setShowOnboarding(true);
+          setOnboardingCheckComplete(true);
+          return;
+        }
+
+        // Check if user has any connected accounts
+        try {
+          const response = await api.get('/accounts');
+          const accounts = response.data?.accounts || response.data || [];
+          const hasConnectedAccounts = Array.isArray(accounts) && accounts.length > 0;
+
+          // If no accounts are connected, show tutorial
+          if (!hasConnectedAccounts) {
+            restartOnboarding();
+            setShowOnboarding(true);
+          }
+        } catch (err) {
+          console.error('Error checking connected accounts:', err);
+          // If we can't fetch accounts, don't auto-open tutorial
+        }
+      } finally {
+        setOnboardingCheckComplete(true);
+      }
+    };
+
+    checkAndOpenOnboarding();
+  }, [isNewUser, loading, onboardingCheckComplete, restartOnboarding]);
+
   // Auto-open Content Ideas modal if requested from Create Post page
   useEffect(() => {
     if (location.state?.openContentIdeas) {
