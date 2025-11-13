@@ -515,19 +515,20 @@ app.put('/api/user/accounts/:id/set-default', verifyAuth, async (req, res) => {
 app.post('/api/post/now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { text, imageUrl, videoUrl, post_metadata, variations } = req.body;
+    const { text, imageUrl, videoUrl, post_metadata, variations, accountIds } = req.body;
     let platforms = req.body.platforms;
-    
+
     console.log('📹 Post request - Video URL:', videoUrl ? 'Present' : 'None');
-    
+    console.log('📋 Selected accounts:', accountIds);
+
     // Support both single text and platform-specific variations
     if (!text && !variations) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Text or variations are required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Text or variations are required'
       });
     }
-    
+
     // Check usage limits
     const usageCheck = await checkUsage(userId, 'posts');
     if (!usageCheck.allowed) {
@@ -538,9 +539,30 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Get user's credentials from database
-    const credentials = await getUserCredentialsForPosting(userId);
+    let credentials = await getUserCredentialsForPosting(userId);
+
+    // Filter credentials to only include selected accounts per platform
+    if (accountIds && typeof accountIds === 'object' && Object.keys(accountIds).length > 0) {
+      const filteredCredentials = {};
+      for (const platform of platforms) {
+        if (accountIds[platform]) {
+          // Filter accounts for this platform to only include the selected one
+          const selectedAccountId = accountIds[platform];
+          if (credentials[platform] && Array.isArray(credentials[platform])) {
+            filteredCredentials[platform] = credentials[platform].filter(acc => acc.id === selectedAccountId);
+          } else {
+            filteredCredentials[platform] = credentials[platform] || [];
+          }
+        } else {
+          // No specific account selected, use all accounts for this platform
+          filteredCredentials[platform] = credentials[platform] || [];
+        }
+      }
+      credentials = filteredCredentials;
+      console.log('✅ Filtered credentials to selected accounts only');
+    }
     
     // Check if video is being posted to unsupported platforms
     if (imageUrl && imageUrl.includes('/video/') && platforms.includes('linkedin')) {

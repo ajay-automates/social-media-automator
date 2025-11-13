@@ -757,7 +757,7 @@ export default function CreatePost() {
         text: useVariations && Object.keys(variations).length > 0 ? null : caption,
         variations: useVariations && Object.keys(variations).length > 0 ? variations : undefined,
         platforms: platformsToPost,
-        accountId: 1, // Will be replaced with actual account selection
+        accountIds: selectedAccounts, // Pass selected account per platform
         imageUrl: image, // Send the Cloudinary URL to the server
         videoUrl: selectedVideo?.videoUrl || null, // Send the Pexels video URL
         post_metadata: Object.keys(postMetadata).length > 0 ? postMetadata : undefined
@@ -1811,6 +1811,34 @@ export default function CreatePost() {
           )}
         </div>
 
+        {/* Validation Summary Alert */}
+        {(!caption.trim() || platforms.length === 0 || hasExceededLimit) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-900/20 backdrop-blur-sm border border-red-500/30 rounded-lg p-4 mt-6"
+          >
+            <div className="flex items-start gap-3">
+              <span className="text-xl flex-shrink-0">🚫</span>
+              <div className="flex-1">
+                <div className="font-semibold text-red-300">Cannot post yet</div>
+                <ul className="text-sm text-red-200/70 mt-2 space-y-1 list-disc list-inside">
+                  {!caption.trim() && <li>Enter a caption (required)</li>}
+                  {platforms.length === 0 && <li>Select at least one platform</li>}
+                  {hasExceededLimit && (
+                    <li>
+                      {characterCounts
+                        .filter(c => c.status === 'exceeded')
+                        .map(c => `${c.platform}`)
+                        .join(', ')} exceed character limits
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Actions */}
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
           <div className="flex gap-4">
@@ -1818,8 +1846,9 @@ export default function CreatePost() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handlePost}
-              disabled={isLoading || !caption.trim() || platforms.length === 0}
+              disabled={isLoading || !caption.trim() || platforms.length === 0 || hasExceededLimit}
               className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+              title={hasExceededLimit ? 'Please fix character limit warnings before posting' : ''}
             >
               {isLoading ? 'Posting...' : 'Post Now'}
             </motion.button>
