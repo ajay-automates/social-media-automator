@@ -7,8 +7,46 @@ import enUS from 'date-fns/locale/en-US';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import PlatformChip from '../components/ui/PlatformChip';
+import {
+  FaLinkedin,
+  FaTwitter,
+  FaInstagram,
+  FaFacebook,
+  FaTiktok,
+  FaYoutube,
+  FaReddit,
+  FaDiscord,
+  FaSlack,
+  FaTelegram,
+  FaPinterest,
+  FaWhatsapp,
+  FaMedium,
+  FaTumblr
+} from 'react-icons/fa';
+import { SiMastodon, SiBluesky } from 'react-icons/si';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/calendar-glossy.css';
+
+// Platform configuration
+const PLATFORM_ICONS = {
+  linkedin: { Icon: FaLinkedin },
+  twitter: { Icon: FaTwitter },
+  instagram: { Icon: FaInstagram },
+  facebook: { Icon: FaFacebook },
+  tiktok: { Icon: FaTiktok },
+  youtube: { Icon: FaYoutube },
+  reddit: { Icon: FaReddit },
+  discord: { Icon: FaDiscord },
+  slack: { Icon: FaSlack },
+  telegram: { Icon: FaTelegram },
+  whatsapp: { Icon: FaWhatsapp },
+  pinterest: { Icon: FaPinterest },
+  medium: { Icon: FaMedium },
+  devto: { Icon: FaMedium },
+  tumblr: { Icon: FaTumblr },
+  mastodon: { Icon: SiMastodon },
+  bluesky: { Icon: SiBluesky },
+};
 
 // Setup date-fns localizer
 const locales = {
