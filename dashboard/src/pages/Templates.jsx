@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../lib/api';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
@@ -93,7 +93,7 @@ export default function Templates() {
   async function fetchStats() {
     try {
       const response = await api.get('/templates/stats');
-      
+
       // Handle different response formats
       let statsData = {};
       if (response.data && response.data.stats) {
@@ -103,7 +103,7 @@ export default function Templates() {
         // Format: { total: X, favorites: Y, ... }
         statsData = response.data;
       }
-      
+
       // Set default values for all required stats
       setStats({
         total: 0,
@@ -113,7 +113,7 @@ export default function Templates() {
         categories: {},
         ...statsData
       });
-      
+
     } catch (error) {
       console.error('Error fetching stats:', error);
       // Set default stats on error
@@ -124,7 +124,7 @@ export default function Templates() {
         mostUsed: [],
         categories: {}
       });
-      
+
       // Only show error toast if this isn't the initial load
       if (templates.length === 0) {
         toast.error('Failed to load template statistics');
@@ -340,6 +340,16 @@ async function handleSaveTemplate() {
     }
   });
 
+  // Compute dynamic stats based on filtered/sorted templates
+  const computedStats = useMemo(() => {
+    return {
+      total: sortedTemplates.length,
+      favorites: sortedTemplates.filter(t => t.is_favorite).length,
+      totalUses: sortedTemplates.reduce((sum, t) => sum + (t.use_count || 0), 0),
+      mostUsed: [...sortedTemplates].sort((a, b) => (b.use_count || 0) - (a.use_count || 0)).slice(0, 5)
+    };
+  }, [sortedTemplates]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -356,44 +366,42 @@ async function handleSaveTemplate() {
       </div>
 
       {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="group relative bg-gradient-to-br from-blue-600/20 to-blue-900/20 backdrop-blur-2xl border-2 border-blue-400/30 rounded-2xl shadow-2xl shadow-blue-500/20 p-6 hover:scale-105 hover:shadow-blue-500/40 transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-            <div className="absolute inset-0 bg-blue-500/5 blur-xl"></div>
-            <div className="relative">
-              <div className="text-4xl font-bold text-blue-300">{stats.total}</div>
-              <div className="text-sm text-blue-200 mt-2 font-medium">Total Templates</div>
-            </div>
-          </div>
-          <div className="group relative bg-gradient-to-br from-yellow-600/20 to-yellow-900/20 backdrop-blur-2xl border-2 border-yellow-400/30 rounded-2xl shadow-2xl shadow-yellow-500/20 p-6 hover:scale-105 hover:shadow-yellow-500/40 transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-            <div className="absolute inset-0 bg-yellow-500/5 blur-xl"></div>
-            <div className="relative">
-              <div className="text-4xl font-bold text-yellow-300">{stats.favorites}</div>
-              <div className="text-sm text-yellow-200 mt-2 font-medium">Favorites</div>
-            </div>
-          </div>
-          <div className="group relative bg-gradient-to-br from-green-600/20 to-green-900/20 backdrop-blur-2xl border-2 border-green-400/30 rounded-2xl shadow-2xl shadow-green-500/20 p-6 hover:scale-105 hover:shadow-green-500/40 transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-            <div className="absolute inset-0 bg-green-500/5 blur-xl"></div>
-            <div className="relative">
-              <div className="text-4xl font-bold text-green-300">{stats.totalUses}</div>
-              <div className="text-sm text-green-200 mt-2 font-medium">Total Uses</div>
-            </div>
-          </div>
-          <div className="group relative bg-gradient-to-br from-purple-600/20 to-purple-900/20 backdrop-blur-2xl border-2 border-purple-400/30 rounded-2xl shadow-2xl shadow-purple-500/20 p-6 hover:scale-105 hover:shadow-purple-500/40 transition-all duration-300 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-            <div className="absolute inset-0 bg-purple-500/5 blur-xl"></div>
-            <div className="relative">
-              <div className="text-4xl font-bold text-purple-300">
-                {stats.mostUsed && stats.mostUsed.length > 0 ? stats.mostUsed[0]?.use_count || 0 : 0}
-              </div>
-              <div className="text-sm text-purple-200 mt-2 font-medium">Most Used</div>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="group relative bg-gradient-to-br from-blue-600/20 to-blue-900/20 backdrop-blur-2xl border-2 border-blue-400/30 rounded-2xl shadow-2xl shadow-blue-500/20 p-6 hover:scale-105 hover:shadow-blue-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+          <div className="absolute inset-0 bg-blue-500/5 blur-xl"></div>
+          <div className="relative">
+            <div className="text-4xl font-bold text-blue-300">{computedStats.total}</div>
+            <div className="text-sm text-blue-200 mt-2 font-medium">Total Templates</div>
           </div>
         </div>
-      )}
+        <div className="group relative bg-gradient-to-br from-yellow-600/20 to-yellow-900/20 backdrop-blur-2xl border-2 border-yellow-400/30 rounded-2xl shadow-2xl shadow-yellow-500/20 p-6 hover:scale-105 hover:shadow-yellow-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+          <div className="absolute inset-0 bg-yellow-500/5 blur-xl"></div>
+          <div className="relative">
+            <div className="text-4xl font-bold text-yellow-300">{computedStats.favorites}</div>
+            <div className="text-sm text-yellow-200 mt-2 font-medium">Favorites</div>
+          </div>
+        </div>
+        <div className="group relative bg-gradient-to-br from-green-600/20 to-green-900/20 backdrop-blur-2xl border-2 border-green-400/30 rounded-2xl shadow-2xl shadow-green-500/20 p-6 hover:scale-105 hover:shadow-green-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+          <div className="absolute inset-0 bg-green-500/5 blur-xl"></div>
+          <div className="relative">
+            <div className="text-4xl font-bold text-green-300">{computedStats.totalUses}</div>
+            <div className="text-sm text-green-200 mt-2 font-medium">Total Uses</div>
+          </div>
+        </div>
+        <div className="group relative bg-gradient-to-br from-purple-600/20 to-purple-900/20 backdrop-blur-2xl border-2 border-purple-400/30 rounded-2xl shadow-2xl shadow-purple-500/20 p-6 hover:scale-105 hover:shadow-purple-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+          <div className="absolute inset-0 bg-purple-500/5 blur-xl"></div>
+          <div className="relative">
+            <div className="text-4xl font-bold text-purple-300">
+              {computedStats.mostUsed && computedStats.mostUsed.length > 0 ? computedStats.mostUsed[0]?.use_count || 0 : 0}
+            </div>
+            <div className="text-sm text-purple-200 mt-2 font-medium">Most Used</div>
+          </div>
+        </div>
+      </div>
 
       {/* Controls */}
       <div className="group relative bg-gradient-to-br from-gray-900/40 to-gray-800/40 backdrop-blur-2xl border-2 border-white/20 rounded-2xl shadow-2xl p-6 mb-8 overflow-hidden">
