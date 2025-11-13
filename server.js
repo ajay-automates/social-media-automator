@@ -153,6 +153,20 @@ const {
   getRecyclingStats
 } = require('./services/content-recycling');
 
+// Webhook Notifications
+const {
+  WEBHOOK_EVENTS,
+  validateWebhookUrl,
+  triggerWebhooks,
+  getUserWebhooks,
+  createWebhook,
+  updateWebhook,
+  deleteWebhook,
+  testWebhook,
+  getWebhookLogs,
+  getWebhookStats
+} = require('./services/webhooks');
+
 // Helper function to get frontend URL
 function getFrontendUrl() {
   // If explicitly set, use it
@@ -3185,6 +3199,219 @@ app.get('/api/content-recycling/stats', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to get recycling stats'
+    });
+  }
+});
+
+// ============================================
+// WEBHOOK NOTIFICATIONS
+// ============================================
+
+/**
+ * GET /api/webhooks
+ * Get all user webhooks
+ */
+app.get('/api/webhooks', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const webhooks = await getUserWebhooks(userId);
+
+    res.json({
+      success: true,
+      webhooks,
+      count: webhooks.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting webhooks:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get webhooks'
+    });
+  }
+});
+
+/**
+ * POST /api/webhooks
+ * Create a new webhook
+ */
+app.post('/api/webhooks', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const webhookData = req.body;
+
+    const webhook = await createWebhook(userId, webhookData);
+
+    res.json({
+      success: true,
+      webhook,
+      message: 'Webhook created successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error creating webhook:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to create webhook'
+    });
+  }
+});
+
+/**
+ * PUT /api/webhooks/:id
+ * Update webhook
+ */
+app.put('/api/webhooks/:id', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const webhookId = parseInt(req.params.id);
+    const updates = req.body;
+
+    const webhook = await updateWebhook(userId, webhookId, updates);
+
+    res.json({
+      success: true,
+      webhook,
+      message: 'Webhook updated successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error updating webhook:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to update webhook'
+    });
+  }
+});
+
+/**
+ * DELETE /api/webhooks/:id
+ * Delete webhook
+ */
+app.delete('/api/webhooks/:id', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const webhookId = parseInt(req.params.id);
+
+    await deleteWebhook(userId, webhookId);
+
+    res.json({
+      success: true,
+      message: 'Webhook deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error deleting webhook:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to delete webhook'
+    });
+  }
+});
+
+/**
+ * POST /api/webhooks/:id/test
+ * Test a webhook endpoint
+ */
+app.post('/api/webhooks/:id/test', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const webhookId = parseInt(req.params.id);
+
+    const result = await testWebhook(userId, webhookId);
+
+    res.json({
+      success: result.success,
+      message: result.success ? 'Webhook test successful!' : 'Webhook test failed',
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error testing webhook:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to test webhook'
+    });
+  }
+});
+
+/**
+ * GET /api/webhooks/logs
+ * Get webhook logs
+ */
+app.get('/api/webhooks/logs', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const webhookId = req.query.webhook_id ? parseInt(req.query.webhook_id) : null;
+    const limit = parseInt(req.query.limit) || 50;
+
+    const logs = await getWebhookLogs(userId, webhookId, limit);
+
+    res.json({
+      success: true,
+      logs,
+      count: logs.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting webhook logs:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get webhook logs'
+    });
+  }
+});
+
+/**
+ * GET /api/webhooks/stats
+ * Get webhook statistics
+ */
+app.get('/api/webhooks/stats', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const stats = await getWebhookStats(userId);
+
+    res.json({
+      success: true,
+      stats
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting webhook stats:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get webhook stats'
+    });
+  }
+});
+
+/**
+ * GET /api/webhooks/events
+ * Get list of available webhook events
+ */
+app.get('/api/webhooks/events', verifyAuth, async (req, res) => {
+  try {
+    const events = [
+      { value: 'post.success', label: 'Post Published Successfully', description: 'Triggered when a post is successfully published to all platforms' },
+      { value: 'post.failed', label: 'Post Failed', description: 'Triggered when a post fails to publish' },
+      { value: 'post.scheduled', label: 'Post Scheduled', description: 'Triggered when a new post is scheduled' },
+      { value: 'post.recycled', label: 'Post Recycled', description: 'Triggered when content is auto-recycled' },
+      { value: 'post.deleted', label: 'Post Deleted', description: 'Triggered when a scheduled post is deleted' },
+      { value: 'content.generated', label: 'Content Generated', description: 'Triggered when AI generates new content' },
+      { value: 'analytics.insight', label: 'Analytics Insight', description: 'Triggered when new analytics insights are available' }
+    ];
+
+    res.json({
+      success: true,
+      events
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting webhook events:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });

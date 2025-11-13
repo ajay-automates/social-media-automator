@@ -22,6 +22,7 @@ import Approvals from './pages/Approvals';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ContentAgent from './pages/ContentAgent';
 import ContentRecycling from './pages/ContentRecycling';
+import Webhooks from './pages/Webhooks';
 import NotificationBell from './components/NotificationBell';
 
 function Navigation() {
@@ -48,6 +49,7 @@ function Navigation() {
     { path: '/carousel', label: 'Create Carousel', icon: '📸' },
     { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤' },
     { path: '/templates', label: 'Templates', icon: '📝' },
+    { path: '/webhooks', label: 'Webhooks', icon: '🔔' },
     { path: '/approvals', label: 'Approvals', icon: '⏳' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
     { path: '/pricing', label: 'Pricing', icon: '💎' },
@@ -253,6 +255,7 @@ function App() {
               <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
               <Route path="/content-agent" element={<ProtectedRoute><ContentAgent /></ProtectedRoute>} />
               <Route path="/content-recycling" element={<ProtectedRoute><ContentRecycling /></ProtectedRoute>} />
+              <Route path="/webhooks" element={<ProtectedRoute><Webhooks /></ProtectedRoute>} />
               <Route path="/carousel" element={<ProtectedRoute><CreateCarousel /></ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
               <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />

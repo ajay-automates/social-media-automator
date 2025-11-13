@@ -764,6 +764,24 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     if (id) {
       await updatePostStatus(id, status, results);
       console.log(`✅ Post [${id}] completed - Status: ${status}`);
+      
+      // Trigger webhooks for post success/failure
+      try {
+        const { triggerWebhooks } = require('./webhooks');
+        const eventType = hasErrors ? 'post.failed' : 'post.success';
+        
+        await triggerWebhooks(user_id, eventType, {
+          post_id: id,
+          text,
+          platforms,
+          image_url,
+          status,
+          results,
+          timestamp: new Date().toISOString()
+        });
+      } catch (webhookError) {
+        console.error('⚠️ Webhook trigger error (non-critical):', webhookError.message);
+      }
     }
     
     // Return results for immediate posting
@@ -775,6 +793,20 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     // Only update post status if this is a scheduled post (has id)
     if (id) {
       await updatePostStatus(id, 'failed', { error: error.message });
+      
+      // Trigger webhook for failure
+      try {
+        const { triggerWebhooks } = require('./webhooks');
+        await triggerWebhooks(user_id, 'post.failed', {
+          post_id: id,
+          text,
+          platforms,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      } catch (webhookError) {
+        console.error('⚠️ Webhook trigger error (non-critical):', webhookError.message);
+      }
     }
     
     throw error; // Re-throw for immediate posts
