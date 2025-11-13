@@ -12,20 +12,37 @@ export default function AnalyticsAgent() {
   const [patterns, setPatterns] = useState([]);
   const [stats, setStats] = useState(null);
   const [showInsights, setShowInsights] = useState(false);
-  const [hasAnalyzed, setHasAnalyzed] = useState(() => {
-    // Check sessionStorage to see if user analyzed in this session
-    return sessionStorage.getItem('analyticsAnalyzed') === 'true';
-  });
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+  const [isPageMounted, setIsPageMounted] = useState(false);
 
   useEffect(() => {
+    // CRITICAL: Check if this is a fresh page load or navigation from another page
+    // Use a page visibility marker to detect fresh loads
+    const pageLoadId = sessionStorage.getItem('analyticsPageLoadId');
+    const currentLoadId = Math.random().toString();
+
+    if (!pageLoadId) {
+      // First load in this session - start fresh, NO analysis shown
+      sessionStorage.setItem('analyticsPageLoadId', currentLoadId);
+      sessionStorage.removeItem('analyticsAnalyzed');
+      setHasAnalyzed(false);
+    } else {
+      // Already loaded in this session - check if user clicked analyze
+      const analyzedInSession = sessionStorage.getItem('analyticsAnalyzed') === 'true';
+      setHasAnalyzed(analyzedInSession);
+    }
+
+    setIsPageMounted(true);
+
     // Clean up insights when component unmounts (user leaves the page)
     return () => {
       setInsights([]);
       setPatterns([]);
       setStats(null);
       setShowInsights(false);
-      // Clear the sessionStorage flag so insights reset on next visit
+      // Clear both flags when leaving the Analytics page
       sessionStorage.removeItem('analyticsAnalyzed');
+      sessionStorage.removeItem('analyticsPageLoadId');
     };
   }, []);
 
