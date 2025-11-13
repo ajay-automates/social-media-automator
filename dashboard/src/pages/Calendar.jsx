@@ -31,7 +31,7 @@ import {
 import { SiMastodon, SiBluesky } from 'react-icons/si';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
-import '../styles/calendar-glossy.css';
+import '../styles/calendar-ios.css';
 
 // Platform configuration with colors
 const PLATFORM_CONFIG = {
@@ -316,30 +316,24 @@ export default function Calendar() {
     };
   };
 
-  // Custom Toolbar
+  // Custom Toolbar - iOS Style
   const CustomToolbar = ({ label, onView, view: currentView }) => {
     return (
-      <div className="rbc-toolbar-custom mb-8">
-        <div className="flex justify-center mb-6">
-          <h2 className="text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow-[0_0_30px_rgba(139,92,246,0.8)]">
-            {label}
-          </h2>
+      <div className="rbc-toolbar-custom py-6 px-4 bg-white border-b border-[#e5e5ea]">
+        <div className="flex justify-center mb-5">
+          <h2 className="ios-month-title">{label}</h2>
         </div>
 
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center gap-2">
           {['month', 'week', 'day', 'agenda'].map(v => (
             <motion.button
               key={v}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => onView(v)}
-              className={`px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg ${
-                currentView === v
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-blue-500/50'
-                  : 'bg-gray-800/60 text-gray-300 hover:bg-gray-700/60'
-              }`}
+              className={`ios-view-button ${currentView === v ? 'active' : ''}`}
             >
-              {v === 'month' && '📅'} {v === 'week' && '📊'} {v === 'day' && '📆'} {v === 'agenda' && '📋'} {v.charAt(0).toUpperCase() + v.slice(1)}
+              {v.charAt(0).toUpperCase() + v.slice(1)}
             </motion.button>
           ))}
         </div>
@@ -354,70 +348,69 @@ export default function Calendar() {
     (dateRange.start && dateRange.end ? 1 : 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-            <span className="text-4xl">📅</span>
-            Post Calendar
-          </h1>
-          <p className="text-gray-400 mt-1 text-sm">
-            {filteredEvents.length !== events.length 
-              ? `Showing ${filteredEvents.length} of ${events.length} posts`
-              : `${events.length} scheduled posts`
-            }
-          </p>
-        </div>
-        <div className="flex gap-3 flex-wrap">
+    <div className="min-h-screen bg-[#fafafa]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header - iOS Style */}
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-4xl font-bold text-black flex items-center gap-3" style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
+              letterSpacing: '-0.5px'
+            }}>
+              📅 Calendar
+            </h1>
+            <p className="text-[#8e8e93] mt-2 text-sm font-medium">
+              {filteredEvents.length !== events.length 
+                ? `${filteredEvents.length} of ${events.length} posts`
+                : `${events.length} scheduled posts`
+              }
+            </p>
+          </div>
+        <div className="flex gap-2 flex-wrap">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowFilters(!showFilters)}
-            className={`relative px-5 py-2.5 rounded-lg font-semibold transition flex items-center gap-2 ${
-              showFilters
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                : 'bg-gray-800/60 text-gray-300 hover:bg-gray-700/60'
-            }`}
+            className={`relative ios-button ${showFilters ? '' : 'ios-button-secondary'} flex items-center gap-2`}
           >
-            <FaFilter />
+            <FaFilter className="text-sm" />
             Filters
             {activeFilterCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+              <span className="ml-1 bg-white text-[#007aff] text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
           </motion.button>
           
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={exportToCSV}
             disabled={filteredEvents.length === 0}
-            className="bg-green-600/80 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-green-600 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ios-button ios-button-secondary flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <FaDownload />
+            <FaDownload className="text-sm" />
             CSV
           </motion.button>
           
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={exportToICal}
             disabled={filteredEvents.length === 0}
-            className="bg-blue-600/80 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-600 transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="ios-button ios-button-secondary flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <FaDownload />
+            <FaDownload className="text-sm" />
             iCal
           </motion.button>
           
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={loadScheduledPosts}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition flex items-center gap-2"
+            className="ios-button ios-button-secondary flex items-center gap-2"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             Refresh
@@ -425,20 +418,20 @@ export default function Calendar() {
         </div>
       </div>
 
-      {/* Filter Panel */}
+      {/* Filter Panel - iOS Style */}
       <AnimatePresence>
         {showFilters && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mb-6 bg-gray-900/50 backdrop-blur-lg border border-white/10 rounded-xl p-6 overflow-hidden"
+            className="mb-6 ios-filter-panel overflow-hidden"
           >
-            {/* Search */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-200 mb-2">
-                <FaSearch className="inline mr-2" />
-                Search Posts
+            {/* Search - iOS Style */}
+            <div className="mb-5">
+              <label className="ios-filter-label flex items-center gap-2">
+                <FaSearch className="text-xs" />
+                Search
               </label>
               <div className="relative">
                 <input
@@ -446,12 +439,12 @@ export default function Calendar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by caption or platform..."
-                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-3 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="ios-input"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#c7c7cc] hover:text-[#8e8e93] transition"
                   >
                     <FaTimes />
                   </button>
@@ -459,10 +452,10 @@ export default function Calendar() {
               </div>
             </div>
 
-            {/* Platform Filter */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-200 mb-3">
-                Filter by Platform ({selectedPlatforms.length} selected)
+            {/* Platform Filter - iOS Style */}
+            <div className="mb-5">
+              <label className="ios-filter-label">
+                Platforms {selectedPlatforms.length > 0 && `(${selectedPlatforms.length})`}
               </label>
               <div className="flex flex-wrap gap-2">
                 {allPlatforms.map(platform => {
@@ -473,89 +466,71 @@ export default function Calendar() {
                   return (
                     <motion.button
                       key={platform}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => togglePlatformFilter(platform)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition ${
-                        isSelected
-                          ? 'text-white shadow-lg'
-                          : 'bg-gray-800/60 text-gray-400 hover:bg-gray-700/60'
-                      }`}
-                      style={isSelected ? {
-                        backgroundColor: config.bgColor,
-                        borderLeft: `3px solid ${config.color}`
-                      } : {}}
+                      className={`ios-platform-chip ${isSelected ? 'selected' : ''}`}
                     >
-                      <Icon />
-                      {platform}
+                      <Icon className="text-sm" />
+                      <span className="capitalize">{platform}</span>
                     </motion.button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Status Filter */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-200 mb-3">
-                Filter by Status ({selectedStatuses.length} selected)
+            {/* Status Filter - iOS Style */}
+            <div className="mb-5">
+              <label className="ios-filter-label">
+                Status {selectedStatuses.length > 0 && `(${selectedStatuses.length})`}
               </label>
               <div className="flex flex-wrap gap-2">
                 {allStatuses.map(status => {
                   const isSelected = selectedStatuses.includes(status);
-                  const statusColors = {
-                    queued: 'from-blue-600 to-cyan-600',
-                    scheduled: 'from-purple-600 to-pink-600',
-                    posted: 'from-green-600 to-emerald-600',
-                    failed: 'from-red-600 to-orange-600'
-                  };
                   
                   return (
                     <motion.button
                       key={status}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => toggleStatusFilter(status)}
-                      className={`px-4 py-2 rounded-lg font-semibold text-sm transition ${
-                        isSelected
-                          ? `bg-gradient-to-r ${statusColors[status]} text-white shadow-lg`
-                          : 'bg-gray-800/60 text-gray-400 hover:bg-gray-700/60'
-                      }`}
+                      className={`ios-platform-chip ${isSelected ? 'selected' : ''}`}
                     >
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                      <span className="capitalize">{status}</span>
                     </motion.button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Date Range Filter */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-200 mb-3">
-                Filter by Date Range
+            {/* Date Range Filter - iOS Style */}
+            <div className="mb-5">
+              <label className="ios-filter-label">
+                Date Range
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">Start Date</label>
+                  <label className="block text-xs text-[#8e8e93] mb-1 font-medium">Start</label>
                   <input
                     type="date"
                     value={dateRange.start || ''}
                     onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                    className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="ios-input text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">End Date</label>
+                  <label className="block text-xs text-[#8e8e93] mb-1 font-medium">End</label>
                   <input
                     type="date"
                     value={dateRange.end || ''}
                     onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                    className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="ios-input text-sm"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Clear Filters Button */}
+            {/* Clear Filters Button - iOS Style */}
             {activeFilterCount > 0 && (
               <motion.button
                 initial={{ opacity: 0 }}
@@ -563,7 +538,8 @@ export default function Calendar() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={clearFilters}
-                className="w-full bg-red-600/80 text-white px-4 py-3 rounded-lg font-semibold hover:bg-red-600 transition flex items-center justify-center gap-2"
+                className="w-full ios-button ios-button-secondary text-[#ff3b30] flex items-center justify-center gap-2"
+                style={{ color: '#ff3b30' }}
               >
                 <FaTimes />
                 Clear All Filters ({activeFilterCount})
@@ -573,23 +549,26 @@ export default function Calendar() {
         )}
       </AnimatePresence>
 
-      {/* Calendar Container */}
-      <div className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-2xl border-2 border-white/20 rounded-2xl shadow-2xl p-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+      {/* Calendar Container - iOS Style */}
+      <div className="relative bg-white rounded-2xl shadow-sm border border-[#e5e5ea] overflow-hidden" style={{
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02)'
+      }}>
         
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-300">Loading calendar...</p>
+            <div className="w-12 h-12 border-4 border-[#e5e5ea] border-t-[#007aff] rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-[#8e8e93] font-medium">Loading calendar...</p>
           </div>
         ) : filteredEvents.length === 0 && events.length > 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-bold text-white mb-3">No Posts Match Filters</h3>
-            <p className="text-gray-300 mb-6">Try adjusting your filters or clearing them</p>
+            <h3 className="text-2xl font-bold text-black mb-2" style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+            }}>No Posts Match Filters</h3>
+            <p className="text-[#8e8e93] mb-6 font-medium">Try adjusting your filters or clearing them</p>
             <button
               onClick={clearFilters}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition"
+              className="ios-button"
             >
               Clear Filters
             </button>
@@ -597,14 +576,15 @@ export default function Calendar() {
         ) : events.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">📅</div>
-            <h3 className="text-2xl font-bold text-white mb-3">No Scheduled Posts</h3>
-            <p className="text-gray-300 mb-6">Schedule a post to see it on the calendar</p>
+            <h3 className="text-2xl font-bold text-black mb-2" style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+            }}>No Scheduled Posts</h3>
+            <p className="text-[#8e8e93] mb-6 font-medium">Schedule a post to see it on the calendar</p>
             <a
               href="/create"
-              className="group/btn relative inline-block bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-8 py-4 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+              className="inline-block ios-button"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-              <span className="relative">Create a Scheduled Post</span>
+              Create a Scheduled Post
             </a>
           </div>
         ) : (
@@ -621,7 +601,7 @@ export default function Calendar() {
               view={view}
               onView={setView}
               views={['month', 'week', 'day', 'agenda']}
-              className="calendar-custom"
+              className="calendar-ios"
               resizable={false}
               draggableAccessor={() => true}
               components={{
@@ -671,7 +651,7 @@ export default function Calendar() {
         )}
       </div>
 
-      {/* Hover Preview Portal */}
+      {/* Hover Preview Portal - iOS Style */}
       {hoveredEvent && createPortal(
         <div 
           className="fixed pointer-events-none"
@@ -682,13 +662,12 @@ export default function Calendar() {
             zIndex: 999999
           }}
         >
-          <div className="bg-white backdrop-blur-2xl border-4 border-purple-500/40 rounded-2xl p-6 shadow-2xl shadow-purple-900/60 w-[380px] pointer-events-auto">
-            <div className="flex items-center justify-between mb-5">
-              <p className="text-gray-900 font-black text-xl flex items-center gap-2">
-                <span className="text-3xl">📝</span>
-                Post Preview
-              </p>
-              <p className="text-sm text-purple-600 font-bold bg-purple-50 px-3 py-1.5 rounded-lg">
+          <div className="bg-white rounded-2xl p-5 w-[340px] pointer-events-auto border border-[#e5e5ea]" style={{
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+          }}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[#8e8e93] text-xs font-semibold uppercase tracking-wide">
                 {hoveredEvent.start.toLocaleString('en-US', { 
                   month: 'short', 
                   day: 'numeric', 
@@ -698,61 +677,71 @@ export default function Calendar() {
               </p>
             </div>
             
-            <div className="bg-gradient-to-br from-gray-50 to-blue-50 border-2 border-gray-200 p-5 rounded-xl mb-5 shadow-inner">
-              <p className="text-gray-800 text-base leading-relaxed font-medium">
+            <div className="mb-4">
+              <p className="text-black text-sm leading-relaxed" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}>
                 {hoveredEvent.text}
               </p>
             </div>
             
-            <div className="mb-4">
-              <p className="text-gray-500 text-xs font-black uppercase tracking-wider mb-3">Platforms:</p>
-              <div className="flex flex-wrap gap-2.5">
-                {hoveredEvent.platforms?.map(p => {
-                  const config = PLATFORM_CONFIG[p];
-                  if (!config) return null;
-                  const PlatformIcon = config.Icon;
-                  return (
-                    <span 
-                      key={p} 
-                      className="inline-flex items-center gap-2 text-sm text-white px-4 py-2 rounded-xl font-black shadow-lg hover:shadow-xl transition-all uppercase"
-                      style={{
-                        background: `linear-gradient(135deg, ${config.color}dd, ${config.color}99)`
-                      }}
-                    >
-                      <PlatformIcon style={{ fontSize: '1.1rem' }} />
-                      {p}
-                    </span>
-                  );
-                })}
-              </div>
+            <div className="flex flex-wrap gap-1.5">
+              {hoveredEvent.platforms?.slice(0, 4).map(p => {
+                const config = PLATFORM_CONFIG[p];
+                if (!config) return null;
+                const PlatformIcon = config.Icon;
+                return (
+                  <span 
+                    key={p} 
+                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium"
+                    style={{
+                      backgroundColor: config.bgColor,
+                      color: config.color,
+                      border: `1px solid ${config.color}30`
+                    }}
+                  >
+                    <PlatformIcon style={{ fontSize: '0.75rem' }} />
+                    {p}
+                  </span>
+                );
+              })}
+              {hoveredEvent.platforms?.length > 4 && (
+                <span className="text-xs text-[#8e8e93] px-2.5 py-1">
+                  +{hoveredEvent.platforms.length - 4}
+                </span>
+              )}
             </div>
             
-            <div className="pt-4 border-t-2 border-purple-200 text-xs text-purple-700 flex items-center gap-2 bg-purple-50 px-4 py-3 rounded-xl">
-              <span>💡</span>
-              <span className="font-bold">Drag to reschedule • Click to view/delete</span>
+            <div className="mt-3 pt-3 border-t border-[#e5e5ea] text-xs text-[#8e8e93] font-medium">
+              💡 Drag to reschedule • Click for details
             </div>
           </div>
         </div>,
         document.body
       )}
 
-      {/* Event Detail Modal */}
+      {/* Event Detail Modal - iOS Style */}
       {showEventModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 ios-modal-overlay flex items-center justify-center z-50 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-2xl border-2 border-white/20 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden"
+            className="ios-modal max-w-2xl w-full"
+            style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+            }}
           >
-            {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600/30 to-purple-600/30 backdrop-blur-lg border-b border-white/10 p-6">
+            {/* Modal Header - iOS Style */}
+            <div className="ios-modal-header">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Scheduled Post Details</h2>
-                  <p className="text-gray-300 text-sm mt-1">
+                  <h2 className="ios-modal-title">Scheduled Post</h2>
+                  <p className="text-[#8e8e93] text-sm mt-1 font-medium">
                     {selectedEvent.start.toLocaleString('en-US', { 
                       weekday: 'long', 
-                      year: 'numeric', 
                       month: 'long', 
                       day: 'numeric', 
                       hour: '2-digit', 
@@ -762,71 +751,84 @@ export default function Calendar() {
                 </div>
                 <button
                   onClick={() => setShowEventModal(false)}
-                  className="text-gray-400 hover:text-white transition p-2"
+                  className="text-[#8e8e93] hover:text-black transition p-2"
                 >
                   <span className="text-2xl">✕</span>
                 </button>
               </div>
             </div>
 
-            {/* Modal Content */}
-            <div className="p-6 space-y-5">
+            {/* Modal Content - iOS Style */}
+            <div className="ios-modal-content space-y-5">
               {/* Caption */}
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Caption</label>
-                <div className="bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 whitespace-pre-wrap">
+                <label className="ios-filter-label">Caption</label>
+                <div className="bg-[#f9f9f9] border border-[#e5e5ea] text-black rounded-xl px-4 py-3 whitespace-pre-wrap text-sm" style={{ lineHeight: '1.5' }}>
                   {selectedEvent.text}
                 </div>
               </div>
 
               {/* Platforms */}
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Platforms</label>
-                <div className="flex flex-wrap gap-3">
-                  {selectedEvent.platforms?.map(platform => (
-                    <PlatformChip
-                      key={platform}
-                      platform={platform}
-                      selected={true}
-                      size="sm"
-                    />
-                  ))}
+                <label className="ios-filter-label">Platforms</label>
+                <div className="flex flex-wrap gap-2">
+                  {selectedEvent.platforms?.map(platform => {
+                    const config = PLATFORM_CONFIG[platform];
+                    if (!config) return null;
+                    const Icon = config.Icon;
+                    return (
+                      <span
+                        key={platform}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border"
+                        style={{
+                          backgroundColor: config.bgColor,
+                          borderColor: `${config.color}30`,
+                          color: config.color
+                        }}
+                      >
+                        <Icon />
+                        {platform}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Media */}
               {selectedEvent.image_url && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Attached Media</label>
+                  <label className="ios-filter-label">Attached Media</label>
                   <img 
                     src={selectedEvent.image_url} 
                     alt="Post media" 
-                    className="w-full rounded-xl border-2 border-gray-600/50"
+                    className="w-full rounded-xl border border-[#e5e5ea]"
                   />
                 </div>
               )}
 
               {/* Actions */}
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleDeletePost}
-                  className="group relative flex-1 bg-red-600/30 backdrop-blur-lg border-2 border-red-400/30 text-white px-6 py-3 rounded-xl hover:bg-red-600/40 font-semibold transition-all shadow-lg hover:shadow-red-500/30 overflow-hidden"
+                  className="flex-1 bg-[#ff3b30] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#e63529] transition"
+                  style={{
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+                  }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                  <span className="relative">🗑️ Delete Post</span>
+                  Delete Post
                 </button>
                 <button
                   onClick={() => setShowEventModal(false)}
-                  className="group relative flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-white/20 text-gray-200 px-6 py-3 rounded-xl hover:bg-gray-700/60 font-semibold transition-all shadow-lg overflow-hidden"
+                  className="flex-1 ios-button-secondary px-6 py-3"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                  <span className="relative">Close</span>
+                  Close
                 </button>
               </div>
             </div>
           </motion.div>
         </div>
       )}
+      </div>
     </div>
   );
 }
