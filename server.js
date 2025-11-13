@@ -429,14 +429,13 @@ app.get('/dashboard/*', (req, res) => {
 app.get('/api/health', async (req, res) => {
   try {
     const dbHealthy = await healthCheck();
-    const queue = await getQueue();
     
     res.json({ 
       status: 'running',
       uptime: process.uptime(),
       database: dbHealthy ? 'connected' : 'disconnected',
-      queueSize: queue.length,
-      message: '🚀 Social Media Automator is live!'
+      message: '🚀 Social Media Automator is live!',
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     res.status(500).json({
@@ -7182,9 +7181,7 @@ app.get('/api/milestones/progress', verifyAuth, async (req, res) => {
 
       if (error && error.code !== 'PGRST116') {
         // PGRST116 = no rows returned, which is OK
-        // Other errors might indicate the view doesn't exist (e.g., during migration)
-        console.warn('Warning fetching milestone progress:', error.message);
-        // Return defaults instead of error
+        // Other errors (like table doesn't exist) - just return defaults silently
         return res.json({
           success: true,
           progress: defaultProgress
