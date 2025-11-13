@@ -48,6 +48,7 @@ export default function ContentAgent() {
   // News agent
   const [news, setNews] = useState({});
   const [newsLoading, setNewsLoading] = useState(false);
+  const [newsLastRefreshed, setNewsLastRefreshed] = useState(null);
   const [selectedNewsCategory, setSelectedNewsCategory] = useState(null);
 
   // News-based post generation
@@ -115,6 +116,7 @@ export default function ContentAgent() {
       const response = await api.get('/news/trending?limit=30');
       if (response.data.success) {
         setNews(response.data.news || {});
+        setNewsLastRefreshed(new Date());
       }
     } catch (error) {
       console.error('Error loading news:', error);
@@ -564,14 +566,18 @@ export default function ContentAgent() {
   const handleRefreshNews = async () => {
     setNewsLoading(true);
     try {
-      // Pass refresh=true to bypass cache and get fresh news
+      // Pass refresh=true to bypass cache and get FRESH news articles every time
       const response = await api.get('/news/trending?limit=30&refresh=true');
       if (response.data.success) {
         setNews(response.data.news || {});
-        showSuccess(`Updated! Found ${response.data.total} news articles`);
+        setNewsLastRefreshed(new Date());
+        showSuccess(`✅ Fresh articles loaded! Found ${response.data.total} trending stories`);
+      } else {
+        showError('Failed to fetch news');
       }
     } catch (error) {
-      showError('Failed to refresh news');
+      console.error('News refresh error:', error);
+      showError('Could not refresh news. Please try again.');
     } finally {
       setNewsLoading(false);
     }
@@ -1118,21 +1124,28 @@ export default function ContentAgent() {
           className="mt-12 space-y-6"
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
-              📰 Trending News Today
-            </h2>
+            <div>
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+                📰 Trending News Today
+              </h2>
+              {newsLastRefreshed && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Last refreshed: {new Date(newsLastRefreshed).toLocaleTimeString()}
+                </p>
+              )}
+            </div>
             <button
               onClick={handleRefreshNews}
               disabled={newsLoading}
               className="p-2 text-gray-400 hover:text-cyan-400 hover:bg-white/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Refresh news"
+              title="Refresh for fresh news articles"
             >
-              <FaSync className={newsLoading ? 'animate-spin' : ''} />
+              <FaSync className={newsLoading ? 'animate-spin' : ''} size={20} />
             </button>
           </div>
 
           <p className="text-gray-400 max-w-2xl">
-            Real-time news and articles from today's trending topics. Click "Open Link" to read the full article or "Use This" to generate content based on the news.
+            Real-time news and articles from today's trending topics. Click refresh to get <span className="text-cyan-400 font-semibold">fresh articles</span>, "Open Link" to read full article, or "Use This" to generate content.
           </p>
 
           {newsLoading ? (

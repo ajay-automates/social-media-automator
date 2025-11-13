@@ -40,11 +40,11 @@ const NEWS_CATEGORIES = {
   }
 };
 
-// Cache for news articles (expires every 6 hours)
+// Cache for news articles (expires every 30 minutes)
 const newsCache = {
   data: {},
   timestamp: {},
-  CACHE_DURATION: 6 * 60 * 60 * 1000 // 6 hours
+  CACHE_DURATION: 30 * 60 * 1000 // 30 minutes
 };
 
 /**
@@ -290,6 +290,28 @@ function clearNewsCache() {
   console.log('✅ News cache cleared');
 }
 
+/**
+ * Get news for a specific category
+ * @param {string} category - The category to fetch news for
+ * @param {number} limit - Maximum number of articles to return (default: 10)
+ * @returns {Promise<Array>} Array of articles for the category
+ */
+async function getNewsByCategory(category, limit = 10) {
+  try {
+    // Always fetch fresh data when specifically requesting a category
+    const grouped = await fetchNewsByCategory(true);
+
+    if (grouped[category] && grouped[category].articles) {
+      return grouped[category].articles.slice(0, limit);
+    }
+
+    return [];
+  } catch (error) {
+    console.error(`❌ Error getting news for category ${category}:`, error);
+    return [];
+  }
+}
+
 module.exports = {
   fetchTrendingNews,
   fetchNewsByCategory,
@@ -297,5 +319,6 @@ module.exports = {
   clearNewsCache,
   NEWS_CATEGORIES,
   fetchGoogleNewsRSS,
-  fetchNewsByCategoryWithFallback
+  fetchNewsByCategoryWithFallback,
+  getNewsByCategory
 };
