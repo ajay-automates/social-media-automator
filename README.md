@@ -91,7 +91,12 @@ AI-powered pattern detection and actionable recommendations:
 - Easy account switching
 
 ### 💎 **Premium Features**
-- **Glassmorphism UI**: Stunning modern design
+- **iOS Dark Mode UI**: Clean, minimal Apple-inspired design
+- **Content Recycling**: Auto-repost best-performing content
+- **Advanced Calendar**: Filters, export, drag-drop rescheduling
+- **Webhook Notifications**: Zapier/Make integration (1000+ apps)
+- **A/B Testing**: Test content variations for optimization
+- **Hashtag Performance Tracker**: Data-driven hashtag strategy
 - **Character Counter**: Real-time multi-platform validation
 - **Template Library**: 15 pre-built + save your own
 - **Bulk Upload**: Drag-and-drop CSV interface
@@ -399,14 +404,15 @@ Built with:
 ## 📊 Project Stats
 
 - **Total Platforms**: 16 (10 working, 5 pending, 1 restricted)
-- **Lines of Code**: 30,000+
-- **API Endpoints**: 85+
-- **Service Files**: 26 platform + 3 AI agent services
-- **React Components**: 60+
-- **Database Tables**: 35+
-- **Migrations**: 22
-- **Documentation Pages**: 30+
+- **Lines of Code**: 34,000+
+- **API Endpoints**: 114+
+- **Service Files**: 31 (26 platform + 5 feature services)
+- **React Components**: 63+
+- **Database Tables**: 43+
+- **Migrations**: 26
+- **Documentation Pages**: 36+
 - **AI Agents**: 2 (Content Creation + Analytics Insights)
+- **Premium Features**: 5 (Recycling, Webhooks, A/B Testing, Hashtag Tracker, Advanced Calendar)
 - **Success Rate**: 100% (all built platforms work!)
 
 ---
@@ -435,23 +441,32 @@ Built with:
 - [x] **Best Time to Post** - AI-powered recommendations
 - [x] **Template Library** - 15 pre-built templates
 
+**NEW - November 13, 2025:**
+- [x] **Content Recycling Engine** ♻️ - Auto-repost best-performing content
+- [x] **iOS Dark Calendar** 📅 - Clean minimal design with advanced filters
+- [x] **Webhook Notifications** 🔔 - Zapier/Make integration (1000+ apps)
+- [x] **A/B Testing Engine** 🧪 - Test content variations (backend complete)
+- [x] **Hashtag Performance Tracker** 📊 - Track which hashtags work best (backend complete)
+- [x] **Advanced Calendar Filters** - Search, platform/status/date filters, CSV/iCal export
+- [x] **Drag-and-Drop Rescheduling** - Move posts by dragging in calendar
+
 ### 🔜 Next Up (Phase 3 - December 2025)
 
-**Analytics & Optimization:**
-- [ ] **Draft Post Scorer UI** - Integrate predictive scoring in CreatePost (backend ready)
-- [ ] **Engagement Prediction** - Predict likes/comments before publishing
-- [ ] **Hashtag Performance Tracking** - Analytics per hashtag
-- [ ] **A/B Testing** - Test different versions of posts
+**Frontend Dashboards:**
+- [ ] **A/B Testing Dashboard** - Visual test results & winner display (backend ready)
+- [ ] **Hashtag Analytics Page** - Charts, top/worst lists (backend ready)
+- [ ] **Webhook Dashboard** - Enhanced UI with Zapier templates
 
-**Content & Automation:**
-- [ ] **Content Recycling Engine** - Auto-repost best-performing content
-- [ ] **RSS Feed Integration** - Auto-generate posts from RSS feeds
+**Analytics & Optimization:**
+- [ ] **Engagement Prediction** - ML model for engagement forecasting
 - [ ] **Competitor Analysis** - Track competitor posting patterns
+- [ ] **Post Performance Heatmap** - Visual analytics
 
 **Team & Agency:**
 - [ ] **Client Management Dashboard** - Manage multiple client accounts
-- [ ] **Custom Branding** - White-label for agencies
+- [ ] **White-Label** - Custom branding for agencies
 - [ ] **Advanced Team Permissions** - Granular role controls
+- [ ] **Bulk Operations** - Select & manage multiple posts at once
 
 ### 🚀 Future (Phase 4)
 
@@ -478,23 +493,30 @@ social-media-automator/
 ├── server.js                    # Main Express server (3,600+ lines)
 ├── package.json                 # Backend dependencies
 │
-├── services/                    # Platform integrations (26 files)
+├── services/                    # Platform + Feature Services (31 files)
 │   ├── linkedin.js
 │   ├── twitter.js
 │   ├── brand-voice-analyzer.js  # Content Agent
 │   ├── trend-monitor.js         # Content Agent
 │   ├── content-creation-agent.js # Content Agent
 │   ├── analytics-insights-agent.js # Analytics Agent
-│   └── ... (20 more platforms)
+│   ├── content-recycling.js     # NEW: Content Recycling
+│   ├── webhooks.js              # NEW: Webhook Notifications
+│   ├── ab-testing.js            # NEW: A/B Testing Engine
+│   ├── hashtag-tracker.js       # NEW: Hashtag Performance Tracker
+│   └── ... (21 more platforms)
 │
 ├── dashboard/                   # React frontend
 │   ├── src/
-│   │   ├── pages/              # Main pages (14)
+│   │   │   ├── pages/              # Main pages (20)
 │   │   │   ├── Dashboard.jsx
 │   │   │   ├── CreatePost.jsx
-│   │   │   ├── ContentAgent.jsx       # NEW
-│   │   │   ├── AnalyticsAgent.jsx     # NEW
-│   │   │   └── ... (10 more)
+│   │   │   ├── ContentAgent.jsx       # AI Agent
+│   │   │   ├── AnalyticsAgent.jsx     # AI Agent
+│   │   │   ├── ContentRecycling.jsx   # NEW
+│   │   │   ├── Webhooks.jsx           # NEW
+│   │   │   ├── Calendar.jsx           # UPDATED
+│   │   │   └── ... (13 more)
 │   │   ├── components/         # Reusable UI components
 │   │   └── lib/                # API client & utilities
 │   └── package.json
@@ -502,21 +524,31 @@ social-media-automator/
 ├── landing/                     # Landing page (React + Vite)
 │   └── src/
 │
-├── migrations/                  # Database migrations (22 files)
+├── migrations/                  # Database migrations (26 files)
 │   ├── 001_initial_schema.sql
 │   ├── 021_add_content_creation_agent.sql  # Content Agent
 │   ├── 022_add_analytics_insights_agent.sql # Analytics Agent
+│   ├── 023_add_content_recycling.sql       # NEW: Recycling Engine
+│   ├── 024_add_webhooks.sql                # NEW: Webhooks
+│   ├── 025_add_ab_testing.sql              # NEW: A/B Testing
+│   ├── 026_add_hashtag_tracker.sql         # NEW: Hashtag Tracker
 │   └── ... (19 more)
 │
-├── docs/                        # Documentation
-│   ├── agents/                 # AI Agent docs (NEW)
+├── docs/                        # Documentation (36+ guides)
+│   ├── MASTER_INDEX.md         # Complete documentation index
+│   ├── agents/                 # AI Agent docs
 │   │   ├── CONTENT-AGENT-README.md
 │   │   ├── ANALYTICS-AGENT-README.md
-│   │   ├── ANALYTICS-AGENT-SUMMARY.md
 │   │   └── DEPLOYMENT-CHECKLIST.md
 │   ├── platforms/              # Platform guides (16)
+│   ├── features/               # Feature documentation (11 guides)
+│   │   ├── content-recycling.md        # NEW
+│   │   ├── advanced-calendar-filters.md # NEW
+│   │   ├── webhooks.md                 # NEW
+│   │   ├── ab-testing.md               # NEW
+│   │   ├── hashtag-tracker.md          # NEW
+│   │   └── ... (6 more)
 │   ├── deployment/             # Deploy guides
-│   ├── features/               # Feature documentation
 │   └── getting-started/        # Setup guides
 │
 ├── config/                      # Configuration files
@@ -527,9 +559,11 @@ social-media-automator/
 
 ---
 
-**Version**: 7.0 - Dual AI Agent Edition
+**Version**: 8.0 - Premium Features Edition
 **Status**: ✅ Production Ready
-**Last Updated**: November 11, 2025
+**Last Updated**: November 13, 2025
 **Working Platforms**: 10 (instant access)
 **AI Agents**: 2 (Content Creation + Analytics Insights)
-**Total Lines of Code**: 30,000+
+**Premium Features**: 5 (Recycling, Webhooks, A/B Testing, Hashtag Tracker, Advanced Calendar)
+**Total Lines of Code**: 34,000+
+**API Endpoints**: 114+
