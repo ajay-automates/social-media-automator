@@ -479,32 +479,198 @@ async function getTemplateStats(userId) {
 /**
  * Process template variables
  * Replace {{variable}} placeholders with actual values
+ * Supports date, time, custom variables, and special formatting
  * @param {string} text - Template text with variables
  * @param {object} variables - Key-value pairs for replacement
  * @returns {string} Processed text
  */
 function processTemplateVariables(text, variables = {}) {
   let processed = text;
+  const now = new Date();
 
-  // Default variables
+  // Default variables - Auto-populated with current date/time
   const defaults = {
-    date: new Date().toLocaleDateString(),
-    time: new Date().toLocaleTimeString(),
-    day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
-    month: new Date().toLocaleDateString('en-US', { month: 'long' }),
-    year: new Date().getFullYear().toString()
+    // Date/Time variables
+    date: now.toLocaleDateString(),
+    time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    day: now.toLocaleDateString('en-US', { weekday: 'long' }),
+    month: now.toLocaleDateString('en-US', { month: 'long' }),
+    year: now.getFullYear().toString(),
+
+    // Common placeholder variables (users can fill these)
+    hashtags: '#YourHashtags',
+    mention: '@username',
+    emoji: '✨',
+    cta: 'Click here',
+    call_to_action: 'Learn more →',
+    link: 'https://yourlink.com',
+    brand: 'Your Brand',
+    company: 'Your Company',
+    product: 'Your Product',
+    product_name: 'Product Name',
+    logo_emoji: '🎯',
+
+    // Social proof variables
+    testimonial: 'Customer testimonial here',
+    customer_name: 'Customer Name',
+    customer_title: 'Customer Title',
+    rating: '5 stars',
+    review: 'Great experience!',
+
+    // Content variables
+    topic: 'Your Topic',
+    niche: 'Your Niche',
+    industry: 'Your Industry',
+    question: 'Your Question Here',
+    answer: 'Your Answer Here',
+    quote: 'Inspirational Quote',
+    author: 'Quote Author',
+    tip_content: 'Helpful tip goes here',
+
+    // Personalization variables
+    first_name: 'User',
+    location: 'Your Location',
+
+    // Additional variables
+    trending_topic: '#TrendingTopic',
+    random_emoji: '🚀',
+    line_break: '\n',
+    bullet: '•',
+    number: '1',
+
+    // Event/offer variables
+    event_name: 'Event Name',
+    event_date: 'Date',
+    event_time: 'Time',
+    registration_link: 'https://register.com',
+    discount: '20',
+    price_or_discount: '$99 → $49',
+    coupon_code: 'SAVE20',
+    end_date: now.toLocaleDateString(),
+    offer_description: 'Special offer description',
+    special_offer_or_benefit: 'Exclusive benefit',
+
+    // Article/blog variables
+    article_title: 'Article Title',
+    excerpt: 'Short excerpt of article',
+    blog_url: 'https://blog.yoursite.com',
+    content_type: 'Photos',
+
+    // Partnership/collaboration variables
+    partner_name: 'Partner Name',
+    partnership_details: 'Partnership details',
+    benefits_for_audience: 'How it benefits you',
+
+    // Community/user variables
+    member_name: 'Member Name',
+    what_makes_them_special: 'why they\'re awesome',
+    their_quote: 'Member quote',
+    their_contribution: 'What they contributed',
+
+    // Feature/product variables
+    feature_name: 'Feature Name',
+    feature_description: 'What the feature does',
+    benefit1: 'Benefit 1',
+    benefit2: 'Benefit 2',
+    benefit3: 'Benefit 3',
+
+    // Thank you/appreciation variables
+    what_customers_do: 'your amazing support',
+    positive_impact: 'great things',
+    gratitude_message: 'Thank you message',
+
+    // Job/recruitment variables
+    job_title: 'Job Title',
+    job_type: 'Full-time',
+    brief_description: 'Brief description',
+    apply_link: 'https://careers.yoursite.com',
+
+    // Case study variables
+    company_name: 'Company Name',
+    challenge: 'Challenge faced',
+    solution: 'Solution provided',
+    result_metric: 'Impressive result',
+
+    // Transformation variables
+    before_description: 'Before state',
+    after_description: 'After state',
+    transformation_results: 'Results achieved',
+
+    // Thought leadership variables
+    opinion: 'Your hot take here',
+    explanation: 'Why you believe this',
+
+    // Crisis communication variables
+    issue: 'Issue description',
+    explanation: 'Detailed explanation',
+    timeline: 'Expected duration',
+    solution: 'What we\'re doing about it',
+    contact_info: 'support@yoursite.com',
+
+    // Milestone variables
+    follower_count: '10K',
+    milestone: '10,000 followers',
+    followers: 'followers',
+    what_it_means: 'what this achievement means'
   };
 
-  // Merge with provided variables
+  // Merge with provided variables (user inputs override defaults)
   const allVariables = { ...defaults, ...variables };
 
   // Replace all {{variable}} patterns
   Object.entries(allVariables).forEach(([key, value]) => {
     const regex = new RegExp(`{{${key}}}`, 'gi');
-    processed = processed.replace(regex, value);
+    processed = processed.replace(regex, String(value || ''));
   });
 
   return processed;
+}
+
+/**
+ * Get available template variables with descriptions
+ * Useful for UI hints and variable picker
+ * @returns {object} Object with variable names and descriptions
+ */
+function getAvailableVariables() {
+  return {
+    // Date/Time
+    date: { description: 'Current date (MM/DD/YYYY)', category: 'Date/Time' },
+    time: { description: 'Current time (HH:MM)', category: 'Date/Time' },
+    day: { description: 'Day of week (e.g., Monday)', category: 'Date/Time' },
+    month: { description: 'Current month name', category: 'Date/Time' },
+    year: { description: 'Current year (e.g., 2025)', category: 'Date/Time' },
+
+    // Brand/Company
+    brand: { description: 'Your brand name', category: 'Brand' },
+    company: { description: 'Your company name', category: 'Brand' },
+    product: { description: 'Your product name', category: 'Brand' },
+    logo_emoji: { description: 'Brand emoji/symbol', category: 'Brand' },
+
+    // Content
+    hashtags: { description: 'Relevant hashtags', category: 'Content' },
+    mention: { description: 'User/account mention', category: 'Content' },
+    emoji: { description: 'Relevant emoji', category: 'Content' },
+    cta: { description: 'Call to action (short)', category: 'Content' },
+    call_to_action: { description: 'Call to action (full)', category: 'Content' },
+    link: { description: 'URL/link to share', category: 'Content' },
+    topic: { description: 'Main topic/subject', category: 'Content' },
+    question: { description: 'Question for engagement', category: 'Content' },
+
+    // Social Proof
+    testimonial: { description: 'Customer testimonial/review', category: 'Social Proof' },
+    customer_name: { description: 'Customer/user name', category: 'Social Proof' },
+    rating: { description: 'Star rating or review score', category: 'Social Proof' },
+
+    // Personalization
+    first_name: { description: 'User\'s first name', category: 'Personalization' },
+    location: { description: 'User location/city', category: 'Personalization' },
+
+    // Events
+    event_name: { description: 'Event/webinar name', category: 'Events' },
+    event_date: { description: 'Event date', category: 'Events' },
+    event_time: { description: 'Event time', category: 'Events' },
+    registration_link: { description: 'Registration URL', category: 'Events' }
+  };
 }
 
 module.exports = {
@@ -519,5 +685,6 @@ module.exports = {
   clonePublicTemplate,
   getTemplateCategories,
   getTemplateStats,
-  processTemplateVariables
+  processTemplateVariables,
+  getAvailableVariables
 };

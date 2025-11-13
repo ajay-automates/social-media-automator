@@ -558,6 +558,46 @@ async function handleSaveTemplate() {
                   </select>
                 </div>
 
+                {/* Tags */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-200 mb-2">Tags (comma-separated)</label>
+                  <input
+                    type="text"
+                    value={Array.isArray(formData.tags) ? formData.tags.join(', ') : ''}
+                    onChange={(e) => {
+                      const tagsArray = e.target.value
+                        .split(',')
+                        .map(tag => tag.trim())
+                        .filter(tag => tag.length > 0);
+                      setFormData({ ...formData, tags: tagsArray });
+                    }}
+                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    placeholder="e.g., sales, promotion, engagement"
+                  />
+                  {formData.tags && formData.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {formData.tags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600/50 to-purple-600/50 text-white text-xs px-3 py-1 rounded-full"
+                        >
+                          #{tag}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newTags = formData.tags.filter((_, i) => i !== idx);
+                              setFormData({ ...formData, tags: newTags });
+                            }}
+                            className="hover:text-red-300 transition"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Image URL */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-200 mb-2">Image URL (Optional)</label>

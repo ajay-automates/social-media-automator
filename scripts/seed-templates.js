@@ -131,6 +131,118 @@ const templates = [
     platforms: ['linkedin', 'twitter', 'facebook', 'slack'],
     category: 'announcement',
     tags: ['event', 'webinar', 'invitation']
+  },
+  {
+    name: "Blog/Article Promotion",
+    description: "Share and promote blog posts or articles",
+    text: "📖 NEW ARTICLE!\n\n{{article_title}}\n\n{{excerpt}}\n\nRead the full post: {{link}}\n\n#{{topic}} #{{industry}}",
+    platforms: ['linkedin', 'twitter', 'facebook'],
+    category: 'promotional',
+    tags: ['blog', 'article', 'content-marketing']
+  },
+  {
+    name: "Case Study Highlight",
+    description: "Showcase customer success story",
+    text: "📊 CASE STUDY: {{company_name}}\n\nChallenge: {{challenge}}\nSolution: {{solution}}\nResult: {{result_metric}}\n\nRead the full story: {{link}}",
+    platforms: ['linkedin', 'twitter'],
+    category: 'promotional',
+    tags: ['case-study', 'social-proof', 'success-story']
+  },
+  {
+    name: "Before & After Showcase",
+    description: "Show transformation or improvement",
+    text: "🔄 BEFORE & AFTER\n\nBefore: {{before_description}}\nAfter: {{after_description}}\n\nResults: {{transformation_results}}\n\nReady to transform? {{cta}}\n{{link}}",
+    platforms: ['instagram', 'tiktok', 'facebook', 'pinterest'],
+    category: 'promotional',
+    tags: ['before-after', 'transformation', 'results']
+  },
+  {
+    name: "User-Generated Content Request",
+    description: "Encourage followers to create content",
+    text: "📸 WE WANT YOUR CONTENT!\n\nTag us in {{content_type}} featuring {{your_product}}!\n\nUse #{{hashtag}} for a chance to be featured\n\nLet's see your {{thing}}! 👇\n{{cta}}",
+    platforms: ['instagram', 'twitter', 'tiktok', 'facebook'],
+    category: 'engagement',
+    tags: ['ugc', 'user-generated', 'engagement']
+  },
+  {
+    name: "Job Opening Announcement",
+    description: "Recruit talent with engaging posts",
+    text: "🎯 WE'RE HIRING!\n\nPosition: {{job_title}}\nLocation: {{location}}\nType: {{job_type}}\n\n{{brief_description}}\n\nApply here: {{apply_link}}\n\n#Hiring #{{industry}}",
+    platforms: ['linkedin', 'twitter', 'facebook'],
+    category: 'announcement',
+    tags: ['hiring', 'recruitment', 'jobs']
+  },
+  {
+    name: "Thought Leadership / Hot Take",
+    description: "Share bold opinions and insights",
+    text: "🔥 HOT TAKE:\n\n{{opinion}}\n\nHere's why: {{explanation}}\n\nAm I crazy? Let me know your thoughts! 👇\n#{{industry}} #{{topic}}",
+    platforms: ['linkedin', 'twitter'],
+    category: 'engagement',
+    tags: ['thought-leadership', 'opinion', 'insights']
+  },
+  {
+    name: "Partnership Announcement",
+    description: "Announce collaboration or partnership",
+    text: "🤝 PARTNERSHIP ALERT!\n\nWe're excited to announce a partnership with {{partner_name}}!\n\n{{partnership_details}}\n\nThis means {{benefits_for_audience}}\n\nLearn more: {{link}}",
+    platforms: ['linkedin', 'twitter', 'facebook'],
+    category: 'announcement',
+    tags: ['partnership', 'collaboration', 'announcement']
+  },
+  {
+    name: "Community Member Spotlight",
+    description: "Celebrate community members",
+    text: "⭐ COMMUNITY SPOTLIGHT!\n\nMeet {{member_name}}, a {{what_makes_them_special}}!\n\n\"{{their_quote}}\"\n\nShoutout to {{member_name}} for {{their_contribution}}! 🎉\n\nYou could be featured next! {{cta}}",
+    platforms: ['linkedin', 'twitter', 'instagram'],
+    category: 'personal',
+    tags: ['community', 'spotlight', 'appreciation']
+  },
+  {
+    name: "Product Update / Feature Release",
+    description: "Announce new features or improvements",
+    text: "🆕 NEW FEATURE ALERT!\n\n{{feature_name}} is now available!\n\nWhat it does: {{feature_description}}\n\nBenefits:\n• {{benefit1}}\n• {{benefit2}}\n• {{benefit3}}\n\nGet started: {{link}}",
+    platforms: ['linkedin', 'twitter', 'facebook'],
+    category: 'announcement',
+    tags: ['product-update', 'feature', 'release']
+  },
+  {
+    name: "Customer Appreciation Post",
+    description: "Thank and celebrate customers",
+    text: "💝 THANK YOU!\n\nWe're grateful for {{what_customers_do}}.\n\nYou make {{positive_impact}} possible.\n\nAs a thank you, {{special_offer_or_benefit}}\n\n{{cta}}\n#{{hashtag}}",
+    platforms: ['instagram', 'facebook', 'twitter'],
+    category: 'engagement',
+    tags: ['appreciation', 'gratitude', 'customer-love']
+  },
+  {
+    name: "Limited Time Offer",
+    description: "Create urgency with time-sensitive deals",
+    text: "⏰ LIMITED TIME OFFER\n\n{{offer_description}}\n\n🎁 {{specific_benefit}}\n💰 {{price_or_discount}}\n📅 Ends: {{end_date}}\n\nGrab yours now: {{link}}\n\nDon't miss out! #{{hashtag}}",
+    platforms: ['twitter', 'instagram', 'facebook', 'telegram'],
+    category: 'promotional',
+    tags: ['limited-offer', 'urgency', 'deal']
+  },
+  {
+    name: "Educational Thread / Series",
+    description: "Share multi-part educational content",
+    text: "🧵 THREAD: {{topic}}\n\nToday we're diving into {{topic}}. Here's what you need to know:\n\n1️⃣ {{point1}}\n2️⃣ {{point2}}\n3️⃣ {{point3}}\n4️⃣ {{point4}}\n\nSave this for reference! {{cta}}\n#{{hashtag}}",
+    platforms: ['twitter', 'linkedin'],
+    category: 'educational',
+    tags: ['thread', 'educational', 'series']
+  },
+  {
+    name: "Crisis / Service Disruption Notice",
+    description: "Communicate issues professionally",
+    text: "⚠️ SERVICE NOTICE\n\nWe wanted to inform you of {{issue}}.\n\nWhat's happening: {{explanation}}\nWhen: {{timeline}}\nWhat we're doing: {{solution}}\n\nWe appreciate your patience. Questions? {{contact_info}}",
+    platforms: ['linkedin', 'twitter', 'facebook'],
+    category: 'announcement',
+    tags: ['crisis-communication', 'notice', 'transparency']
+  },
+  {
+    name: "Follower Milestone Celebration",
+    description: "Celebrate reaching follower milestones",
+    text: "🎉 {{follower_count}} FOLLOWERS!\n\nWe hit {{milestone}}! Thank you {{followers}}!\n\nThis means {{what_it_means}}.\n\nTo celebrate: {{special_offer_or_content}}\n\n{{gratitude_message}}\n💙",
+    platforms: ['instagram', 'twitter', 'tiktok', 'facebook'],
+    category: 'announcement',
+    tags: ['milestone', 'followers', 'gratitude']
   }
 ];
 
