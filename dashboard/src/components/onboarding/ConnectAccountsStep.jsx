@@ -214,18 +214,18 @@ export default function ConnectAccountsStep() {
                       : 'glass border-white/20 hover:border-blue-400 hover:bg-white/10'
                   }`}
                 >
-                  <div className="text-4xl mb-2">
+                  <div className="text-4xl mb-2 flex justify-center">
                     {platformIcons[platform] ? (
                       // Render icon component
-                      <span className="inline-block">
+                      <span className="inline-block text-blue-300">
                         {(() => {
                           const IconComponent = platformIcons[platform];
-                          return <IconComponent className="w-10 h-10" />;
+                          return <IconComponent className="w-10 h-10 text-blue-300" />;
                         })()}
                       </span>
                     ) : (
                       // Special case for devto - use text
-                      <span className="inline-block font-bold">Dev.to</span>
+                      <span className="inline-block font-bold text-blue-300 text-sm">Dev.to</span>
                     )}
                   </div>
                   <div className="text-white font-semibold text-sm mb-1">{platformNames[platform]}</div>
