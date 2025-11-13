@@ -316,10 +316,10 @@ export default function Calendar() {
     };
   };
 
-  // Custom Toolbar - iOS Style
+  // Custom Toolbar - iOS Dark
   const CustomToolbar = ({ label, onView, view: currentView }) => {
     return (
-      <div className="rbc-toolbar-custom py-6 px-4 bg-white border-b border-[#e5e5ea]">
+      <div className="rbc-toolbar-custom py-6 px-4 bg-[#1c1c1e] border-b border-[#38383a]">
         <div className="flex justify-center mb-5">
           <h2 className="ios-month-title">{label}</h2>
         </div>
@@ -348,18 +348,18 @@ export default function Calendar() {
     (dateRange.start && dateRange.end ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#000000]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header - iOS Style */}
+        {/* Header - iOS Dark */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-black flex items-center gap-3" style={{
+            <h1 className="text-4xl font-bold text-white flex items-center gap-3" style={{
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
               letterSpacing: '-0.5px'
             }}>
               📅 Calendar
             </h1>
-            <p className="text-[#8e8e93] mt-2 text-sm font-medium">
+            <p className="text-[#98989d] mt-2 text-sm font-medium">
               {filteredEvents.length !== events.length 
                 ? `${filteredEvents.length} of ${events.length} posts`
                 : `${events.length} scheduled posts`
@@ -549,23 +549,23 @@ export default function Calendar() {
         )}
       </AnimatePresence>
 
-      {/* Calendar Container - iOS Style */}
-      <div className="relative bg-white rounded-2xl shadow-sm border border-[#e5e5ea] overflow-hidden" style={{
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02)'
+      {/* Calendar Container - iOS Dark */}
+      <div className="relative bg-[#1c1c1e] rounded-2xl shadow-lg border border-[#38383a] overflow-hidden" style={{
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
       }}>
         
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-12 h-12 border-4 border-[#e5e5ea] border-t-[#007aff] rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-[#8e8e93] font-medium">Loading calendar...</p>
+            <div className="w-12 h-12 border-4 border-[#38383a] border-t-[#0a84ff] rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-[#98989d] font-medium">Loading calendar...</p>
           </div>
         ) : filteredEvents.length === 0 && events.length > 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-bold text-black mb-2" style={{
+            <h3 className="text-2xl font-bold text-white mb-2" style={{
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
             }}>No Posts Match Filters</h3>
-            <p className="text-[#8e8e93] mb-6 font-medium">Try adjusting your filters or clearing them</p>
+            <p className="text-[#98989d] mb-6 font-medium">Try adjusting your filters or clearing them</p>
             <button
               onClick={clearFilters}
               className="ios-button"
@@ -576,10 +576,10 @@ export default function Calendar() {
         ) : events.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">📅</div>
-            <h3 className="text-2xl font-bold text-black mb-2" style={{
+            <h3 className="text-2xl font-bold text-white mb-2" style={{
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
             }}>No Scheduled Posts</h3>
-            <p className="text-[#8e8e93] mb-6 font-medium">Schedule a post to see it on the calendar</p>
+            <p className="text-[#98989d] mb-6 font-medium">Schedule a post to see it on the calendar</p>
             <a
               href="/create"
               className="inline-block ios-button"
@@ -622,7 +622,13 @@ export default function Calendar() {
                     <div 
                       className="rbc-event-custom relative cursor-move"
                       onMouseEnter={handleMouseEnter}
-                      onMouseLeave={() => setHoveredEvent(null)}
+                      onMouseLeave={(e) => {
+                        // Only clear if we're actually leaving the event
+                        const relatedTarget = e.relatedTarget;
+                        if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+                          setHoveredEvent(null);
+                        }
+                      }}
                       title="Drag to reschedule"
                     >
                       <div className="flex items-center gap-1.5 justify-center py-1">
@@ -651,7 +657,7 @@ export default function Calendar() {
         )}
       </div>
 
-      {/* Hover Preview Portal - iOS Style */}
+      {/* Hover Preview Portal - iOS Dark */}
       {hoveredEvent && createPortal(
         <div 
           className="fixed pointer-events-none"
@@ -661,13 +667,15 @@ export default function Calendar() {
             transform: 'translateX(-50%)',
             zIndex: 999999
           }}
+          onMouseEnter={() => setHoveredEvent(hoveredEvent)}
+          onMouseLeave={() => setHoveredEvent(null)}
         >
-          <div className="bg-white rounded-2xl p-5 w-[340px] pointer-events-auto border border-[#e5e5ea]" style={{
-            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
+          <div className="bg-[#2c2c2e] rounded-2xl p-5 w-[340px] pointer-events-auto border border-[#48484a]" style={{
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4)',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
           }}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[#8e8e93] text-xs font-semibold uppercase tracking-wide">
+              <p className="text-[#98989d] text-xs font-semibold uppercase tracking-wide">
                 {hoveredEvent.start.toLocaleString('en-US', { 
                   month: 'short', 
                   day: 'numeric', 
@@ -678,7 +686,7 @@ export default function Calendar() {
             </div>
             
             <div className="mb-4">
-              <p className="text-black text-sm leading-relaxed" style={{
+              <p className="text-white text-sm leading-relaxed" style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
@@ -698,9 +706,9 @@ export default function Calendar() {
                     key={p} 
                     className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium"
                     style={{
-                      backgroundColor: config.bgColor,
+                      backgroundColor: `${config.color}30`,
                       color: config.color,
-                      border: `1px solid ${config.color}30`
+                      border: `1px solid ${config.color}60`
                     }}
                   >
                     <PlatformIcon style={{ fontSize: '0.75rem' }} />
@@ -709,13 +717,13 @@ export default function Calendar() {
                 );
               })}
               {hoveredEvent.platforms?.length > 4 && (
-                <span className="text-xs text-[#8e8e93] px-2.5 py-1">
+                <span className="text-xs text-[#98989d] px-2.5 py-1">
                   +{hoveredEvent.platforms.length - 4}
                 </span>
               )}
             </div>
             
-            <div className="mt-3 pt-3 border-t border-[#e5e5ea] text-xs text-[#8e8e93] font-medium">
+            <div className="mt-3 pt-3 border-t border-[#38383a] text-xs text-[#98989d] font-medium">
               💡 Drag to reschedule • Click for details
             </div>
           </div>
@@ -739,7 +747,7 @@ export default function Calendar() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="ios-modal-title">Scheduled Post</h2>
-                  <p className="text-[#8e8e93] text-sm mt-1 font-medium">
+                  <p className="text-[#98989d] text-sm mt-1 font-medium">
                     {selectedEvent.start.toLocaleString('en-US', { 
                       weekday: 'long', 
                       month: 'long', 
@@ -751,7 +759,7 @@ export default function Calendar() {
                 </div>
                 <button
                   onClick={() => setShowEventModal(false)}
-                  className="text-[#8e8e93] hover:text-black transition p-2"
+                  className="text-[#98989d] hover:text-white transition p-2"
                 >
                   <span className="text-2xl">✕</span>
                 </button>
@@ -760,15 +768,15 @@ export default function Calendar() {
 
             {/* Modal Content - iOS Style */}
             <div className="ios-modal-content space-y-5">
-              {/* Caption */}
+              {/* Caption - Dark */}
               <div>
                 <label className="ios-filter-label">Caption</label>
-                <div className="bg-[#f9f9f9] border border-[#e5e5ea] text-black rounded-xl px-4 py-3 whitespace-pre-wrap text-sm" style={{ lineHeight: '1.5' }}>
+                <div className="bg-[#2c2c2e] border border-[#38383a] text-white rounded-xl px-4 py-3 whitespace-pre-wrap text-sm" style={{ lineHeight: '1.5' }}>
                   {selectedEvent.text}
                 </div>
               </div>
 
-              {/* Platforms */}
+              {/* Platforms - Dark */}
               <div>
                 <label className="ios-filter-label">Platforms</label>
                 <div className="flex flex-wrap gap-2">
@@ -781,8 +789,8 @@ export default function Calendar() {
                         key={platform}
                         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border"
                         style={{
-                          backgroundColor: config.bgColor,
-                          borderColor: `${config.color}30`,
+                          backgroundColor: `${config.color}20`,
+                          borderColor: `${config.color}60`,
                           color: config.color
                         }}
                       >
@@ -801,16 +809,16 @@ export default function Calendar() {
                   <img 
                     src={selectedEvent.image_url} 
                     alt="Post media" 
-                    className="w-full rounded-xl border border-[#e5e5ea]"
+                    className="w-full rounded-xl border border-[#38383a]"
                   />
                 </div>
               )}
 
-              {/* Actions */}
+              {/* Actions - Dark */}
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleDeletePost}
-                  className="flex-1 bg-[#ff3b30] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#e63529] transition"
+                  className="flex-1 bg-[#ff453a] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#ff6259] transition"
                   style={{
                     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
                   }}
