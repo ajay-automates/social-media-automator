@@ -248,41 +248,35 @@ const templates = [
 
 async function seedTemplates() {
   try {
-    console.log('🌱 Starting template seeding...\n');
+    console.log('🌱 Starting template seeding for all users...\n');
 
-    // Get the first user from the database
-    const { data: users, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .limit(1);
+    // Get all auth users
+    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
 
-    if (userError) {
-      console.error('❌ Error fetching user:', userError);
-      
-      // Try to get from auth.users instead
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError || !authUsers.users || authUsers.users.length === 0) {
-        console.error('❌ No users found. Please create a user account first.');
-        process.exit(1);
-      }
-      
-      const userId = authUsers.users[0].id;
-      console.log(`✅ Found user: ${userId}\n`);
-      
-      await insertTemplates(userId);
-      return;
-    }
-
-    if (!users || users.length === 0) {
+    if (authError || !authUsers.users || authUsers.users.length === 0) {
       console.error('❌ No users found. Please create a user account first.');
       process.exit(1);
     }
 
-    const userId = users[0].id;
-    console.log(`✅ Found user: ${userId}\n`);
+    console.log(`Found ${authUsers.users.length} users. Seeding templates for each...\n`);
 
-    await insertTemplates(userId);
+    let totalSuccess = 0;
+    let totalError = 0;
+
+    for (const user of authUsers.users) {
+      console.log(`\n📧 Processing user: ${user.email}`);
+      const result = await insertTemplates(user.id);
+      totalSuccess += result.success;
+      totalError += result.error;
+    }
+
+    console.log('\n' + '='.repeat(50));
+    console.log(`🎉 ALL USERS SEEDED!`);
+    console.log(`✅ Total Success: ${totalSuccess} templates`);
+    if (totalError > 0) {
+      console.log(`❌ Total Errors: ${totalError} templates`);
+    }
+    console.log('='.repeat(50) + '\n');
 
   } catch (error) {
     console.error('❌ Unexpected error:', error);
@@ -327,19 +321,9 @@ async function insertTemplates(userId) {
     }
   }
 
-  console.log('\n' + '='.repeat(50));
-  console.log(`🎉 Template Seeding Complete!`);
-  console.log(`✅ Success: ${successCount} templates`);
-  if (errorCount > 0) {
-    console.log(`❌ Failed: ${errorCount} templates`);
-  }
-  console.log('='.repeat(50) + '\n');
+  console.log(`  ✅ Success: ${successCount} | ❌ Failed: ${errorCount}`);
 
-  console.log('📝 Next steps:');
-  console.log('   1. Open http://localhost:5173/templates');
-  console.log('   2. Refresh the page');
-  console.log('   3. See all your new templates! 🚀');
-  console.log('');
+  return { success: successCount, error: errorCount };
 }
 
 // Run the script
