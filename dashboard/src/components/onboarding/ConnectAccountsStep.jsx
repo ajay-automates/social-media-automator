@@ -41,6 +41,20 @@ const platformNames = {
   bluesky: 'Bluesky'
 };
 
+// Platform colors (matching their brand colors)
+const platformColors = {
+  linkedin: 'from-blue-600 to-blue-700',
+  twitter: 'from-blue-400 to-blue-500',
+  telegram: 'from-blue-500 to-blue-600',
+  slack: 'from-purple-500 to-purple-600',
+  discord: 'from-indigo-600 to-indigo-700',
+  reddit: 'from-orange-500 to-orange-600',
+  devto: 'from-gray-700 to-gray-800',
+  tumblr: 'from-blue-900 to-gray-900',
+  mastodon: 'from-purple-600 to-purple-700',
+  bluesky: 'from-sky-400 to-sky-500'
+};
+
 // Working platforms (10 total)
 const workingPlatforms = ['linkedin', 'twitter', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'tumblr', 'mastodon', 'bluesky'];
 
@@ -211,21 +225,21 @@ export default function ConnectAccountsStep() {
                   className={`relative p-6 rounded-2xl border-2 transition-all ${
                     isConnected
                       ? 'bg-green-500/20 border-green-400 cursor-default'
-                      : 'glass border-white/20 hover:border-blue-400 hover:bg-white/10'
+                      : `bg-gradient-to-br ${platformColors[platform]} border-white/20 hover:border-white/40 hover:shadow-lg`
                   }`}
                 >
                   <div className="text-4xl mb-2 flex justify-center">
                     {platformIcons[platform] ? (
                       // Render icon component
-                      <span className="inline-block text-blue-300">
+                      <span className="inline-block text-white">
                         {(() => {
                           const IconComponent = platformIcons[platform];
-                          return <IconComponent className="w-10 h-10 text-blue-300" />;
+                          return <IconComponent className="w-10 h-10 text-white" />;
                         })()}
                       </span>
                     ) : (
                       // Special case for devto - use text
-                      <span className="inline-block font-bold text-blue-300 text-sm">Dev.to</span>
+                      <span className="inline-block font-bold text-white text-sm">Dev.to</span>
                     )}
                   </div>
                   <div className="text-white font-semibold text-sm mb-1">{platformNames[platform]}</div>
