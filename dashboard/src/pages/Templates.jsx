@@ -468,7 +468,7 @@ async function handleSaveTemplate() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {templates.map(template => (
+          {sortedTemplates.map(template => (
             <div key={template.id} className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-2xl border-2 border-white/20 rounded-2xl shadow-2xl hover:shadow-purple-500/30 transition-all hover:scale-[1.03] hover:border-purple-400/40 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -505,19 +505,13 @@ async function handleSaveTemplate() {
 
                 {/* Platforms */}
                 <div className="flex gap-2 mb-4 flex-wrap">
-                  {template.platforms.map(platform => {
-                    const config = PLATFORM_ICONS[platform] || { Icon: FaTwitter, color: 'bg-gray-500/20 text-gray-400 border border-gray-400/30' };
-                    const PlatformIcon = config.Icon;
-                    return (
-                      <span
-                        key={platform}
-                        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded backdrop-blur-sm text-xs font-medium ${config.color}`}
-                      >
-                        <PlatformIcon className="text-sm" />
-                        <span>{platform}</span>
-                      </span>
-                    );
-                  })}
+                  {template.platforms.map(platform => (
+                    <PlatformChip
+                      key={platform}
+                      platform={platform}
+                      size="sm"
+                    />
+                  ))}
                 </div>
 
                 {/* Meta */}
