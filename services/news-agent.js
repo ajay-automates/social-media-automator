@@ -54,17 +54,26 @@ const newsCache = {
  * @param {number} hoursBack - How many hours back to search (24, 48, or 72)
  * @returns {Promise<Array>} Array of articles
  */
-async function fetchGoogleNewsRSS(category, hoursBack = 24) {
+async function fetchGoogleNewsRSS(category, hoursBack = 24, useSpecificKeyword = null) {
   try {
     if (!NEWS_CATEGORIES[category]) {
       console.error(`❌ Unknown category: ${category}`);
       return [];
     }
 
-    const query = NEWS_CATEGORIES[category].rssQuery;
+    // Use provided keyword or pick a random one from the category for diversity
+    let query;
+    if (useSpecificKeyword) {
+      query = useSpecificKeyword;
+    } else {
+      const keywords = NEWS_CATEGORIES[category].keywords;
+      const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
+      query = randomKeyword;
+    }
+
     const timeFilter = hoursBack === 24 ? '7d' : hoursBack === 48 ? '7d' : '30d';
 
-    // Google News RSS URL with time-based filtering
+    // Google News RSS URL with randomized keyword for diversity
     const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
 
     console.log(`   🔍 Fetching ${category} news from Google (${hoursBack}h window)...`);
@@ -122,12 +131,25 @@ async function fetchGoogleNewsRSS(category, hoursBack = 24) {
  */
 async function fetchNewsByCategoryWithFallback(category) {
   try {
-    // Try 24 hours first
+    // Try 24 hours first with main query
     let articles = await fetchGoogleNewsRSS(category, 24);
 
-    // If less than 2 articles, try 48 hours
+    // If less than 2 articles, try with different keywords and wider time windows
     if (articles.length < 2) {
-      console.log(`   ⚠️  Only ${articles.length} articles in 24h, trying 48h...`);
+      const keywords = NEWS_CATEGORIES[category].keywords;
+
+      // Try each keyword in 24h window
+      for (const keyword of keywords) {
+        if (articles.length >= 2) break;
+        const newArticles = await fetchGoogleNewsRSS(category, 24, keyword);
+        const uniqueArticles = [...new Map([...articles, ...newArticles].map(item => [item.url, item])).values()];
+        articles = uniqueArticles;
+      }
+    }
+
+    // If still less than 2, try 48 hours with random keywords
+    if (articles.length < 2) {
+      console.log(`   ⚠️  Only ${articles.length} articles in 24h, trying 48h with different keywords...`);
       const articles48 = await fetchGoogleNewsRSS(category, 48);
       articles = [...new Map([...articles, ...articles48].map(item => [item.url, item])).values()];
     }
