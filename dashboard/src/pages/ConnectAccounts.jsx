@@ -85,14 +85,17 @@ export default function ConnectAccounts() {
     if (connected && success) {
       showSuccess(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
       loadAccounts();
+      trackFirstAccountMilestone();
       window.history.replaceState({}, '', '/connect-accounts');
     } else if (params.get('instagram') === 'connected') {
       showSuccess('Instagram connected successfully!');
       loadAccounts();
+      trackFirstAccountMilestone();
       window.history.replaceState({}, '', '/connect-accounts');
     } else if (params.get('facebook') === 'connected') {
       showSuccess('Facebook connected successfully!');
       loadAccounts();
+      trackFirstAccountMilestone();
       window.history.replaceState({}, '', '/connect-accounts');
     }
     
@@ -103,6 +106,25 @@ export default function ConnectAccounts() {
       window.history.replaceState({}, '', '/connect-accounts');
     }
   }, []);
+
+  const trackFirstAccountMilestone = async () => {
+    try {
+      // Get current accounts
+      const response = await api.get('/accounts');
+      const accountsData = response.data?.accounts || response.data || [];
+      const currentAccounts = Array.isArray(accountsData) ? accountsData : [];
+
+      // Check if this is the first account (only 1 account exists)
+      if (currentAccounts.length === 1) {
+        await api.post('/milestones/track', {
+          milestone_type: 'first_account_connected'
+        });
+      }
+    } catch (err) {
+      console.error('Error tracking milestone:', err);
+      // Don't fail if milestone tracking fails
+    }
+  };
 
   const loadAccounts = async () => {
     try {

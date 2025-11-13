@@ -11,6 +11,7 @@ import Card3D from '../components/ui/Card3D';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
 import ContentIdeasModal from '../components/ContentIdeasModal';
+import MilestoneChecklist from '../components/MilestoneChecklist';
 import { OnboardingProvider, useOnboarding } from '../contexts/OnboardingContext';
 import OnboardingFlow from '../components/onboarding/OnboardingFlow';
 
@@ -325,6 +326,9 @@ function DashboardContent() {
           </div>
         </div>
       )}
+
+      {/* Milestone Checklist */}
+      <MilestoneChecklist />
 
       {/* Stats Cards with 3D Tilt */}
       <motion.div

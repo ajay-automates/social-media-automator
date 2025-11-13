@@ -5892,6 +5892,200 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
 });
 
 // ============================================
+// MILESTONE TRACKING ROUTES
+// ============================================
+
+const { sendMilestoneEmail } = require('./services/email');
+
+/**
+ * POST /api/milestones/track
+ * Track a milestone for a user
+ */
+app.post('/api/milestones/track', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { milestone_type, metadata } = req.body;
+
+    if (!milestone_type) {
+      return res.status(400).json({
+        success: false,
+        error: 'milestone_type is required'
+      });
+    }
+
+    // Call the database function to record milestone
+    const { data, error } = await supabase
+      .rpc('record_milestone', {
+        p_user_id: userId,
+        p_milestone_type: milestone_type,
+        p_metadata: metadata || null
+      });
+
+    if (error) {
+      console.error('Error recording milestone:', error);
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    const result = data[0];
+
+    // Send milestone email if this is a new milestone
+    if (result.success) {
+      try {
+        const userEmail = req.user.email;
+        const userName = req.user.user_metadata?.full_name || 'there';
+
+        await sendMilestoneEmail(userEmail, milestone_type, {
+          userName,
+          dashboardUrl: process.env.DASHBOARD_URL || 'https://app.socialmediaautomator.com',
+          postCount: metadata?.post_count || 0
+        });
+
+        // Mark email as sent in the database
+        await supabase
+          .from('user_milestones')
+          .update({ email_sent: true, email_sent_at: new Date().toISOString() })
+          .eq('user_id', userId)
+          .eq('milestone_type', milestone_type);
+      } catch (emailError) {
+        console.error('Error sending milestone email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
+
+    res.json({
+      success: true,
+      milestone: result.milestone_data
+    });
+  } catch (error) {
+    console.error('Error in milestone tracking:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/milestones
+ * Get all milestones for the current user
+ */
+app.get('/api/milestones', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Call the database function to get milestones
+    const { data, error } = await supabase
+      .rpc('get_user_milestones', {
+        p_user_id: userId
+      });
+
+    if (error) {
+      console.error('Error fetching milestones:', error);
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    res.json({
+      success: true,
+      milestones: data || []
+    });
+  } catch (error) {
+    console.error('Error in fetching milestones:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/milestones/progress
+ * Get milestone progress for the current user (for checklist)
+ */
+app.get('/api/milestones/progress', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Fetch milestone progress from view
+    const { data, error } = await supabase
+      .from('user_milestone_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 = no rows returned, which is OK
+      console.error('Error fetching milestone progress:', error);
+      return res.status(400).json({
+        success: false,
+        error: error.message
+      });
+    }
+
+    // If no progress record, return defaults
+    const progress = data || {
+      email_verified: 0,
+      first_account_connected: 0,
+      first_post_created: 0,
+      post_milestones: 0,
+      onboarding_completed: 0,
+      email_verified_at: null,
+      first_account_at: null,
+      first_post_at: null,
+      onboarding_completed_at: null,
+      onboarding_progress_percent: 0
+    };
+
+    res.json({
+      success: true,
+      progress
+    });
+  } catch (error) {
+    console.error('Error in fetching milestone progress:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/milestones/welcome-email
+ * Send welcome email to a new user (triggered after signup)
+ */
+app.post('/api/milestones/welcome-email', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userEmail = req.user.email;
+    const userName = req.user.user_metadata?.full_name || 'there';
+
+    // Send welcome email
+    const { sendWelcomeEmail } = require('./services/email');
+    await sendWelcomeEmail(userEmail, {
+      userName,
+      dashboardUrl: process.env.DASHBOARD_URL || 'https://app.socialmediaautomator.com',
+      tutorialUrl: `${process.env.DASHBOARD_URL || 'https://app.socialmediaautomator.com'}?tutorial=true`
+    });
+
+    res.json({
+      success: true,
+      message: 'Welcome email sent'
+    });
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
 
 // ============================================
 // YOUTUBE OAUTH ROUTES

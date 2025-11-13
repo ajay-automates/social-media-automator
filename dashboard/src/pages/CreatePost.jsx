@@ -711,6 +711,18 @@ export default function CreatePost() {
       }
     }
 
+    // Track first post milestone (only if this is the first post)
+    const trackFirstPostMilestone = async () => {
+      try {
+        await api.post('/milestones/track', {
+          milestone_type: 'first_post_created'
+        });
+      } catch (err) {
+        console.error('Error tracking milestone:', err);
+        // Don't fail if milestone tracking fails
+      }
+    };
+
     // Validate Reddit-specific fields if Reddit is selected
     if (platforms.includes('reddit')) {
       if (!redditTitle.trim()) {
@@ -777,12 +789,15 @@ export default function CreatePost() {
         // All platforms succeeded
         celebrateSuccess();
         showSuccess('Post created successfully! 🎉');
-        
+
+        // Track first post milestone
+        trackFirstPostMilestone();
+
         // Reset form
         setCaption('');
         setImage(null);
         setSelectedVideo(null);
-        
+
         // Redirect after success
         setTimeout(() => navigate('/dashboard'), 2000);
       } else if (partialSuccess && succeededPlatforms.length > 0) {
@@ -790,15 +805,18 @@ export default function CreatePost() {
         const successNames = succeededPlatforms.map(r => r.platform || 'Unknown').join(', ');
         const failedNames = failedPlatforms.map(r => r.platform || 'Unknown').join(', ');
         const failedErrors = failedPlatforms.map(r => r.error || 'Unknown error').join('; ');
-        
+
         celebrateSuccess();
         showSuccess(`Partially posted! ✓ ${successNames.toUpperCase()} succeeded`);
         showError(`Failed: ${failedNames.toUpperCase()} - ${failedErrors}`);
-        
+
+        // Track first post milestone
+        trackFirstPostMilestone();
+
         // Reset form but don't redirect immediately
         setCaption('');
         setImage(null);
-        
+
         // Redirect after delay
         setTimeout(() => navigate('/dashboard'), 3000);
       } else {
