@@ -435,19 +435,16 @@
         if (hash && hash.includes('access_token')) {
           console.log('OAuth callback detected, processing session...');
 
-          // Check localStorage directly for the token
-          const localStorage_auth = localStorage.getItem('sb-gzchblilbthkfuxqhoyo-auth-token');
-          console.log('localStorage auth token present:', !!localStorage_auth);
+          // Wait for Supabase to parse the hash and establish session
+          // The supabase-js library automatically parses the hash fragment
+          await new Promise(resolve => setTimeout(resolve, 1000));
 
-          // Multiple attempts to get the session as Supabase processes the token
+          // Now check if session was established
           let session = null;
           let attempts = 0;
-          const maxAttempts = 8;
+          const maxAttempts = 10;
 
           while (!session && attempts < maxAttempts) {
-            // Wait before checking
-            await new Promise(resolve => setTimeout(resolve, 300));
-
             try {
               const { data: { session: currentSession }, error } = await supabaseClient.auth.getSession();
 
@@ -460,12 +457,16 @@
 
               if (currentSession && !error) {
                 session = currentSession;
+                console.log('✅ Session established! User:', currentSession.user.email);
                 break;
               }
             } catch (e) {
               console.error(`Session check attempt ${attempts + 1} error:`, e);
             }
 
+            if (!session && attempts < maxAttempts - 1) {
+              await new Promise(resolve => setTimeout(resolve, 200));
+            }
             attempts++;
           }
 
@@ -473,15 +474,20 @@
             console.log('User authenticated successfully, redirecting to dashboard at:', getRedirectUrl('/dashboard'));
             // Clear the hash from URL before redirecting
             window.history.replaceState({}, document.title, window.location.pathname);
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 200));
             window.location.href = getRedirectUrl('/dashboard');
             return;
           } else {
-            console.warn('Session not established after OAuth callback. All attempts failed.');
-            console.log('Checking if we can redirect anyway...');
-            // Try to redirect anyway - the session might be established on dashboard page
-            window.location.href = getRedirectUrl('/dashboard');
-            return;
+            console.warn('⚠️ Session not established after OAuth callback. Checking auth state...');
+            // Try to get auth state directly
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+              console.log('✅ User authenticated (via getUser):', user.email);
+              window.location.href = getRedirectUrl('/dashboard');
+              return;
+            } else {
+              console.error('❌ No user found after OAuth');
+            }
           }
         }
 
@@ -490,6 +496,8 @@
         if (session && !error) {
           console.log('User already logged in, redirecting to dashboard at:', getRedirectUrl('/dashboard'));
           window.location.href = getRedirectUrl('/dashboard');
+        } else {
+          console.log('No session and no OAuth callback. User not authenticated.');
         }
       } catch (err) {
         console.error('Error in handleOAuthCallback:', err);
