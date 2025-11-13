@@ -67,6 +67,11 @@ export default function CreatePost() {
   const [loadingBestTimes, setLoadingBestTimes] = useState(false);
   const [showBestTimes, setShowBestTimes] = useState(false); // Start hidden, show after clicking button
 
+  // Draft Post Scorer state
+  const [draftScore, setDraftScore] = useState(null);
+  const [scoringDraft, setScoringDraft] = useState(false);
+  const [showDraftScore, setShowDraftScore] = useState(false);
+
   // Multi-account support state
   const [selectedAccounts, setSelectedAccounts] = useState({}); // { platform: accountId }
 
@@ -362,6 +367,40 @@ export default function CreatePost() {
       setShowBestTimes(false);
     } finally {
       setLoadingBestTimes(false);
+    }
+  };
+
+  const scoreDraft = async () => {
+    if (!caption.trim()) {
+      showError('Please enter a caption first');
+      return;
+    }
+
+    if (platforms.length === 0) {
+      showError('Please select at least one platform');
+      return;
+    }
+
+    setScoringDraft(true);
+    try {
+      const response = await api.post('/analytics-agent/score-draft', {
+        caption: caption.trim(),
+        platforms,
+        hasImage: !!image,
+        hasVideo: !!selectedVideo
+      });
+
+      if (response.data.success && response.data.score) {
+        setDraftScore(response.data.score);
+        setShowDraftScore(true);
+        showSuccess('Post scored successfully!');
+      }
+    } catch (err) {
+      console.error('Error scoring draft:', err);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to score post';
+      showError(errorMessage);
+    } finally {
+      setScoringDraft(false);
     }
   };
 
@@ -1872,7 +1911,18 @@ export default function CreatePost() {
             >
               {isLoading ? 'Posting...' : 'Post Now'}
             </motion.button>
-            
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={scoreDraft}
+              disabled={scoringDraft || !caption.trim() || platforms.length === 0}
+              className="bg-purple-600/50 backdrop-blur-sm border border-purple-400/30 text-purple-100 px-6 py-3 rounded-lg font-semibold hover:bg-purple-600/70 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Get AI insights on your post quality"
+            >
+              {scoringDraft ? '⚡ Analyzing...' : '⚡ Score Draft'}
+            </motion.button>
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -2317,6 +2367,141 @@ export default function CreatePost() {
                 </div>
               )}
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Draft Post Score Modal */}
+      {showDraftScore && draftScore && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-3">
+                <div className="text-4xl">⚡</div>
+                <h2 className="text-2xl font-bold text-white">Post Quality Score</h2>
+              </div>
+              <button
+                onClick={() => setShowDraftScore(false)}
+                className="text-gray-400 hover:text-gray-200 text-2xl transition"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Overall Score */}
+            <div className="mb-8">
+              <div className="relative h-20 bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl border border-purple-400/30 flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+                <div className="text-center relative z-10">
+                  <div className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                    {draftScore.overallScore || 0}
+                  </div>
+                  <p className="text-gray-400 text-sm mt-1">Overall Quality Score / 100</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Score Breakdown */}
+            <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="bg-gray-800/30 border border-white/10 rounded-lg p-4">
+                <div className="text-sm text-gray-400 mb-2">Engagement</div>
+                <div className="text-3xl font-bold text-blue-400">{draftScore.engagementPrediction || 0}</div>
+                <div className="text-xs text-gray-500 mt-1">Prediction</div>
+              </div>
+
+              <div className="bg-gray-800/30 border border-white/10 rounded-lg p-4">
+                <div className="text-sm text-gray-400 mb-2">Virality</div>
+                <div className="text-3xl font-bold text-purple-400">{draftScore.viralityScore || 0}</div>
+                <div className="text-xs text-gray-500 mt-1">Score</div>
+              </div>
+
+              <div className="bg-gray-800/30 border border-white/10 rounded-lg p-4">
+                <div className="text-sm text-gray-400 mb-2">vs Your Best</div>
+                <div className="text-3xl font-bold text-emerald-400">{draftScore.comparedToBest || 0}%</div>
+                <div className="text-xs text-gray-500 mt-1">Performance</div>
+              </div>
+            </div>
+
+            {/* Platform Scores */}
+            {draftScore.platformScores && Object.keys(draftScore.platformScores).length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-white mb-4">Platform Scores</h3>
+                <div className="space-y-3">
+                  {Object.entries(draftScore.platformScores).map(([platform, score]) => (
+                    <div key={platform} className="flex items-center gap-3">
+                      <span className="w-20 text-sm text-gray-400 capitalize">{platform}</span>
+                      <div className="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-300"
+                          style={{ width: `${Math.min(score, 100)}%` }}
+                        />
+                      </div>
+                      <span className="w-12 text-right text-sm font-semibold text-gray-300">{score}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Strengths */}
+            {draftScore.strengths && draftScore.strengths.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-green-400 mb-4">✅ Strengths</h3>
+                <div className="space-y-2">
+                  {draftScore.strengths.map((strength, idx) => (
+                    <div key={idx} className="flex gap-3 items-start p-3 bg-green-900/20 border border-green-400/30 rounded-lg">
+                      <span className="text-green-400 mt-0.5">•</span>
+                      <p className="text-gray-200 text-sm">{strength}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Weaknesses */}
+            {draftScore.weaknesses && draftScore.weaknesses.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-orange-400 mb-4">⚠️ Areas for Improvement</h3>
+                <div className="space-y-2">
+                  {draftScore.weaknesses.map((weakness, idx) => (
+                    <div key={idx} className="flex gap-3 items-start p-3 bg-orange-900/20 border border-orange-400/30 rounded-lg">
+                      <span className="text-orange-400 mt-0.5">•</span>
+                      <p className="text-gray-200 text-sm">{weakness}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Suggestions */}
+            {draftScore.suggestions && draftScore.suggestions.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-blue-400 mb-4">💡 Suggestions</h3>
+                <div className="space-y-2">
+                  {draftScore.suggestions.map((suggestion, idx) => (
+                    <div key={idx} className="flex gap-3 items-start p-3 bg-blue-900/20 border border-blue-400/30 rounded-lg">
+                      <span className="text-blue-400 mt-0.5">→</span>
+                      <p className="text-gray-200 text-sm">{suggestion}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Close Button */}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowDraftScore(false)}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition"
+            >
+              Close & Keep Editing
+            </motion.button>
           </motion.div>
         </div>
       )}

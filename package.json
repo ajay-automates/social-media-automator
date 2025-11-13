@@ -42,7 +42,8 @@
     "youtubei.js": "^16.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "pg": "^8.16.3"
   },
   "engines": {
     "node": ">=20.0.0",

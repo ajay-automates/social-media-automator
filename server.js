@@ -33,7 +33,14 @@ const {
 const { generateCaption, generateHashtags, recommendPostTime, generatePostVariations, generateContentIdeas, improveCaption, generateCaptionFromImage, generateCarouselCaptions } = require('./services/ai');
 const { analyzeBestTimes, getPostingHeatmap } = require('./services/analytics');
 const { generateWeeklyReport, sendReportToUser, sendWeeklyReportsToAll } = require('./services/reports');
-const { sendTestEmail, sendEmail } = require('./services/email');
+const {
+  sendTestEmail,
+  sendEmail,
+  sendPostSubmissionNotification,
+  sendPostApprovalNotification,
+  sendPostRejectionNotification,
+  sendChangesRequestedNotification
+} = require('./services/email');
 const { getUserWorkspace, checkPermission, requireRole, requirePermission, getTeamMembers } = require('./services/permissions');
 const { logActivity, getActivityFeed, formatActivity, getPendingApprovalsCount } = require('./services/activity');
 const { createInvitation, acceptInvitation, getPendingInvitations, cancelInvitation, resendInvitation } = require('./services/invitations');
@@ -4098,9 +4105,46 @@ app.post('/api/posts/submit-for-review', verifyAuth, requireRole('editor'), asyn
       postId.toString(),
       { post_title: post?.text?.substring(0, 50) }
     );
-    
-    // TODO: Send email notification to workspace owner/admins
-    
+
+    // Send email notification to workspace owner/admins
+    try {
+      // Get workspace members with owner/admin roles
+      const { data: members } = await supabaseAdmin
+        .from('workspace_members')
+        .select('user_id, role')
+        .eq('workspace_id', workspace.workspace_id)
+        .in('role', ['owner', 'admin']);
+
+      if (members && members.length > 0) {
+        // Get submitter info
+        const { data: { user: submitterData } } = await supabaseAdmin.auth.admin.getUserById(req.user.id);
+        const submitterName = submitterData?.user_metadata?.name || submitterData?.email?.split('@')[0] || 'A team member';
+
+        // Get admin/owner emails
+        const adminIds = members.map(m => m.user_id);
+        const { data: adminUsers } = await supabaseAdmin.auth.admin.listUsers();
+        const adminEmails = adminUsers.users
+          .filter(u => adminIds.includes(u.id))
+          .map(u => u.email)
+          .filter(Boolean);
+
+        // Send notification to each admin
+        const dashboardUrl = process.env.DASHBOARD_URL || 'https://socialmediaautomator.com';
+        const postData = {
+          postTitle: post?.text?.substring(0, 100) || 'New post',
+          platforms: post?.platforms || []
+        };
+
+        for (const adminEmail of adminEmails) {
+          await sendPostSubmissionNotification(adminEmail, postData, submitterName, dashboardUrl)
+            .catch(err => console.warn('Failed to send submission notification:', err.message));
+        }
+      }
+    } catch (emailError) {
+      console.warn('Error sending post submission notifications:', emailError.message);
+      // Don't fail the entire request if email fails
+    }
+
     res.json({
       success: true,
       approval,
@@ -4215,9 +4259,36 @@ app.post('/api/posts/:id/approve', verifyAuth, requirePermission('approve_post')
       id,
       { post_title: post?.text?.substring(0, 50) }
     );
-    
-    // TODO: Send approval notification to post creator
-    
+
+    // Send approval notification to post creator
+    try {
+      const { data: approvalData } = await supabaseAdmin
+        .from('post_approvals')
+        .select('submitted_by')
+        .eq('post_id', parseInt(id))
+        .single();
+
+      if (approvalData?.submitted_by) {
+        const { data: creatorData } = await supabaseAdmin.auth.admin.getUserById(approvalData.submitted_by);
+        const creatorEmail = creatorData?.user?.email;
+        const { data: approverData } = await supabaseAdmin.auth.admin.getUserById(req.user.id);
+        const approverName = approverData?.user?.user_metadata?.name || approverData?.user?.email?.split('@')[0] || 'Workspace Admin';
+
+        if (creatorEmail) {
+          const dashboardUrl = process.env.DASHBOARD_URL || 'https://socialmediaautomator.com';
+          const postData = {
+            postTitle: post?.text?.substring(0, 100) || 'Your post'
+          };
+
+          await sendPostApprovalNotification(creatorEmail, postData, approverName, dashboardUrl)
+            .catch(err => console.warn('Failed to send approval notification:', err.message));
+        }
+      }
+    } catch (emailError) {
+      console.warn('Error sending approval notification:', emailError.message);
+      // Don't fail the entire request if email fails
+    }
+
     res.json({
       success: true,
       message: 'Post approved'
@@ -4278,9 +4349,36 @@ app.post('/api/posts/:id/reject', verifyAuth, requirePermission('approve_post'),
       id,
       { post_title: post?.text?.substring(0, 50), feedback }
     );
-    
-    // TODO: Send rejection notification to post creator
-    
+
+    // Send rejection notification to post creator
+    try {
+      const { data: approvalData } = await supabaseAdmin
+        .from('post_approvals')
+        .select('submitted_by')
+        .eq('post_id', parseInt(id))
+        .single();
+
+      if (approvalData?.submitted_by) {
+        const { data: creatorData } = await supabaseAdmin.auth.admin.getUserById(approvalData.submitted_by);
+        const creatorEmail = creatorData?.user?.email;
+        const { data: rejecterData } = await supabaseAdmin.auth.admin.getUserById(req.user.id);
+        const rejecterName = rejecterData?.user?.user_metadata?.name || rejecterData?.user?.email?.split('@')[0] || 'Workspace Admin';
+
+        if (creatorEmail) {
+          const dashboardUrl = process.env.DASHBOARD_URL || 'https://socialmediaautomator.com';
+          const postData = {
+            postTitle: post?.text?.substring(0, 100) || 'Your post'
+          };
+
+          await sendPostRejectionNotification(creatorEmail, postData, feedback || '', rejecterName, dashboardUrl)
+            .catch(err => console.warn('Failed to send rejection notification:', err.message));
+        }
+      }
+    } catch (emailError) {
+      console.warn('Error sending rejection notification:', emailError.message);
+      // Don't fail the entire request if email fails
+    }
+
     res.json({
       success: true,
       message: 'Post rejected'
@@ -4348,9 +4446,36 @@ app.post('/api/posts/:id/request-changes', verifyAuth, requirePermission('approv
       id,
       { post_title: post?.text?.substring(0, 50), feedback }
     );
-    
-    // TODO: Send changes requested notification to post creator
-    
+
+    // Send changes requested notification to post creator
+    try {
+      const { data: approvalData } = await supabaseAdmin
+        .from('post_approvals')
+        .select('submitted_by')
+        .eq('post_id', parseInt(id))
+        .single();
+
+      if (approvalData?.submitted_by) {
+        const { data: creatorData } = await supabaseAdmin.auth.admin.getUserById(approvalData.submitted_by);
+        const creatorEmail = creatorData?.user?.email;
+        const { data: requesterData } = await supabaseAdmin.auth.admin.getUserById(req.user.id);
+        const requesterName = requesterData?.user?.user_metadata?.name || requesterData?.user?.email?.split('@')[0] || 'Workspace Admin';
+
+        if (creatorEmail) {
+          const dashboardUrl = process.env.DASHBOARD_URL || 'https://socialmediaautomator.com';
+          const postData = {
+            postTitle: post?.text?.substring(0, 100) || 'Your post'
+          };
+
+          await sendChangesRequestedNotification(creatorEmail, postData, feedback || '', requesterName, dashboardUrl)
+            .catch(err => console.warn('Failed to send changes requested notification:', err.message));
+        }
+      }
+    } catch (emailError) {
+      console.warn('Error sending changes requested notification:', emailError.message);
+      // Don't fail the entire request if email fails
+    }
+
     res.json({
       success: true,
       message: 'Changes requested'
