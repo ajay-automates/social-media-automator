@@ -51,6 +51,21 @@ function startScheduler() {
   });
   
   console.log('📧 Email reports scheduler initialized (Mondays at 9 AM)');
+
+  // Run every Sunday at 10 AM - content recycling for all users with auto-recycle enabled
+  cron.schedule('0 10 * * 0', async () => {
+    console.log('♻️  Running content recycling job...');
+    
+    try {
+      const { runAutoRecycleForAllUsers } = require('./content-recycling');
+      const result = await runAutoRecycleForAllUsers();
+      console.log(`✅ Content recycling completed: ${result.successfulUsers}/${result.processedUsers} users`);
+    } catch (error) {
+      console.error('❌ Content recycling job error:', error);
+    }
+  });
+  
+  console.log('♻️  Content recycling scheduler initialized (Sundays at 10 AM)');
 }
 
 async function processDueQueue() {

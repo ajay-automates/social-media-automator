@@ -142,6 +142,17 @@ const {
   getUserPatterns
 } = require('./services/analytics-insights-agent');
 
+// Content Recycling Engine
+const {
+  getRecyclingSettings,
+  updateRecyclingSettings,
+  getRecyclablePosts,
+  recyclePost,
+  autoRecyclePosts,
+  getRecyclingHistory,
+  getRecyclingStats
+} = require('./services/content-recycling');
+
 // Helper function to get frontend URL
 function getFrontendUrl() {
   // If explicitly set, use it
@@ -2907,6 +2918,204 @@ app.put('/api/analytics-agent/insights/:id/viewed', verifyAuth, async (req, res)
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to mark insight as viewed'
+    });
+  }
+});
+
+// ============================================
+// CONTENT RECYCLING ENGINE
+// ============================================
+
+/**
+ * GET /api/content-recycling/settings
+ * Get user's content recycling settings
+ */
+app.get('/api/content-recycling/settings', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const settings = await getRecyclingSettings(userId);
+
+    res.json({
+      success: true,
+      settings
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting recycling settings:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get recycling settings'
+    });
+  }
+});
+
+/**
+ * PUT /api/content-recycling/settings
+ * Update user's content recycling settings
+ */
+app.put('/api/content-recycling/settings', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const updates = req.body;
+
+    const settings = await updateRecyclingSettings(userId, updates);
+
+    res.json({
+      success: true,
+      settings,
+      message: 'Settings updated successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error updating recycling settings:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to update settings'
+    });
+  }
+});
+
+/**
+ * GET /api/content-recycling/posts
+ * Get recyclable posts for the user
+ */
+app.get('/api/content-recycling/posts', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const { posts, settings } = await getRecyclablePosts(userId, limit);
+
+    res.json({
+      success: true,
+      posts,
+      settings,
+      count: posts.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting recyclable posts:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get recyclable posts'
+    });
+  }
+});
+
+/**
+ * POST /api/content-recycling/recycle/:postId
+ * Manually recycle a specific post
+ */
+app.post('/api/content-recycling/recycle/:postId', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const postId = req.params.postId;
+    const { platforms, scheduleTime } = req.body;
+
+    console.log(`♻️  Manual recycle request for post ${postId}`);
+
+    const options = {
+      triggerType: 'manual'
+    };
+
+    if (platforms && platforms.length > 0) {
+      options.platforms = platforms;
+    }
+
+    if (scheduleTime) {
+      options.scheduleTime = new Date(scheduleTime);
+    }
+
+    const result = await recyclePost(userId, postId, options);
+
+    res.json({
+      success: true,
+      message: 'Post recycled successfully',
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error recycling post:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to recycle post'
+    });
+  }
+});
+
+/**
+ * POST /api/content-recycling/auto-recycle
+ * Manually trigger auto-recycle (for testing or manual run)
+ */
+app.post('/api/content-recycling/auto-recycle', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    console.log(`🤖 Manual auto-recycle trigger for user ${userId}`);
+
+    const result = await autoRecyclePosts(userId);
+
+    res.json({
+      success: true,
+      message: 'Auto-recycle completed',
+      ...result
+    });
+
+  } catch (error) {
+    console.error('❌ Error in auto-recycle:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to auto-recycle'
+    });
+  }
+});
+
+/**
+ * GET /api/content-recycling/history
+ * Get user's content recycling history
+ */
+app.get('/api/content-recycling/history', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const limit = parseInt(req.query.limit) || 50;
+
+    const history = await getRecyclingHistory(userId, limit);
+
+    res.json({
+      success: true,
+      history,
+      count: history.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting recycling history:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get recycling history'
+    });
+  }
+});
+
+/**
+ * GET /api/content-recycling/stats
+ * Get recycling statistics for dashboard
+ */
+app.get('/api/content-recycling/stats', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const stats = await getRecyclingStats(userId);
+
+    res.json({
+      success: true,
+      stats
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting recycling stats:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get recycling stats'
     });
   }
 });
