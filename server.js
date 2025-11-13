@@ -5371,7 +5371,9 @@ app.get('/api/templates', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { category, search, sort, order, favorite } = req.query;
-    
+
+    console.log(`📋 GET /api/templates - User: ${userId.substring(0, 8)}... | Category: ${category || 'all'} | Search: ${search || 'none'}`);
+
     const filters = {
       category,
       search,
@@ -5379,9 +5381,11 @@ app.get('/api/templates', verifyAuth, async (req, res) => {
       order,
       favorite: favorite === 'true'
     };
-    
+
     const templates = await getTemplates(userId, filters);
-    
+
+    console.log(`   ✅ Returned ${templates.length} templates`);
+
     res.json({
       success: true,
       templates,
