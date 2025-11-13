@@ -3,19 +3,29 @@ import { useState, useEffect } from 'react';
 import { useOnboarding } from '../../contexts/OnboardingContext';
 import api from '../../lib/api';
 import { showError, showSuccess } from '../ui/Toast';
+import {
+  FaLinkedin,
+  FaTwitter,
+  FaTelegram,
+  FaSlack,
+  FaDiscord,
+  FaReddit,
+  FaTumblr
+} from 'react-icons/fa';
+import { SiBluesky, SiMastodon } from 'react-icons/si';
 
 // Platform icons mapping
 const platformIcons = {
-  linkedin: '🔵',
-  twitter: '🐦',
-  telegram: '✈️',
-  slack: '💼',
-  discord: '💜',
-  reddit: '🔴',
-  devto: '👨‍💻',
-  tumblr: '🎨',
-  mastodon: '🐘',
-  bluesky: '🦋'
+  linkedin: FaLinkedin,
+  twitter: FaTwitter,
+  telegram: FaTelegram,
+  slack: FaSlack,
+  discord: FaDiscord,
+  reddit: FaReddit,
+  devto: null, // Special case - use text
+  tumblr: FaTumblr,
+  mastodon: SiMastodon,
+  bluesky: SiBluesky
 };
 
 const platformNames = {
@@ -204,7 +214,20 @@ export default function ConnectAccountsStep() {
                       : 'glass border-white/20 hover:border-blue-400 hover:bg-white/10'
                   }`}
                 >
-                  <div className="text-4xl mb-2">{platformIcons[platform]}</div>
+                  <div className="text-4xl mb-2">
+                    {platformIcons[platform] ? (
+                      // Render icon component
+                      <span className="inline-block">
+                        {(() => {
+                          const IconComponent = platformIcons[platform];
+                          return <IconComponent className="w-10 h-10" />;
+                        })()}
+                      </span>
+                    ) : (
+                      // Special case for devto - use text
+                      <span className="inline-block font-bold">Dev.to</span>
+                    )}
+                  </div>
                   <div className="text-white font-semibold text-sm mb-1">{platformNames[platform]}</div>
                   {isConnected && (
                     <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1">
