@@ -160,9 +160,11 @@ export default function CreatePost() {
       const accounts = Array.isArray(accountsData) ? accountsData : [];
       setConnectedAccounts(accounts);
       
-      // Smart Default: Auto-select ALL connected platforms if none are selected yet
+      // Smart Default: Auto-select all connected platforms (except Reddit) if none are selected yet
       if (accounts.length > 0 && platforms.length === 0) {
-        const allPlatforms = accounts.map(acc => acc.platform);
+        const allPlatforms = accounts
+          .map(acc => acc.platform)
+          .filter(platform => platform !== 'reddit'); // Exclude Reddit from auto-selection
         setPlatforms(allPlatforms);
       }
     } catch (err) {

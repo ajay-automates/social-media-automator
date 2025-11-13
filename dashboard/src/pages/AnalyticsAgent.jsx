@@ -11,6 +11,7 @@ export default function AnalyticsAgent() {
   const [insights, setInsights] = useState([]);
   const [patterns, setPatterns] = useState([]);
   const [stats, setStats] = useState(null);
+  const [showInsights, setShowInsights] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -268,17 +269,44 @@ export default function AnalyticsAgent() {
               </motion.div>
             )}
 
-            {/* Insights */}
+            {/* Insights Toggle */}
             {insights.length > 0 && (
               <motion.div variants={itemVariants}>
-                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                  <FaBrain className="text-gray-400" />
-                  AI Insights
-                </h2>
+                <button
+                  onClick={() => setShowInsights(!showInsights)}
+                  className="w-full group relative bg-gradient-to-r from-blue-600/30 to-purple-600/30 backdrop-blur-lg border-2 border-blue-400/40 rounded-xl p-5 hover:from-blue-600/40 hover:to-purple-600/40 transition-all shadow-lg hover:shadow-blue-500/30"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+                  <div className="relative flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FaBrain className="text-blue-400 text-2xl" />
+                      <div className="text-left">
+                        <h2 className="text-xl font-bold text-white">Want to see AI Insights?</h2>
+                        <p className="text-sm text-gray-300 mt-1">Click to analyze your analytics and get AI-powered insights</p>
+                      </div>
+                    </div>
+                    <motion.div
+                      animate={{ rotate: showInsights ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-white text-2xl flex-shrink-0"
+                    >
+                      ▼
+                    </motion.div>
+                  </div>
+                </button>
 
-                <div className="space-y-4">
-                  <AnimatePresence>
-                    {insights.map((insight) => (
+                {/* AI Insights Section - Shown when toggle is on */}
+                <AnimatePresence>
+                  {showInsights && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-4 space-y-4"
+                    >
+                      <AnimatePresence>
+                        {insights.map((insight) => (
                       <motion.div
                         key={insight.id}
                         initial={{ opacity: 0, x: -20 }}
@@ -332,9 +360,11 @@ export default function AnalyticsAgent() {
                           </button>
                         </div>
                       </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
 

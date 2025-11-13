@@ -6,18 +6,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
-import { 
-  FaLinkedin, 
-  FaTwitter, 
-  FaInstagram, 
-  FaFacebook, 
-  FaTiktok, 
-  FaYoutube, 
-  FaReddit, 
-  FaDiscord, 
-  FaSlack, 
-  FaTelegram
-} from 'react-icons/fa';
+import PlatformChip from '../components/ui/PlatformChip';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../styles/calendar-glossy.css';
 
@@ -33,19 +22,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
-
-const PLATFORM_ICONS = {
-  linkedin: { Icon: FaLinkedin, color: '#0077B5' },
-  twitter: { Icon: FaTwitter, color: '#1DA1F2' },
-  instagram: { Icon: FaInstagram, color: '#E4405F' },
-  facebook: { Icon: FaFacebook, color: '#1877F2' },
-  tiktok: { Icon: FaTiktok, color: '#000000' },
-  youtube: { Icon: FaYoutube, color: '#FF0000' },
-  reddit: { Icon: FaReddit, color: '#FF4500' },
-  discord: { Icon: FaDiscord, color: '#5865F2' },
-  slack: { Icon: FaSlack, color: '#4A154B' },
-  telegram: { Icon: FaTelegram, color: '#0088CC' }
-};
 
 export default function Calendar() {
   const [events, setEvents] = useState([]);
@@ -410,22 +386,15 @@ export default function Calendar() {
               {/* Platforms */}
               <div>
                 <label className="block text-sm font-semibold text-gray-200 mb-2">Platforms</label>
-                <div className="flex flex-wrap gap-2">
-                  {selectedEvent.platforms?.map(platform => {
-                    const config = PLATFORM_ICONS[platform];
-                    if (!config) return null;
-                    const PlatformIcon = config.Icon;
-                    
-                    return (
-                      <span
-                        key={platform}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-800/60 backdrop-blur-sm border border-white/20 text-gray-200 rounded-lg text-sm"
-                      >
-                        <PlatformIcon className="text-lg" style={{ color: config.color }} />
-                        {platform}
-                      </span>
-                    );
-                  })}
+                <div className="flex flex-wrap gap-3">
+                  {selectedEvent.platforms?.map(platform => (
+                    <PlatformChip
+                      key={platform}
+                      platform={platform}
+                      selected={true}
+                      size="sm"
+                    />
+                  ))}
                 </div>
               </div>
 
