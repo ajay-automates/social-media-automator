@@ -817,6 +817,23 @@ export default function Calendar() {
               {/* Actions - Dark */}
               <div className="flex gap-3 pt-4">
                 <button
+                  onClick={() => {
+                    // Clone the post
+                    const state = {
+                      clonedCaption: selectedEvent.text,
+                      clonedPlatforms: selectedEvent.platforms || [],
+                      clonedImageUrl: selectedEvent.image_url
+                    };
+                    window.location.href = `/create?clone=${JSON.stringify(state)}`;
+                  }}
+                  className="flex-1 bg-[#5ac8fa] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#6ad8ff] transition"
+                  style={{
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+                  }}
+                >
+                  📋 Clone
+                </button>
+                <button
                   onClick={handleDeletePost}
                   className="flex-1 bg-[#ff453a] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#ff6259] transition"
                   style={{

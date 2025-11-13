@@ -486,6 +486,7 @@ export default function Analytics() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Caption</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-gray-800/30 divide-y divide-gray-700">
@@ -668,6 +669,25 @@ export default function Analytics() {
                           {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          // Navigate to create post with prefilled data
+                          const state = {
+                            clonedCaption: post.text || post.caption,
+                            clonedPlatforms: platforms,
+                            clonedImageUrl: post.image_url
+                          };
+                          window.location.href = `/create?clone=${JSON.stringify(state)}`;
+                        }}
+                        className="px-3 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded hover:bg-purple-600/30 transition-all text-xs font-semibold"
+                        title="Clone this post"
+                      >
+                        📋 Clone
+                      </motion.button>
                     </td>
                   </tr>
                 );

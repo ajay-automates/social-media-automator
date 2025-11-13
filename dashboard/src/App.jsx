@@ -23,6 +23,8 @@ import AcceptInvitation from './pages/AcceptInvitation';
 import ContentAgent from './pages/ContentAgent';
 import ContentRecycling from './pages/ContentRecycling';
 import Webhooks from './pages/Webhooks';
+import ABTesting from './pages/ABTesting';
+import HashtagAnalytics from './pages/HashtagAnalytics';
 import NotificationBell from './components/NotificationBell';
 
 function Navigation() {
@@ -49,6 +51,8 @@ function Navigation() {
     { path: '/carousel', label: 'Create Carousel', icon: '📸' },
     { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤' },
     { path: '/templates', label: 'Templates', icon: '📝' },
+    { path: '/ab-testing', label: 'A/B Testing', icon: '🧪' },
+    { path: '/hashtag-analytics', label: 'Hashtag Analytics', icon: '#️⃣' },
     { path: '/webhooks', label: 'Webhooks', icon: '🔔' },
     { path: '/approvals', label: 'Approvals', icon: '⏳' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
@@ -265,6 +269,8 @@ function App() {
               <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
               <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitation /></ProtectedRoute>} />
               <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />
+              <Route path="/ab-testing" element={<ProtectedRoute><ABTesting /></ProtectedRoute>} />
+              <Route path="/hashtag-analytics" element={<ProtectedRoute><HashtagAnalytics /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
               <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
