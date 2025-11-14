@@ -10,6 +10,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.action.openPopup();
     sendResponse({ success: true });
   }
+  
+  if (request.action === 'saveAuthToken') {
+    console.log('💾 Saving auth token from dashboard');
+    chrome.storage.local.set({
+      authToken: request.token,
+      userId: request.userId,
+      tokenSyncedAt: new Date().toISOString()
+    }, () => {
+      console.log('✅ Token saved to extension storage');
+      updateIconBadge();
+      sendResponse({ success: true });
+    });
+    return true; // Will respond asynchronously
+  }
 });
 
 // Update icon badge on tab change

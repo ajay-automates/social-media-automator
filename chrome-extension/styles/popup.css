@@ -459,6 +459,18 @@ body {
   margin-bottom: 16px;
 }
 
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.auth-buttons .btn {
+  width: 100%;
+}
+
 /* Scrollbar */
 .popup-container::-webkit-scrollbar {
   width: 6px;

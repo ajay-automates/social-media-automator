@@ -1,4 +1,5 @@
 # 🎯 Chrome Extension Setup Guide
+
 ## Complete Step-by-Step Instructions
 
 ---
@@ -6,6 +7,7 @@
 ## ✅ Pre-Flight Checklist
 
 Before you start:
+
 - [ ] Chrome browser installed
 - [ ] Social Media Automator dashboard access
 - [ ] Extension files downloaded/cloned
@@ -15,6 +17,7 @@ Before you start:
 ## 🔧 Installation Steps
 
 ### Step 1: Enable Developer Mode
+
 ```
 1. Open Chrome
 2. Go to chrome://extensions/
@@ -23,6 +26,7 @@ Before you start:
 ```
 
 ### Step 2: Load the Extension
+
 ```
 1. Still on chrome://extensions/ page
 2. Click "Load unpacked" button (appears after enabling Developer mode)
@@ -31,6 +35,7 @@ Before you start:
 ```
 
 **You should see:**
+
 ```
 ✅ Extension appears in your list
 ✅ Shows extension ID
@@ -41,17 +46,20 @@ Before you start:
 ### Step 3: Configure Your Domain
 
 Edit this file in the extension:
+
 ```
 chrome-extension/utils/constants.js
 ```
 
 Change this line:
+
 ```javascript
 DASHBOARD_URL: 'https://your-domain.com/dashboard',
 API_BASE_URL: 'https://your-domain.com',
 ```
 
 To your actual domain:
+
 ```javascript
 DASHBOARD_URL: 'https://capable-motivation-production-7a75.up.railway.app/dashboard',
 API_BASE_URL: 'https://capable-motivation-production-7a75.up.railway.app',
@@ -60,6 +68,7 @@ API_BASE_URL: 'https://capable-motivation-production-7a75.up.railway.app',
 ### Step 4: Reload Extension
 
 After editing `constants.js`:
+
 ```
 1. Go back to chrome://extensions/
 2. Find your extension
@@ -72,6 +81,7 @@ After editing `constants.js`:
 ## 🔐 Authenticate
 
 ### Step 1: Open Dashboard
+
 ```
 1. Go to any website (e.g., reddit.com)
 2. You'll see the button won't work yet (no auth token)
@@ -80,6 +90,7 @@ After editing `constants.js`:
 ```
 
 ### Step 2: Auth Token is Saved
+
 ```
 - After logging in, your auth token is automatically saved in Chrome
 - This happens in the browser automatically
@@ -87,6 +98,7 @@ After editing `constants.js`:
 ```
 
 ### Step 3: Test the Extension
+
 ```
 1. Go to any webpage (e.g., techcrunch.com)
 2. Click the 📱 "Post" button (bottom-right corner)
@@ -103,6 +115,7 @@ After editing `constants.js`:
 ## 📝 First Post (Test)
 
 ### Step 1: Capture Content
+
 ```
 1. Go to any article you want to share
 2. Click 📱 button
@@ -110,6 +123,7 @@ After editing `constants.js`:
 ```
 
 ### Step 2: Write Caption
+
 ```
 1. Type a caption in the text box
    OR
@@ -119,6 +133,7 @@ After editing `constants.js`:
 ```
 
 ### Step 3: Post
+
 ```
 1. Click "Post Now" for immediate posting
    OR
@@ -136,6 +151,7 @@ After editing `constants.js`:
 **Problem:** You see a lock icon and "Authentication Required"
 
 **Solution:**
+
 ```
 1. Open dashboard: https://your-domain.com/dashboard
 2. Make sure you're logged in
@@ -145,6 +161,7 @@ After editing `constants.js`:
 ```
 
 **If still not working:**
+
 ```
 1. Go to chrome://extensions/
 2. Refresh the extension (refresh icon)
@@ -161,6 +178,7 @@ After editing `constants.js`:
 **Problem:** Can't see the 📱 button on webpages
 
 **Solution:**
+
 ```
 1. Go to chrome://extensions/
 2. Check if extension is enabled (toggle should be ON/BLUE)
@@ -171,6 +189,7 @@ After editing `constants.js`:
 ```
 
 **If still not visible:**
+
 ```
 1. Check browser console for errors (F12 → Console tab)
 2. Verify extension loaded successfully (should show path)
@@ -185,6 +204,7 @@ After editing `constants.js`:
 **Problem:** Clicking button does nothing
 
 **Solution:**
+
 ```
 1. Check browser console (F12 → Console tab)
 2. Look for red error messages
@@ -201,18 +221,19 @@ After editing `constants.js`:
 **Problem:** Popup opens but shows API error
 
 **Solution:**
+
 ```
 1. Verify domain in constants.js:
    DASHBOARD_URL: 'https://your-domain.com/dashboard',
    API_BASE_URL: 'https://your-domain.com',
-   
+
 2. Make sure your backend is running:
    npm start
-   
+
 3. Check that your domain is accessible:
    - Open https://your-domain.com in browser
    - Should load dashboard
-   
+
 4. Log out and log in again:
    - Clear auth token
    - Log in fresh
@@ -262,11 +283,11 @@ zip -r social-media-automator-extension.zip .
 4. Upload the ZIP file
 5. Name it "v1.0.0 - Chrome Extension"
 6. Add description:
-   
+
    📱 Social Media Automator Chrome Extension
-   
+
    One-click social media posting from any webpage.
-   
+
    Installation:
    1. Download & extract this ZIP
    2. Go to chrome://extensions/
@@ -275,13 +296,14 @@ zip -r social-media-automator-extension.zip .
    5. Select the extracted folder
    6. Log in with your dashboard account
    7. Done! Use on any website
-   
+
 7. Publish release
 ```
 
 ### Step 3: Share Link
 
 Send customers this link:
+
 ```
 https://github.com/ajay-automates/social-media-automator/releases/tag/v1.0.0
 
@@ -294,6 +316,7 @@ https://your-domain.com/help/chrome-extension
 ## 📊 Monitoring Usage
 
 After release, track:
+
 ```
 - How many customers installed extension?
 - How often is it used daily?
@@ -302,8 +325,9 @@ After release, track:
 ```
 
 Check in your database:
+
 ```sql
-SELECT 
+SELECT
   COUNT(DISTINCT user_id) as total_users,
   COUNT(*) as total_posts,
   COUNT(CASE WHEN post_metadata->>'fromExtension' = 'true' THEN 1 END) as extension_posts
@@ -319,12 +343,14 @@ You can add a button in your dashboard that opens the extension directly:
 
 ```javascript
 // In your dashboard, add this button:
-<button onClick={() => {
-  // Tells extension to open popup
-  if (chrome && chrome.runtime) {
-    chrome.runtime.sendMessage({ action: 'openPopup' });
-  }
-}}>
+<button
+  onClick={() => {
+    // Tells extension to open popup
+    if (chrome && chrome.runtime) {
+      chrome.runtime.sendMessage({ action: "openPopup" });
+    }
+  }}
+>
   📱 Post from Extension
 </button>
 ```
@@ -336,15 +362,10 @@ You can add a button in your dashboard that opens the extension directly:
 ### Create a Help Page
 
 Add to your dashboard website:
-```html
-/help/chrome-extension/
 
-Shows:
-1. Installation guide (this document)
-2. How to use guide
-3. Troubleshooting
-4. FAQ
-5. Video tutorial (optional)
+```html
+/help/chrome-extension/ Shows: 1. Installation guide (this document) 2. How to
+use guide 3. Troubleshooting 4. FAQ 5. Video tutorial (optional)
 ```
 
 ---
@@ -354,6 +375,7 @@ Shows:
 You're all set! 🎉
 
 ### Next Steps:
+
 1. ✅ Load extension in Chrome
 2. ✅ Update constants.js with your domain
 3. ✅ Test with your account
@@ -384,6 +406,7 @@ A: YES, but requires Google review (3-5 days). Optional.
 ## 📞 Support
 
 If customers have issues:
+
 1. Check troubleshooting section above
 2. Ask them to share browser console errors (F12)
 3. Verify their domain in constants.js

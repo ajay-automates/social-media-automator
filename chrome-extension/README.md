@@ -1,4 +1,5 @@
 # 🚀 Social Media Automator Chrome Extension
+
 ## "Post This Now" - Browser Integration
 
 Instantly create and schedule social media posts from any webpage with AI-powered captions and hashtags.
@@ -21,12 +22,14 @@ Instantly create and schedule social media posts from any webpage with AI-powere
 ## 🔧 Installation (Developer Mode)
 
 ### Step 1: Download the Extension
+
 ```bash
 # Clone or download the extension folder:
 # /chrome-extension/
 ```
 
 ### Step 2: Load in Chrome
+
 1. Open Chrome and go to `chrome://extensions/`
 2. Enable **Developer Mode** (toggle in top-right corner)
 3. Click **"Load unpacked"**
@@ -34,6 +37,7 @@ Instantly create and schedule social media posts from any webpage with AI-powere
 5. Extension appears in your toolbar! ✅
 
 ### Step 3: Authenticate
+
 1. Click the extension icon (📱)
 2. You'll see an auth error initially
 3. Click **"Open Dashboard & Login"**
@@ -46,6 +50,7 @@ Instantly create and schedule social media posts from any webpage with AI-powere
 ## 🎯 How to Use
 
 ### Basic Workflow
+
 ```
 1. Open any webpage you want to share
 2. Click 📱 button (bottom-right corner)
@@ -59,6 +64,7 @@ Instantly create and schedule social media posts from any webpage with AI-powere
 ```
 
 ### Using AI Caption Generation
+
 ```
 1. Click "Generate AI" button
 2. Gets 3 smart variations using Claude Sonnet 4
@@ -67,6 +73,7 @@ Instantly create and schedule social media posts from any webpage with AI-powere
 ```
 
 ### Scheduling Posts
+
 ```
 1. Click "Schedule" button
 2. Pick date and time in the date picker
@@ -104,6 +111,7 @@ chrome-extension/
 ## 🔐 Authentication
 
 ### How It Works
+
 1. Extension checks for auth token in Chrome storage
 2. If no token: shows "Login" button
 3. User clicks "Open Dashboard & Login"
@@ -112,6 +120,7 @@ chrome-extension/
 6. Extension uses token to call backend API
 
 ### Security
+
 - ✅ Tokens stored locally (only this user can access)
 - ✅ HTTPS only (no insecure HTTP)
 - ✅ JWT token validation on every API call
@@ -128,8 +137,8 @@ Edit `utils/constants.js`:
 
 ```javascript
 const CONSTANTS = {
-  DASHBOARD_URL: 'https://your-domain.com/dashboard',
-  API_BASE_URL: 'https://your-domain.com',
+  DASHBOARD_URL: "https://your-domain.com/dashboard",
+  API_BASE_URL: "https://your-domain.com",
   // ... rest of config
 };
 ```
@@ -143,13 +152,13 @@ Your backend needs these endpoints (already exist in main app):
 ```
 GET /api/accounts/list
   → Returns user's connected accounts
-  
+
 POST /api/ai/generate-caption
   → Generates AI captions using Claude
-  
+
 POST /api/posts/create
   → Creates and posts immediately
-  
+
 POST /api/posts/schedule
   → Schedules post for later
 ```
@@ -159,22 +168,26 @@ POST /api/posts/schedule
 ## 🐛 Troubleshooting
 
 ### Extension doesn't appear?
+
 1. Go to `chrome://extensions/`
 2. Verify extension is enabled (toggle ON)
 3. Verify folder loaded successfully (should show path)
 
 ### "Not authenticated" error?
+
 1. Click "Open Dashboard & Login"
 2. Log in to your account
 3. Return to webpage with the button and refresh (Cmd+R)
 
 ### Button doesn't appear on webpage?
+
 1. Verify extension is enabled in `chrome://extensions/`
 2. Refresh the webpage (Cmd+R)
 3. Button appears bottom-right corner
 4. Check browser console for errors (F12 → Console tab)
 
 ### API connection errors?
+
 1. Verify `CONSTANTS.API_BASE_URL` is correct in `utils/constants.js`
 2. Verify you're logged in (auth token present)
 3. Check that your backend is running
@@ -185,6 +198,7 @@ POST /api/posts/schedule
 ## 📦 Development
 
 ### File Sizes (Optimized)
+
 - manifest.json: ~1 KB
 - popup.html: ~4 KB
 - popup.js: ~12 KB
@@ -194,12 +208,14 @@ POST /api/posts/schedule
 - **Total: ~28 KB** (extremely lightweight!)
 
 ### Browser Support
+
 - ✅ Chrome 88+
 - ✅ Edge 88+
 - ✅ Brave (Chromium-based)
 - ✅ Opera (Chromium-based)
 
 ### Performance
+
 - Content script loads instantly
 - Popup opens in <200ms
 - AI generation: 2-5 seconds (depends on Claude API)
@@ -210,12 +226,14 @@ POST /api/posts/schedule
 ## 🚀 Deployment
 
 ### Phase 1: Self-Hosted (Now)
+
 ✅ Users download from GitHub
 ✅ Users load in Developer Mode
 ✅ Works immediately
 ✅ Share with paying customers ($49+ tier)
 
 ### Phase 2: Chrome Web Store (Optional, Later)
+
 - Polish extension
 - Add store assets (screenshots, description)
 - Pay $5 to Google
@@ -227,6 +245,7 @@ POST /api/posts/schedule
 ## 📊 Usage Analytics
 
 Track these metrics after launch:
+
 - Daily active users using extension
 - Posts created via extension (% of total)
 - AI caption generation usage
@@ -239,19 +258,20 @@ Track these metrics after launch:
 
 ### Common Issues & Fixes
 
-| Issue | Solution |
-|-------|----------|
-| Button not visible | Refresh page (Cmd+R) |
-| Can't post | Verify accounts are connected |
-| Popup won't open | Check extension is enabled |
-| Auth error | Log in again in dashboard |
-| AI not working | Check ANTHROPIC_API_KEY in backend |
+| Issue              | Solution                           |
+| ------------------ | ---------------------------------- |
+| Button not visible | Refresh page (Cmd+R)               |
+| Can't post         | Verify accounts are connected      |
+| Popup won't open   | Check extension is enabled         |
+| Auth error         | Log in again in dashboard          |
+| AI not working     | Check ANTHROPIC_API_KEY in backend |
 
 ---
 
 ## 📝 Changelog
 
 ### v1.0.0 (Initial Release)
+
 - ✅ Basic post creation
 - ✅ AI caption generation
 - ✅ Multi-platform support

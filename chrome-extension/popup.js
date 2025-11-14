@@ -510,6 +510,21 @@ function bindEvents() {
       chrome.tabs.create({ url: CONSTANTS.DASHBOARD_URL });
     });
   }
+  
+  // Refresh auth button
+  const refreshBtn = document.getElementById('refresh-auth-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+      showMessage('Checking for login...', 'info');
+      refreshBtn.disabled = true;
+      
+      // Wait a moment for token to be synced
+      await new Promise(r => setTimeout(r, 1000));
+      
+      // Try to reload
+      window.location.reload();
+    });
+  }
 }
 
 // ============================================================================
