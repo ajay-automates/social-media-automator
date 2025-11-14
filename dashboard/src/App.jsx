@@ -39,7 +39,6 @@ function Navigation() {
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/create', label: 'Create Post', icon: '✨' },
     { path: '/content-agent', label: 'AI Agent', icon: '🤖' },
-    { path: '/content-recycling', label: 'Recycling', icon: '♻️' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
     { path: '/analytics', label: 'Analytics', icon: '📈' },
     { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
