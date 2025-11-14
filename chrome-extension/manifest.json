@@ -42,7 +42,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["popup.html"],
+      "resources": ["popup.html", "manual-token-sync.html", "manual-settings.html"],
       "matches": ["<all_urls>"]
     }
   ]

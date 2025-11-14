@@ -1,4 +1,5 @@
 # 🚀 CHROME EXTENSION - QUICK START
+
 ## Post This Now - Instant Social Media Posting
 
 **Status:** ✅ **LIVE - Ready to Use**  
@@ -22,17 +23,28 @@
 
 ### First Time Using
 
+**Option 1: Automatic Login (Recommended)**
 ```
 1. Go to ANY website
 2. Click 📱 button (bottom-right corner)
 3. Click "Open Dashboard & Login"
 4. Log in with your account
-5. Go back to webpage
-6. Click 📱 button again
-7. See popup with post composer
-8. Type caption or click "✨ Generate AI"
-9. Select platforms
-10. Click "Post Now" ✅
+5. Token syncs automatically (green notification appears)
+6. Click "Refresh After Login"
+7. Popup shows authenticated interface
+8. Done! ✅
+```
+
+**Option 2: Manual Token Entry (If automatic fails)**
+```
+1. Click 📱 button
+2. Click "🔑 Enter Token Manually" (green button)
+3. Opens manual settings page
+4. Follow on-screen instructions to copy token from dashboard
+5. Paste token and user ID
+6. Click "Save & Authenticate"
+7. Reopen extension popup
+8. Done! ✅
 ```
 
 ---
@@ -40,6 +52,7 @@
 ## 📋 What You Get
 
 ### Extension Features
+
 - ✅ One-click posting from any webpage
 - ✅ AI caption generation (3 smart variations)
 - ✅ Multi-platform (LinkedIn, Twitter, Facebook, Instagram, Reddit, Telegram, Discord, TikTok)
@@ -49,8 +62,11 @@
 - ✅ Account selection for multiple profiles
 - ✅ Beautiful, modern UI
 - ✅ Lightning-fast (~200ms popup open time)
+- ✅ Automatic token sync from dashboard (with manual fallback)
+- ✅ Secure authentication (Supabase JWT)
 
 ### File Size
+
 - Total: **28 KB** (extremely lightweight!)
 - No bloat, no ads, no tracking
 - Minimal permissions
@@ -75,7 +91,7 @@
    - Variation C: "The future is here: AI scientists achieve... [hashtags]"
 6. Click one you like
 7. Select platforms: LinkedIn ☑️ Twitter ☑️
-8. Select accounts: 
+8. Select accounts:
    - LinkedIn: "My Personal" (dropdown)
    - Twitter: "@myhandle" (dropdown)
 9. Click "Post Now"
@@ -83,6 +99,7 @@
 ```
 
 **Without extension:**
+
 - Would need to copy-paste article link
 - Manually write different captions per platform
 - Go to each platform separately
@@ -90,6 +107,7 @@
 - **Total time: 10+ minutes**
 
 **With extension:**
+
 - Click button → AI suggests → Post → Done
 - **Total time: 30 seconds**
 
@@ -102,8 +120,11 @@
 ├── manifest.json                 # Manifest V3 (browser config)
 ├── popup.html                    # Post composer interface
 ├── popup.js                      # Main logic (1000+ lines, well-commented)
-├── content-script.js             # Injects button on pages
+├── content-script.js             # Injects button + auto token sync
 ├── background.js                 # Service worker
+├── manual-settings.html          # Manual token entry page
+├── manual-token-sync.html        # Debug token sync page
+├── test-token-sync.js            # Console test script
 ├── styles/
 │   ├── popup.css                 # Beautiful popup styling
 │   └── content.css               # Button styling
@@ -112,7 +133,8 @@
 │   ├── storage.js                # Chrome storage wrapper
 │   └── api-client.js             # API communication
 ├── README.md                     # Full documentation
-└── SETUP_GUIDE.md                # Detailed setup instructions
+├── SETUP_GUIDE.md                # Detailed setup instructions
+└── TESTING.md                    # Authentication testing guide
 ```
 
 ---
@@ -124,6 +146,7 @@
 Edit `chrome-extension/utils/constants.js`:
 
 **CHANGE THIS:**
+
 ```javascript
 const CONSTANTS = {
   DASHBOARD_URL: 'https://your-domain.com/dashboard',
@@ -131,6 +154,7 @@ const CONSTANTS = {
 ```
 
 **TO THIS:**
+
 ```javascript
 const CONSTANTS = {
   DASHBOARD_URL: 'https://capable-motivation-production-7a75.up.railway.app/dashboard',
@@ -155,13 +179,13 @@ Extension calls these backend endpoints (already exist in your code):
 ```
 GET /api/accounts/list
   → Returns user's connected accounts
-  
+
 POST /api/ai/generate-caption
   → Calls Claude to generate captions
-  
+
 POST /api/posts/create
   → Creates and posts immediately
-  
+
 POST /api/posts/schedule
   → Schedules post for later time
 ```
@@ -249,6 +273,7 @@ Step 3: Login
 ### Problem: Button doesn't appear
 
 **Fix:**
+
 ```
 1. Go to chrome://extensions/
 2. Make sure extension is enabled (toggle ON)
@@ -257,9 +282,30 @@ Step 3: Login
 5. Button should appear
 ```
 
+### Problem: Authentication not working (automatic sync fails)
+
+**Fix:**
+
+```
+Option 1: Use Manual Token Entry
+1. Click extension icon
+2. Click "🔑 Enter Token Manually" (green button)
+3. Follow on-screen instructions
+4. Copy token from dashboard console
+5. Paste and save
+6. Done!
+
+Option 2: Hard Reset
+1. Go to chrome://extensions/
+2. Click "Remove" on extension
+3. Reload the unpacked extension
+4. Try again
+```
+
 ### Problem: Can't post (API error)
 
 **Fix:**
+
 ```
 1. Check constants.js has correct domain
 2. Reload extension (refresh icon in chrome://extensions/)
@@ -270,12 +316,27 @@ Step 3: Login
 ### Problem: AI not generating
 
 **Fix:**
+
 ```
 1. Make sure ANTHROPIC_API_KEY is set on backend
 2. Check that you have API credits
 3. Try again (may be API rate limit)
 ```
 
+### Problem: Chrome caching old extension code
+
+**Fix:**
+
+```
+1. Go to chrome://extensions/
+2. Click refresh icon (🔄)
+3. Close ALL tabs with dashboard
+4. Close extension popup
+5. Open new tab
+6. Try again
+```
+
+See **TESTING.md** for detailed authentication testing steps.
 See **SETUP_GUIDE.md** for more troubleshooting.
 
 ---
@@ -297,6 +358,7 @@ Support Tickets:        -40% (fewer questions)
 ## 🚀 Rollout Plan
 
 ### Week 1: Internal Testing
+
 ```
 - Load extension locally
 - Test with your accounts
@@ -306,6 +368,7 @@ Support Tickets:        -40% (fewer questions)
 ```
 
 ### Week 2: Beta (Early Customers)
+
 ```
 - Give to 5-10 paying customers
 - Gather feedback
@@ -314,6 +377,7 @@ Support Tickets:        -40% (fewer questions)
 ```
 
 ### Week 3: Public Release
+
 ```
 - Create GitHub release
 - Share download link
@@ -323,6 +387,7 @@ Support Tickets:        -40% (fewer questions)
 ```
 
 ### Month 2: Iterate
+
 ```
 - Add custom icons
 - Add more AI variations
@@ -349,13 +414,13 @@ Support Tickets:        -40% (fewer questions)
 
 ## 📚 Documentation
 
-| Document | Purpose |
-|----------|---------|
-| `README.md` | Full feature documentation |
-| `SETUP_GUIDE.md` | Installation & troubleshooting |
-| `popup.js` | Code comments (1000+ lines) |
-| `content-script.js` | Button injection code |
-| `utils/api-client.js` | API communication code |
+| Document              | Purpose                        |
+| --------------------- | ------------------------------ |
+| `README.md`           | Full feature documentation     |
+| `SETUP_GUIDE.md`      | Installation & troubleshooting |
+| `popup.js`            | Code comments (1000+ lines)    |
+| `content-script.js`   | Button injection code          |
+| `utils/api-client.js` | API communication code         |
 
 ---
 
@@ -378,6 +443,7 @@ Support Tickets:        -40% (fewer questions)
 Want quick improvements? Try these:
 
 ### Add Custom Icons (5 min)
+
 ```
 Create 4 PNG files:
 - icon-16.png   (16x16)
@@ -390,6 +456,7 @@ Icons show up!
 ```
 
 ### Add Dark Mode (10 min)
+
 ```
 Duplicate popup.css → popup-dark.css
 Add: prefers-color-scheme: dark
@@ -397,6 +464,7 @@ Save, reload, done!
 ```
 
 ### Add Keyboard Shortcut (15 min)
+
 ```
 Update manifest.json:
 "commands": {
@@ -412,11 +480,13 @@ Users press Ctrl+Shift+M to open!
 ## 📞 Support
 
 ### For You (Developer)
+
 - Check `SETUP_GUIDE.md` for troubleshooting
 - Check `popup.js` comments for code details
 - Check `utils/api-client.js` for API logic
 
 ### For Customers
+
 - Point to `SETUP_GUIDE.md`
 - Share troubleshooting section
 - Share common FAQs
@@ -426,6 +496,7 @@ Users press Ctrl+Shift+M to open!
 ## 🎉 Congratulations!
 
 You now have a **production-ready Chrome Extension** that:
+
 - ✅ Works immediately (no approvals needed)
 - ✅ Requires zero customer setup beyond browser
 - ✅ Integrates with existing backend
@@ -447,8 +518,8 @@ After launching, monitor:
 
 ```sql
 -- Posts via extension
-SELECT COUNT(*) 
-FROM posts 
+SELECT COUNT(*)
+FROM posts
 WHERE post_metadata->>'fromExtension' = 'true'
 AND created_at > NOW() - INTERVAL 7 days;
 
@@ -458,7 +529,7 @@ FROM posts
 WHERE post_metadata->>'fromExtension' = 'true';
 
 -- Platforms most used
-SELECT 
+SELECT
   jsonb_array_elements(platforms) AS platform,
   COUNT(*)
 FROM posts

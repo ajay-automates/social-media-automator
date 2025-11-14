@@ -90,10 +90,13 @@ const PLATFORMS = [
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🎯 Popup loaded');
-  
+
+  // Bind auth buttons first (before auth check)
+  bindAuthButtons();
+
   // Show loading state
   showState('loading');
-  
+
   try {
     // Check authentication
     const authToken = await StorageAPI.get('authToken');
@@ -487,6 +490,127 @@ function validateBeforePost() {
 // EVENT BINDING
 // ============================================================================
 
+/**
+ * Bind auth-related buttons (called before auth check)
+ */
+function bindAuthButtons() {
+  // Login button
+  if (elements.loginBtn) {
+    elements.loginBtn.addEventListener('click', () => {
+      console.log('🔘 Login button clicked');
+      chrome.runtime.sendMessage({
+        action: 'openDashboard',
+        url: CONSTANTS.DASHBOARD_URL
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('❌ Error opening dashboard:', chrome.runtime.lastError);
+          showMessage('❌ Failed to open dashboard', 'error');
+        } else {
+          console.log('✅ Dashboard opened:', response);
+          showMessage('✅ Dashboard opened in new tab. Log in and then click "Refresh After Login"', 'success');
+        }
+      });
+    });
+  }
+
+  // Refresh auth button
+  const refreshBtn = document.getElementById('refresh-auth-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async () => {
+      showMessage('Checking for login...', 'info');
+      refreshBtn.disabled = true;
+
+      // Wait a moment for token to be synced
+      await new Promise(r => setTimeout(r, 1000));
+
+      // Try to reload
+      window.location.reload();
+    });
+  }
+
+  // Manual token entry button
+  const manualTokenBtn = document.getElementById('manual-token-btn');
+  if (manualTokenBtn) {
+    manualTokenBtn.addEventListener('click', () => {
+      console.log('🔑 Manual token entry clicked');
+      // Open the manual settings page
+      chrome.tabs.create({
+        url: chrome.runtime.getURL('manual-settings.html')
+      });
+    });
+  }
+
+  // Manual sync button (debug)
+  const manualSyncBtn = document.getElementById('manual-sync-btn');
+  if (manualSyncBtn) {
+    manualSyncBtn.addEventListener('click', async () => {
+      console.log('🔧 Manual sync clicked');
+      showMessage('Checking dashboard tabs...', 'info');
+
+      // Query all tabs for dashboard
+      const tabs = await chrome.tabs.query({});
+      const dashboardTabs = tabs.filter(tab => tab.url && tab.url.includes('/dashboard'));
+
+      console.log('Found dashboard tabs:', dashboardTabs.length);
+
+      if (dashboardTabs.length === 0) {
+        showMessage('❌ No dashboard tabs found. Please open and login to dashboard first.', 'error');
+        return;
+      }
+
+      // Execute script in dashboard tab to get token
+      const dashboardTab = dashboardTabs[0];
+      console.log('Querying dashboard tab:', dashboardTab.id);
+
+      try {
+        const results = await chrome.scripting.executeScript({
+          target: { tabId: dashboardTab.id },
+          func: () => {
+            const keys = Object.keys(localStorage);
+            const authKey = keys.find(key => key.endsWith('-auth-token'));
+            if (authKey) {
+              const data = JSON.parse(localStorage.getItem(authKey));
+              return {
+                token: data.access_token,
+                userId: data.user?.id,
+                email: data.user?.email
+              };
+            }
+            return null;
+          }
+        });
+
+        const result = results[0].result;
+        console.log('Got result:', result);
+
+        if (result && result.token && result.userId) {
+          // Save to storage
+          await chrome.storage.local.set({
+            authToken: result.token,
+            userId: result.userId,
+            tokenSyncedAt: new Date().toISOString()
+          });
+
+          console.log('✅ Token saved:', result.email);
+          showMessage('✅ Token synced! Reloading...', 'success');
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } else {
+          showMessage('❌ No valid session found in dashboard. Please login first.', 'error');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage('❌ Failed to sync: ' + error.message, 'error');
+      }
+    });
+  }
+}
+
+/**
+ * Bind main UI buttons (called after successful auth)
+ */
 function bindEvents() {
   elements.closeBtn.addEventListener('click', () => window.close());
   elements.captionInput.addEventListener('input', updateCharCount);
@@ -495,7 +619,7 @@ function bindEvents() {
   elements.messageClose.addEventListener('click', () => {
     elements.messageBox.classList.add('hidden');
   });
-  
+
   // Schedule toggle
   elements.scheduleBtn.addEventListener('click', () => {
     elements.scheduleDatetime.classList.toggle('hidden');
@@ -503,39 +627,6 @@ function bindEvents() {
       elements.scheduleDatetime.focus();
     }
   });
-  
-  // Login button
-  if (elements.loginBtn) {
-    elements.loginBtn.addEventListener('click', () => {
-      chrome.runtime.sendMessage({
-        action: 'openDashboard',
-        url: CONSTANTS.DASHBOARD_URL
-      }, (response) => {
-        if (chrome.runtime.lastError) {
-          console.error('Error opening dashboard:', chrome.runtime.lastError);
-          showMessage('Failed to open dashboard', 'error');
-        } else {
-          console.log('✅ Dashboard opened');
-          showMessage('Dashboard opened in new tab. Log in and then click "Refresh After Login"', 'success');
-        }
-      });
-    });
-  }
-  
-  // Refresh auth button
-  const refreshBtn = document.getElementById('refresh-auth-btn');
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', async () => {
-      showMessage('Checking for login...', 'info');
-      refreshBtn.disabled = true;
-      
-      // Wait a moment for token to be synced
-      await new Promise(r => setTimeout(r, 1000));
-      
-      // Try to reload
-      window.location.reload();
-    });
-  }
 }
 
 // ============================================================================

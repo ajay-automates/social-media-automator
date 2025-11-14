@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual Token Entry</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f3f4f6;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1f2937;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      color: #374151;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: monospace;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+    .status.info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #3b82f6;
+    }
+    .hidden {
+      display: none;
+    }
+    .instructions {
+      background: #fffbeb;
+      border: 1px solid #fbbf24;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .instructions h3 {
+      margin: 0 0 10px 0;
+      color: #92400e;
+      font-size: 16px;
+    }
+    .instructions ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .instructions li {
+      color: #78350f;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .instructions code {
+      background: #fef3c7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔑 Manual Token Entry</h1>
+    <p class="subtitle">Paste your authentication token directly</p>
+
+    <div class="instructions">
+      <h3>📝 How to get your token:</h3>
+      <ol>
+        <li>Open the dashboard and log in: <strong>https://capable-motivation-production-7a75.up.railway.app/dashboard</strong></li>
+        <li>Open DevTools Console (F12 or right-click → Inspect → Console)</li>
+        <li>Paste this command and press Enter:</li>
+      </ol>
+      <textarea readonly style="margin-top: 10px; min-height: 80px; font-size: 11px;">const key = Object.keys(localStorage).find(k => k.endsWith('-auth-token'));
+const data = JSON.parse(localStorage.getItem(key));
+console.log('Token:', data.access_token);
+console.log('User ID:', data.user.id);
+console.log('Email:', data.user.email);</textarea>
+      <ol start="4">
+        <li>Copy the <code>Token</code> and <code>User ID</code> from the console output</li>
+        <li>Paste them in the fields below</li>
+      </ol>
+    </div>
+
+    <form id="tokenForm">
+      <div class="form-group">
+        <label for="authToken">Auth Token *</label>
+        <textarea
+          id="authToken"
+          placeholder="Paste your auth token here (starts with ey...)"
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="userId">User ID *</label>
+        <input
+          type="text"
+          id="userId"
+          placeholder="e.g., 12345678-1234-1234-1234-123456789abc"
+          required
+        />
+      </div>
+
+      <button type="submit">Save & Authenticate</button>
+    </form>
+
+    <div id="status" class="status hidden"></div>
+  </div>
+
+  <script>
+    console.log('🔑 Manual Settings page loaded');
+
+    document.getElementById('tokenForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const authToken = document.getElementById('authToken').value.trim();
+      const userId = document.getElementById('userId').value.trim();
+      const status = document.getElementById('status');
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+
+      // Validate
+      if (!authToken || !userId) {
+        status.className = 'status error';
+        status.classList.remove('hidden');
+        status.textContent = '❌ Please fill in all fields';
+        return;
+      }
+
+      // Show loading
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+      status.className = 'status info';
+      status.classList.remove('hidden');
+      status.textContent = '💾 Saving credentials...';
+
+      try {
+        // Save to extension storage
+        await chrome.storage.local.set({
+          authToken: authToken,
+          userId: userId,
+          tokenSyncedAt: new Date().toISOString(),
+          manuallyEntered: true
+        });
+
+        console.log('✅ Token saved successfully');
+
+        // Verify it was saved
+        const saved = await chrome.storage.local.get(['authToken', 'userId']);
+
+        if (saved.authToken && saved.userId) {
+          status.className = 'status success';
+          status.innerHTML = `
+            <strong>✅ Success!</strong><br>
+            Token saved successfully!<br>
+            <br>
+            <strong>Next step:</strong> Close this tab and reopen the extension popup. It should now be authenticated!
+          `;
+          submitBtn.textContent = '✅ Saved Successfully';
+
+          // Auto-close after 3 seconds
+          setTimeout(() => {
+            window.close();
+          }, 3000);
+        } else {
+          throw new Error('Failed to verify saved token');
+        }
+
+      } catch (error) {
+        console.error('❌ Error saving token:', error);
+        status.className = 'status error';
+        status.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Try Again';
+      }
+    });
+
+    // Auto-fill from clipboard if available (convenience feature)
+    document.getElementById('authToken').addEventListener('focus', async (e) => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text.startsWith('ey') && e.target.value === '') {
+          e.target.value = text;
+          console.log('✅ Auto-filled token from clipboard');
+        }
+      } catch (err) {
+        // Clipboard access denied or not available, ignore
+      }
+    });
+  </script>
+</body>
+</html>
