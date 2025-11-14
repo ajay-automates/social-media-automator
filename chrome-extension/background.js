@@ -7,7 +7,11 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'openPopup') {
     console.log('🎯 Opening popup from content script');
-    chrome.action.openPopup();
+    // Try to open popup, but don't fail if it can't
+    chrome.action.openPopup().catch((err) => {
+      console.warn('⚠️ Could not open popup:', err.message);
+      // Popup already open or not possible - that's OK
+    });
     sendResponse({ success: true });
   }
   
