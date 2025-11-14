@@ -1,0 +1,46 @@
+/**
+ * content.css - Styles for injected content on webpages
+ */
+
+#sma-button-container {
+  all: initial;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#sma-post-button {
+  all: unset;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transition: all 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#sma-post-button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+}
+
+#sma-post-button:active {
+  transform: scale(0.95);
+}
+
+#sma-post-button:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}

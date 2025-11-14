@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post This Now</title>
+  <link rel="stylesheet" href="styles/popup.css">
+</head>
+<body>
+  <div id="popup-container" class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <h1 class="popup-title">📱 Post This Now</h1>
+      <button id="close-btn" class="close-btn" aria-label="Close">×</button>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-state hidden">
+      <div class="spinner"></div>
+      <p>Loading page content...</p>
+    </div>
+
+    <!-- Auth Error State -->
+    <div id="auth-error-state" class="auth-error-state hidden">
+      <div class="error-icon">🔐</div>
+      <h2>Authentication Required</h2>
+      <p>Please log in to Social Media Automator to use this extension.</p>
+      <button id="login-btn" class="btn btn-primary">Open Dashboard & Login</button>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content hidden">
+      <!-- Step 1: URL Preview -->
+      <section id="url-section" class="section">
+        <label class="section-label">📎 Captured URL</label>
+        <div id="url-preview" class="url-preview">
+          <img id="url-og-image" class="url-og-image" alt="Page preview">
+          <div class="url-info">
+            <h3 id="url-title" class="url-title"></h3>
+            <p id="url-description" class="url-description"></p>
+            <a id="url-link" class="url-link" target="_blank" rel="noopener"></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Caption Input -->
+      <section id="caption-section" class="section">
+        <label class="section-label">✍️ Caption</label>
+        <textarea
+          id="caption-input"
+          class="caption-input"
+          placeholder="Enter your caption or click 'Generate AI Caption' below..."
+          rows="4"
+        ></textarea>
+        <div class="input-footer">
+          <span id="char-count" class="char-count">0/280</span>
+          <button id="ai-generate-btn" class="btn btn-secondary btn-sm">
+            ✨ Generate AI
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 3: AI Caption Variations -->
+      <section id="variations-section" class="section hidden">
+        <label class="section-label">🎨 AI Variations</label>
+        <div id="variations-list" class="variations-list">
+          <!-- Variations will be inserted here -->
+        </div>
+      </section>
+
+      <!-- Step 4: Platform Selection -->
+      <section id="platforms-section" class="section">
+        <label class="section-label">🌐 Select Platforms</label>
+        <div id="platforms-list" class="platforms-list">
+          <!-- Platform checkboxes will be inserted here -->
+        </div>
+      </section>
+
+      <!-- Step 5: Account Selection -->
+      <section id="accounts-section" class="section hidden">
+        <label class="section-label">👤 Select Accounts</label>
+        <div id="accounts-list" class="accounts-list">
+          <!-- Account dropdowns will be inserted here -->
+        </div>
+      </section>
+
+      <!-- Step 6: Schedule/Post -->
+      <section id="action-section" class="section">
+        <label class="section-label">📅 Action</label>
+        <div class="action-buttons">
+          <button id="post-now-btn" class="btn btn-primary">Post Now</button>
+          <button id="schedule-btn" class="btn btn-secondary">Schedule</button>
+        </div>
+        <input
+          type="datetime-local"
+          id="schedule-datetime"
+          class="schedule-input hidden"
+        >
+      </section>
+
+      <!-- Error/Success Messages -->
+      <div id="message-box" class="message-box hidden" role="alert">
+        <span id="message-text" class="message-text"></span>
+        <button class="message-close" aria-label="Close message">×</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="utils/constants.js"></script>
+  <script src="utils/storage.js"></script>
+  <script src="utils/api-client.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
