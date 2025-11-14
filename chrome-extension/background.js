@@ -24,6 +24,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true; // Will respond asynchronously
   }
+  
+  if (request.action === 'openDashboard') {
+    console.log('📖 Opening dashboard in new tab');
+    chrome.tabs.create({ url: request.url }, (tab) => {
+      console.log('✅ Dashboard tab opened:', tab.id);
+      sendResponse({ success: true, tabId: tab.id });
+    });
+    return true; // Will respond asynchronously
+  }
 });
 
 // Update icon badge on tab change

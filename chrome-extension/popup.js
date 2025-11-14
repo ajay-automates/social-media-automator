@@ -507,7 +507,18 @@ function bindEvents() {
   // Login button
   if (elements.loginBtn) {
     elements.loginBtn.addEventListener('click', () => {
-      chrome.tabs.create({ url: CONSTANTS.DASHBOARD_URL });
+      chrome.runtime.sendMessage({
+        action: 'openDashboard',
+        url: CONSTANTS.DASHBOARD_URL
+      }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('Error opening dashboard:', chrome.runtime.lastError);
+          showMessage('Failed to open dashboard', 'error');
+        } else {
+          console.log('✅ Dashboard opened');
+          showMessage('Dashboard opened in new tab. Log in and then click "Refresh After Login"', 'success');
+        }
+      });
     });
   }
   
