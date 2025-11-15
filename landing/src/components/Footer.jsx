@@ -112,6 +112,11 @@ export default function Footer() {
                   Privacy Policy
                 </Link>
               </li>
+              <li>
+                <Link to="/data-deletion" className="hover:text-white transition-colors">
+                  Data Deletion
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -120,7 +125,7 @@ export default function Footer() {
             <h4 className="font-bold text-white mb-4">Connect</h4>
             <ul className="space-y-3 text-gray-400 text-sm">
               <li>
-                <a href="mailto:support@yourdomain.com" className="hover:text-white transition-colors">
+                <a href="mailto:support@socialmediaautomator.com" className="hover:text-white transition-colors">
                   Email Us
                 </a>
               </li>
@@ -146,6 +151,8 @@ export default function Footer() {
             <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <span>•</span>
             <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <span>•</span>
+            <Link to="/data-deletion" className="hover:text-white transition-colors">Data Deletion</Link>
           </div>
           
           {/* Social Icons */}

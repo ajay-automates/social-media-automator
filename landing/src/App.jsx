@@ -9,6 +9,7 @@ import FAQ from './components/FAQ';
 import Footer from './components/Footer';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import DataDeletion from './pages/DataDeletion';
 
 function HomePage() {
   return (
@@ -40,6 +41,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/data-deletion" element={<DataDeletion />} />
       </Routes>
     </div>
   );
