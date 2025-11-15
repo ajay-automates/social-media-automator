@@ -364,14 +364,20 @@ startScheduler();
 const landingPath = path.join(__dirname, 'landing-dist');
 if (fsSync.existsSync(landingPath)) {
   app.use(express.static(landingPath, { index: false }));
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(landingPath, 'index.html'));
+  const landingRoutes = ['/', '/privacy', '/terms', '/data-deletion'];
+  landingRoutes.forEach((route) => {
+    app.get(route, (req, res) => {
+      res.sendFile(path.join(landingPath, 'index.html'));
+    });
   });
 } else {
   // Fallback to old landing page if React build doesn't exist
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+  const fallbackRoutes = ['/', '/privacy', '/terms', '/data-deletion'];
+  fallbackRoutes.forEach((route) => {
+    app.get(route, (req, res) => {
+      res.sendFile(path.join(__dirname, 'index.html'));
+    });
+  });
 }
 
 // Auth page
