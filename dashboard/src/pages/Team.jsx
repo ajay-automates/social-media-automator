@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { NoActivityEmpty } from '../components/ui/EmptyState';
+import RoleBadge from '../components/RoleBadge';
 import { toast } from 'react-hot-toast';
 
 export default function Team() {
