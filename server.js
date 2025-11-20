@@ -1,4 +1,9 @@
 require('dotenv').config();
+const { validateEnv } = require('./utilities/env-validator');
+
+// Validate environment variables before starting
+validateEnv();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -454,22 +459,38 @@ app.get('/dashboard/*', (req, res) => {
  * Health check (unprotected)
  */
 app.get('/api/health', async (req, res) => {
+  const health = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    services: {}
+  };
+
+  // Check database
   try {
     const dbHealthy = await healthCheck();
-
-    res.json({
-      status: 'running',
-      uptime: process.uptime(),
-      database: dbHealthy ? 'connected' : 'disconnected',
-      message: '🚀 Social Media Automator is live!',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      error: error.message
-    });
+    if (dbHealthy) {
+      health.services.database = 'connected';
+    } else {
+      health.services.database = 'disconnected';
+      health.status = 'degraded';
+    }
+  } catch (err) {
+    health.services.database = 'disconnected';
+    health.status = 'degraded';
   }
+
+  // Check Cloudinary
+  health.services.cloudinary = process.env.CLOUDINARY_API_KEY ? 'configured' : 'not configured';
+
+  // Check AI services
+  health.services.anthropic = process.env.ANTHROPIC_API_KEY ? 'configured' : 'not configured';
+
+  // Check Email services
+  const hasEmail = (process.env.SMTP_HOST && process.env.SMTP_USER) || process.env.SENDGRID_API_KEY;
+  health.services.email = hasEmail ? 'configured' : 'not configured';
+
+  res.status(health.status === 'ok' ? 200 : 503).json(health);
 });
 
 /**

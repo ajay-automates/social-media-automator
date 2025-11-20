@@ -57,7 +57,7 @@ async function runTests() {
             if (!data.error) throw new Error('Missing error object');
             if (!data.error.code) throw new Error('Missing error code');
             if (!data.error.message) throw new Error('Missing error message');
-            if (data.error.code !== 'ROUTE_NOT_FOUND') throw new Error(`Expected ROUTE_NOT_FOUND, got ${data.error.code}`);
+            if (data.error.code !== 'NOT_FOUND') throw new Error(`Expected NOT_FOUND, got ${data.error.code}`);
         }
     })) passed++;
 
