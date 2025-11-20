@@ -923,427 +923,550 @@ export default function CreatePost() {
         </div>
 
         <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
-          {/* Reddit-Specific Fields */}
-          {platforms.includes('reddit') && (
-            <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-orange-300 font-semibold">
-                <span>🔴</span>
-                <span>Reddit Settings</span>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Post Title <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={redditTitle}
-                  onChange={(e) => setRedditTitle(e.target.value)}
-                  placeholder="Enter post title (required for Reddit, max 300 chars)"
-                  maxLength={300}
-                  className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-400"
-                />
-                <p className="text-xs text-gray-400 mt-1">
-                  {redditTitle.length}/300 characters
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Subreddit <span className="text-red-400">*</span>
-                </label>
-                {moderatedSubreddits.length > 0 ? (
-                  <select
-                    value={redditSubreddit}
-                    onChange={(e) => setRedditSubreddit(e.target.value)}
-                    className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  >
-                    {moderatedSubreddits.map(sub => (
-                      <option key={sub} value={sub}>
-                        r/{sub}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="text-sm text-gray-300 bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded p-3">
-                    ⚠️ No moderated subreddits found. You can only post to subreddits where you're a moderator.
+          {/* Advanced Options - Reddit Settings & Templates */}
+          {showAdvanced && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-6"
+            >
+              {/* Reddit-Specific Fields */}
+              {platforms.includes('reddit') && (
+                <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">
+                  <div className="flex items-center gap-2 text-orange-300 font-semibold">
+                    <span>🔴</span>
+                    <span>Reddit Settings</span>
                   </div>
-                )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Post Title <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={redditTitle}
+                      onChange={(e) => setRedditTitle(e.target.value)}
+                      placeholder="Enter post title (required for Reddit, max 300 chars)"
+                      maxLength={300}
+                      className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-400"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      {redditTitle.length}/300 characters
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Subreddit <span className="text-red-400">*</span>
+                    </label>
+                    {moderatedSubreddits.length > 0 ? (
+                      <select
+                        value={redditSubreddit}
+                        onChange={(e) => setRedditSubreddit(e.target.value)}
+                        className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      >
+                        {moderatedSubreddits.map(sub => (
+                          <option key={sub} value={sub}>
+                            r/{sub}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="text-sm text-gray-300 bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded p-3">
+                        ⚠️ No moderated subreddits found. You can only post to subreddits where you're a moderator.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Load from Template Button */}
+              <div className="flex justify-end">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowTemplateModal(true)}
+                  className="group relative bg-purple-600/30 backdrop-blur-lg border-2 border-purple-400/30 text-white px-5 py-2.5 rounded-xl hover:bg-purple-600/40 font-medium transition-all shadow-lg hover:shadow-purple-500/30 overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+                  <span className="relative flex items-center gap-2">
+                    📋 Load from Template
+                    {templates.length > 0 && (
+                      <span className="bg-purple-500/50 px-2 py-0.5 rounded-full text-xs">
+                        {templates.length}
+                      </span>
+                    )}
+                  </span>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Caption Input */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-300">
+              Caption
+            </label>
+            {!caption.trim() && (
+              <button
+                onClick={() => navigate('/', { state: { openContentIdeas: true } })}
+                className="text-purple-400 hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
+              >
+                <span>💡</span>
+                Need ideas? Click here
+              </button>
+            )}
+          </div>
+          <textarea
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="What's on your mind?"
+            className="w-full p-4 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-400"
+            rows={6}
+          />
+          {/* Character Counter - Multi-Platform */}
+          {platforms.length > 0 && caption.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3"
+            >
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs text-gray-400 font-semibold">Character Count:</span>
+                {characterCounts.map((count) => {
+                  const getStatusColor = () => {
+                    if (count.status === 'exceeded') return 'from-red-600 to-red-700 border-red-500/50';
+                    if (count.status === 'warning') return 'from-yellow-600 to-orange-600 border-yellow-500/50';
+                    return 'from-green-600 to-emerald-600 border-green-500/50';
+                  };
+
+                  const getStatusIcon = () => {
+                    if (count.status === 'exceeded') return '🚫';
+                    if (count.status === 'warning') return '⚠️';
+                    return '✅';
+                  };
+
+                  return (
+                    <motion.div
+                      key={count.platform}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className={`inline-flex items-center gap-1.5 bg-gradient-to-r ${getStatusColor()} backdrop-blur-xl border-2 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg`}
+                    >
+                      <span>{getStatusIcon()}</span>
+                      <span className="capitalize">{count.platform}</span>
+                      <span className="opacity-75">|</span>
+                      <span>{count.current}/{count.limit}</span>
+                      <span className="text-xs opacity-75">({count.percentage}%)</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+              {hasExceededLimit && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-2 text-xs text-red-400 font-semibold flex items-center gap-1"
+                >
+                  <span>⚠️</span>
+                  <span>Some platforms exceed character limits. You can only post to platforms within limits.</span>
+                </motion.div>
+              )}
+            </motion.div>
           )}
 
-          {/* Load from Template Button */}
-          <div className="flex justify-between items-center mb-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowTemplateModal(true)}
-              className="group relative bg-purple-600/30 backdrop-blur-lg border-2 border-purple-400/30 text-white px-5 py-2.5 rounded-xl hover:bg-purple-600/40 font-medium transition-all shadow-lg hover:shadow-purple-500/30 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-              <span className="relative flex items-center gap-2">
-                📋 Load from Template
-                {templates.length > 0 && (
-                  <span className="bg-purple-500/50 px-2 py-0.5 rounded-full text-xs">
-                    {templates.length}
-                  </span>
-                )}
-              </span>
-            </motion.button>
-          </div>
+          <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
+            <div className="text-sm text-gray-400">{caption.length} characters total</div>
 
-          {/* Caption Input */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-300">
-                Caption
-              </label>
-              {!caption.trim() && (
-                <button
-                  onClick={() => navigate('/', { state: { openContentIdeas: true } })}
-                  className="text-purple-400 hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
-                >
-                  <span>💡</span>
-                  Need ideas? Click here
-                </button>
-              )}
-            </div>
-            <textarea
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="What's on your mind?"
-              className="w-full p-4 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-400"
-              rows={6}
-            />
-            {/* Character Counter - Multi-Platform */}
-            {platforms.length > 0 && caption.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-3"
-              >
-                <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-xs text-gray-400 font-semibold">Character Count:</span>
-                  {characterCounts.map((count) => {
-                    const getStatusColor = () => {
-                      if (count.status === 'exceeded') return 'from-red-600 to-red-700 border-red-500/50';
-                      if (count.status === 'warning') return 'from-yellow-600 to-orange-600 border-yellow-500/50';
-                      return 'from-green-600 to-emerald-600 border-green-500/50';
-                    };
-
-                    const getStatusIcon = () => {
-                      if (count.status === 'exceeded') return '🚫';
-                      if (count.status === 'warning') return '⚠️';
-                      return '✅';
-                    };
-
-                    return (
-                      <motion.div
-                        key={count.platform}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className={`inline-flex items-center gap-1.5 bg-gradient-to-r ${getStatusColor()} backdrop-blur-xl border-2 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-lg`}
-                      >
-                        <span>{getStatusIcon()}</span>
-                        <span className="capitalize">{count.platform}</span>
-                        <span className="opacity-75">|</span>
-                        <span>{count.current}/{count.limit}</span>
-                        <span className="text-xs opacity-75">({count.percentage}%)</span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-                {hasExceededLimit && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-2 text-xs text-red-400 font-semibold flex items-center gap-1"
+            {/* AI Assistant Features - Only show when toggled */}
+            {showAIAssistant && (
+              <div className="flex items-center gap-2">
+                {caption.length >= 10 && platforms.length > 0 && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={generateVariations}
+                    disabled={generatingVariations}
+                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 shadow-lg"
                   >
-                    <span>⚠️</span>
-                    <span>Some platforms exceed character limits. You can only post to platforms within limits.</span>
-                  </motion.div>
+                    {generatingVariations ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        🎨 Generate Variations
+                      </>
+                    )}
+                  </motion.button>
                 )}
-              </motion.div>
-            )}
-
-            <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
-              <div className="text-sm text-gray-400">{caption.length} characters total</div>
-
-              {/* AI Assistant Features - Only show when toggled */}
-              {showAIAssistant && (
-                <div className="flex items-center gap-2">
-                  {caption.length >= 10 && platforms.length > 0 && (
+                {caption.length >= 10 && (
+                  <>
                     <motion.button
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={generateVariations}
-                      disabled={generatingVariations}
-                      className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 shadow-lg"
+                      onClick={() => setShowCaptionImprover(true)}
+                      className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm flex items-center gap-2 shadow-lg"
                     >
-                      {generatingVariations ? (
+                      ✨ Improve Caption
+                    </motion.button>
+
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={generateAIHashtags}
+                      disabled={generatingHashtags}
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                    >
+                      {generatingHashtags ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                           Generating...
                         </>
                       ) : (
                         <>
-                          🎨 Generate Variations
+                          🏷️ Generate Hashtags
                         </>
                       )}
                     </motion.button>
-                  )}
-                  {caption.length >= 10 && (
-                    <>
-                      <motion.button
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setShowCaptionImprover(true)}
-                        className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm flex items-center gap-2 shadow-lg"
-                      >
-                        ✨ Improve Caption
-                      </motion.button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
 
-                      <motion.button
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={generateAIHashtags}
-                        disabled={generatingHashtags}
-                        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
-                      >
-                        {generatingHashtags ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            Generating...
-                          </>
-                        ) : (
-                          <>
-                            🏷️ Generate Hashtags
-                          </>
-                        )}
-                      </motion.button>
-                    </>
-                  )}
+        {/* Generated Hashtags Display */}
+        {showHashtags && generatedHashtags.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+
+            <div className="relative">
+              <div className="flex items-center justify-between mb-5">
+                <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                  <span className="text-2xl">🏷️</span>
+                  Generated Hashtags ({generatedHashtags.length})
+                </h4>
+                <button
+                  onClick={() => setShowHashtags(false)}
+                  className="text-gray-400 hover:text-white transition text-2xl p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-3 mb-5">
+                {generatedHashtags.map((hashtag, index) => (
+                  <motion.button
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.03 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => addHashtagToCaption(hashtag)}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
+                  >
+                    {hashtag}
+                  </motion.button>
+                ))}
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={addAllHashtags}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
+              >
+                ✨ Add All Hashtags to Caption
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Platform-Specific Variations Display */}
+        {showVariations && Object.keys(variations).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="group relative bg-gradient-to-br from-pink-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-pink-400/40 rounded-2xl p-6 shadow-2xl shadow-pink-500/20 overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+
+            <div className="relative">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h4 className="text-white font-bold text-xl flex items-center gap-2">
+                    <span className="text-2xl">🎨</span>
+                    Platform-Specific Variations
+                  </h4>
+                  <p className="text-gray-300 text-sm mt-1">AI-optimized versions for each platform</p>
+                </div>
+                <button
+                  onClick={() => setShowVariations(false)}
+                  className="text-gray-400 hover:text-white transition text-2xl p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Toggle Switch */}
+              <div className="mb-5 flex items-center justify-between bg-gray-800/50 backdrop-blur-xl border border-white/10 rounded-xl p-4">
+                <div>
+                  <p className="text-white font-semibold">Use Platform-Specific Variations</p>
+                  <p className="text-gray-400 text-xs mt-0.5">Each platform gets its optimized version</p>
+                </div>
+                <button
+                  onClick={toggleUseVariations}
+                  className={`relative w-14 h-7 rounded-full transition-all ${useVariations ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-600'
+                    }`}
+                >
+                  <div
+                    className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${useVariations ? 'translate-x-7' : 'translate-x-0'
+                      }`}
+                  />
+                </button>
+              </div>
+
+              {/* Variations Grid */}
+              <div className="space-y-4">
+                {Object.entries(variations).map(([platform, text]) => (
+                  <motion.div
+                    key={platform}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-gray-800/60 backdrop-blur-xl border-2 border-gray-600/50 rounded-xl p-4 hover:border-pink-400/50 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="text-white font-bold capitalize flex items-center gap-2">
+                        <span className="text-lg">
+                          {platform === 'linkedin' && '💼'}
+                          {platform === 'twitter' && '🐦'}
+                          {platform === 'instagram' && '📸'}
+                          {platform === 'facebook' && '👥'}
+                          {platform === 'reddit' && '🤖'}
+                          {platform === 'tiktok' && '🎵'}
+                          {platform === 'youtube' && '📹'}
+                        </span>
+                        {platform}
+                      </h5>
+                      <span className="text-xs text-gray-400 font-mono">
+                        {text.length} chars
+                      </span>
+                    </div>
+                    <textarea
+                      value={text}
+                      onChange={(e) => updateVariation(platform, e.target.value)}
+                      className="w-full bg-gray-900/50 border border-gray-700 text-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition resize-none"
+                      rows={6}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+
+              {!useVariations && (
+                <div className="mt-4 bg-yellow-900/20 border border-yellow-400/30 rounded-lg p-3 flex items-center gap-2">
+                  <span className="text-yellow-300 text-xl">⚠️</span>
+                  <p className="text-yellow-200 text-sm font-semibold">
+                    Variations are disabled. Toggle "Use Platform-Specific Variations" to use them when posting.
+                  </p>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
+        )}
 
-          {/* Generated Hashtags Display */}
-          {showHashtags && generatedHashtags.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+        {/* AI Features Section */}
+        <div className="glass border border-white/20 rounded-xl p-6 mb-6 mt-6 relative z-10">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            💡 AI Helpers
+            <span className="text-sm text-gray-400 font-normal">(Optional)</span>
+          </h3>
 
-              <div className="relative">
-                <div className="flex items-center justify-between mb-5">
-                  <h4 className="text-white font-bold text-lg flex items-center gap-2">
-                    <span className="text-2xl">🏷️</span>
-                    Generated Hashtags ({generatedHashtags.length})
-                  </h4>
-                  <button
-                    onClick={() => setShowHashtags(false)}
-                    className="text-gray-400 hover:text-white transition text-2xl p-1"
-                  >
-                    ✕
-                  </button>
-                </div>
+          <div className="space-y-6">
+            {/* AI Generate Buttons */}
+            <div className="flex gap-3">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowAIModal(true)}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+              >
+                ✨ Generate with AI
+              </motion.button>
 
-                <div className="flex flex-wrap gap-3 mb-5">
-                  {generatedHashtags.map((hashtag, index) => (
-                    <motion.button
-                      key={index}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.03 }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => addHashtagToCaption(hashtag)}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
-                    >
-                      {hashtag}
-                    </motion.button>
-                  ))}
-                </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowYoutubeModal(true)}
+                className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+              >
+                📺 Generate from URL
+              </motion.button>
+            </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={addAllHashtags}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
-                >
-                  ✨ Add All Hashtags to Caption
-                </motion.button>
-              </div>
-            </motion.div>
-          )}
+            {/* AI Assistant Section - Only show when toggled */}
+            {showAIAssistant && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-6"
+              >
+                {/* AI Image Generation */}
+                <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
+                  <h3 className="text-xl font-bold text-white mb-4">✨ AI Image Generator</h3>
 
-          {/* Platform-Specific Variations Display */}
-          {showVariations && Object.keys(variations).length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="group relative bg-gradient-to-br from-pink-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-pink-400/40 rounded-2xl p-6 shadow-2xl shadow-pink-500/20 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-
-              <div className="relative">
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <h4 className="text-white font-bold text-xl flex items-center gap-2">
-                      <span className="text-2xl">🎨</span>
-                      Platform-Specific Variations
-                    </h4>
-                    <p className="text-gray-300 text-sm mt-1">AI-optimized versions for each platform</p>
+                  {/* Example Prompts */}
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {['city skyline at night', 'modern workspace setup', 'abstract tech design', 'coffee cup on desk'].map((example, idx) => (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => useExample(example)}
+                          className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
+                        >
+                          {example}
+                        </motion.button>
+                      ))}
+                    </div>
                   </div>
-                  <button
-                    onClick={() => setShowVariations(false)}
-                    className="text-gray-400 hover:text-white transition text-2xl p-1"
-                  >
-                    ✕
-                  </button>
-                </div>
 
-                {/* Toggle Switch */}
-                <div className="mb-5 flex items-center justify-between bg-gray-800/50 backdrop-blur-xl border border-white/10 rounded-xl p-4">
-                  <div>
-                    <p className="text-white font-semibold">Use Platform-Specific Variations</p>
-                    <p className="text-gray-400 text-xs mt-0.5">Each platform gets its optimized version</p>
-                  </div>
-                  <button
-                    onClick={toggleUseVariations}
-                    className={`relative w-14 h-7 rounded-full transition-all ${useVariations ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-600'
-                      }`}
-                  >
-                    <div
-                      className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform ${useVariations ? 'translate-x-7' : 'translate-x-0'
-                        }`}
-                    />
-                  </button>
-                </div>
+                  {/* Prompt Input */}
+                  <textarea
+                    value={aiImagePrompt}
+                    onChange={(e) => setAiImagePrompt(e.target.value)}
+                    placeholder="Describe the image you want to create..."
+                    className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4 placeholder:text-gray-400"
+                    rows={3}
+                  />
 
-                {/* Variations Grid */}
-                <div className="space-y-4">
-                  {Object.entries(variations).map(([platform, text]) => (
+                  {/* Generate Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={generateImage}
+                    disabled={generatingImage || !aiImagePrompt.trim()}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    {generatingImage ? 'Generating...' : '🎨 Generate Image'}
+                  </motion.button>
+
+                  {/* Generated Image Preview */}
+                  {showImagePreview && generatedImage && (
                     <motion.div
-                      key={platform}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="bg-gray-800/60 backdrop-blur-xl border-2 border-gray-600/50 rounded-xl p-4 hover:border-pink-400/50 transition-all"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-6 p-4 border-2 border-purple-200 rounded-lg bg-purple-50"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <h5 className="text-white font-bold capitalize flex items-center gap-2">
-                          <span className="text-lg">
-                            {platform === 'linkedin' && '💼'}
-                            {platform === 'twitter' && '🐦'}
-                            {platform === 'instagram' && '📸'}
-                            {platform === 'facebook' && '👥'}
-                            {platform === 'reddit' && '🤖'}
-                            {platform === 'tiktok' && '🎵'}
-                            {platform === 'youtube' && '📹'}
-                          </span>
-                          {platform}
-                        </h5>
-                        <span className="text-xs text-gray-400 font-mono">
-                          {text.length} chars
-                        </span>
-                      </div>
-                      <textarea
-                        value={text}
-                        onChange={(e) => updateVariation(platform, e.target.value)}
-                        className="w-full bg-gray-900/50 border border-gray-700 text-white rounded-lg p-3 text-sm focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition resize-none"
-                        rows={6}
+                      <p className="text-sm font-semibold text-gray-700 mb-3">Generated Image:</p>
+                      <img
+                        src={generatedImage}
+                        alt="Generated preview"
+                        className="w-full rounded-lg mb-4 border-2 border-gray-200"
                       />
+                      <div className="flex gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={attachImage}
+                          className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+                        >
+                          📎 Attach Image
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={regenerateImage}
+                          disabled={generatingImage}
+                          className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        >
+                          🔄 Regenerate
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => {
+                            setShowImagePreview(false);
+                            setGeneratedImage(null);
+                          }}
+                          className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                        >
+                          ✕
+                        </motion.button>
+                      </div>
                     </motion.div>
-                  ))}
+                  )}
                 </div>
 
-                {!useVariations && (
-                  <div className="mt-4 bg-yellow-900/20 border border-yellow-400/30 rounded-lg p-3 flex items-center gap-2">
-                    <span className="text-yellow-300 text-xl">⚠️</span>
-                    <p className="text-yellow-200 text-sm font-semibold">
-                      Variations are disabled. Toggle "Use Platform-Specific Variations" to use them when posting.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
+                {/* Stock Video Library */}
+                <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
+                  <h3 className="text-xl font-bold text-white mb-4">🎬 Stock Video Library</h3>
 
-          {/* AI Features Section */}
-          <div className="glass border border-white/20 rounded-xl p-6 mb-6 mt-6 relative z-10">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              💡 AI Helpers
-              <span className="text-sm text-gray-400 font-normal">(Optional)</span>
-            </h3>
+                  <p className="text-gray-300 text-sm mb-4">
+                    Search and attach professional HD/4K stock videos to your posts. <span className="text-green-400 font-semibold">100% FREE!</span> Powered by Pexels.
+                  </p>
 
-            <div className="space-y-6">
-              {/* AI Generate Buttons */}
-              <div className="flex gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowAIModal(true)}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
-                >
-                  ✨ Generate with AI
-                </motion.button>
+                  {/* Selected Video Preview */}
+                  {selectedVideo ? (
+                    <VideoPreview
+                      video={selectedVideo}
+                      onRemove={() => setSelectedVideo(null)}
+                      onChangeVideo={() => setShowVideoModal(true)}
+                    />
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowVideoModal(true)}
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
+                    >
+                      <span className="text-2xl">🎬</span>
+                      <span>Search Stock Videos</span>
+                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full">FREE</span>
+                    </motion.button>
+                  )}
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowYoutubeModal(true)}
-                  className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
-                >
-                  📺 Generate from URL
-                </motion.button>
-              </div>
-
-              {/* AI Assistant Section - Only show when toggled */}
-              {showAIAssistant && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-6"
-                >
-                  {/* AI Image Generation */}
-                  <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
-                    <h3 className="text-xl font-bold text-white mb-4">✨ AI Image Generator</h3>
-
-                    {/* Example Prompts */}
-                    <div className="mb-4">
-                      <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {['city skyline at night', 'modern workspace setup', 'abstract tech design', 'coffee cup on desk'].map((example, idx) => (
-                          <motion.button
-                            key={idx}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => useExample(example)}
-                            className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
-                          >
-                            {example}
-                          </motion.button>
-                        ))}
-                      </div>
+                  {/* AI Video Generation */}
+                  <div className="bg-blue-900/10 border border-blue-400/30 rounded-lg p-4 mb-4">
+                    <h4 className="text-white font-semibold mb-3">🎬 AI Video Generation (Experimental)</h4>
+                    <p className="text-sm text-gray-300 mb-4">Quick examples:</p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {['product showcase animation', 'social media intro video', 'abstract motion graphics', 'text animation reveal'].map((example, idx) => (
+                        <motion.button
+                          key={idx}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => useVideoExample(example)}
+                          className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
+                        >
+                          {example}
+                        </motion.button>
+                      ))}
                     </div>
 
                     {/* Prompt Input */}
                     <textarea
-                      value={aiImagePrompt}
-                      onChange={(e) => setAiImagePrompt(e.target.value)}
-                      placeholder="Describe the image you want to create..."
-                      className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4 placeholder:text-gray-400"
+                      value={aiVideoPrompt}
+                      onChange={(e) => setAiVideoPrompt(e.target.value)}
+                      placeholder="Describe the video you want to create... (5-10 seconds, 16:9 aspect ratio)"
+                      className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 mb-4 placeholder:text-gray-400"
                       rows={3}
                     />
 
@@ -1351,41 +1474,41 @@ export default function CreatePost() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={generateImage}
-                      disabled={generatingImage || !aiImagePrompt.trim()}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      onClick={generateVideo}
+                      disabled={generatingVideo || !aiVideoPrompt.trim()}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition w-full"
                     >
-                      {generatingImage ? 'Generating...' : '🎨 Generate Image'}
+                      {generatingVideo ? 'Generating...' : '🎬 Generate Video'}
                     </motion.button>
 
-                    {/* Generated Image Preview */}
-                    {showImagePreview && generatedImage && (
+                    {/* Generated Video Preview */}
+                    {showVideoGenPreview && generatedVideo && (
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-6 p-4 border-2 border-purple-200 rounded-lg bg-purple-50"
+                        className="mt-6 p-4 bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg"
                       >
-                        <p className="text-sm font-semibold text-gray-700 mb-3">Generated Image:</p>
-                        <img
-                          src={generatedImage}
-                          alt="Generated preview"
-                          className="w-full rounded-lg mb-4 border-2 border-gray-200"
+                        <p className="text-sm font-semibold text-gray-200 mb-3">Generated Video:</p>
+                        <video
+                          src={generatedVideo}
+                          controls
+                          className="w-full rounded-lg mb-4 border-2 border-gray-600"
                         />
                         <div className="flex gap-3">
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={attachImage}
+                            onClick={attachGeneratedVideo}
                             className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
                           >
-                            📎 Attach Image
+                            📎 Attach Video
                           </motion.button>
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={regenerateImage}
-                            disabled={generatingImage}
-                            className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                            onClick={regenerateVideo}
+                            disabled={generatingVideo}
+                            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                           >
                             🔄 Regenerate
                           </motion.button>
@@ -1393,10 +1516,10 @@ export default function CreatePost() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
-                              setShowImagePreview(false);
-                              setGeneratedImage(null);
+                              setShowVideoGenPreview(false);
+                              setGeneratedVideo(null);
                             }}
-                            className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                            className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
                           >
                             ✕
                           </motion.button>
@@ -1404,547 +1527,437 @@ export default function CreatePost() {
                       </motion.div>
                     )}
                   </div>
+                </div>
+              </motion.div>
+            )}
 
-                  {/* Stock Video Library */}
-                  <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
-                    <h3 className="text-xl font-bold text-white mb-4">🎬 Stock Video Library</h3>
+            {/* Media Upload Section */}
+            <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+              <h3 className="text-xl font-bold text-white mb-4">📁 Upload Media</h3>
 
-                    <p className="text-gray-300 text-sm mb-4">
-                      Search and attach professional HD/4K stock videos to your posts. <span className="text-green-400 font-semibold">100% FREE!</span> Powered by Pexels.
-                    </p>
-
-                    {/* Selected Video Preview */}
-                    {selectedVideo ? (
-                      <VideoPreview
-                        video={selectedVideo}
-                        onRemove={() => setSelectedVideo(null)}
-                        onChangeVideo={() => setShowVideoModal(true)}
-                      />
-                    ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Image or Video (Optional)
+                </label>
+                {image && (
+                  <div className="mb-3">
+                    <img src={image} alt="Preview" className="w-full max-h-64 object-contain rounded-lg border-2 border-gray-300" />
+                    <div className="mt-3 flex gap-2 flex-wrap">
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setShowVideoModal(true)}
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-lg font-bold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowImageCaptionModal(true)}
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg flex items-center gap-2"
                       >
-                        <span className="text-2xl">🎬</span>
-                        <span>Search Stock Videos</span>
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full">FREE</span>
+                        🤖 Generate Caption from This Image
                       </motion.button>
-                    )}
-
-                    {/* AI Video Generation */}
-                    <div className="bg-blue-900/10 border border-blue-400/30 rounded-lg p-4 mb-4">
-                      <h4 className="text-white font-semibold mb-3">🎬 AI Video Generation (Experimental)</h4>
-                      <p className="text-sm text-gray-300 mb-4">Quick examples:</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {['product showcase animation', 'social media intro video', 'abstract motion graphics', 'text animation reveal'].map((example, idx) => (
-                          <motion.button
-                            key={idx}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => useVideoExample(example)}
-                            className="px-3 py-1 text-sm bg-gray-700 text-gray-200 rounded-full hover:bg-gray-600 transition"
-                          >
-                            {example}
-                          </motion.button>
-                        ))}
-                      </div>
-
-                      {/* Prompt Input */}
-                      <textarea
-                        value={aiVideoPrompt}
-                        onChange={(e) => setAiVideoPrompt(e.target.value)}
-                        placeholder="Describe the video you want to create... (5-10 seconds, 16:9 aspect ratio)"
-                        className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 mb-4 placeholder:text-gray-400"
-                        rows={3}
-                      />
-
-                      {/* Generate Button */}
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={generateVideo}
-                        disabled={generatingVideo || !aiVideoPrompt.trim()}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition w-full"
+                      <button
+                        onClick={() => setImage(null)}
+                        className="text-sm text-red-600 hover:text-red-700 px-4 py-2"
                       >
-                        {generatingVideo ? 'Generating...' : '🎬 Generate Video'}
-                      </motion.button>
-
-                      {/* Generated Video Preview */}
-                      {showVideoGenPreview && generatedVideo && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="mt-6 p-4 bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg"
-                        >
-                          <p className="text-sm font-semibold text-gray-200 mb-3">Generated Video:</p>
-                          <video
-                            src={generatedVideo}
-                            controls
-                            className="w-full rounded-lg mb-4 border-2 border-gray-600"
-                          />
-                          <div className="flex gap-3">
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={attachGeneratedVideo}
-                              className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
-                            >
-                              📎 Attach Video
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={regenerateVideo}
-                              disabled={generatingVideo}
-                              className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                            >
-                              🔄 Regenerate
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => {
-                                setShowVideoGenPreview(false);
-                                setGeneratedVideo(null);
-                              }}
-                              className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
-                            >
-                              ✕
-                            </motion.button>
-                          </div>
-                        </motion.div>
-                      )}
+                        Remove Image
+                      </button>
                     </div>
                   </div>
-                </motion.div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const isVideo = file.type.startsWith('video/');
+                      setMediaType(isVideo ? 'video' : 'image');
+
+                      if (isVideo) {
+                        // Store video file and show preview
+                        setPendingVideoFile(file);
+                        const previewUrl = URL.createObjectURL(file);
+                        setVideoPreviewUrl(previewUrl);
+                        showSuccess('Video ready to attach! Click "Attach Video" to upload.');
+                      } else {
+                        // Handle image as before
+                        const reader = new FileReader();
+                        reader.onload = (e) => setImage(e.target.result);
+                        reader.readAsDataURL(file);
+                      }
+                    }
+                  }}
+                  className="w-full p-3 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Video Preview and Attach Button */}
+              {pendingVideoFile && (
+                <div className="bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg p-4 mt-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl">🎬</div>
+                      <div>
+                        <p className="font-semibold text-white">{pendingVideoFile.name}</p>
+                        <p className="text-sm text-gray-300">
+                          {(pendingVideoFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleAttachVideo}
+                      disabled={uploadingMedia}
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                      {uploadingMedia ? 'Uploading...' : 'Attach Video'}
+                    </button>
+                  </div>
+                  {videoPreviewUrl && (
+                    <div className="mt-4">
+                      <video
+                        src={videoPreviewUrl}
+                        controls
+                        className="w-full max-h-64 rounded-lg"
+                      />
+                    </div>
+                  )}
+                </div>
               )}
 
-              {/* Media Upload Section */}
-              <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-                <h3 className="text-xl font-bold text-white mb-4">📁 Upload Media</h3>
+              {/* Attached Media Confirmation */}
+              {image && !pendingVideoFile && (
+                <div className="bg-green-900/20 backdrop-blur-sm border-2 border-green-500/30 rounded-lg p-4 mt-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">✅</div>
+                    <div>
+                      <p className="font-semibold text-green-300">
+                        {mediaType === 'video' ? 'Video' : 'Image'} attached and ready to post!
+                      </p>
+                      <p className="text-sm text-green-400">
+                        Click &quot;Post Now&quot; to share across platforms
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
+          {/* Progressive Disclosure Toggle Buttons */}
+          <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 backdrop-blur-lg border border-purple-500/30 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <span>💡</span>
+                <span>Need Help?</span>
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* AI Assistant Toggle */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowAIAssistant(!showAIAssistant)}
+                className={`group relative overflow-hidden p-5 rounded-xl border-2 transition-all ${showAIAssistant
+                  ? 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-purple-400 shadow-lg shadow-purple-500/30'
+                  : 'bg-gray-800/30 border-gray-600 hover:border-purple-400/50'
+                  }`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">✨</span>
+                    <div className="text-left">
+                      <div className="font-bold text-white">AI Assistant</div>
+                      <div className="text-xs text-gray-300">Generate captions, images & more</div>
+                    </div>
+                  </div>
+                  <div className={`text-2xl transition-transform ${showAIAssistant ? 'rotate-180' : ''}`}>
+                    {showAIAssistant ? '▼' : '▶'}
+                  </div>
+                </div>
+              </motion.button>
+
+              {/* Advanced Options Toggle */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className={`group relative overflow-hidden p-5 rounded-xl border-2 transition-all ${showAdvanced
+                  ? 'bg-gradient-to-br from-blue-600/40 to-cyan-600/40 border-blue-400 shadow-lg shadow-blue-500/30'
+                  : 'bg-gray-800/30 border-gray-600 hover:border-blue-400/50'
+                  }`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">⚙️</span>
+                    <div className="text-left">
+                      <div className="font-bold text-white">Advanced Options</div>
+                      <div className="text-xs text-gray-300">Best times, scoring & more</div>
+                    </div>
+                  </div>
+                  <div className={`text-2xl transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
+                    {showAdvanced ? '▼' : '▶'}
+                  </div>
+                </div>
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Platform Selection with 3D Chips */}
+          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-white">🎯 Select Platforms</h3>
+              {connectedAccounts.length > 0 && (
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      const allPlatforms = connectedAccounts.map(acc => acc.platform);
+                      setPlatforms(allPlatforms);
+                      showSuccess(`Selected all ${allPlatforms.length} platforms! 🎯`);
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                  >
+                    ✅ Select All
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setPlatforms([]);
+                      showSuccess('Deselected all platforms');
+                    }}
+                    className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                  >
+                    ❌ Clear All
+                  </motion.button>
+                </div>
+              )}
+            </div>
+
+            {connectedAccounts.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">🔗</div>
+                <h4 className="text-lg font-semibold text-white mb-2">No Platforms Connected</h4>
+                <p className="text-gray-400 mb-4">Connect your social media accounts to start posting</p>
+                <div className="flex gap-3 justify-center">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/connect-accounts')}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-blue-500/50 transition-all"
+                  >
+                    🚀 Connect Accounts
+                  </motion.button>
+                  {/* Restart Tutorial button temporarily disabled */}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="flex flex-wrap gap-4">
+                  {connectedAccounts.map(account => (
+                    <PlatformChip
+                      key={account.platform}
+                      platform={account.platform}
+                      selected={platforms.includes(account.platform)}
+                      onClick={() => togglePlatform(account.platform)}
+                      size="md"
+                    />
+                  ))}
+                </div>
+                {platforms.length > 0 && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-sm text-gray-400 mt-3"
+                  >
+                    ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
+                  </motion.p>
+                )}
+
+                {/* Multi-Account Selectors */}
+                {platforms.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 space-y-3"
+                  >
+                    <h4 className="text-sm font-bold text-gray-300 mb-3">Select Account for Each Platform:</h4>
+                    {platforms.map(platform => {
+                      const platformAccounts = connectedAccounts.filter(acc => acc.platform === platform);
+
+                      // Only show dropdown if there are multiple accounts for this platform
+                      if (platformAccounts.length <= 1) {
+                        return null;
+                      }
+
+                      return (
+                        <motion.div
+                          key={platform}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="flex items-center gap-3"
+                        >
+                          <label className="text-sm font-semibold text-white capitalize min-w-[100px]">
+                            {platform}:
+                          </label>
+                          <select
+                            value={selectedAccounts[platform] || ''}
+                            onChange={(e) => setSelectedAccounts({
+                              ...selectedAccounts,
+                              [platform]: parseInt(e.target.value)
+                            })}
+                            className="flex-1 bg-gray-800/70 border-2 border-gray-600 text-white px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
+                          >
+                            {platformAccounts.map(account => (
+                              <option key={account.id} value={account.id}>
+                                {account.account_label || 'Main Account'}
+                                {account.is_default ? ' (Default)' : ''}
+                              </option>
+                            ))}
+                          </select>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </div>
+            )}
+
+            {/* Instagram Image Requirement Warning */}
+            {platforms.includes('instagram') && !image && (
+              <div className="border border-yellow-500/30 bg-yellow-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 mt-4">
+                <span className="text-2xl">⚠️</span>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Image or Video (Optional)
-                  </label>
-                  {image && (
-                    <div className="mb-3">
-                      <img src={image} alt="Preview" className="w-full max-h-64 object-contain rounded-lg border-2 border-gray-300" />
-                      <div className="mt-3 flex gap-2 flex-wrap">
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => setShowImageCaptionModal(true)}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg flex items-center gap-2"
-                        >
-                          🤖 Generate Caption from This Image
-                        </motion.button>
+                  <div className="font-semibold text-yellow-300">Image Required</div>
+                  <div className="text-sm text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
+                </div>
+              </div>
+            )}
+
+            {/* TikTok Video Requirement Warning */}
+            {platforms.includes("tiktok") && !videoUrl && (
+              <div className="border border-amber-500/30 bg-amber-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 mt-4">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <div className="font-semibold text-amber-300">Video Required for TikTok</div>
+                  <div className="text-sm text-amber-400">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
+                </div>
+              </div>
+            )}
+
+            {/* Post Usage Info */}
+            {billingInfo && billingInfo.usage && billingInfo.usage.posts && (
+              <div className={`border rounded-lg p-3 backdrop-blur-sm mt-4 ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-500/30 bg-yellow-900/20' : 'border-white/10 bg-gray-800/30'}`}>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-200">
+                    {billingInfo.usage.posts.limit === Infinity ? 'Unlimited posts' : `${billingInfo.usage.posts.limit - billingInfo.usage.posts.used} posts remaining`}
+                  </span>
+                  {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan && billingInfo.plan.name === 'free' && (
+                    <a href="/pricing" className="text-blue-600 hover:text-blue-700 font-medium">
+                      Upgrade →
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Advanced Options - Best Time to Post */}
+            {showAdvanced && (
+              <>
+                {/* Best Time to Post - Ask First Button */}
+                {platforms.length > 0 && !showBestTimes && bestTimes.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-4"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={loadBestTimes}
+                      disabled={loadingBestTimes}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-3 border-2 border-blue-400/30"
+                    >
+                      {loadingBestTimes ? (
+                        <>
+                          <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Getting AI suggestions...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-2xl">⏰</span>
+                          <span>Want AI Best Time to Post Suggestions?</span>
+                          <span className="text-sm bg-white/20 px-2 py-1 rounded-full">Click Here</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </motion.div>
+                )}
+
+                {/* Best Time to Post Recommendations */}
+                {platforms.length > 0 && showBestTimes && bestTimes.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden mt-4"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+
+                    <div className="relative">
+                      <div className="flex items-center justify-between mb-5">
+                        <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                          <span className="text-2xl">⏰</span>
+                          Best Time to Post on {platforms[0].charAt(0).toUpperCase() + platforms[0].slice(1)}
+                        </h4>
                         <button
-                          onClick={() => setImage(null)}
-                          className="text-sm text-red-600 hover:text-red-700 px-4 py-2"
+                          onClick={() => setShowBestTimes(false)}
+                          className="text-gray-400 hover:text-white transition text-2xl p-1"
                         >
-                          Remove Image
+                          ✕
                         </button>
                       </div>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    onChange={async (e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const isVideo = file.type.startsWith('video/');
-                        setMediaType(isVideo ? 'video' : 'image');
 
-                        if (isVideo) {
-                          // Store video file and show preview
-                          setPendingVideoFile(file);
-                          const previewUrl = URL.createObjectURL(file);
-                          setVideoPreviewUrl(previewUrl);
-                          showSuccess('Video ready to attach! Click "Attach Video" to upload.');
-                        } else {
-                          // Handle image as before
-                          const reader = new FileReader();
-                          reader.onload = (e) => setImage(e.target.result);
-                          reader.readAsDataURL(file);
-                        }
-                      }
-                    }}
-                    className="w-full p-3 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Video Preview and Attach Button */}
-                {pendingVideoFile && (
-                  <div className="bg-blue-900/20 backdrop-blur-sm border-2 border-blue-500/30 rounded-lg p-4 mt-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="text-4xl">🎬</div>
-                        <div>
-                          <p className="font-semibold text-white">{pendingVideoFile.name}</p>
-                          <p className="text-sm text-gray-300">
-                            {(pendingVideoFile.size / (1024 * 1024)).toFixed(2)} MB
-                          </p>
+                      {loadingBestTimes ? (
+                        <div className="text-center py-6">
+                          <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+                          <p className="text-gray-300 text-sm mt-3 font-medium">Analyzing best times...</p>
                         </div>
-                      </div>
-                      <button
-                        onClick={handleAttachVideo}
-                        disabled={uploadingMedia}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                      >
-                        {uploadingMedia ? 'Uploading...' : 'Attach Video'}
-                      </button>
-                    </div>
-                    {videoPreviewUrl && (
-                      <div className="mt-4">
-                        <video
-                          src={videoPreviewUrl}
-                          controls
-                          className="w-full max-h-64 rounded-lg"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Attached Media Confirmation */}
-                {image && !pendingVideoFile && (
-                  <div className="bg-green-900/20 backdrop-blur-sm border-2 border-green-500/30 rounded-lg p-4 mt-4">
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">✅</div>
-                      <div>
-                        <p className="font-semibold text-green-300">
-                          {mediaType === 'video' ? 'Video' : 'Image'} attached and ready to post!
-                        </p>
-                        <p className="text-sm text-green-400">
-                          Click &quot;Post Now&quot; to share across platforms
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Progressive Disclosure Toggle Buttons */}
-            <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 backdrop-blur-lg border border-purple-500/30 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <span>💡</span>
-                  <span>Need Help?</span>
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* AI Assistant Toggle */}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowAIAssistant(!showAIAssistant)}
-                  className={`group relative overflow-hidden p-5 rounded-xl border-2 transition-all ${showAIAssistant
-                    ? 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-purple-400 shadow-lg shadow-purple-500/30'
-                    : 'bg-gray-800/30 border-gray-600 hover:border-purple-400/50'
-                    }`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">✨</span>
-                      <div className="text-left">
-                        <div className="font-bold text-white">AI Assistant</div>
-                        <div className="text-xs text-gray-300">Generate captions, images & more</div>
-                      </div>
-                    </div>
-                    <div className={`text-2xl transition-transform ${showAIAssistant ? 'rotate-180' : ''}`}>
-                      {showAIAssistant ? '▼' : '▶'}
-                    </div>
-                  </div>
-                </motion.button>
-
-                {/* Advanced Options Toggle */}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className={`group relative overflow-hidden p-5 rounded-xl border-2 transition-all ${showAdvanced
-                    ? 'bg-gradient-to-br from-blue-600/40 to-cyan-600/40 border-blue-400 shadow-lg shadow-blue-500/30'
-                    : 'bg-gray-800/30 border-gray-600 hover:border-blue-400/50'
-                    }`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="relative flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">⚙️</span>
-                      <div className="text-left">
-                        <div className="font-bold text-white">Advanced Options</div>
-                        <div className="text-xs text-gray-300">Best times, scoring & more</div>
-                      </div>
-                    </div>
-                    <div className={`text-2xl transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
-                      {showAdvanced ? '▼' : '▶'}
-                    </div>
-                  </div>
-                </motion.button>
-              </div>
-            </div>
-
-            {/* Platform Selection with 3D Chips */}
-            <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">🎯 Select Platforms</h3>
-                {connectedAccounts.length > 0 && (
-                  <div className="flex gap-2">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        const allPlatforms = connectedAccounts.map(acc => acc.platform);
-                        setPlatforms(allPlatforms);
-                        showSuccess(`Selected all ${allPlatforms.length} platforms! 🎯`);
-                      }}
-                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
-                    >
-                      ✅ Select All
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => {
-                        setPlatforms([]);
-                        showSuccess('Deselected all platforms');
-                      }}
-                      className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
-                    >
-                      ❌ Clear All
-                    </motion.button>
-                  </div>
-                )}
-              </div>
-
-              {connectedAccounts.length === 0 ? (
-                <div className="text-center py-8">
-                  <div className="text-6xl mb-4">🔗</div>
-                  <h4 className="text-lg font-semibold text-white mb-2">No Platforms Connected</h4>
-                  <p className="text-gray-400 mb-4">Connect your social media accounts to start posting</p>
-                  <div className="flex gap-3 justify-center">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => navigate('/connect-accounts')}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-blue-500/50 transition-all"
-                    >
-                      🚀 Connect Accounts
-                    </motion.button>
-                    {/* Restart Tutorial button temporarily disabled */}
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex flex-wrap gap-4">
-                    {connectedAccounts.map(account => (
-                      <PlatformChip
-                        key={account.platform}
-                        platform={account.platform}
-                        selected={platforms.includes(account.platform)}
-                        onClick={() => togglePlatform(account.platform)}
-                        size="md"
-                      />
-                    ))}
-                  </div>
-                  {platforms.length > 0 && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-sm text-gray-400 mt-3"
-                    >
-                      ✓ {platforms.length} platform{platforms.length > 1 ? 's' : ''} selected
-                    </motion.p>
-                  )}
-
-                  {/* Multi-Account Selectors */}
-                  {platforms.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-6 space-y-3"
-                    >
-                      <h4 className="text-sm font-bold text-gray-300 mb-3">Select Account for Each Platform:</h4>
-                      {platforms.map(platform => {
-                        const platformAccounts = connectedAccounts.filter(acc => acc.platform === platform);
-
-                        // Only show dropdown if there are multiple accounts for this platform
-                        if (platformAccounts.length <= 1) {
-                          return null;
-                        }
-
-                        return (
-                          <motion.div
-                            key={platform}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="flex items-center gap-3"
-                          >
-                            <label className="text-sm font-semibold text-white capitalize min-w-[100px]">
-                              {platform}:
-                            </label>
-                            <select
-                              value={selectedAccounts[platform] || ''}
-                              onChange={(e) => setSelectedAccounts({
-                                ...selectedAccounts,
-                                [platform]: parseInt(e.target.value)
-                              })}
-                              className="flex-1 bg-gray-800/70 border-2 border-gray-600 text-white px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition font-medium"
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {bestTimes.map((time, index) => (
+                            <motion.button
+                              key={index}
+                              whileHover={{ scale: 1.03, translateY: -2 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => {
+                                const date = new Date(time.timestamp);
+                                setScheduledDate(date);
+                                setShowBestTimes(false);
+                              }}
+                              className="relative bg-gray-800/50 border border-blue-500/30 p-4 rounded-xl hover:bg-blue-600/20 hover:border-blue-400 transition group/btn text-left"
                             >
-                              {platformAccounts.map(account => (
-                                <option key={account.id} value={account.id}>
-                                  {account.account_label || 'Main Account'}
-                                  {account.is_default ? ' (Default)' : ''}
-                                </option>
-                              ))}
-                            </select>
-                          </motion.div>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </div>
-              )}
-
-              {/* Instagram Image Requirement Warning */}
-              {platforms.includes('instagram') && !image && (
-                <div className="border border-yellow-500/30 bg-yellow-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 mt-4">
-                  <span className="text-2xl">⚠️</span>
-                  <div>
-                    <div className="font-semibold text-yellow-300">Image Required</div>
-                    <div className="text-sm text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
-                  </div>
-                </div>
-              )}
-
-              {/* TikTok Video Requirement Warning */}
-              {platforms.includes("tiktok") && !videoUrl && (
-                <div className="border border-amber-500/30 bg-amber-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 mt-4">
-                  <span className="text-2xl">⚠️</span>
-                  <div>
-                    <div className="font-semibold text-amber-300">Video Required for TikTok</div>
-                    <div className="text-sm text-amber-400">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Post Usage Info */}
-              {billingInfo && billingInfo.usage && billingInfo.usage.posts && (
-                <div className={`border rounded-lg p-3 backdrop-blur-sm mt-4 ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-500/30 bg-yellow-900/20' : 'border-white/10 bg-gray-800/30'}`}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-200">
-                      {billingInfo.usage.posts.limit === Infinity ? 'Unlimited posts' : `${billingInfo.usage.posts.limit - billingInfo.usage.posts.used} posts remaining`}
-                    </span>
-                    {billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 && billingInfo.plan && billingInfo.plan.name === 'free' && (
-                      <a href="/pricing" className="text-blue-600 hover:text-blue-700 font-medium">
-                        Upgrade →
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Best Time to Post - Ask First Button */}
-              {platforms.length > 0 && !showBestTimes && bestTimes.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mt-4"
-                >
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={loadBestTimes}
-                    disabled={loadingBestTimes}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-3 border-2 border-blue-400/30"
-                  >
-                    {loadingBestTimes ? (
-                      <>
-                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>Getting AI suggestions...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-2xl">⏰</span>
-                        <span>Want AI Best Time to Post Suggestions?</span>
-                        <span className="text-sm bg-white/20 px-2 py-1 rounded-full">Click Here</span>
-                      </>
-                    )}
-                  </motion.button>
-                </motion.div>
-              )}
-
-              {/* Best Time to Post Recommendations */}
-              {platforms.length > 0 && showBestTimes && bestTimes.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden mt-4"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-5">
-                      <h4 className="text-white font-bold text-lg flex items-center gap-2">
-                        <span className="text-2xl">⏰</span>
-                        Best Time to Post on {platforms[0].charAt(0).toUpperCase() + platforms[0].slice(1)}
-                      </h4>
-                      <button
-                        onClick={() => setShowBestTimes(false)}
-                        className="text-gray-400 hover:text-white transition text-2xl p-1"
-                      >
-                        ✕
-                      </button>
-                    </div>
-
-                    {loadingBestTimes ? (
-                      <div className="text-center py-6">
-                        <div className="w-10 h-10 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
-                        <p className="text-gray-300 text-sm mt-3 font-medium">Analyzing best times...</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {bestTimes.map((time, index) => (
-                          <motion.button
-                            key={index}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => scheduleAtRecommendedTime(time)}
-                            className="group/time relative w-full bg-gradient-to-r from-gray-800/60 to-gray-700/60 backdrop-blur-xl border-2 border-blue-400/30 rounded-xl p-4 hover:border-blue-400/50 hover:shadow-xl hover:shadow-blue-500/30 transition-all overflow-hidden cursor-pointer text-left"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/time:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                  <span className="text-3xl">{['🥇', '🥈', '🥉'][index]}</span>
-                                  <span className="font-bold text-blue-200 text-lg">{time.day} at {time.time}</span>
-                                </div>
-                                <p className="text-sm text-gray-300 pl-11">{time.reason}</p>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-blue-300 font-bold text-lg">
+                                  {new Date(time.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                                <span className="text-xs bg-blue-500/20 text-blue-200 px-2 py-1 rounded-full border border-blue-500/30">
+                                  {Math.round(time.confidence * 100)}% Match
+                                </span>
                               </div>
-                              <div className="text-blue-400 opacity-0 group-hover/time:opacity-100 transition-opacity text-xs font-semibold mt-1">
-                                Click to schedule →
+                              <div className="text-gray-400 text-sm">
+                                {new Date(time.timestamp).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
                               </div>
-                            </div>
-                          </motion.button>
-                        ))}
-
-                        <div className="text-xs text-blue-300/60 mt-4 flex items-center gap-2 bg-blue-900/20 backdrop-blur-sm border border-blue-400/20 rounded-lg px-3 py-2">
-                          <span>🤖</span>
-                          <span>Powered by AI + your posting history</span>
+                              <div className="absolute inset-0 border-2 border-blue-400/0 group-hover/btn:border-blue-400/50 rounded-xl transition-all duration-300"></div>
+                            </motion.button>
+                          ))}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </>
+            )}
+
 
             {/* Validation Summary Alert */}
             {(!caption.trim() || platforms.length === 0 || hasExceededLimit) && (
@@ -1988,16 +2001,18 @@ export default function CreatePost() {
                   {isLoading ? 'Posting...' : 'Post Now'}
                 </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={scoreDraft}
-                  disabled={scoringDraft || !caption.trim() || platforms.length === 0}
-                  className="bg-purple-600/50 backdrop-blur-sm border border-purple-400/30 text-purple-100 px-6 py-3 rounded-lg font-semibold hover:bg-purple-600/70 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Get AI insights on your post quality"
-                >
-                  {scoringDraft ? '⚡ Analyzing...' : '⚡ Score Draft'}
-                </motion.button>
+                {showAdvanced && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={scoreDraft}
+                    disabled={scoringDraft || !caption.trim() || platforms.length === 0}
+                    className="bg-purple-600/50 backdrop-blur-sm border border-purple-400/30 text-purple-100 px-6 py-3 rounded-lg font-semibold hover:bg-purple-600/70 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Get AI insights on your post quality"
+                  >
+                    {scoringDraft ? '⚡ Analyzing...' : '⚡ Score Draft'}
+                  </motion.button>
+                )}
 
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -2476,6 +2491,45 @@ export default function CreatePost() {
                         {draftScore.overallScore || 0}
                       </div>
                       <p className="text-gray-400 text-sm mt-1">Overall Quality Score / 100</p>
+                      {showBestTimes && (
+                        <div className="mt-6">
+                          <h3 className="text-lg font-semibold text-white mb-3">Best Times to Post</h3>
+                          {bestTimes.length === 0 ? (
+                            <div className="text-center">
+                              <p className="text-gray-300 text-sm mt-3 font-medium">Analyzing best times...</p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              {bestTimes.map((time, index) => (
+                                <motion.button
+                                  key={index}
+                                  whileHover={{ scale: 1.03, translateY: -2 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => {
+                                    const date = new Date(time.timestamp);
+                                    setScheduledDate(date);
+                                    setShowBestTimes(false);
+                                  }}
+                                  className="relative bg-gray-800/50 border border-blue-500/30 p-4 rounded-xl hover:bg-blue-600/20 hover:border-blue-400 transition group/btn text-left"
+                                >
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-blue-300 font-bold text-lg">
+                                      {new Date(time.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                    <span className="text-xs bg-blue-500/20 text-blue-200 px-2 py-1 rounded-full border border-blue-500/30">
+                                      {Math.round(time.confidence * 100)}% Match
+                                    </span>
+                                  </div>
+                                  <div className="text-gray-400 text-sm">
+                                    {new Date(time.timestamp).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
+                                  </div>
+                                  <div className="absolute inset-0 border-2 border-blue-400/0 group-hover/btn:border-blue-400/50 rounded-xl transition-all duration-300"></div>
+                                </motion.button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2580,7 +2634,7 @@ export default function CreatePost() {
             </div>
           )}
         </div>
-      </motion.div>
+      </motion.div >
     </>
   );
 }
