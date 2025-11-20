@@ -33,37 +33,48 @@ function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
-  
-  // Core nav items (always visible on desktop)
-  const navItems = [
+
+  // TIER 1: Core Navigation (Always visible - 4 items)
+  const coreNavItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/create', label: 'Create Post', icon: '✨' },
-    { path: '/content-agent', label: 'AI Agent', icon: '🤖' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
     { path: '/analytics', label: 'Analytics', icon: '📈' },
-    { path: '/connect-accounts', label: 'Connect Accounts', icon: '🔗' },
+  ];
+
+  // TIER 2: Quick Actions (Secondary nav - 3 items)
+  const quickActionItems = [
+    { path: '/connect-accounts', label: 'Accounts', icon: '🔗' },
+    { path: '/content-agent', label: 'AI Agent', icon: '🤖' },
     { path: '/team', label: 'Team', icon: '👥' },
   ];
-  
-  // User dropdown items (secondary features)
-  const userMenuItems = [
-    { path: '/carousel', label: 'Create Carousel', icon: '📸' },
-    { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤' },
-    { path: '/templates', label: 'Templates', icon: '📝' },
-    { path: '/ab-testing', label: 'A/B Testing', icon: '🧪' },
-    { path: '/hashtag-analytics', label: 'Hashtag Analytics', icon: '#️⃣' },
-    { path: '/content-recycling', label: 'Content Recycling', icon: '♻️' },
-    { path: '/webhooks', label: 'Webhooks', icon: '🔔' },
-    { path: '/approvals', label: 'Approvals', icon: '⏳' },
-    { path: '/settings', label: 'Settings', icon: '⚙️' },
-    { path: '/pricing', label: 'Pricing', icon: '💎' },
+
+  // TIER 3: Advanced Features (User dropdown - organized by category)
+  const advancedMenuItems = [
+    // Content Tools
+    { path: '/carousel', label: 'Create Carousel', icon: '📸', category: 'Content' },
+    { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤', category: 'Content' },
+    { path: '/templates', label: 'Templates', icon: '📝', category: 'Content' },
+    { path: '/content-recycling', label: 'Content Recycling', icon: '♻️', category: 'Content' },
+
+    // Analytics & Testing
+    { path: '/ab-testing', label: 'A/B Testing', icon: '🧪', category: 'Analytics' },
+    { path: '/hashtag-analytics', label: 'Hashtag Analytics', icon: '#️⃣', category: 'Analytics' },
+
+    // Automation
+    { path: '/webhooks', label: 'Webhooks', icon: '🔔', category: 'Automation' },
+    { path: '/approvals', label: 'Approvals', icon: '⏳', category: 'Automation' },
+
+    // Settings
+    { path: '/settings', label: 'Settings', icon: '⚙️', category: 'Settings' },
+    { path: '/pricing', label: 'Pricing', icon: '💎', category: 'Settings' },
   ];
-  
+
   // All items for mobile menu
-  const allNavItems = [...navItems, ...userMenuItems];
-  
+  const allNavItems = [...coreNavItems, ...quickActionItems, ...advancedMenuItems];
+
   return (
-    <motion.nav 
+    <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -73,7 +84,7 @@ function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             {/* Logo */}
-            <motion.div 
+            <motion.div
               className="flex-shrink-0 flex items-center gap-2"
               whileHover={{ scale: 1.05 }}
             >
@@ -86,20 +97,20 @@ function Navigation() {
               </motion.span>
               <h1 className="text-base xl:text-lg 2xl:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent whitespace-nowrap">Social Media Automator</h1>
             </motion.div>
-            
-            {/* Nav Items - Desktop Only (Core 6 items) */}
-            <div className="hidden lg:flex ml-10 items-center space-x-4">
-              {navItems.map((item) => (
-                <Link 
+
+            {/* TIER 1: Core Nav Items - Desktop Only */}
+            <div className="hidden lg:flex ml-10 items-center space-x-2">
+              {coreNavItems.map((item) => (
+                <Link
                   key={item.path}
-                  to={item.path} 
+                  to={item.path}
                   className="relative group px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap"
                 >
                   <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-blue-300' : 'text-gray-400 group-hover:text-blue-200'}`}>
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
                   </span>
-                  
+
                   {/* Gradient underline */}
                   {isActive(item.path) && (
                     <motion.div
@@ -108,7 +119,38 @@ function Navigation() {
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
-                  
+
+                  {/* Hover glow */}
+                  <motion.div
+                    className="absolute inset-0 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                </Link>
+              ))}
+
+              {/* Divider */}
+              <div className="h-8 w-px bg-white/20 mx-2"></div>
+
+              {/* TIER 2: Quick Actions */}
+              {quickActionItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="relative group px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap"
+                >
+                  <span className={`flex items-center gap-2 ${isActive(item.path) ? 'text-purple-300' : 'text-gray-400 group-hover:text-purple-200'}`}>
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </span>
+
+                  {/* Gradient underline */}
+                  {isActive(item.path) && (
+                    <motion.div
+                      layoutId="activeTabQuick"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+
                   {/* Hover glow */}
                   <motion.div
                     className="absolute inset-0 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -117,11 +159,11 @@ function Navigation() {
               ))}
             </div>
           </div>
-          
+
           {/* User Section */}
           <div className="flex items-center gap-4">
             <NotificationBell />
-            
+
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -135,7 +177,7 @@ function Navigation() {
                 )}
               </svg>
             </button>
-            
+
             {/* User Dropdown (Desktop) */}
             <div className="hidden lg:block relative">
               <button
@@ -153,7 +195,7 @@ function Navigation() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              
+
               {/* Dropdown Menu - Glassmorphism Style */}
               <AnimatePresence>
                 {userMenuOpen && (
@@ -171,23 +213,37 @@ function Navigation() {
                   >
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 pointer-events-none"></div>
-                    
+
                     <div className="relative py-2">
-                      {userMenuItems.map((item) => (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          onClick={() => setUserMenuOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-3 transition-all ${
-                            isActive(item.path)
-                              ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-300 border-l-2 border-blue-400'
-                              : 'text-gray-300 hover:bg-white/10 hover:text-white hover:border-l-2 hover:border-purple-400/50'
-                          }`}
-                        >
-                          <span className="text-lg">{item.icon}</span>
-                          <span className="text-sm font-medium">{item.label}</span>
-                        </Link>
-                      ))}
+                      {/* Group advanced items by category */}
+                      {['Content', 'Analytics', 'Automation', 'Settings'].map((category, catIdx) => {
+                        const categoryItems = advancedMenuItems.filter(item => item.category === category);
+                        if (categoryItems.length === 0) return null;
+
+                        return (
+                          <div key={category}>
+                            {catIdx > 0 && <div className="border-t border-white/10 my-2 mx-3"></div>}
+                            <div className="px-4 py-2">
+                              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{category}</span>
+                            </div>
+                            {categoryItems.map((item) => (
+                              <Link
+                                key={item.path}
+                                to={item.path}
+                                onClick={() => setUserMenuOpen(false)}
+                                className={`flex items-center gap-3 px-4 py-2.5 transition-all ${isActive(item.path)
+                                    ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-300 border-l-2 border-blue-400'
+                                    : 'text-gray-300 hover:bg-white/10 hover:text-white hover:border-l-2 hover:border-purple-400/50'
+                                  }`}
+                              >
+                                <span className="text-lg">{item.icon}</span>
+                                <span className="text-sm font-medium">{item.label}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        );
+                      })}
+
                       <div className="border-t border-white/20 my-2 mx-3"></div>
                       <button
                         onClick={signOut}
@@ -203,7 +259,7 @@ function Navigation() {
             </div>
           </div>
         </div>
-        
+
         {/* Mobile Menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
@@ -219,11 +275,10 @@ function Navigation() {
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                      isActive(item.path)
-                        ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive(item.path)
+                      ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                      }`}
                   >
                     <span className="text-xl">{item.icon}</span>
                     <span className="font-medium">{item.label}</span>
@@ -253,7 +308,7 @@ function App() {
         <BrowserRouter>
           <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
             <Navigation />
-            
+
             <Routes>
               <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
