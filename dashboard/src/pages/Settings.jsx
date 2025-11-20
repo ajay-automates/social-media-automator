@@ -19,7 +19,7 @@ export default function Settings() {
     try {
       const response = await api.get('/user/profile');
       const user = response.data?.user || response.data;
-      
+
       setEmailReportsEnabled(user.email_reports_enabled || false);
       setReportEmail(user.report_email || user.email || '');
       setReportFrequency(user.report_frequency || 'weekly');
@@ -36,7 +36,7 @@ export default function Settings() {
         report_email: reportEmail,
         report_frequency: reportFrequency
       });
-      
+
       showSuccess('Email report settings saved!');
     } catch (err) {
       console.error('Error saving settings:', err);
@@ -79,9 +79,9 @@ export default function Settings() {
       </div>
 
       {/* Email Reports Section */}
-      <div className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-2xl border-2 border-white/20 rounded-2xl shadow-2xl p-8 overflow-hidden">
+      <div className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-lg border-2 border-white/20 rounded-2xl shadow-2xl p-8 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        
+
         <div className="relative">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-3xl">📧</span>
@@ -100,14 +100,12 @@ export default function Settings() {
               </div>
               <button
                 onClick={() => setEmailReportsEnabled(!emailReportsEnabled)}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                  emailReportsEnabled ? 'bg-blue-600' : 'bg-gray-600'
-                }`}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${emailReportsEnabled ? 'bg-blue-600' : 'bg-gray-600'
+                  }`}
               >
                 <span
-                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                    emailReportsEnabled ? 'translate-x-7' : 'translate-x-1'
-                  }`}
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${emailReportsEnabled ? 'translate-x-7' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>

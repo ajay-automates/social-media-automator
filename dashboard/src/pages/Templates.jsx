@@ -356,7 +356,7 @@ export default function Templates() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8 relative">
-        <div className="group relative bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
+        <div className="group relative bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 backdrop-blur-md border-2 border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 via-blue-300 to-pink-300 bg-clip-text text-transparent">
@@ -369,7 +369,7 @@ export default function Templates() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="group relative bg-gradient-to-br from-blue-600/20 to-blue-900/20 backdrop-blur-2xl border-2 border-blue-400/30 rounded-2xl shadow-2xl shadow-blue-500/20 p-6 hover:scale-105 hover:shadow-blue-500/40 transition-all duration-300 overflow-hidden">
+        <div className="group relative bg-gradient-to-br from-blue-600/20 to-blue-900/20 backdrop-blur-lg border-2 border-blue-400/30 rounded-2xl shadow-2xl shadow-blue-500/20 p-6 hover:scale-105 hover:shadow-blue-500/40 transition-all duration-300 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
           <div className="absolute inset-0 bg-blue-500/5 blur-xl"></div>
           <div className="relative">
@@ -377,7 +377,7 @@ export default function Templates() {
             <div className="text-sm text-blue-200 mt-2 font-medium">Total Templates</div>
           </div>
         </div>
-        <div className="group relative bg-gradient-to-br from-yellow-600/20 to-yellow-900/20 backdrop-blur-2xl border-2 border-yellow-400/30 rounded-2xl shadow-2xl shadow-yellow-500/20 p-6 hover:scale-105 hover:shadow-yellow-500/40 transition-all duration-300 overflow-hidden">
+        <div className="group relative bg-gradient-to-br from-yellow-600/20 to-yellow-900/20 backdrop-blur-lg border-2 border-yellow-400/30 rounded-2xl shadow-2xl shadow-yellow-500/20 p-6 hover:scale-105 hover:shadow-yellow-500/40 transition-all duration-300 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
           <div className="absolute inset-0 bg-yellow-500/5 blur-xl"></div>
           <div className="relative">
@@ -385,7 +385,7 @@ export default function Templates() {
             <div className="text-sm text-yellow-200 mt-2 font-medium">Favorites</div>
           </div>
         </div>
-        <div className="group relative bg-gradient-to-br from-green-600/20 to-green-900/20 backdrop-blur-2xl border-2 border-green-400/30 rounded-2xl shadow-2xl shadow-green-500/20 p-6 hover:scale-105 hover:shadow-green-500/40 transition-all duration-300 overflow-hidden">
+        <div className="group relative bg-gradient-to-br from-green-600/20 to-green-900/20 backdrop-blur-lg border-2 border-green-400/30 rounded-2xl shadow-2xl shadow-green-500/20 p-6 hover:scale-105 hover:shadow-green-500/40 transition-all duration-300 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
           <div className="absolute inset-0 bg-green-500/5 blur-xl"></div>
           <div className="relative">
@@ -393,7 +393,7 @@ export default function Templates() {
             <div className="text-sm text-green-200 mt-2 font-medium">Total Uses</div>
           </div>
         </div>
-        <div className="group relative bg-gradient-to-br from-purple-600/20 to-purple-900/20 backdrop-blur-2xl border-2 border-purple-400/30 rounded-2xl shadow-2xl shadow-purple-500/20 p-6 hover:scale-105 hover:shadow-purple-500/40 transition-all duration-300 overflow-hidden">
+        <div className="group relative bg-gradient-to-br from-purple-600/20 to-purple-900/20 backdrop-blur-lg border-2 border-purple-400/30 rounded-2xl shadow-2xl shadow-purple-500/20 p-6 hover:scale-105 hover:shadow-purple-500/40 transition-all duration-300 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
           <div className="absolute inset-0 bg-purple-500/5 blur-xl"></div>
           <div className="relative">
@@ -406,7 +406,7 @@ export default function Templates() {
       </div>
 
       {/* Controls */}
-      <div className="group relative bg-gradient-to-br from-gray-900/40 to-gray-800/40 backdrop-blur-2xl border-2 border-white/20 rounded-2xl shadow-2xl p-6 mb-8 overflow-hidden">
+      <div className="group relative bg-gradient-to-br from-gray-900/40 to-gray-800/40 backdrop-blur-lg border-2 border-white/20 rounded-2xl shadow-2xl p-6 mb-8 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div className="relative">
           <div className="flex flex-col md:flex-row gap-4">
@@ -464,7 +464,7 @@ export default function Templates() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedTemplates.map(template => (
-            <div key={template.id} className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-2xl border-2 border-white/20 rounded-2xl shadow-2xl hover:shadow-purple-500/30 transition-all hover:scale-[1.03] hover:border-purple-400/40 overflow-hidden">
+            <div key={template.id} className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-md border-2 border-white/20 rounded-2xl shadow-2xl hover:shadow-purple-500/30 transition-all hover:scale-[1.03] hover:border-purple-400/40 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="p-6 relative">

@@ -78,7 +78,7 @@ function Navigation() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-xl border-b border-white/10 shadow-2xl"
+      className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-md border-b border-white/10 shadow-2xl"
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -232,8 +232,8 @@ function Navigation() {
                                 to={item.path}
                                 onClick={() => setUserMenuOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-2.5 transition-all ${isActive(item.path)
-                                    ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-300 border-l-2 border-blue-400'
-                                    : 'text-gray-300 hover:bg-white/10 hover:text-white hover:border-l-2 hover:border-purple-400/50'
+                                  ? 'bg-gradient-to-r from-blue-600/30 to-purple-600/30 text-blue-300 border-l-2 border-blue-400'
+                                  : 'text-gray-300 hover:bg-white/10 hover:text-white hover:border-l-2 hover:border-purple-400/50'
                                   }`}
                               >
                                 <span className="text-lg">{item.icon}</span>
