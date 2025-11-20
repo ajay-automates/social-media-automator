@@ -20,8 +20,10 @@ const requiredVars = {
         'SUPABASE_ANON_KEY',
         'SUPABASE_SERVICE_ROLE_KEY',
         'SESSION_SECRET'
-    ],
+    ]
+};
 
+const featureVars = {
     // AI Services (Required for AI features)
     ai: [
         'ANTHROPIC_API_KEY'
@@ -76,6 +78,15 @@ function validateEnv() {
         vars.forEach(key => {
             if (!process.env[key]) {
                 missing.push(`${category}: ${key}`);
+            }
+        });
+    });
+
+    // Check feature variables (Warn only)
+    Object.entries(featureVars).forEach(([category, vars]) => {
+        vars.forEach(key => {
+            if (!process.env[key]) {
+                warnings.push(`${category}: ${key} is missing. Related features will be disabled.`);
             }
         });
     });
