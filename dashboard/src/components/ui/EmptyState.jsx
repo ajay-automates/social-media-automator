@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 
-export const EmptyState = ({ 
-  icon, 
-  title, 
-  description, 
-  actionLabel, 
+export const EmptyState = ({
+  icon,
+  title,
+  description,
+  actionLabel,
   actionOnClick,
-  illustration 
+  illustration
 }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
@@ -18,10 +18,10 @@ export const EmptyState = ({
     ) : (
       <div className="text-6xl mb-6">{icon}</div>
     )}
-    
+
     <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
     <p className="text-gray-500 mb-6 max-w-sm">{description}</p>
-    
+
     {actionLabel && (
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -68,6 +68,34 @@ export const NoNotificationsEmpty = () => (
     icon="🔔"
     title="All caught up!"
     description="You don't have any notifications right now"
+  />
+);
+
+export const NoTemplatesEmpty = ({ onCreate }) => (
+  <EmptyState
+    icon="📋"
+    title="No templates yet"
+    description="Create your first template to save time on future posts"
+    actionLabel="Create Template"
+    actionOnClick={onCreate}
+  />
+);
+
+export const NoActivityEmpty = () => (
+  <EmptyState
+    icon="⚡"
+    title="No activity yet"
+    description="Team activity and actions will appear here"
+  />
+);
+
+export const NoHistoryEmpty = ({ onCreate }) => (
+  <EmptyState
+    icon="📜"
+    title="No post history"
+    description="Your published posts will appear here"
+    actionLabel="Create Post"
+    actionOnClick={onCreate}
   />
 );
 

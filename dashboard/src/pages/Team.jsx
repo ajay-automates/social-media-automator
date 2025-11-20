@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../lib/api';
-import RoleBadge from '../components/RoleBadge';
+import { showSuccess, showError } from '../components/ui/Toast';
+import { NoActivityEmpty } from '../components/ui/EmptyState';
 import { toast } from 'react-hot-toast';
 
 export default function Team() {
@@ -12,7 +14,7 @@ export default function Team() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('members'); // members, activity
   const [showInviteModal, setShowInviteModal] = useState(false);
-  
+
   // Invite modal state
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('editor');
@@ -26,13 +28,13 @@ export default function Team() {
     setLoading(true);
     try {
       console.log('🔄 Loading team data...');
-      
+
       // Load workspace info
       const workspaceRes = await api.get('/workspace/info').catch(err => {
         console.error('❌ Workspace API failed:', err.response?.data || err.message);
         return null;
       });
-      
+
       if (workspaceRes?.data?.success) {
         console.log('✅ Workspace loaded:', workspaceRes.data.workspace);
         setWorkspace(workspaceRes.data.workspace);
@@ -46,7 +48,7 @@ export default function Team() {
         console.error('❌ Members API failed:', err.response?.data || err.message);
         return null;
       });
-      
+
       if (membersRes?.data?.success) {
         console.log('✅ Team members loaded:', membersRes.data.members.length);
         setMembers(membersRes.data.members || []);
@@ -58,7 +60,7 @@ export default function Team() {
           console.log('ℹ️ Invitations not loaded:', err.response?.status);
           return { data: { invitations: [] } };
         });
-        
+
         setInvitations(invitationsRes.data?.invitations || []);
       } else {
         console.log('ℹ️ Skipping invitations - user is not Owner/Admin');
@@ -70,12 +72,12 @@ export default function Team() {
         console.error('❌ Activity API failed:', err.response?.data || err.message);
         return null;
       });
-      
+
       if (activityRes?.data?.success) {
         console.log('✅ Activity feed loaded:', activityRes.data.activities.length);
         setActivities(activityRes.data.activities || []);
       }
-      
+
       console.log('✅ Team data loading complete!');
     } catch (error) {
       console.error('❌ Fatal error loading team data:', error);
@@ -100,7 +102,7 @@ export default function Team() {
       });
 
       if (response.data.success) {
-        toast.success(`Invitation sent to ${inviteEmail}`);
+        toast.success(`Invitation sent to ${inviteEmail} `);
         setInviteEmail('');
         setInviteRole('editor');
         setShowInviteModal(false);
@@ -115,12 +117,12 @@ export default function Team() {
   };
 
   const handleRemoveMember = async (userId, memberName) => {
-    if (!confirm(`Are you sure you want to remove ${memberName} from the team?`)) {
+    if (!confirm(`Are you sure you want to remove ${memberName} from the team ? `)) {
       return;
     }
 
     try {
-      const response = await api.delete(`/team/members/${userId}`);
+      const response = await api.delete(`/ team / members / ${userId} `);
       if (response.data.success) {
         toast.success(`${memberName} removed from team`);
         loadTeamData();
@@ -133,7 +135,7 @@ export default function Team() {
 
   const handleChangeRole = async (userId, newRole, memberName) => {
     try {
-      const response = await api.put(`/team/members/${userId}/role`, { role: newRole });
+      const response = await api.put(`/ team / members / ${userId}/role`, { role: newRole });
       if (response.data.success) {
         toast.success(`${memberName}'s role updated to ${newRole}`);
         loadTeamData();
@@ -212,11 +214,10 @@ export default function Team() {
         <div className="flex gap-4 mb-8 border-b border-gray-700">
           <button
             onClick={() => setActiveTab('members')}
-            className={`pb-3 px-4 font-semibold transition-colors ${
-              activeTab === 'members'
-                ? 'text-purple-400 border-b-2 border-purple-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`pb-3 px-4 font-semibold transition-colors ${activeTab === 'members'
+              ? 'text-purple-400 border-b-2 border-purple-400'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             Team Members ({members.length})
           </button>
@@ -224,22 +225,20 @@ export default function Team() {
           {canInvite && invitations.length > 0 && (
             <button
               onClick={() => setActiveTab('invitations')}
-              className={`pb-3 px-4 font-semibold transition-colors relative ${
-                activeTab === 'invitations'
-                  ? 'text-purple-400 border-b-2 border-purple-400'
-                  : 'text-gray-400 hover:text-white'
-              }`}
+              className={`pb-3 px-4 font-semibold transition-colors relative ${activeTab === 'invitations'
+                ? 'text-purple-400 border-b-2 border-purple-400'
+                : 'text-gray-400 hover:text-white'
+                }`}
             >
               Pending Invitations ({invitations.length})
             </button>
           )}
           <button
             onClick={() => setActiveTab('activity')}
-            className={`pb-3 px-4 font-semibold transition-colors ${
-              activeTab === 'activity'
-                ? 'text-purple-400 border-b-2 border-purple-400'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`pb-3 px-4 font-semibold transition-colors ${activeTab === 'activity'
+              ? 'text-purple-400 border-b-2 border-purple-400'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             Activity Feed
           </button>
@@ -348,10 +347,10 @@ function MemberCard({ member, isOwner, currentUserRole, onRemove, onChangeRole }
 
       {/* Joined Date */}
       <p className="text-gray-500 text-xs mb-4">
-        Joined {new Date(member.joined_at).toLocaleDateString('en-US', { 
-          month: 'short', 
-          day: 'numeric', 
-          year: 'numeric' 
+        Joined {new Date(member.joined_at).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
         })}
       </p>
 
@@ -472,11 +471,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
 // Activity Feed Component
 function ActivityFeed({ activities }) {
   if (activities.length === 0) {
-    return (
-      <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-gray-700/50 rounded-xl p-12 text-center">
-        <p className="text-gray-400">No activity yet</p>
-      </div>
-    );
+    return <NoActivityEmpty />;
   }
 
   return (

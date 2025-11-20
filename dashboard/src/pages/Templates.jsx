@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../lib/api';
+import { showSuccess, showError } from '../components/ui/Toast';
+import { NoTemplatesEmpty } from '../components/ui/EmptyState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import PlatformChip from '../components/ui/PlatformChip';
 
@@ -59,7 +61,7 @@ export default function Templates() {
       params.append('order', 'desc');
 
       const response = await api.get(`/templates?${params}`);
-      
+
       // Handle both response formats:
       // 1. Direct array response: [template1, template2, ...]
       // 2. Object with templates property: { templates: [...], count: X }
@@ -72,17 +74,17 @@ export default function Templates() {
         // Handle case where data is an array but not in the expected format
         templates = response.data;
       }
-      
+
       setTemplates(templates);
-      
+
       // Log for debugging
       console.log('Fetched templates:', templates);
-      
+
     } catch (error) {
       console.error('Error fetching templates:', error);
-      const errorMessage = error.response?.data?.error || 
-                         error.message || 
-                         'Failed to load templates. Please try again.';
+      const errorMessage = error.response?.data?.error ||
+        error.message ||
+        'Failed to load templates. Please try again.';
       toast.error(errorMessage);
       setTemplates([]); // Ensure templates is always an array
     } finally {
@@ -132,59 +134,59 @@ export default function Templates() {
     }
   }
 
-async function handleSaveTemplate() {
-  try {
-    // Validate required fields
-    if (!formData.name?.trim()) {
-      toast.error('Template name is required');
-      return;
-    }
-    if (!formData.text?.trim()) {
-      toast.error('Template content is required');
-      return;
-    }
-    if (!formData.platforms || formData.platforms.length === 0) {
-      toast.error('Please select at least one platform');
-      return;
-    }
-
-    // Prepare the data to match backend expectations
-    const templateData = {
-      name: formData.name.trim(),
-      description: formData.description?.trim() || '',
-      text: formData.text.trim(),
-      image_url: formData.imageUrl || null, // Match backend field name
-      platforms: formData.platforms,
-      category: formData.category || 'general',
-      tags: Array.isArray(formData.tags) ? formData.tags : []
-    };
-
-    const loadingToast = toast.loading(editingTemplate ? 'Updating template...' : 'Creating template...');
-
+  async function handleSaveTemplate() {
     try {
-      let response;
-      if (editingTemplate) {
-        response = await api.put(`/templates/${editingTemplate.id}`, templateData);
-      } else {
-        response = await api.post('/templates', templateData);
+      // Validate required fields
+      if (!formData.name?.trim()) {
+        toast.error('Template name is required');
+        return;
       }
-      
-      toast.success(editingTemplate ? 'Template updated successfully!' : 'Template created successfully!', { id: loadingToast });
-      setShowModal(false);
-      resetForm();
-      await Promise.all([fetchTemplates(), fetchStats()]);
+      if (!formData.text?.trim()) {
+        toast.error('Template content is required');
+        return;
+      }
+      if (!formData.platforms || formData.platforms.length === 0) {
+        toast.error('Please select at least one platform');
+        return;
+      }
+
+      // Prepare the data to match backend expectations
+      const templateData = {
+        name: formData.name.trim(),
+        description: formData.description?.trim() || '',
+        text: formData.text.trim(),
+        image_url: formData.imageUrl || null, // Match backend field name
+        platforms: formData.platforms,
+        category: formData.category || 'general',
+        tags: Array.isArray(formData.tags) ? formData.tags : []
+      };
+
+      const loadingToast = toast.loading(editingTemplate ? 'Updating template...' : 'Creating template...');
+
+      try {
+        let response;
+        if (editingTemplate) {
+          response = await api.put(`/templates/${editingTemplate.id}`, templateData);
+        } else {
+          response = await api.post('/templates', templateData);
+        }
+
+        toast.success(editingTemplate ? 'Template updated successfully!' : 'Template created successfully!', { id: loadingToast });
+        setShowModal(false);
+        resetForm();
+        await Promise.all([fetchTemplates(), fetchStats()]);
+      } catch (error) {
+        console.error('API Error:', error);
+        const errorMessage = error.response?.data?.error ||
+          error.response?.data?.message ||
+          'Failed to save template. Please try again.';
+        toast.error(errorMessage, { id: loadingToast });
+      }
     } catch (error) {
-      console.error('API Error:', error);
-      const errorMessage = error.response?.data?.error || 
-                         error.response?.data?.message || 
-                         'Failed to save template. Please try again.';
-      toast.error(errorMessage, { id: loadingToast });
+      console.error('Unexpected error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
     }
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    toast.error('An unexpected error occurred. Please try again.');
   }
-}
 
   async function handleDeleteTemplate(id) {
     if (!confirm('Are you sure you want to delete this template?')) return;
@@ -438,11 +440,10 @@ async function handleSaveTemplate() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`group/cat relative px-5 py-2.5 rounded-xl whitespace-nowrap transition-all overflow-hidden font-medium ${
-                  selectedCategory === cat.id
-                    ? 'bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/60 text-white shadow-xl shadow-blue-500/40'
-                    : 'bg-gray-800/60 backdrop-blur-lg text-gray-200 hover:bg-gray-700/60 border-2 border-white/20 hover:border-white/30 shadow-lg'
-                }`}
+                className={`group/cat relative px-5 py-2.5 rounded-xl whitespace-nowrap transition-all overflow-hidden font-medium ${selectedCategory === cat.id
+                  ? 'bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/60 text-white shadow-xl shadow-blue-500/40'
+                  : 'bg-gray-800/60 backdrop-blur-lg text-gray-200 hover:bg-gray-700/60 border-2 border-white/20 hover:border-white/30 shadow-lg'
+                  }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover/cat:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                 <span className="relative">{cat.icon} {cat.name}</span>
@@ -456,24 +457,10 @@ async function handleSaveTemplate() {
       {loading ? (
         <LoadingSkeleton count={6} />
       ) : templates.length === 0 ? (
-        <div className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-2xl border-2 border-white/20 rounded-2xl shadow-2xl p-12 text-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <div className="relative">
-            <div className="text-6xl mb-4">📋</div>
-            <h3 className="text-2xl font-bold text-white mb-3">No templates yet</h3>
-            <p className="text-gray-300 mb-6 text-lg">Create your first template to get started!</p>
-            <button
-              onClick={() => {
-                resetForm();
-                setShowModal(true);
-              }}
-              className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-8 py-4 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-              <span className="relative">Create Your First Template</span>
-            </button>
-          </div>
-        </div>
+        <NoTemplatesEmpty onCreate={() => {
+          resetForm();
+          setShowModal(true);
+        }} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedTemplates.map(template => (
@@ -615,7 +602,7 @@ async function handleSaveTemplate() {
                     placeholder="Template content... Use {{variable}} for dynamic values"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Tip: Use variables like {'{'}{'{'} name {'}'}{'}'},  {'{'}{'{'} date {'}'}{'}'},  {'{'}{'{'} company {'}'}{'}'} 
+                    Tip: Use variables like {'{'}{'{'} name {'}'}{'}'},  {'{'}{'{'} date {'}'}{'}'},  {'{'}{'{'} company {'}'}{'}'}
                   </p>
                 </div>
 
