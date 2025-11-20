@@ -308,6 +308,22 @@ app.use(session({
 const requestLogger = require('./middleware/request-logger');
 app.use(requestLogger);
 
+// Rate limiting middleware (most specific first)
+const {
+  aiLimiter,
+  authLimiter,
+  apiLimiter,
+  publicLimiter
+} = require('./middleware/rate-limiter');
+
+// Apply rate limiters in order of specificity
+app.use('/api/ai', aiLimiter);           // AI endpoints - strictest (50/hour)
+app.use('/api/auth', authLimiter);       // Auth API endpoints - strict (10/15min)
+app.use('/auth', authLimiter);           // OAuth callbacks - strict (10/15min)
+app.use('/api', apiLimiter);             // General API - moderate (100/15min)
+app.use(publicLimiter);                  // Public routes - lenient (200/15min)
+
+
 // IMPORTANT: Serve dashboard static files FIRST in production (with correct MIME types)
 if (process.env.NODE_ENV === 'production') {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
