@@ -12,16 +12,16 @@ const axios = require('axios');
 const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
 const { createClient } = require('@supabase/supabase-js');
 const { encryptState, decryptState } = require('./utilities/oauthState');
-const { 
-  schedulePost, 
-  postNow, 
-  startScheduler, 
+const {
+  schedulePost,
+  postNow,
+  startScheduler,
   getQueue,
-  deleteFromQueue 
+  deleteFromQueue
 } = require('./services/scheduler');
 
-const { 
-  getPostHistory, 
+const {
+  getPostHistory,
   getPlatformStats,
   getAnalyticsOverview,
   getTimelineData,
@@ -50,21 +50,21 @@ const { postLinkedInCarousel } = require('./services/linkedin');
 const { getUserBoards, postToPinterest } = require('./services/pinterest');
 const { parseCSV, generateTemplate, getValidationSummary } = require('./services/csv-parser');
 const aiImageService = require('./services/ai-image');
-const { 
-  extractTranscript, 
-  generateCaptionFromTranscript 
+const {
+  extractTranscript,
+  generateCaptionFromTranscript
 } = require('./services/youtube-transcript');
-const { 
+const {
   scrapeWebContent,
   isYouTubeUrl
 } = require('./services/web-scraper-light');
-const { 
-  getAllAccountsWithStatus, 
-  getAllCredentials 
+const {
+  getAllAccountsWithStatus,
+  getAllCredentials
 } = require('./services/accounts');
-const { 
+const {
   uploadImage,
-  uploadVideo 
+  uploadVideo
 } = require('./services/cloudinary');
 const {
   initiateLinkedInOAuth,
@@ -196,7 +196,7 @@ function getFrontendUrl() {
   if (process.env.FRONTEND_URL) {
     return process.env.FRONTEND_URL;
   }
-  
+
   // In production (Railway), derive from APP_URL or use production domain
   if (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) {
     // Railway auto-provides RAILWAY_PUBLIC_DOMAIN
@@ -206,7 +206,7 @@ function getFrontendUrl() {
     // Fallback to known production URL
     return 'https://capable-motivation-production-7a75.up.railway.app';
   }
-  
+
   // Local development
   return 'http://localhost:5173';
 }
@@ -253,23 +253,23 @@ async function verifyAuth(req, res, next) {
 
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'No authorization token provided' 
+      return res.status(401).json({
+        success: false,
+        error: 'No authorization token provided'
       });
     }
 
     const token = authHeader.substring(7);
-    
+
     // Verify token with Supabase
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    
+
     if (error || !user) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'Invalid or expired token' 
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid or expired token'
       });
     }
 
@@ -278,13 +278,13 @@ async function verifyAuth(req, res, next) {
       id: user.id,
       email: user.email
     };
-    
+
     next();
   } catch (error) {
     console.error('Auth verification error:', error);
-    res.status(401).json({ 
-      success: false, 
-      error: 'Authentication failed' 
+    res.status(401).json({
+      success: false,
+      error: 'Authentication failed'
     });
   }
 }
@@ -303,11 +303,16 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000  // 24 hours
   }
 }));
+
+// Request logging middleware
+const requestLogger = require('./middleware/request-logger');
+app.use(requestLogger);
+
 // IMPORTANT: Serve dashboard static files FIRST in production (with correct MIME types)
 if (process.env.NODE_ENV === 'production') {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
   const fs = require('fs');
-  
+
   if (fsSync.existsSync(dashboardPath)) {
     // Serve ALL static files from dashboard/dist with correct MIME types
     app.use(express.static(dashboardPath, {
@@ -389,10 +394,10 @@ app.get('/auth', (req, res) => {
 try {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
   const fs = require('fs');
-  
+
   if (fsSync.existsSync(dashboardPath)) {
     const indexHtmlPath = path.join(dashboardPath, 'index.html');
-    
+
     if (fsSync.existsSync(indexHtmlPath)) {
       // Serve static assets for React dashboard at root level
       app.use('/assets', express.static(path.join(dashboardPath, 'assets')));
@@ -416,7 +421,7 @@ try {
 app.get('/dashboard/*', (req, res) => {
   const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
   const fs = require('fs');
-  
+
   if (fsSync.existsSync(dashboardIndex)) {
     res.sendFile(dashboardIndex);
   } else {
@@ -435,8 +440,8 @@ app.get('/dashboard/*', (req, res) => {
 app.get('/api/health', async (req, res) => {
   try {
     const dbHealthy = await healthCheck();
-    
-    res.json({ 
+
+    res.json({
       status: 'running',
       uptime: process.uptime(),
       database: dbHealthy ? 'connected' : 'disconnected',
@@ -459,14 +464,14 @@ app.get('/api/accounts', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const accounts = await getUserConnectedAccounts(userId);
-    res.json({ 
+    res.json({
       success: true,
       accounts: accounts || [],
       count: accounts?.length || 0
     });
   } catch (error) {
     console.error('Error in /api/accounts:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: error.message
     });
@@ -484,9 +489,9 @@ app.put('/api/user/accounts/:id/label', verifyAuth, async (req, res) => {
     const { label } = req.body;
 
     if (!label || label.trim() === '') {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Label is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Label is required'
       });
     }
 
@@ -500,15 +505,15 @@ app.put('/api/user/accounts/:id/label', verifyAuth, async (req, res) => {
 
     if (error) throw error;
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       account: data
     });
   } catch (error) {
     console.error('Error updating account label:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -531,9 +536,9 @@ app.put('/api/user/accounts/:id/set-default', verifyAuth, async (req, res) => {
       .single();
 
     if (fetchError || !account) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Account not found' 
+      return res.status(404).json({
+        success: false,
+        error: 'Account not found'
       });
     }
 
@@ -555,15 +560,15 @@ app.put('/api/user/accounts/:id/set-default', verifyAuth, async (req, res) => {
 
     if (error) throw error;
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       account: data
     });
   } catch (error) {
     console.error('Error setting default account:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -623,13 +628,13 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       credentials = filteredCredentials;
       console.log('✅ Filtered credentials to selected accounts only');
     }
-    
+
     // Check if video is being posted to unsupported platforms
     if (imageUrl && imageUrl.includes('/video/') && platforms.includes('linkedin')) {
       console.warn('⚠️  Videos not supported on LinkedIn, will skip LinkedIn');
       platforms = platforms.filter(p => p !== 'linkedin');
     }
-    
+
     // Validate that user has connected the requested platforms
     const requestedPlatforms = Array.isArray(platforms) ? platforms : [platforms];
     for (const platform of requestedPlatforms) {
@@ -695,28 +700,28 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
         });
       }
     }
-    
+
     // Use platform-specific variations if provided, otherwise use single text for all
     const platformResults = await postNow(
       variations || text, // Pass variations object or single text
-      finalImageUrl || null, 
-      platforms, 
-      credentials, 
+      finalImageUrl || null,
+      platforms,
+      credentials,
       post_metadata,
       !!variations, // Flag to indicate if using variations
       videoUrl || null // Pexels video URL
     );
-    
+
     // Check if all platforms succeeded (handle array results per platform)
     const platformArray = Object.values(platformResults);
     const flattenResults = platformArray.flat().filter(r => r && typeof r === 'object');
-    
+
     // IMPORTANT: Only treat as success if explicitly success === true
     // This prevents undefined/missing success fields from being treated as success
     const allSuccess = flattenResults.length > 0 && flattenResults.every(r => r.success === true);
     const anySuccess = flattenResults.length > 0 && flattenResults.some(r => r.success === true);
     const allFailed = flattenResults.length > 0 && flattenResults.every(r => r.success === false || r.error);
-    
+
     // ALWAYS save the post to database, even if all platforms failed
     // This ensures we have a record of all posting attempts
     try {
@@ -731,11 +736,11 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       } else {
         status = 'failed';
       }
-      
+
       // Save post to database
       // If using variations, save the first platform's variation or combine them
       const textToSave = text || (variations ? Object.values(variations)[0] : 'Post with variations');
-      
+
       const savedPost = await addPost({
         text: textToSave,
         imageUrl: imageUrl || null,
@@ -744,7 +749,7 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
         credentials,
         userId
       });
-      
+
       // Update post status with results
       if (savedPost && savedPost.id) {
         await updatePostStatus(savedPost.id, status, platformResults);
@@ -757,12 +762,12 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
       console.error('⚠️  Database error details:', JSON.stringify(dbError, null, 2));
       // Don't fail the request if DB save fails, but log it
     }
-    
+
     // Increment usage count only if any platform succeeded
     if (anySuccess) {
       await incrementUsage(userId, 'posts');
     }
-    
+
     // Format response for frontend
     res.json({
       success: allSuccess,
@@ -771,9 +776,9 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error in /api/post/now:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -789,14 +794,14 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
     console.log('📅 Schedule Post - User:', userId);
     console.log('📅 Platforms:', platforms);
     console.log('📅 Schedule Time:', scheduleTime);
-    
+
     if (!text || !scheduleTime) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Text and scheduleTime are required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Text and scheduleTime are required'
       });
     }
-    
+
     // Check usage limits
     const usageCheck = await checkUsage(userId, 'posts');
     if (!usageCheck.allowed) {
@@ -807,16 +812,16 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Get user's credentials from database
     const credentials = await getUserCredentialsForPosting(userId);
-    
+
     // Check if video is being posted to unsupported platforms
     if (imageUrl && imageUrl.includes('/video/') && platforms.includes('linkedin')) {
       console.warn('⚠️  Videos not supported on LinkedIn, will skip LinkedIn');
       platforms = platforms.filter(p => p !== 'linkedin');
     }
-    
+
     // Validate that user has connected the requested platforms
     const requestedPlatforms = Array.isArray(platforms) ? platforms : [platforms];
     for (const platform of requestedPlatforms) {
@@ -844,7 +849,7 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
         }
       }
     }
-    
+
     const result = await schedulePost({
       user_id: userId,
       text: text,
@@ -852,21 +857,21 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
       platforms: platforms || ['linkedin'],
       schedule_time: scheduleTime
     });
-    
+
     if (!result.success) {
       return res.status(500).json({
         success: false,
         error: result.error || 'Failed to schedule post'
       });
     }
-    
+
     // Increment usage count
     await incrementUsage(userId, 'posts');
-    
+
     console.log(`✅ Post scheduled successfully for ${new Date(scheduleTime).toLocaleString()}`);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: 'Post scheduled successfully!',
       post: {
         id: result.post.id,
@@ -875,9 +880,9 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error in /api/post/schedule:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -890,22 +895,22 @@ app.post('/api/post/bulk', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { posts } = req.body;
-    
+
     if (!posts || !Array.isArray(posts)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'posts array is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'posts array is required'
       });
     }
-    
+
     const scheduled = [];
-    
+
     for (const post of posts) {
       if (post.text && post.scheduleTime) {
         // Each post can have its own accountId (defaults to 1)
         const accountId = post.accountId || 1;
         const credentials = getAllCredentials(accountId);
-        
+
         const queueItem = await schedulePost(
           post.text,
           post.imageUrl || null,
@@ -917,17 +922,17 @@ app.post('/api/post/bulk', verifyAuth, async (req, res) => {
         scheduled.push(queueItem.id);
       }
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: `Scheduled ${scheduled.length} posts!`,
       scheduledIds: scheduled
     });
   } catch (error) {
     console.error('Error in /api/post/bulk:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -940,69 +945,69 @@ app.post('/api/post/bulk-csv', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { posts } = req.body;
-    
+
     if (!posts || !Array.isArray(posts)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'posts array is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'posts array is required'
       });
     }
-    
+
     console.log(`\n📂 Processing bulk CSV upload: ${posts.length} posts`);
-    
+
     const scheduled = [];
     const failed = [];
-    
+
     for (let i = 0; i < posts.length; i++) {
       const post = posts[i];
       const rowNum = i + 1;
-      
+
       try {
         // Validate required fields
         if (!post.account_id || !post.text || !post.platforms || !post.schedule_time) {
-          failed.push({ 
-            row: rowNum, 
-            error: 'Missing required fields (account_id, text, platforms, or schedule_time)' 
+          failed.push({
+            row: rowNum,
+            error: 'Missing required fields (account_id, text, platforms, or schedule_time)'
           });
           continue;
         }
-        
+
         // Parse and validate account ID
         const accountId = parseInt(post.account_id);
         if (isNaN(accountId) || accountId < 1 || accountId > 5) {
-          failed.push({ 
-            row: rowNum, 
-            error: 'Invalid account_id (must be 1-5)' 
+          failed.push({
+            row: rowNum,
+            error: 'Invalid account_id (must be 1-5)'
           });
           continue;
         }
-        
+
         // Get credentials for the account
         const credentials = getAllCredentials(accountId);
-        
+
         // Parse platforms (comma-separated string to array)
         const platformsRaw = post.platforms.toString().split(',').map(p => p.trim());
         const validPlatforms = ['linkedin', 'twitter', 'instagram'];
         const platforms = platformsRaw.filter(p => validPlatforms.includes(p));
-        
+
         if (platforms.length === 0) {
-          failed.push({ 
-            row: rowNum, 
-            error: 'No valid platforms specified (must be linkedin, twitter, or instagram)' 
+          failed.push({
+            row: rowNum,
+            error: 'No valid platforms specified (must be linkedin, twitter, or instagram)'
           });
           continue;
         }
-        
+
         // Parse schedule time
         const scheduleTime = new Date(post.schedule_time);
         if (isNaN(scheduleTime.getTime())) {
-          failed.push({ 
-            row: rowNum, 
-            error: 'Invalid schedule_time format (use YYYY-MM-DD HH:MM)' 
+          failed.push({
+            row: rowNum,
+            error: 'Invalid schedule_time format (use YYYY-MM-DD HH:MM)'
           });
           continue;
         }
-        
+
         // Schedule the post
         const queueItem = await schedulePost(
           post.text.toString(),
@@ -1012,36 +1017,36 @@ app.post('/api/post/bulk-csv', verifyAuth, async (req, res) => {
           credentials,
           userId // Pass userId
         );
-        
+
         scheduled.push(queueItem.id);
         console.log(`   ✅ Row ${rowNum}: Scheduled post ID ${queueItem.id}`);
-        
+
       } catch (error) {
         console.error(`   ❌ Row ${rowNum}: ${error.message}`);
-        failed.push({ 
-          row: rowNum, 
-          error: error.message 
+        failed.push({
+          row: rowNum,
+          error: error.message
         });
       }
     }
-    
+
     console.log(`\n📊 CSV Upload Complete:`);
     console.log(`   ✅ Scheduled: ${scheduled.length}`);
     console.log(`   ❌ Failed: ${failed.length}\n`);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       scheduled: scheduled.length,
       failed: failed.length,
       scheduledIds: scheduled,
       errors: failed.length > 0 ? failed : undefined
     });
-    
+
   } catch (error) {
     console.error('❌ Error in /api/post/bulk-csv:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1053,24 +1058,24 @@ app.post('/api/post/bulk-csv', verifyAuth, async (req, res) => {
 app.post('/api/bulk/upload', verifyAuth, upload.single('file'), async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     if (!req.file) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'No file uploaded' 
+      return res.status(400).json({
+        success: false,
+        error: 'No file uploaded'
       });
     }
 
     // Read CSV file content
     const csvContent = await fs.readFile(req.file.path, 'utf-8');
-    
+
     // Parse and validate CSV
     const parsedData = parseCSV(csvContent);
     const summary = getValidationSummary(parsedData);
-    
+
     // Clean up uploaded file
     await fs.unlink(req.file.path);
-    
+
     // Track upload in database
     try {
       await supabase.from('bulk_uploads').insert({
@@ -1084,18 +1089,18 @@ app.post('/api/bulk/upload', verifyAuth, upload.single('file'), async (req, res)
     } catch (dbError) {
       console.error('Failed to track upload in database:', dbError);
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       data: parsedData,
       summary
     });
-    
+
   } catch (error) {
     console.error('Error in /api/bulk/upload:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1108,33 +1113,33 @@ app.post('/api/bulk/schedule', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { posts } = req.body;
-    
+
     if (!posts || !Array.isArray(posts)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'posts array is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'posts array is required'
       });
     }
-    
+
     console.log(`\n📂 Bulk scheduling ${posts.length} posts...`);
-    
+
     const scheduled = [];
     const failed = [];
-    
+
     for (let i = 0; i < posts.length; i++) {
       const post = posts[i];
       const rowNum = post.rowNumber || i + 1;
-      
+
       try {
         // Validate required fields
         if (!post.caption || !post.platforms || !post.schedule_datetime) {
-          failed.push({ 
-            rowNumber: rowNum, 
-            error: 'Missing required fields' 
+          failed.push({
+            rowNumber: rowNum,
+            error: 'Missing required fields'
           });
           continue;
         }
-        
+
         // Schedule the post
         const scheduleTime = new Date(post.schedule_datetime);
         const postData = {
@@ -1145,30 +1150,30 @@ app.post('/api/bulk/schedule', verifyAuth, async (req, res) => {
           redditTitle: post.reddit_title || null,
           redditSubreddit: post.reddit_subreddit || null
         };
-        
+
         const queueItem = await schedulePost(postData);
-        
+
         scheduled.push({
           rowNumber: rowNum,
           queueId: queueItem.id,
           scheduleTime: scheduleTime.toISOString()
         });
-        
+
         console.log(`   ✅ Row ${rowNum}: Scheduled`);
-        
+
       } catch (error) {
         console.error(`   ❌ Row ${rowNum}:`, error.message);
-        failed.push({ 
-          rowNumber: rowNum, 
-          error: error.message 
+        failed.push({
+          rowNumber: rowNum,
+          error: error.message
         });
       }
     }
-    
+
     console.log(`\n📊 Bulk Schedule Complete:`);
     console.log(`   ✅ Scheduled: ${scheduled.length}`);
     console.log(`   ❌ Failed: ${failed.length}\n`);
-    
+
     // Update bulk_uploads record
     try {
       const mostRecent = await supabase
@@ -1178,7 +1183,7 @@ app.post('/api/bulk/schedule', verifyAuth, async (req, res) => {
         .order('uploaded_at', { ascending: false })
         .limit(1)
         .single();
-      
+
       if (mostRecent.data) {
         await supabase
           .from('bulk_uploads')
@@ -1192,9 +1197,9 @@ app.post('/api/bulk/schedule', verifyAuth, async (req, res) => {
     } catch (dbError) {
       console.error('Failed to update bulk_uploads:', dbError);
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       scheduled: scheduled.length,
       failed: failed.length,
       results: {
@@ -1202,12 +1207,12 @@ app.post('/api/bulk/schedule', verifyAuth, async (req, res) => {
         failed
       }
     });
-    
+
   } catch (error) {
     console.error('Error in /api/bulk/schedule:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1246,9 +1251,9 @@ app.get('/api/queue', verifyAuth, async (req, res) => {
     res.json({ queue });
   } catch (error) {
     console.error('Error in /api/queue:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1261,23 +1266,23 @@ app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
   try {
     const postId = parseInt(req.params.id);
     const deleted = await deleteFromQueue(postId);
-    
+
     if (deleted) {
-      res.json({ 
-        success: true, 
-        message: 'Post removed from queue' 
+      res.json({
+        success: true,
+        message: 'Post removed from queue'
       });
     } else {
-      res.status(404).json({ 
-        success: false, 
-        error: 'Post not found' 
+      res.status(404).json({
+        success: false,
+        error: 'Post not found'
       });
     }
   } catch (error) {
     console.error('Error in /api/queue/:id:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1291,17 +1296,17 @@ app.get('/api/history', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const limit = parseInt(req.query.limit) || 50;
     const history = await getPostHistory(limit, userId);
-    
-    res.json({ 
+
+    res.json({
       success: true,
       history,
       count: history.length
     });
   } catch (error) {
     console.error('Error in /api/history:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1313,7 +1318,7 @@ app.get('/api/history', verifyAuth, async (req, res) => {
 app.get('/api/posts/scheduled', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     // Get all posts that are queued (scheduled for future)
     const { data, error } = await supabaseAdmin
       .from('posts')
@@ -1322,12 +1327,12 @@ app.get('/api/posts/scheduled', verifyAuth, async (req, res) => {
       .eq('status', 'queued')
       .gte('schedule_time', new Date().toISOString()) // Future posts only
       .order('schedule_time', { ascending: true });
-    
+
     if (error) {
       console.error('Error fetching scheduled posts:', error);
       throw error;
     }
-    
+
     // Format for calendar
     const scheduledPosts = (data || []).map(post => ({
       id: post.id,
@@ -1339,18 +1344,18 @@ app.get('/api/posts/scheduled', verifyAuth, async (req, res) => {
       image_url: post.image_url,
       status: post.status
     }));
-    
-    res.json({ 
+
+    res.json({
       success: true,
       posts: scheduledPosts,
       count: scheduledPosts.length
     });
-    
+
   } catch (error) {
     console.error('Error in /api/posts/scheduled:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1398,7 +1403,7 @@ app.put('/api/posts/:id/reschedule', verifyAuth, async (req, res) => {
     // Update schedule_time
     const { error: updateError } = await supabaseAdmin
       .from('posts')
-      .update({ 
+      .update({
         schedule_time: new Date(schedule_time).toISOString()
       })
       .eq('id', postId)
@@ -1432,10 +1437,10 @@ app.get('/api/analytics/best-times', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const platform = req.query.platform || 'linkedin';
-    
+
     // Get user's historical best times
     const historicalData = await analyzeBestTimes(userId);
-    
+
     // Get AI recommendations based on history
     let aiRecommendations = [];
     try {
@@ -1443,14 +1448,14 @@ app.get('/api/analytics/best-times', verifyAuth, async (req, res) => {
     } catch (aiError) {
       console.error('AI recommendations failed, using historical data only:', aiError);
     }
-    
+
     res.json({
       success: true,
       historical: historicalData,
       recommendations: aiRecommendations,
       platform
     });
-    
+
   } catch (error) {
     console.error('Error in /api/analytics/best-times:', error);
     res.status(500).json({
@@ -1468,12 +1473,12 @@ app.get('/api/analytics/heatmap', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const heatmap = await getPostingHeatmap(userId);
-    
+
     res.json({
       success: true,
       heatmap
     });
-    
+
   } catch (error) {
     console.error('Error in /api/analytics/heatmap:', error);
     res.status(500).json({
@@ -1491,7 +1496,7 @@ app.get('/api/analytics/platforms', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const stats = await getPlatformStats(userId);
-    
+
     // Format for frontend
     const platformsArray = Object.keys(stats).map(platform => ({
       platform,
@@ -1500,16 +1505,16 @@ app.get('/api/analytics/platforms', verifyAuth, async (req, res) => {
       failed: stats[platform].failed,
       successRate: stats[platform].successRate
     }));
-    
-    res.json({ 
+
+    res.json({
       success: true,
       platforms: platformsArray
     });
   } catch (error) {
     console.error('Error in /api/analytics/platforms:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
@@ -1522,7 +1527,7 @@ app.get('/api/analytics/overview', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const overview = await getAnalyticsOverview(userId);
-    
+
     res.json({
       success: true,
       ...overview
@@ -1545,7 +1550,7 @@ app.get('/api/analytics/timeline', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const days = parseInt(req.query.days) || 30;
     const timeline = await getTimelineData(userId, days);
-    
+
     res.json({
       success: true,
       ...timeline
@@ -1567,17 +1572,17 @@ app.get('/api/analytics/export', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { Parser } = require('json2csv');
-    
+
     // Get post history for the user
     const history = await getPostHistory(100, userId); // Get last 100 posts
-    
+
     if (!history || history.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'No analytics data to export'
       });
     }
-    
+
     // Prepare data for CSV
     const csvData = history.map(post => ({
       'Date': new Date(post.created_at).toLocaleDateString(),
@@ -1589,18 +1594,18 @@ app.get('/api/analytics/export', verifyAuth, async (req, res) => {
       'Image URL': post.image_url || '',
       'Scheduled For': post.schedule_time ? new Date(post.schedule_time).toLocaleString() : 'Posted immediately'
     }));
-    
+
     // Convert to CSV
     const parser = new Parser();
     const csv = parser.parse(csvData);
-    
+
     // Set headers for download
     const filename = `analytics-export-${new Date().toISOString().split('T')[0]}.csv`;
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    
+
     res.send(csv);
-    
+
     console.log(`✅ Analytics exported for user ${userId}`);
   } catch (error) {
     console.error('Error in /api/analytics/export:', error);
@@ -1655,7 +1660,7 @@ app.post('/api/upload/image', verifyAuth, upload.single('file'), async (req, res
     } else {
       // Disk storage - use path
       result = isVideo ? await uploadVideo(req.file.path, userId) : await uploadImage(req.file.path, userId);
-      
+
       // Delete temporary file
       await fs.unlink(req.file.path).catch(err => {
         console.error('Error deleting temp file:', err);
@@ -1664,10 +1669,10 @@ app.post('/api/upload/image', verifyAuth, upload.single('file'), async (req, res
 
     if (result.success) {
       console.log('✅ Image uploaded:', result.url);
-      
+
       // Track usage (for billing limits later)
       await incrementUsage(userId, 'image_upload');
-      
+
       return res.json({
         success: true,
         url: result.url,           // Standard field name
@@ -1686,7 +1691,7 @@ app.post('/api/upload/image', verifyAuth, upload.single('file'), async (req, res
     }
   } catch (error) {
     console.error('❌ Image upload error:', error);
-    
+
     // Clean up temp file on error
     if (req.file && req.file.path) {
       await fs.unlink(req.file.path).catch(err => {
@@ -1728,9 +1733,9 @@ app.post('/api/upload/video', verifyAuth, upload.single('video'), async (req, re
 
     if (result.success) {
       console.log('✅ Video uploaded:', result.url);
-      
+
       await incrementUsage(userId, 'video_upload');
-      
+
       return res.json({
         success: true,
         videoUrl: result.url,
@@ -1747,7 +1752,7 @@ app.post('/api/upload/video', verifyAuth, upload.single('video'), async (req, re
     }
   } catch (error) {
     console.error('❌ Video upload error:', error);
-    
+
     if (req.file && req.file.path) {
       await fs.unlink(req.file.path).catch(err => {
         console.error('Error deleting temp file:', err);
@@ -1769,15 +1774,15 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { topic, niche, platform } = req.body;
-    
+
     // Validate inputs
     if (!topic || topic.trim() === '') {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Topic is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Topic is required'
       });
     }
-    
+
     // Check AI usage limits
     const usageCheck = await checkUsage(userId, 'ai');
     if (!usageCheck.allowed) {
@@ -1788,7 +1793,7 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Check if API key is configured
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
@@ -1796,29 +1801,29 @@ app.post('/api/ai/generate', verifyAuth, async (req, res) => {
         error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
-    
+
     console.log(`🤖 AI caption request: topic="${topic}", niche="${niche}", platform="${platform}"`);
-    
+
     // Generate captions
     const variations = await generateCaption(
       topic,
       niche || 'General',
       platform || 'linkedin'
     );
-    
+
     // Increment AI usage count
     await incrementUsage(userId, 'ai');
-    
-    res.json({ 
+
+    res.json({
       success: true,
       variations,
       count: variations.length
     });
-    
+
   } catch (error) {
     console.error('Error in /api/ai/generate:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message || 'Failed to generate captions'
     });
   }
@@ -1832,15 +1837,15 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { videoUrl, instructions, platform } = req.body;
-    
+
     // Validate inputs
     if (!videoUrl || videoUrl.trim() === '') {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'URL is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'URL is required'
       });
     }
-    
+
     // Check AI usage limits
     const usageCheck = await checkUsage(userId, 'ai');
     if (!usageCheck.allowed) {
@@ -1851,7 +1856,7 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Check if API key is configured
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
@@ -1859,49 +1864,49 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
         error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
-    
+
     let content = '';
     let contentType = '';
-    
+
     // Check if URL is YouTube or general web page
     if (isYouTubeUrl(videoUrl)) {
       console.log(`\n📺 YouTube caption request: url="${videoUrl}", platform="${platform}"`);
       contentType = 'YouTube video';
-      
+
       // Step 1: Extract transcript from YouTube
       content = await extractTranscript(videoUrl);
     } else {
       console.log(`\n🌐 Web scrape caption request: url="${videoUrl}", platform="${platform}"`);
       contentType = 'web page';
-      
+
       // Step 1: Scrape content from web page
       content = await scrapeWebContent(videoUrl);
     }
-    
+
     console.log(`✅ Content extracted from ${contentType}: ${content.length} characters`);
-    
+
     // Step 2: Generate captions from content
     const variations = await generateCaptionFromTranscript(
       content,
       instructions || '',
       platform || 'linkedin'
     );
-    
+
     // Increment AI usage count
     await incrementUsage(userId, 'ai');
-    
-    res.json({ 
+
+    res.json({
       success: true,
       variations,
       count: variations.length,
       contentLength: content.length,
       contentType
     });
-    
+
   } catch (error) {
     console.error('Error in /api/ai/youtube-caption:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message || 'Failed to generate captions from URL'
     });
   }
@@ -2003,7 +2008,7 @@ app.post('/api/ai/image/generate', verifyAuth, async (req, res) => {
       });
     } else {
       console.error(`❌ AI Image generation failed for user ${userId}:`, result.error);
-      
+
       res.status(500).json({
         success: false,
         error: result.error
@@ -2027,15 +2032,15 @@ app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { caption, platform } = req.body;
-    
+
     // Validate inputs
     if (!caption || caption.trim().length < 10) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Caption must be at least 10 characters' 
+      return res.status(400).json({
+        success: false,
+        error: 'Caption must be at least 10 characters'
       });
     }
-    
+
     // Check AI usage limits
     const usageCheck = await checkUsage(userId, 'ai');
     if (!usageCheck.allowed) {
@@ -2046,7 +2051,7 @@ app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Check if API key is configured
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
@@ -2054,29 +2059,29 @@ app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
         error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
-    
+
     console.log(`🏷️  AI hashtag request for ${platform || 'default'} platform`);
-    
+
     // Generate hashtags
     const hashtags = await generateHashtags(
       caption,
       platform || 'instagram'
     );
-    
+
     // Increment AI usage count
     await incrementUsage(userId, 'ai');
-    
-    res.json({ 
+
+    res.json({
       success: true,
       hashtags,
       count: hashtags.length,
       platform: platform || 'instagram'
     });
-    
+
   } catch (error) {
     console.error('Error in /api/ai/hashtags:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message || 'Failed to generate hashtags'
     });
   }
@@ -2090,23 +2095,23 @@ app.post('/api/ai/content-ideas', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { topic, platform, count } = req.body;
-    
+
     // Validate inputs
     if (!topic || topic.trim().length < 3) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Topic must be at least 3 characters' 
+      return res.status(400).json({
+        success: false,
+        error: 'Topic must be at least 3 characters'
       });
     }
 
     const ideaCount = count || 20;
     if (ideaCount < 5 || ideaCount > 50) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Count must be between 5 and 50' 
+      return res.status(400).json({
+        success: false,
+        error: 'Count must be between 5 and 50'
       });
     }
-    
+
     // Check AI usage limits
     const usageCheck = await checkUsage(userId, 'ai');
     if (!usageCheck.allowed) {
@@ -2117,7 +2122,7 @@ app.post('/api/ai/content-ideas', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Check if API key is configured
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
@@ -2125,31 +2130,31 @@ app.post('/api/ai/content-ideas', verifyAuth, async (req, res) => {
         error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
-    
+
     console.log(`💡 Generating ${ideaCount} content ideas for "${topic}" on ${platform || 'linkedin'}`);
-    
+
     // Generate content ideas
     const ideas = await generateContentIdeas(
       topic.trim(),
       platform || 'linkedin',
       ideaCount
     );
-    
+
     // Increment AI usage count
     await incrementUsage(userId, 'ai');
-    
-    res.json({ 
+
+    res.json({
       success: true,
       ideas,
       topic: topic.trim(),
       platform: platform || 'linkedin',
       count: ideas.length
     });
-    
+
   } catch (error) {
     console.error('Error in /api/ai/content-ideas:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message || 'Failed to generate content ideas'
     });
   }
@@ -2163,15 +2168,15 @@ app.post('/api/ai/improve-caption', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { caption, platform } = req.body;
-    
+
     // Validate inputs
     if (!caption || caption.trim().length < 5) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Caption must be at least 5 characters' 
+      return res.status(400).json({
+        success: false,
+        error: 'Caption must be at least 5 characters'
       });
     }
-    
+
     // Check AI usage limits
     const usageCheck = await checkUsage(userId, 'ai');
     if (!usageCheck.allowed) {
@@ -2182,7 +2187,7 @@ app.post('/api/ai/improve-caption', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Check if API key is configured
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
@@ -2190,29 +2195,29 @@ app.post('/api/ai/improve-caption', verifyAuth, async (req, res) => {
         error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
-    
+
     console.log(`🎨 Improving caption for ${platform || 'linkedin'}`);
-    
+
     // Improve caption
     const improved = await improveCaption(
       caption.trim(),
       platform || 'linkedin'
     );
-    
+
     // Increment AI usage count
     await incrementUsage(userId, 'ai');
-    
-    res.json({ 
+
+    res.json({
       success: true,
       original: caption.trim(),
       improved,
       platform: platform || 'linkedin'
     });
-    
+
   } catch (error) {
     console.error('Error in /api/ai/improve-caption:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message || 'Failed to improve caption'
     });
   }
@@ -2226,15 +2231,15 @@ app.post('/api/ai/caption-from-image', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { imageUrl, platform } = req.body;
-    
+
     // Validate inputs
     if (!imageUrl || imageUrl.trim().length < 10) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Image URL is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Image URL is required'
       });
     }
-    
+
     // Check AI usage limits
     const usageCheck = await checkUsage(userId, 'ai');
     if (!usageCheck.allowed) {
@@ -2245,7 +2250,7 @@ app.post('/api/ai/caption-from-image', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Check if API key is configured
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
@@ -2253,30 +2258,30 @@ app.post('/api/ai/caption-from-image', verifyAuth, async (req, res) => {
         error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
-    
+
     console.log(`🖼️ Generating captions from image for ${platform || 'linkedin'}`);
-    
+
     // Generate captions from image
     const result = await generateCaptionFromImage(
       imageUrl.trim(),
       platform || 'linkedin'
     );
-    
+
     // Increment AI usage count
     await incrementUsage(userId, 'ai');
-    
-    res.json({ 
+
+    res.json({
       success: true,
       description: result.description,
       captions: result.captions,
       platform: platform || 'linkedin',
       imageUrl: imageUrl.trim()
     });
-    
+
   } catch (error) {
     console.error('Error in /api/ai/caption-from-image:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message || 'Failed to generate captions from image'
     });
   }
@@ -2290,22 +2295,22 @@ app.post('/api/ai/variations', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { caption, platforms } = req.body;
-    
+
     // Validate inputs
     if (!caption || caption.trim().length < 10) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Caption must be at least 10 characters' 
+      return res.status(400).json({
+        success: false,
+        error: 'Caption must be at least 10 characters'
       });
     }
 
     if (!platforms || !Array.isArray(platforms) || platforms.length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'At least one platform is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'At least one platform is required'
       });
     }
-    
+
     // Check AI usage limits
     const usageCheck = await checkUsage(userId, 'ai');
     if (!usageCheck.allowed) {
@@ -2316,7 +2321,7 @@ app.post('/api/ai/variations', verifyAuth, async (req, res) => {
         upgradePlan: usageCheck.upgradePlan
       });
     }
-    
+
     // Check if API key is configured
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({
@@ -2324,26 +2329,26 @@ app.post('/api/ai/variations', verifyAuth, async (req, res) => {
         error: 'AI service not configured. Please add ANTHROPIC_API_KEY to your environment variables.'
       });
     }
-    
+
     console.log(`🎨 Generating post variations for ${platforms.length} platforms`);
-    
+
     // Generate platform-specific variations
     const variations = await generatePostVariations(caption, platforms);
-    
+
     // Increment AI usage count
     await incrementUsage(userId, 'ai');
-    
-    res.json({ 
+
+    res.json({
       success: true,
       variations,
       platforms,
       count: Object.keys(variations).length
     });
-    
+
   } catch (error) {
     console.error('Error in /api/ai/variations:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: error.message || 'Failed to generate post variations'
     });
   }
@@ -3753,32 +3758,32 @@ app.post('/api/auth/linkedin/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const clientId = process.env.LINKEDIN_CLIENT_ID;
-    
+
     if (!clientId) {
       return res.status(500).json({
         success: false,
         error: 'LinkedIn OAuth not configured'
       });
     }
-    
+
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/linkedin/callback`;
     const state = encryptState(userId);
     const scope = 'openid profile email w_member_social';
-    
+
     console.log('🔗 LinkedIn OAuth URL generation:');
     console.log('  - Client ID:', clientId ? 'exists' : 'missing');
     console.log('  - Redirect URI:', redirectUri);
     console.log('  - Scope:', scope);
-    
+
     const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('client_id', clientId);
     authUrl.searchParams.append('redirect_uri', redirectUri);
     authUrl.searchParams.append('scope', scope);
     authUrl.searchParams.append('state', state);
-    
+
     console.log('  - Generated URL:', authUrl.toString());
-    
+
     res.json({
       success: true,
       authUrl: authUrl.toString()
@@ -3799,24 +3804,24 @@ app.post('/api/auth/linkedin/url', verifyAuth, async (req, res) => {
 app.get('/auth/linkedin/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
-    
+
     console.log('🔗 LinkedIn callback received:');
     console.log('  - Code:', code ? 'exists' : 'missing');
     console.log('  - State:', state ? 'exists' : 'missing');
     console.log('  - Error:', error || 'none');
     console.log('  - Query params:', JSON.stringify(req.query));
     console.log('  - Full URL:', req.url);
-    
+
     if (error) {
       console.error('LinkedIn OAuth error:', error);
       return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_denied`);
     }
-    
+
     if (!code || !state) {
       console.error('Missing code or state parameter');
       return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_missing_params`);
     }
-    
+
     // Decrypt state to get userId
     let userId;
     try {
@@ -3826,11 +3831,11 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       console.error('State decryption error:', stateError.message);
       return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_invalid_state`);
     }
-    
+
     // Exchange code for access token
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/linkedin/callback`;
     console.log('  - Exchange token with redirect URI:', redirectUri);
-    
+
     let tokenResponse;
     try {
       tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
@@ -3849,22 +3854,22 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
       return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_token_exchange_failed`);
     }
-    
+
     const { access_token, expires_in } = tokenResponse.data;
-    
+
     // Get user profile
     const profileResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
       headers: {
         'Authorization': `Bearer ${access_token}`
       }
     });
-    
+
     const profile = profileResponse.data;
     const expiresAt = new Date(Date.now() + (expires_in * 1000));
-    
+
     // Store in database using supabaseAdmin (bypasses RLS)
     // Use global supabaseAdmin instead of creating new client
-    
+
     await supabaseAdmin
       .from('user_accounts')
       .upsert({
@@ -3881,7 +3886,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       }, {
         onConflict: 'user_id,platform,platform_user_id'
       });
-    
+
     console.log(`✅ LinkedIn account connected for user ${userId}`);
     res.redirect(`${getFrontendUrl()}/connect-accounts?connected=linkedin&success=true`);
   } catch (error) {
@@ -3898,19 +3903,19 @@ app.post('/api/auth/reddit/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const clientId = process.env.REDDIT_CLIENT_ID;
-    
+
     if (!clientId) {
       return res.status(500).json({
         success: false,
         error: 'Reddit OAuth not configured. Please add REDDIT_CLIENT_ID to environment variables.'
       });
     }
-    
+
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/reddit/callback`;
     const oauthUrl = initiateRedditOAuth(userId, redirectUri);
-    
+
     console.log('🔴 Reddit OAuth URL generated for user:', userId);
-    
+
     res.json({
       success: true,
       oauthUrl: oauthUrl
@@ -3931,29 +3936,29 @@ app.post('/api/auth/reddit/url', verifyAuth, async (req, res) => {
 app.get('/auth/reddit/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
-    
+
     console.log('🔴 Reddit callback received');
     console.log('   Code:', code ? 'exists' : 'missing');
     console.log('   State:', state ? 'exists' : 'missing');
     console.log('   Error:', error || 'none');
-    
+
     if (error) {
       console.error('Reddit OAuth error:', error);
       return res.redirect('/settings?error=reddit_denied');
     }
-    
+
     if (!code || !state) {
       console.error('Missing code or state parameter');
       return res.redirect('/settings?error=reddit_missing_params');
     }
-    
+
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/reddit/callback`;
     console.log('   Redirect URI:', redirectUri);
-    
+
     const result = await handleRedditCallback(code, state, redirectUri);
-    
+
     console.log('   Result:', JSON.stringify(result, null, 2));
-    
+
     if (result.success) {
       console.log('✅ Reddit OAuth callback successful');
       res.redirect('/settings?success=reddit');
@@ -3976,7 +3981,7 @@ app.get('/auth/reddit/callback', async (req, res) => {
 app.get('/api/reddit/subreddits', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     // Get Reddit account from database
     const { data: account, error } = await supabaseAdmin
       .from('user_accounts')
@@ -3985,22 +3990,22 @@ app.get('/api/reddit/subreddits', verifyAuth, async (req, res) => {
       .eq('platform', 'reddit')
       .eq('status', 'active')
       .single();
-    
+
     if (error || !account) {
       return res.status(404).json({
         success: false,
         error: 'No Reddit account connected'
       });
     }
-    
+
     // Parse moderated subreddits from metadata
     const subreddits = account.platform_metadata ? JSON.parse(account.platform_metadata) : [];
-    
+
     res.json({
       success: true,
       subreddits: subreddits
     });
-    
+
   } catch (error) {
     console.error('Error fetching Reddit subreddits:', error);
     res.status(500).json({
@@ -4018,29 +4023,29 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const clientId = process.env.TWITTER_CLIENT_ID;
-    
+
     if (!clientId) {
       return res.status(500).json({
         success: false,
         error: 'Twitter OAuth not configured'
       });
     }
-    
+
     // Generate PKCE code_verifier and code_challenge
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
     const codeChallenge = crypto
       .createHash('sha256')
       .update(codeVerifier)
       .digest('base64url');
-    
+
     const state = encryptState(userId);
-    
+
     // Store code_verifier temporarily (expires in 10 minutes)
     // Store in both in-memory and session stores for redundancy
     const pkceData = { codeVerifier, userId, timestamp: Date.now() };
     pkceStore.set(state, pkceData);
     sessionPkceStore.set(state, pkceData);
-    
+
     // Also store in database for persistence across server restarts
     try {
       await supabaseAdmin
@@ -4055,20 +4060,20 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     } catch (dbError) {
       console.warn('Could not save PKCE to database:', dbError.message);
     }
-    
+
     setTimeout(() => {
       pkceStore.delete(state);
       sessionPkceStore.delete(state);
     }, 30 * 60 * 1000);
-    
+
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
     const scope = 'tweet.read tweet.write users.read offline.access tweet.moderate.write';
-    
+
     console.log('🐦 Twitter OAuth URL generation:');
     console.log('  - Client ID:', clientId ? 'exists' : 'missing');
     console.log('  - Redirect URI:', redirectUri);
     console.log('  - State:', state.substring(0, 20) + '...');
-    
+
     const authUrl = new URL('https://twitter.com/i/oauth2/authorize');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('client_id', clientId);
@@ -4077,9 +4082,9 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     authUrl.searchParams.append('state', state);
     authUrl.searchParams.append('code_challenge', codeChallenge);
     authUrl.searchParams.append('code_challenge_method', 'S256');
-    
+
     console.log('  - Generated URL length:', authUrl.toString().length);
-    
+
     res.json({
       success: true,
       authUrl: authUrl.toString()
@@ -4100,24 +4105,24 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
 app.get('/auth/twitter/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
-    
+
     console.log('🐦 Twitter callback received:');
     console.log('  - Code:', code ? 'exists' : 'missing');
     console.log('  - State:', state ? state.substring(0, 20) + '...' : 'missing');
     console.log('  - Error:', error || 'none');
     console.log('  - Query params:', JSON.stringify(req.query));
     console.log('  - Full URL:', req.url);
-    
+
     if (error) {
       console.error('Twitter OAuth error:', error);
       return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_denied`);
     }
-    
+
     if (!code || !state) {
       console.error('Missing code or state parameter');
       return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_missing_params`);
     }
-    
+
     // Get stored code_verifier - check both stores
     let pkceData = pkceStore.get(state);
     if (!pkceData) {
@@ -4129,7 +4134,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
         pkceStore.set(state, pkceData);
       }
     }
-    
+
     // If still not found, try database as last resort
     if (!pkceData) {
       console.log('  - Not found in memory, checking database...');
@@ -4141,7 +4146,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
           .eq('platform', 'twitter')
           .gte('expires_at', new Date().toISOString())
           .single();
-        
+
         if (dbState) {
           console.log('  - ✅ Found PKCE in database!');
           pkceData = {
@@ -4156,12 +4161,12 @@ app.get('/auth/twitter/callback', async (req, res) => {
         console.error('  - Database lookup failed:', dbErr.message);
       }
     }
-    
+
     console.log('  - PKCE data:', pkceData ? 'found' : 'not found');
     console.log('  - PKCE store size:', pkceStore.size);
     console.log('  - Session store size:', sessionPkceStore.size);
     console.log('  - PKCE store entries:', Array.from(pkceStore.keys()).map(k => k.substring(0, 20) + '...'));
-    
+
     if (!pkceData) {
       console.error('  - State expired or invalid');
       console.error('  - Looking for state:', state.substring(0, 20) + '...');
@@ -4169,18 +4174,18 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.error('  - Try connecting again within 10 minutes of deployment');
       return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_expired`);
     }
-    
+
     const { codeVerifier, userId } = pkceData;
     console.log('  - User ID from PKCE:', userId);
     pkceStore.delete(state); // Clean up
-    
+
     // Exchange code for access token
     const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
     console.log('  - Token exchange starting with redirect URI:', redirectUri);
-    
+
     let tokenResponse;
     try {
-      tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token', 
+      tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token',
         new URLSearchParams({
           grant_type: 'authorization_code',
           code,
@@ -4198,31 +4203,31 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
       return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_token_exchange_failed`);
     }
-    
+
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
-    
+
     // Get user profile
     const profileResponse = await axios.get('https://api.twitter.com/2/users/me', {
       headers: {
         'Authorization': `Bearer ${access_token}`
       }
     });
-    
+
     const profile = profileResponse.data.data;
     const expiresAt = expires_in ? new Date(Date.now() + (expires_in * 1000)) : null;
-    
+
     // Store in database using global supabaseAdmin (bypasses RLS)
     // Check if we have OAuth 1.0a credentials in environment (API Key/Secret)
     // These are app-level credentials that all users can use for media uploads
-    const oauth1Credentials = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET 
+    const oauth1Credentials = process.env.TWITTER_API_KEY && process.env.TWITTER_API_SECRET
       ? {
-          apiKey: process.env.TWITTER_API_KEY,
-          apiSecret: process.env.TWITTER_API_SECRET
-        }
+        apiKey: process.env.TWITTER_API_KEY,
+        apiSecret: process.env.TWITTER_API_SECRET
+      }
       : null;
-    
+
     console.log('  - OAuth 1.0a credentials available:', oauth1Credentials ? 'Yes' : 'No');
-    
+
     // Check if ANY Twitter account for this user has OAuth 1.0a credentials
     // (needed because platform_user_id might change or account might be recreated)
     const { data: existingAccounts } = await supabaseAdmin
@@ -4230,7 +4235,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
       .select('refresh_token, platform_username')
       .eq('user_id', userId)
       .eq('platform', 'twitter');
-    
+
     // Preserve OAuth 1.0a credentials if they exist in ANY Twitter account
     let finalRefreshToken = refresh_token;
     if (existingAccounts && existingAccounts.length > 0) {
@@ -4245,7 +4250,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
         }
       }
     }
-    
+
     const { data: upsertResult, error: upsertError } = await supabaseAdmin
       .from('user_accounts')
       .upsert({
@@ -4264,14 +4269,14 @@ app.get('/auth/twitter/callback', async (req, res) => {
         onConflict: 'user_id,platform,platform_user_id'
       })
       .select();
-    
+
     if (upsertError) {
       console.error('❌ Database upsert error:', upsertError);
       throw upsertError;
     }
-    
+
     console.log('✅ Twitter account upserted:', upsertResult);
-    
+
     // Verify the account is actually active (force update if needed)
     if (upsertResult && upsertResult.length > 0) {
       const accountId = upsertResult[0].id;
@@ -4279,14 +4284,14 @@ app.get('/auth/twitter/callback', async (req, res) => {
         .from('user_accounts')
         .update({ status: 'active' })
         .eq('id', accountId);
-      
+
       if (verifyError) {
         console.error('❌ Status update error:', verifyError);
       } else {
         console.log('✅ Status verified as active for account:', accountId);
       }
     }
-    
+
     console.log(`✅ Twitter account connected for user ${userId}`);
     res.redirect(`${getFrontendUrl()}/connect-accounts?connected=twitter&success=true`);
   } catch (error) {
@@ -4303,13 +4308,13 @@ app.get('/api/user/accounts', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const accounts = await getUserConnectedAccounts(userId);
-    
+
     console.log('📋 User accounts requested for:', userId);
     console.log('📋 Accounts found:', accounts.length);
     accounts.forEach(acc => {
       console.log(`  - Platform: ${acc.platform}, Name: ${acc.platform_name}, Username: ${acc.platform_username}`);
     });
-    
+
     res.json({
       success: true,
       accounts
@@ -4330,15 +4335,15 @@ app.get('/api/user/accounts', verifyAuth, async (req, res) => {
 app.get('/api/user/profile', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('id, email, email_reports_enabled, report_email, report_frequency, metadata')
       .eq('id', userId)
       .single();
-    
+
     if (error) throw error;
-    
+
     res.json({
       success: true,
       user: {
@@ -4350,7 +4355,7 @@ app.get('/api/user/profile', verifyAuth, async (req, res) => {
         metadata: user.metadata
       }
     });
-    
+
   } catch (error) {
     console.error('Error getting user profile:', error);
     res.status(500).json({
@@ -4368,7 +4373,7 @@ app.put('/api/user/email-preferences', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { email_reports_enabled, report_email, report_frequency } = req.body;
-    
+
     const { data, error } = await supabaseAdmin
       .from('users')
       .update({
@@ -4379,17 +4384,17 @@ app.put('/api/user/email-preferences', verifyAuth, async (req, res) => {
       .eq('id', userId)
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ Email preferences updated for user ${userId}`);
-    
+
     res.json({
       success: true,
       message: 'Email preferences updated successfully',
       user: data
     });
-    
+
   } catch (error) {
     console.error('Error updating email preferences:', error);
     res.status(500).json({
@@ -4411,11 +4416,11 @@ app.get('/api/workspace/info', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const userEmail = req.user.email;
-    
+
     console.log(`🔍 Getting workspace for user ${userId} (${userEmail})`);
-    
+
     let workspace = await getUserWorkspace(userId);
-    
+
     // Auto-create workspace ONLY if user is not a member of ANY workspace
     if (!workspace) {
       // First check if user was invited to any workspace (check team_members table)
@@ -4425,14 +4430,14 @@ app.get('/api/workspace/info', verifyAuth, async (req, res) => {
         .eq('user_id', userId)
         .eq('status', 'active')
         .single();
-      
+
       if (existingMembership) {
         console.log(`✅ User ${userId} is already a team member, re-fetching workspace...`);
         workspace = await getUserWorkspace(userId);
       } else {
         // User is not a member of any workspace, create a new one as Owner
         console.log(`🏗️ Creating new workspace for user ${userId} (Owner)`);
-        
+
         // Create workspace
         const { data: newWorkspace, error: workspaceError } = await supabaseAdmin
           .from('workspaces')
@@ -4442,12 +4447,12 @@ app.get('/api/workspace/info', verifyAuth, async (req, res) => {
           })
           .select()
           .single();
-        
+
         if (workspaceError) {
           console.error('Error creating workspace:', workspaceError);
           throw workspaceError;
         }
-        
+
         // Add user as owner in team_members
         const { error: memberError } = await supabaseAdmin
           .from('team_members')
@@ -4458,28 +4463,28 @@ app.get('/api/workspace/info', verifyAuth, async (req, res) => {
             status: 'active',
             joined_at: new Date().toISOString()
           });
-        
+
         if (memberError) {
           console.error('Error adding team member:', memberError);
           throw memberError;
         }
-        
+
         console.log(`✅ Workspace created for user ${userId}`);
-        
+
         // Fetch the newly created workspace
         workspace = await getUserWorkspace(userId);
       }
     }
-    
+
     if (!workspace) {
       return res.status(500).json({
         success: false,
         error: 'Failed to create or load workspace'
       });
     }
-    
+
     console.log(`✅ Workspace loaded for user ${userId}:`, workspace);
-    
+
     res.json({
       success: true,
       workspace
@@ -4501,23 +4506,23 @@ app.put('/api/workspace/name', verifyAuth, requireRole('owner'), async (req, res
   try {
     const { name } = req.body;
     const workspaceId = req.workspace.workspace_id;
-    
+
     if (!name || name.trim().length < 1) {
       return res.status(400).json({
         success: false,
         error: 'Workspace name is required'
       });
     }
-    
+
     const { data, error } = await supabaseAdmin
       .from('workspaces')
       .update({ name: name.trim(), updated_at: new Date().toISOString() })
       .eq('id', workspaceId)
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     await logActivity(
       workspaceId,
       req.user.id,
@@ -4526,7 +4531,7 @@ app.put('/api/workspace/name', verifyAuth, requireRole('owner'), async (req, res
       workspaceId,
       { new_name: name.trim() }
     );
-    
+
     res.json({
       success: true,
       workspace: data
@@ -4547,23 +4552,23 @@ app.put('/api/workspace/name', verifyAuth, requireRole('owner'), async (req, res
 app.get('/api/team/members', verifyAuth, async (req, res) => {
   try {
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     if (!workspace) {
       return res.status(404).json({
         success: false,
         error: 'No workspace found'
       });
     }
-    
+
     const { data: members, error } = await supabaseAdmin
       .from('team_members')
       .select('*')
       .eq('workspace_id', workspace.workspace_id)
       .eq('status', 'active')
       .order('joined_at', { ascending: true });
-    
+
     if (error) throw error;
-    
+
     // Get user details for each member
     const membersWithDetails = await Promise.all(
       members.map(async (member) => {
@@ -4575,7 +4580,7 @@ app.get('/api/team/members', verifyAuth, async (req, res) => {
         };
       })
     );
-    
+
     res.json({
       success: true,
       members: membersWithDetails
@@ -4597,35 +4602,35 @@ app.post('/api/team/invite', verifyAuth, requirePermission('invite_member'), asy
   try {
     const { email, role } = req.body;
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     if (!workspace) {
       return res.status(404).json({
         success: false,
         error: 'No workspace found'
       });
     }
-    
+
     if (!email || !role) {
       return res.status(400).json({
         success: false,
         error: 'Email and role are required'
       });
     }
-    
+
     if (!['admin', 'editor', 'viewer'].includes(role)) {
       return res.status(400).json({
         success: false,
         error: 'Invalid role. Must be admin, editor, or viewer'
       });
     }
-    
+
     const invitation = await createInvitation(
       workspace.workspace_id,
       email,
       role,
       req.user.id
     );
-    
+
     res.json({
       success: true,
       invitation,
@@ -4648,7 +4653,7 @@ app.get('/api/team/invitations', verifyAuth, requireRole('admin'), async (req, r
   try {
     const workspace = await getUserWorkspace(req.user.id);
     const invitations = await getPendingInvitations(workspace.workspace_id);
-    
+
     res.json({
       success: true,
       invitations
@@ -4670,7 +4675,7 @@ app.delete('/api/team/invitations/:id', verifyAuth, requireRole('admin'), async 
   try {
     const { id } = req.params;
     await cancelInvitation(id, req.user.id);
-    
+
     res.json({
       success: true,
       message: 'Invitation cancelled'
@@ -4692,7 +4697,7 @@ app.post('/api/team/invitations/:id/resend', verifyAuth, requireRole('admin'), a
   try {
     const { id } = req.params;
     await resendInvitation(id);
-    
+
     res.json({
       success: true,
       message: 'Invitation resent'
@@ -4713,16 +4718,16 @@ app.post('/api/team/invitations/:id/resend', verifyAuth, requireRole('admin'), a
 app.post('/api/team/accept-invite', verifyAuth, async (req, res) => {
   try {
     const { token } = req.body;
-    
+
     if (!token) {
       return res.status(400).json({
         success: false,
         error: 'Invitation token is required'
       });
     }
-    
+
     const teamMember = await acceptInvitation(token, req.user.id);
-    
+
     res.json({
       success: true,
       teamMember,
@@ -4745,7 +4750,7 @@ app.delete('/api/team/members/:userId', verifyAuth, requireRole('owner'), async 
   try {
     const { userId } = req.params;
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     // Cannot remove the owner
     if (userId === workspace.workspace.owner_id) {
       return res.status(400).json({
@@ -4753,7 +4758,7 @@ app.delete('/api/team/members/:userId', verifyAuth, requireRole('owner'), async 
         error: 'Cannot remove workspace owner'
       });
     }
-    
+
     // Get member info before deletion for activity log
     const { data: member } = await supabaseAdmin
       .from('team_members')
@@ -4761,18 +4766,18 @@ app.delete('/api/team/members/:userId', verifyAuth, requireRole('owner'), async 
       .eq('workspace_id', workspace.workspace_id)
       .eq('user_id', userId)
       .single();
-    
+
     const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
-    
+
     // Remove member
     const { error } = await supabaseAdmin
       .from('team_members')
       .delete()
       .eq('workspace_id', workspace.workspace_id)
       .eq('user_id', userId);
-    
+
     if (error) throw error;
-    
+
     await logActivity(
       workspace.workspace_id,
       req.user.id,
@@ -4781,7 +4786,7 @@ app.delete('/api/team/members/:userId', verifyAuth, requireRole('owner'), async 
       userId,
       { removed_user: userData?.user?.email }
     );
-    
+
     res.json({
       success: true,
       message: 'Team member removed'
@@ -4804,14 +4809,14 @@ app.put('/api/team/members/:userId/role', verifyAuth, requireRole('owner'), asyn
     const { userId } = req.params;
     const { role } = req.body;
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     if (!['admin', 'editor', 'viewer'].includes(role)) {
       return res.status(400).json({
         success: false,
         error: 'Invalid role'
       });
     }
-    
+
     // Cannot change owner's role
     if (userId === workspace.workspace.owner_id) {
       return res.status(400).json({
@@ -4819,17 +4824,17 @@ app.put('/api/team/members/:userId/role', verifyAuth, requireRole('owner'), asyn
         error: 'Cannot change owner role'
       });
     }
-    
+
     const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
-    
+
     const { error } = await supabaseAdmin
       .from('team_members')
       .update({ role })
       .eq('workspace_id', workspace.workspace_id)
       .eq('user_id', userId);
-    
+
     if (error) throw error;
-    
+
     await logActivity(
       workspace.workspace_id,
       req.user.id,
@@ -4838,7 +4843,7 @@ app.put('/api/team/members/:userId/role', verifyAuth, requireRole('owner'), asyn
       userId,
       { target_user: userData?.user?.email, new_role: role }
     );
-    
+
     res.json({
       success: true,
       message: 'Role updated'
@@ -4860,15 +4865,15 @@ app.get('/api/activity', verifyAuth, async (req, res) => {
   try {
     const workspace = await getUserWorkspace(req.user.id);
     const limit = parseInt(req.query.limit) || 50;
-    
+
     const activities = await getActivityFeed(workspace.workspace_id, limit);
-    
+
     // Format each activity for display
     const formattedActivities = activities.map(activity => ({
       ...activity,
       formatted: formatActivity(activity)
     }));
-    
+
     res.json({
       success: true,
       activities: formattedActivities
@@ -4890,14 +4895,14 @@ app.post('/api/posts/submit-for-review', verifyAuth, requireRole('editor'), asyn
   try {
     const { postId } = req.body;
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     if (!postId) {
       return res.status(400).json({
         success: false,
         error: 'Post ID is required'
       });
     }
-    
+
     // Update post approval status
     const { error: queueError } = await supabaseAdmin
       .from('queue')
@@ -4905,9 +4910,9 @@ app.post('/api/posts/submit-for-review', verifyAuth, requireRole('editor'), asyn
       .eq('id', postId)
       .eq('workspace_id', workspace.workspace_id)
       .eq('created_by', req.user.id);
-    
+
     if (queueError) throw queueError;
-    
+
     // Create approval record
     const { data: approval, error: approvalError } = await supabaseAdmin
       .from('post_approvals')
@@ -4919,16 +4924,16 @@ app.post('/api/posts/submit-for-review', verifyAuth, requireRole('editor'), asyn
       })
       .select()
       .single();
-    
+
     if (approvalError) throw approvalError;
-    
+
     // Get post details for notification
     const { data: post } = await supabaseAdmin
       .from('queue')
       .select('text, platforms')
       .eq('id', postId)
       .single();
-    
+
     await logActivity(
       workspace.workspace_id,
       req.user.id,
@@ -4998,16 +5003,16 @@ app.post('/api/posts/submit-for-review', verifyAuth, requireRole('editor'), asyn
 app.get('/api/posts/pending-approvals', verifyAuth, requirePermission('approve_post'), async (req, res) => {
   try {
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     // Get pending approvals with post details
     const { data: approvals, error } = await supabaseAdmin
       .from('post_approvals')
       .select('*')
       .eq('status', 'pending')
       .order('submitted_at', { ascending: true });
-    
+
     if (error) throw error;
-    
+
     // Get full post details for each approval
     const approvalsWithPosts = await Promise.all(
       approvals.map(async (approval) => {
@@ -5017,9 +5022,9 @@ app.get('/api/posts/pending-approvals', verifyAuth, requirePermission('approve_p
           .eq('id', approval.post_id)
           .eq('workspace_id', workspace.workspace_id)
           .single();
-        
+
         const { data: submitterData } = await supabaseAdmin.auth.admin.getUserById(approval.submitted_by);
-        
+
         return {
           ...approval,
           post,
@@ -5030,7 +5035,7 @@ app.get('/api/posts/pending-approvals', verifyAuth, requirePermission('approve_p
         };
       })
     );
-    
+
     res.json({
       success: true,
       approvals: approvalsWithPosts.filter(a => a.post !== null)
@@ -5052,7 +5057,7 @@ app.post('/api/posts/:id/approve', verifyAuth, requirePermission('approve_post')
   try {
     const { id } = req.params;
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     // Update approval record
     const { data: approval, error: approvalError } = await supabaseAdmin
       .from('post_approvals')
@@ -5065,24 +5070,24 @@ app.post('/api/posts/:id/approve', verifyAuth, requirePermission('approve_post')
       .eq('status', 'pending')
       .select()
       .single();
-    
+
     if (approvalError) throw approvalError;
-    
+
     // Update post status
     const { error: queueError } = await supabaseAdmin
       .from('queue')
       .update({ approval_status: 'approved' })
       .eq('id', parseInt(id));
-    
+
     if (queueError) throw queueError;
-    
+
     // Get post details
     const { data: post } = await supabaseAdmin
       .from('queue')
       .select('text')
       .eq('id', parseInt(id))
       .single();
-    
+
     await logActivity(
       workspace.workspace_id,
       req.user.id,
@@ -5143,7 +5148,7 @@ app.post('/api/posts/:id/reject', verifyAuth, requirePermission('approve_post'),
     const { id } = req.params;
     const { feedback } = req.body;
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     // Update approval record
     const { error: approvalError } = await supabaseAdmin
       .from('post_approvals')
@@ -5155,24 +5160,24 @@ app.post('/api/posts/:id/reject', verifyAuth, requirePermission('approve_post'),
       })
       .eq('post_id', parseInt(id))
       .eq('status', 'pending');
-    
+
     if (approvalError) throw approvalError;
-    
+
     // Update post status
     const { error: queueError } = await supabaseAdmin
       .from('queue')
       .update({ approval_status: 'rejected' })
       .eq('id', parseInt(id));
-    
+
     if (queueError) throw queueError;
-    
+
     // Get post details
     const { data: post } = await supabaseAdmin
       .from('queue')
       .select('text')
       .eq('id', parseInt(id))
       .single();
-    
+
     await logActivity(
       workspace.workspace_id,
       req.user.id,
@@ -5233,14 +5238,14 @@ app.post('/api/posts/:id/request-changes', verifyAuth, requirePermission('approv
     const { id } = req.params;
     const { feedback } = req.body;
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     if (!feedback) {
       return res.status(400).json({
         success: false,
         error: 'Feedback is required when requesting changes'
       });
     }
-    
+
     // Update approval record
     const { error: approvalError } = await supabaseAdmin
       .from('post_approvals')
@@ -5252,24 +5257,24 @@ app.post('/api/posts/:id/request-changes', verifyAuth, requirePermission('approv
       })
       .eq('post_id', parseInt(id))
       .eq('status', 'pending');
-    
+
     if (approvalError) throw approvalError;
-    
+
     // Update post status back to draft
     const { error: queueError } = await supabaseAdmin
       .from('queue')
       .update({ approval_status: 'draft' })
       .eq('id', parseInt(id));
-    
+
     if (queueError) throw queueError;
-    
+
     // Get post details
     const { data: post } = await supabaseAdmin
       .from('queue')
       .select('text')
       .eq('id', parseInt(id))
       .single();
-    
+
     await logActivity(
       workspace.workspace_id,
       req.user.id,
@@ -5328,7 +5333,7 @@ app.post('/api/posts/:id/request-changes', verifyAuth, requirePermission('approv
 app.get('/api/posts/drafts', verifyAuth, async (req, res) => {
   try {
     const workspace = await getUserWorkspace(req.user.id);
-    
+
     const { data: drafts, error } = await supabaseAdmin
       .from('queue')
       .select('*')
@@ -5336,9 +5341,9 @@ app.get('/api/posts/drafts', verifyAuth, async (req, res) => {
       .eq('created_by', req.user.id)
       .in('approval_status', ['draft', 'changes_requested'])
       .order('created_at', { ascending: false });
-    
+
     if (error) throw error;
-    
+
     res.json({
       success: true,
       drafts: drafts || []
@@ -5360,16 +5365,16 @@ app.get('/api/notifications/count', verifyAuth, async (req, res) => {
   try {
     const workspace = await getUserWorkspace(req.user.id);
     const hasPermission = await checkPermission(req.user.id, 'approve_post');
-    
+
     if (!hasPermission) {
       return res.json({
         success: true,
         count: 0
       });
     }
-    
+
     const count = await getPendingApprovalsCount(workspace.workspace_id);
-    
+
     res.json({
       success: true,
       count
@@ -5398,14 +5403,14 @@ app.get('/api/notifications/count', verifyAuth, async (req, res) => {
 app.get('/api/videos/search', verifyAuth, async (req, res) => {
   try {
     const { q, orientation, page, per_page } = req.query;
-    
+
     if (!q || q.trim().length < 2) {
       return res.status(400).json({
         success: false,
         error: 'Search query must be at least 2 characters'
       });
     }
-    
+
     // Check if Pexels API is configured
     if (!process.env.PEXELS_API_KEY) {
       return res.status(500).json({
@@ -5413,19 +5418,19 @@ app.get('/api/videos/search', verifyAuth, async (req, res) => {
         error: 'Pexels API not configured. Get a free API key from https://www.pexels.com/api/'
       });
     }
-    
+
     const result = await searchVideos(
       q.trim(),
       parseInt(per_page) || 15,
       orientation || null,
       parseInt(page) || 1
     );
-    
+
     res.json({
       success: true,
       ...result
     });
-    
+
   } catch (error) {
     console.error('Error in /api/videos/search:', error);
     res.status(500).json({
@@ -5442,15 +5447,15 @@ app.get('/api/videos/search', verifyAuth, async (req, res) => {
 app.get('/api/videos/popular', verifyAuth, async (req, res) => {
   try {
     const { per_page } = req.query;
-    
+
     const result = await getPopularVideos(parseInt(per_page) || 15);
-    
+
     res.json({
       success: true,
       videos: result.videos || [],
       total: result.total_results || 0
     });
-    
+
   } catch (error) {
     console.error('Error in /api/videos/popular:', error);
     res.status(500).json({
@@ -5467,13 +5472,13 @@ app.get('/api/videos/popular', verifyAuth, async (req, res) => {
 app.get('/api/videos/validate-key', verifyAuth, async (req, res) => {
   try {
     const validation = await validatePexelsKey();
-    
+
     res.json({
       success: validation.valid,
       configured: !!process.env.PEXELS_API_KEY,
       error: validation.error || null
     });
-    
+
   } catch (error) {
     console.error('Error validating Pexels key:', error);
     res.status(500).json({
@@ -5520,7 +5525,7 @@ app.post('/api/carousel/upload', verifyAuth, upload.array('images', 10), async (
     const uploadPromises = files.map(file => {
       return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
-          { 
+          {
             folder: 'carousel-posts',
             transformation: [
               { width: 1200, height: 1200, crop: 'limit' },
@@ -5597,8 +5602,8 @@ app.post('/api/carousel/generate-captions', verifyAuth, async (req, res) => {
     console.log(`🤖 Generating AI captions for ${imageUrls.length}-slide carousel...`);
 
     const captions = await generateCarouselCaptions(
-      imageUrls, 
-      topic || 'carousel post', 
+      imageUrls,
+      topic || 'carousel post',
       platform || 'linkedin'
     );
 
@@ -5667,7 +5672,7 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
 
     // Get user credentials (use same method as regular posting)
     const credentials = await getUserCredentialsForPosting(userId);
-    
+
     console.log('Credentials fetched:', Object.keys(credentials));
 
     // Check if LinkedIn account exists
@@ -5696,13 +5701,13 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
     for (const platform of platforms) {
       try {
         let result;
-        
+
         if (platform === 'linkedin' && credentials.linkedin) {
           // Post to all LinkedIn accounts
           for (const linkedinAccount of credentials.linkedin) {
             try {
               result = await postLinkedInCarousel(imageUrls, captions, linkedinAccount);
-              
+
               results.push({
                 platform: 'linkedin',
                 success: result.success,
@@ -5792,8 +5797,8 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
         successful: successCount,
         failed: failCount
       },
-      message: successCount > 0 
-        ? `Carousel posted successfully to ${successCount} platform(s)!` 
+      message: successCount > 0
+        ? `Carousel posted successfully to ${successCount} platform(s)!`
         : 'Failed to post carousel to any platform'
     });
 
@@ -5818,20 +5823,20 @@ app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { initiateInstagramOAuth } = require('./services/oauth');
-    
+
     console.log('📱 Instagram OAuth URL generation (Facebook Login):');
     console.log('  - User ID:', userId);
-    
+
     // Use the fixed Instagram OAuth function (uses Facebook Login)
     const authUrl = initiateInstagramOAuth(userId);
-    
+
     console.log('  - OAuth URL:', authUrl);
-    
+
     res.json({
       success: true,
       authUrl: authUrl.toString()
     });
-    
+
   } catch (error) {
     console.error('Error generating Instagram OAuth URL:', error);
     res.status(500).json({
@@ -5848,37 +5853,37 @@ app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
 app.get('/auth/instagram/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
-    
+
     console.log('📱 Instagram callback received:');
     console.log('  - Code:', code ? 'exists' : 'missing');
     console.log('  - State:', state ? 'exists' : 'missing');
     console.log('  - Error:', error || 'none');
-    
+
     if (error) {
       console.error('  ❌ OAuth error:', error);
       return res.redirect('/dashboard?error=instagram_denied');
     }
-    
+
     if (!code || !state) {
       console.error('  ❌ Missing code or state');
       return res.redirect('/dashboard?error=instagram_invalid_callback');
     }
-    
+
     // Handle Instagram callback (state decoding happens inside the function)
     try {
       const { handleInstagramCallback } = require('./services/oauth');
       const result = await handleInstagramCallback(code, state);
-      
+
       console.log('  ✅ Instagram account connected successfully');
       console.log('  - Account:', result.account);
-      
+
       return res.redirect('/connect-accounts?instagram=connected');
-      
+
     } catch (callbackError) {
       console.error('  ❌ Instagram callback error:', callbackError.message);
       return res.redirect(`/dashboard?error=instagram_failed&message=${encodeURIComponent(callbackError.message)}`);
     }
-    
+
   } catch (error) {
     console.error('Error handling Instagram callback:', error);
     return res.redirect('/dashboard?error=instagram_failed');
@@ -5893,18 +5898,18 @@ app.post('/api/auth/facebook/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { initiateFacebookOAuth } = require('./services/oauth');
-    
+
     console.log('📘 Facebook OAuth URL request from user:', userId);
-    
+
     const oauthUrl = initiateFacebookOAuth(userId);
-    
+
     console.log('  - OAuth URL:', oauthUrl);
-    
+
     res.json({
       success: true,
       oauthUrl
     });
-    
+
   } catch (error) {
     console.error('Error generating Facebook OAuth URL:', error);
     res.status(500).json({
@@ -5921,7 +5926,7 @@ app.post('/api/auth/facebook/url', verifyAuth, async (req, res) => {
 app.get('/auth/facebook/callback', async (req, res) => {
   try {
     const { code, state, error, error_code, error_message, error_reason } = req.query;
-    
+
     console.log('📘 Facebook OAuth callback received');
     console.log('  - Code:', code ? code.substring(0, 20) + '...' : 'missing');
     console.log('  - State:', state ? state.substring(0, 20) + '...' : 'missing');
@@ -5930,28 +5935,28 @@ app.get('/auth/facebook/callback', async (req, res) => {
     console.log('  - Error Message:', error_message || 'none');
     console.log('  - Error Reason:', error_reason || 'none');
     console.log('  - Full Query:', JSON.stringify(req.query, null, 2));
-    
+
     if (error) {
       console.log('  ❌ Facebook denied access:', error);
       console.log('  ❌ Error details:', { error_code, error_message, error_reason });
       return res.redirect(`/connect-accounts?error=facebook_denied&message=${encodeURIComponent(error_message || error)}`);
     }
-    
+
     if (!code || !state) {
       console.log('  ❌ Missing code or state');
       console.log('  ❌ Query params:', req.query);
       return res.redirect('/connect-accounts?error=facebook_failed&message=Missing+authorization+code');
     }
-    
+
     const { handleFacebookCallback } = require('./services/oauth');
-    
+
     console.log('📘 Starting Facebook callback handler...');
-    
+
     try {
       const result = await handleFacebookCallback(code, state);
-      
+
       console.log('📘 Callback result:', JSON.stringify(result, null, 2));
-      
+
       if (result.success && result.accounts && result.accounts.length > 0) {
         console.log('  ✅ Facebook connected successfully:', result.accounts.length, 'Pages');
         return res.redirect('/connect-accounts?facebook=connected');
@@ -5959,20 +5964,20 @@ app.get('/auth/facebook/callback', async (req, res) => {
         console.log('  ⚠️  No Pages saved');
         return res.redirect('/connect-accounts?error=facebook_no_pages&message=No+Facebook+Pages+found.+Please+create+a+Facebook+Page+first.');
       }
-      
+
     } catch (callbackError) {
       console.error('  ❌ Facebook callback error:', callbackError.message);
       console.error('  ❌ Full error:', callbackError);
-      
+
       // Extract detailed error message
       let errorMsg = callbackError.message;
       if (callbackError.response?.data?.error) {
         errorMsg = callbackError.response.data.error.message || errorMsg;
       }
-      
+
       return res.redirect(`/connect-accounts?error=facebook_failed&message=${encodeURIComponent(errorMsg)}`);
     }
-    
+
   } catch (error) {
     console.error('Error handling Facebook callback:', error);
     console.error('Full error:', error);
@@ -5988,19 +5993,19 @@ app.post('/api/auth/twitter/oauth1', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { accessToken, accessSecret } = req.body;
-    
+
     console.log('🔑 Adding Twitter OAuth 1.0a credentials for user:', userId);
-    
+
     if (!accessToken || !accessSecret) {
       return res.status(400).json({
         success: false,
         error: 'Access Token and Secret are required'
       });
     }
-    
+
     // Update existing Twitter account with OAuth 1.0a credentials
     // Use global supabaseAdmin instead of creating new client
-    
+
     // Get existing Twitter account
     const { data: existingAccount } = await supabaseAdmin
       .from('user_accounts')
@@ -6008,20 +6013,20 @@ app.post('/api/auth/twitter/oauth1', verifyAuth, async (req, res) => {
       .eq('user_id', userId)
       .eq('platform', 'twitter')
       .single();
-    
+
     if (!existingAccount) {
       return res.status(404).json({
         success: false,
         error: 'Twitter account not found. Please connect Twitter first.'
       });
     }
-    
+
     // Store OAuth 1.0a credentials in refresh_token field
     // Format: oauth2_refresh_token:oauth1_access_token:oauth1_access_secret
-    const newRefreshToken = existingAccount.refresh_token 
+    const newRefreshToken = existingAccount.refresh_token
       ? `${existingAccount.refresh_token}:${accessToken}:${accessSecret}`
       : `${accessToken}:${accessSecret}`;
-    
+
     // Update account with OAuth 1.0a credentials in refresh_token
     const { error } = await supabaseAdmin
       .from('user_accounts')
@@ -6029,7 +6034,7 @@ app.post('/api/auth/twitter/oauth1', verifyAuth, async (req, res) => {
         refresh_token: newRefreshToken
       })
       .eq('id', existingAccount.id);
-    
+
     if (error) {
       console.error('❌ Database error:', error);
       return res.status(500).json({
@@ -6037,13 +6042,13 @@ app.post('/api/auth/twitter/oauth1', verifyAuth, async (req, res) => {
         error: error.message
       });
     }
-    
+
     console.log('✅ Twitter OAuth 1.0a credentials added for user', userId);
     res.json({
       success: true,
       message: 'OAuth 1.0a credentials added successfully'
     });
-    
+
   } catch (error) {
     console.error('Error adding Twitter OAuth 1.0a credentials:', error);
     res.status(500).json({
@@ -6061,28 +6066,28 @@ app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { botToken, chatId } = req.body;
-    
+
     console.log('📱 Connecting Telegram bot for user:', userId);
-    
+
     if (!botToken || !chatId) {
       return res.status(400).json({
         success: false,
         error: 'Bot token and chat ID are required'
       });
     }
-    
+
     // Validate bot token
     const validation = await validateBotToken(botToken);
-    
+
     if (!validation.valid) {
       return res.status(400).json({
         success: false,
         error: validation.error || 'Invalid bot token'
       });
     }
-    
+
     // Store in database using global supabaseAdmin (bypasses RLS)
-    
+
     const insertData = {
       user_id: userId,
       platform: 'telegram',
@@ -6094,15 +6099,15 @@ app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
       status: 'active',
       connected_at: new Date().toISOString()
     };
-    
+
     console.log('📝 Inserting Telegram account:', JSON.stringify(insertData, null, 2));
-    
+
     const { data: insertResult, error: insertError } = await supabaseAdmin
       .from('user_accounts')
       .upsert(insertData, {
         onConflict: 'user_id,platform,platform_user_id'
       });
-    
+
     if (insertError) {
       console.error('❌ Database error:', insertError);
       return res.status(500).json({
@@ -6110,7 +6115,7 @@ app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
         error: insertError.message
       });
     }
-    
+
     console.log('✅ Telegram bot connected for user', userId);
     console.log('✅ Insert result:', insertResult);
     res.json({
@@ -6118,7 +6123,7 @@ app.post('/api/auth/telegram/connect', verifyAuth, async (req, res) => {
       message: 'Telegram bot connected successfully',
       bot: validation.bot
     });
-    
+
   } catch (error) {
     console.error('Error connecting Telegram bot:', error);
     res.status(500).json({
@@ -6136,26 +6141,26 @@ app.post('/api/auth/slack/connect', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { webhookUrl, channelName } = req.body;
-    
+
     console.log('💬 Connecting Slack webhook for user:', userId);
-    
+
     if (!webhookUrl) {
       return res.status(400).json({
         success: false,
         error: 'Webhook URL is required'
       });
     }
-    
+
     // Validate webhook
     const validation = await validateWebhook(webhookUrl);
-    
+
     if (!validation.valid) {
       return res.status(400).json({
         success: false,
         error: validation.error || 'Invalid webhook URL'
       });
     }
-    
+
     // Store in database using global supabaseAdmin (bypasses RLS)
     const insertData = {
       user_id: userId,
@@ -6168,15 +6173,15 @@ app.post('/api/auth/slack/connect', verifyAuth, async (req, res) => {
       status: 'active',
       connected_at: new Date().toISOString()
     };
-    
+
     console.log('📝 Inserting Slack webhook:', JSON.stringify({ ...insertData, access_token: '***' }, null, 2));
-    
+
     const { data: insertResult, error: insertError } = await supabaseAdmin
       .from('user_accounts')
       .upsert(insertData, {
         onConflict: 'user_id,platform,platform_user_id'
       });
-    
+
     if (insertError) {
       console.error('❌ Database error:', insertError);
       return res.status(500).json({
@@ -6184,14 +6189,14 @@ app.post('/api/auth/slack/connect', verifyAuth, async (req, res) => {
         error: insertError.message
       });
     }
-    
+
     console.log('✅ Slack webhook connected for user', userId);
     res.json({
       success: true,
       message: 'Slack connected successfully',
       channel: channelName || 'Slack'
     });
-    
+
   } catch (error) {
     console.error('Error connecting Slack:', error);
     res.status(500).json({
@@ -6209,26 +6214,26 @@ app.post('/api/auth/discord/connect', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { webhookUrl, serverName } = req.body;
-    
+
     console.log('🎮 Connecting Discord webhook for user:', userId);
-    
+
     if (!webhookUrl) {
       return res.status(400).json({
         success: false,
         error: 'Webhook URL is required'
       });
     }
-    
+
     // Validate webhook
     const validation = await validateDiscordWebhook(webhookUrl);
-    
+
     if (!validation.valid) {
       return res.status(400).json({
         success: false,
         error: validation.error || 'Invalid webhook URL'
       });
     }
-    
+
     // Store in database using global supabaseAdmin (bypasses RLS)
     const insertData = {
       user_id: userId,
@@ -6241,15 +6246,15 @@ app.post('/api/auth/discord/connect', verifyAuth, async (req, res) => {
       status: 'active',
       connected_at: new Date().toISOString()
     };
-    
+
     console.log('📝 Inserting Discord webhook:', JSON.stringify({ ...insertData, access_token: '***' }, null, 2));
-    
+
     const { data: insertResult, error: insertError } = await supabaseAdmin
       .from('user_accounts')
       .upsert(insertData, {
         onConflict: 'user_id,platform,platform_user_id'
       });
-    
+
     if (insertError) {
       console.error('❌ Database error:', insertError);
       return res.status(500).json({
@@ -6257,14 +6262,14 @@ app.post('/api/auth/discord/connect', verifyAuth, async (req, res) => {
         error: insertError.message
       });
     }
-    
+
     console.log('✅ Discord webhook connected for user', userId);
     res.json({
       success: true,
       message: 'Discord connected successfully',
       server: serverName || 'Discord'
     });
-    
+
   } catch (error) {
     console.error('Error connecting Discord:', error);
     res.status(500).json({
@@ -6282,9 +6287,9 @@ app.delete('/api/user/accounts/:platform', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const platform = req.params.platform;
-    
+
     const result = await disconnectAccount(userId, platform);
-    
+
     res.json(result);
   } catch (error) {
     console.error('Error disconnecting account:', error);
@@ -6303,9 +6308,9 @@ app.delete('/api/user/accounts/:platform/:accountId', verifyAuth, async (req, re
   try {
     const userId = req.user.id;
     const accountId = parseInt(req.params.accountId);
-    
+
     const result = await disconnectAccountById(userId, accountId);
-    
+
     res.json(result);
   } catch (error) {
     console.error('Error disconnecting account by ID:', error);
@@ -6365,7 +6370,7 @@ app.get('/api/templates/stats', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const stats = await getTemplateStats(userId);
-    
+
     res.json({
       success: true,
       stats
@@ -6387,7 +6392,7 @@ app.get('/api/templates/categories', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const categories = await getTemplateCategories(userId);
-    
+
     res.json({
       success: true,
       categories
@@ -6409,16 +6414,16 @@ app.get('/api/templates/:id', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateId = parseInt(req.params.id);
-    
+
     const template = await getTemplateById(templateId, userId);
-    
+
     if (!template) {
       return res.status(404).json({
         success: false,
         error: 'Template not found'
       });
     }
-    
+
     res.json({
       success: true,
       template
@@ -6441,14 +6446,14 @@ app.post('/api/templates', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateData = req.body;
-    
+
     console.log('Creating template with data:', { userId, templateData });
-    
+
     try {
       const template = await createTemplate(userId, templateData);
-      
+
       console.log('✅ Template created successfully:', { templateId: template.id });
-      
+
       return res.status(201).json({
         success: true,
         message: 'Template created successfully',
@@ -6481,9 +6486,9 @@ app.put('/api/templates/:id', verifyAuth, async (req, res) => {
     const userId = req.user.id;
     const templateId = parseInt(req.params.id);
     const updates = req.body;
-    
+
     const template = await updateTemplate(templateId, userId, updates);
-    
+
     res.json({
       success: true,
       message: 'Template updated successfully',
@@ -6506,9 +6511,9 @@ app.delete('/api/templates/:id', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateId = parseInt(req.params.id);
-    
+
     await deleteTemplate(templateId, userId);
-    
+
     res.json({
       success: true,
       message: 'Template deleted successfully'
@@ -6530,9 +6535,9 @@ app.post('/api/templates/:id/use', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateId = parseInt(req.params.id);
-    
+
     const template = await incrementTemplateUse(templateId, userId);
-    
+
     res.json({
       success: true,
       template
@@ -6554,9 +6559,9 @@ app.post('/api/templates/:id/favorite', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateId = parseInt(req.params.id);
-    
+
     const template = await toggleTemplateFavorite(templateId, userId);
-    
+
     res.json({
       success: true,
       message: template.is_favorite ? 'Template favorited' : 'Template unfavorited',
@@ -6579,9 +6584,9 @@ app.post('/api/templates/:id/duplicate', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateId = parseInt(req.params.id);
-    
+
     const template = await duplicateTemplate(templateId, userId);
-    
+
     res.status(201).json({
       success: true,
       message: 'Template duplicated successfully',
@@ -6604,9 +6609,9 @@ app.post('/api/templates/:id/clone', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const templateId = parseInt(req.params.id);
-    
+
     const template = await clonePublicTemplate(templateId, userId);
-    
+
     res.status(201).json({
       success: true,
       message: 'Template cloned successfully! You can now customize it.',
@@ -6628,16 +6633,16 @@ app.post('/api/templates/:id/clone', verifyAuth, async (req, res) => {
 app.post('/api/templates/process', verifyAuth, async (req, res) => {
   try {
     const { text, variables } = req.body;
-    
+
     if (!text) {
       return res.status(400).json({
         success: false,
         error: 'Text is required'
       });
     }
-    
+
     const processed = processTemplateVariables(text, variables);
-    
+
     res.json({
       success: true,
       text: processed
@@ -6874,12 +6879,12 @@ app.post('/api/billing/checkout', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { priceId, plan } = req.body;
-    
+
     const successUrl = `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${req.protocol}://${req.get('host')}/cancel`;
-    
+
     const session = await createCheckoutSession(userId, priceId, plan, successUrl, cancelUrl);
-    
+
     res.json(session);
   } catch (error) {
     console.error('Error creating checkout:', error);
@@ -6898,9 +6903,9 @@ app.post('/api/billing/portal', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const returnUrl = `${req.protocol}://${req.get('host')}/dashboard`;
-    
+
     const session = await createPortalSession(userId, returnUrl);
-    
+
     res.json(session);
   } catch (error) {
     console.error('Error creating portal session:', error);
@@ -6919,12 +6924,12 @@ app.get('/api/reports/preview', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const reportData = await generateWeeklyReport(userId);
-    
+
     res.json({
       success: true,
       report: reportData
     });
-    
+
   } catch (error) {
     console.error('Error generating report preview:', error);
     res.status(500).json({
@@ -6942,7 +6947,7 @@ app.post('/api/reports/send-now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const success = await sendReportToUser(userId);
-    
+
     if (success) {
       res.json({
         success: true,
@@ -6954,7 +6959,7 @@ app.post('/api/reports/send-now', verifyAuth, async (req, res) => {
         error: 'Email reports not enabled or no email configured'
       });
     }
-    
+
   } catch (error) {
     console.error('Error sending report:', error);
     res.status(500).json({
@@ -6971,21 +6976,21 @@ app.post('/api/reports/send-now', verifyAuth, async (req, res) => {
 app.post('/api/reports/test-email', verifyAuth, async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     if (!email || !email.includes('@')) {
       return res.status(400).json({
         success: false,
         error: 'Valid email address required'
       });
     }
-    
+
     await sendTestEmail(email);
-    
+
     res.json({
       success: true,
       message: `Test email sent to ${email}`
     });
-    
+
   } catch (error) {
     console.error('Error sending test email:', error);
     res.status(500).json({
@@ -7003,17 +7008,17 @@ app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), asyn
   try {
     const sig = req.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    
+
     if (!webhookSecret) {
       throw new Error('Stripe webhook secret not configured');
     }
-    
+
     // Verify webhook signature
     const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    
+
     // Handle the event
     await handleWebhook(event);
-    
+
     res.json({ received: true });
   } catch (error) {
     console.error('Webhook error:', error);
@@ -7029,7 +7034,7 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const billingInfo = await getUserBillingInfo(userId);
-    
+
     res.json({
       success: true,
       ...billingInfo
@@ -7268,17 +7273,17 @@ app.post('/api/auth/tiktok/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const redirectUri = `${process.env.APP_URL}/auth/tiktok/callback`;
-    
+
     // Generate random state for CSRF protection
     const state = crypto.randomBytes(32).toString('hex');
-    
+
     // Store state in database for verification
     await storeOAuthState(userId, 'tiktok', state);
-    
+
     const authUrl = tiktokService.generateAuthUrl(redirectUri, state);
-    
+
     console.log('🎵 TikTok OAuth URL generated');
-    
+
     res.json({
       success: true,
       url: authUrl
@@ -7299,31 +7304,31 @@ app.post('/api/auth/tiktok/url', verifyAuth, async (req, res) => {
 app.get('/auth/tiktok/callback', async (req, res) => {
   try {
     const { code, state, error, error_description } = req.query;
-    
+
     if (error) {
       console.error('❌ TikTok OAuth error:', error, error_description);
       return res.redirect(`/dashboard?error=${encodeURIComponent(error_description || error)}`);
     }
-    
+
     if (!code || !state) {
       return res.redirect('/dashboard?error=Missing authorization code or state');
     }
-    
+
     // Verify state and get user ID
     const stateData = await verifyOAuthState(state, 'tiktok');
     if (!stateData) {
       return res.redirect('/dashboard?error=Invalid state parameter');
     }
-    
+
     const userId = stateData.user_id;
     const redirectUri = `${process.env.APP_URL}/auth/tiktok/callback`;
-    
+
     // Exchange code for tokens
     const tokenData = await tiktokService.exchangeCodeForToken(code, redirectUri);
-    
+
     // Get user info
     const userInfo = await tiktokService.getUserInfo(tokenData.accessToken);
-    
+
     // Store credentials in database
     await saveUserCredentials(userId, 'tiktok', {
       access_token: tokenData.accessToken,
@@ -7342,9 +7347,9 @@ app.get('/auth/tiktok/callback', async (req, res) => {
         scope: tokenData.scope
       }
     });
-    
+
     console.log(`✅ TikTok account connected for user ${userId}: @${userInfo.username}`);
-    
+
     res.redirect('/connect-accounts?connected=tiktok&success=true');
   } catch (error) {
     console.error('❌ TikTok OAuth callback error:', error);
@@ -7360,14 +7365,14 @@ app.post('/api/tiktok/check-status', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { publishId, accountId } = req.body;
-    
+
     if (!publishId) {
       return res.status(400).json({
         success: false,
         error: 'Publish ID is required'
       });
     }
-    
+
     // Get TikTok credentials
     const credentials = await getUserCredentials(userId, 'tiktok', accountId);
     if (!credentials || credentials.length === 0) {
@@ -7376,19 +7381,19 @@ app.post('/api/tiktok/check-status', verifyAuth, async (req, res) => {
         error: 'TikTok account not connected'
       });
     }
-    
+
     const cred = credentials[0];
     let accessToken = cred.access_token;
-    
+
     // Refresh token if needed
     if (new Date(cred.expires_at) <= new Date()) {
       const newTokens = await tiktokService.refreshAccessToken(cred.refresh_token);
       accessToken = newTokens.accessToken;
     }
-    
+
     // Check status
     const status = await tiktokService.checkPublishStatus(accessToken, publishId);
-    
+
     res.json({
       success: true,
       ...status
@@ -7408,14 +7413,14 @@ app.post('/api/tiktok/check-status', verifyAuth, async (req, res) => {
 async function postToTikTok(credentials, postData) {
   try {
     const { access_token, refresh_token, expires_at } = credentials;
-    
+
     // Check if token needs refresh
     let accessToken = access_token;
     if (new Date(expires_at) <= new Date()) {
       console.log('🔄 TikTok access token expired, refreshing...');
       const newTokens = await tiktokService.refreshAccessToken(refresh_token);
       accessToken = newTokens.accessToken;
-      
+
       // Update credentials in database
       await updateCredentials(credentials.id, {
         access_token: newTokens.accessToken,
@@ -7424,7 +7429,7 @@ async function postToTikTok(credentials, postData) {
         refresh_expires_at: new Date(Date.now() + newTokens.refreshExpiresIn * 1000)
       });
     }
-    
+
     // Validate video URL if provided
     if (postData.videoUrl) {
       const isValid = await tiktokService.validateVideoUrl(postData.videoUrl);
@@ -7434,7 +7439,7 @@ async function postToTikTok(credentials, postData) {
     } else {
       throw new Error('TikTok requires a video URL. Text-only posts are not supported.');
     }
-    
+
     // Post to TikTok
     const result = await tiktokService.postVideo(accessToken, {
       videoUrl: postData.videoUrl,
@@ -7444,7 +7449,7 @@ async function postToTikTok(credentials, postData) {
       disableDuet: postData.disableDuet || false,
       disableStitch: postData.disableStitch || false
     });
-    
+
     return {
       success: true,
       platform: 'tiktok',
@@ -7483,7 +7488,7 @@ app.get('/auth/youtube/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
     console.log('🎬 YouTube callback received');
-    
+
     if (error) {
       console.error('YouTube OAuth error:', error);
       return res.redirect(`/dashboard?error=youtube_denied`);
@@ -7491,26 +7496,26 @@ app.get('/auth/youtube/callback', async (req, res) => {
     if (!code || !state) {
       return res.redirect('/dashboard?error=youtube_missing_params');
     }
-    
+
     let userId;
     try {
       userId = decryptState(state);
     } catch (stateError) {
       return res.redirect('/dashboard?error=youtube_invalid_state');
     }
-    
+
     const tokenData = await exchangeYouTubeCode(code);
     const channelInfo = await getChannelInfo(tokenData.accessToken);
     console.log('📺 Channel info result:', channelInfo);
-    
+
     if (!channelInfo) {
       throw new Error('Could not retrieve channel information');
     }
-    
+
     // Use global supabaseAdmin instead of creating new client
-    
+
     const expiresAt = new Date(Date.now() + (tokenData.expiresIn * 1000));
-    
+
     const { error: upsertError } = await supabaseAdmin
       .from('user_accounts')
       .upsert({
@@ -7528,12 +7533,12 @@ app.get('/auth/youtube/callback', async (req, res) => {
       }, {
         onConflict: 'user_id,platform,platform_user_id'
       });
-    
+
     if (upsertError) throw upsertError;
-    
+
     console.log(`✅ YouTube account connected for user ${userId}`);
     res.redirect('/connect-accounts?connected=youtube&success=true');
-    
+
   } catch (error) {
     console.error('Error in YouTube callback:', error.message);
     res.redirect('/dashboard?error=youtube_failed');
@@ -7561,20 +7566,20 @@ app.get('/auth/pinterest/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
     console.log('📍 Pinterest callback received');
-    
+
     if (error) {
       console.error('Pinterest OAuth error:', error);
       return res.redirect(`${getFrontendUrl()}/connect-accounts?error=pinterest_denied`);
     }
-    
+
     if (!code || !state) {
       console.error('Pinterest callback missing params');
       return res.redirect(`${getFrontendUrl()}/connect-accounts?error=pinterest_missing_params`);
     }
-    
+
     const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/pinterest/callback`;
     await handlePinterestCallback(code, state, redirectUri);
-    
+
     console.log('✅ Pinterest account connected successfully');
     res.redirect(`${getFrontendUrl()}/connect-accounts?success=pinterest_connected`);
   } catch (error) {
@@ -7587,12 +7592,12 @@ app.get('/auth/pinterest/callback', async (req, res) => {
 app.get('/api/pinterest/boards/:userId', verifyAuth, async (req, res) => {
   try {
     const userId = req.params.userId;
-    
+
     // Verify the requesting user matches the userId (or is admin)
     if (req.user.id !== parseInt(userId)) {
       return res.status(403).json({ success: false, error: 'Unauthorized' });
     }
-    
+
     // Get Pinterest credentials
     const { data: account, error } = await supabaseAdmin
       .from('user_accounts')
@@ -7600,18 +7605,18 @@ app.get('/api/pinterest/boards/:userId', verifyAuth, async (req, res) => {
       .eq('user_id', userId)
       .eq('platform', 'pinterest')
       .single();
-    
+
     if (error || !account) {
       return res.status(404).json({ success: false, error: 'Pinterest account not connected' });
     }
-    
+
     const result = await getUserBoards({
       access_token: account.access_token,
       refresh_token: account.refresh_token,
       token_expires_at: account.token_expires_at,
       user_id: userId
     });
-    
+
     res.json(result);
   } catch (error) {
     console.error('Error fetching Pinterest boards:', error);
@@ -7627,7 +7632,7 @@ app.get('/api/pinterest/boards/:userId', verifyAuth, async (req, res) => {
 app.post('/api/auth/tumblr/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     if (!process.env.TUMBLR_CONSUMER_KEY) {
       return res.status(503).json({
         success: false,
@@ -7637,18 +7642,18 @@ app.post('/api/auth/tumblr/url', verifyAuth, async (req, res) => {
 
     const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/tumblr/callback`;
     const { authUrl } = await initiateTumblrOAuth(userId, redirectUri);
-    
+
     console.log('📘 Tumblr OAuth URL generated for user:', userId);
-    
-    res.json({ 
-      success: true, 
-      url: authUrl 
+
+    res.json({
+      success: true,
+      url: authUrl
     });
 
   } catch (error) {
     console.error('Error generating Tumblr OAuth URL:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Failed to generate Tumblr OAuth URL'
     });
   }
@@ -7658,7 +7663,7 @@ app.post('/api/auth/tumblr/url', verifyAuth, async (req, res) => {
 app.get('/auth/tumblr/callback', async (req, res) => {
   try {
     const { oauth_token, oauth_verifier, denied } = req.query;
-    
+
     console.log('📘 Tumblr callback received');
 
     // Handle user denial
@@ -7676,7 +7681,7 @@ app.get('/auth/tumblr/callback', async (req, res) => {
     const result = await handleTumblrCallback(oauth_token, oauth_verifier);
 
     console.log('✅ Tumblr account connected successfully:', result.blogName);
-    
+
     // Redirect to settings with success message
     res.redirect(`${getFrontendUrl()}/connect-accounts?success=tumblr_connected&blog=${encodeURIComponent(result.blogName)}`);
 
@@ -7949,7 +7954,7 @@ app.post('/api/auth/devto/connect', verifyAuth, async (req, res) => {
 app.post('/api/auth/medium/url', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     if (!process.env.MEDIUM_CLIENT_ID) {
       return res.status(503).json({
         success: false,
@@ -7959,18 +7964,18 @@ app.post('/api/auth/medium/url', verifyAuth, async (req, res) => {
 
     const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/medium/callback`;
     const authUrl = initiateMediumOAuth(userId, redirectUri);
-    
+
     console.log('📝 Medium OAuth URL generated for user:', userId);
-    
-    res.json({ 
-      success: true, 
-      url: authUrl 
+
+    res.json({
+      success: true,
+      url: authUrl
     });
 
   } catch (error) {
     console.error('Error generating Medium OAuth URL:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Failed to generate Medium OAuth URL'
     });
   }
@@ -7980,7 +7985,7 @@ app.post('/api/auth/medium/url', verifyAuth, async (req, res) => {
 app.get('/auth/medium/callback', async (req, res) => {
   try {
     const { code, state, error } = req.query;
-    
+
     console.log('📝 Medium callback received');
 
     // Handle OAuth error
@@ -7995,12 +8000,12 @@ app.get('/auth/medium/callback', async (req, res) => {
     }
 
     const redirectUri = `${process.env.APP_URL || 'http://localhost:3000'}/auth/medium/callback`;
-    
+
     // Handle the callback
     const result = await handleMediumCallback(code, state, redirectUri);
 
     console.log('✅ Medium account connected successfully:', result.username);
-    
+
     // Redirect to settings with success message
     res.redirect(`${getFrontendUrl()}/connect-accounts?success=medium_connected&username=${encodeURIComponent(result.username)}`);
 
@@ -8018,18 +8023,18 @@ app.get('/auth/medium/callback', async (req, res) => {
 // Serve React Dashboard for all non-API routes
 app.get('*', (req, res, next) => {
   // Skip API routes, auth routes, template CSV, assets, and vite.svg (already served above)
-  if (req.path.startsWith('/api/') || 
-      req.path.startsWith('/auth') || 
-      req.path.startsWith('/template.csv') ||
-      req.path.startsWith('/assets/') ||
-      req.path === '/vite.svg') {
+  if (req.path.startsWith('/api/') ||
+    req.path.startsWith('/auth') ||
+    req.path.startsWith('/template.csv') ||
+    req.path.startsWith('/assets/') ||
+    req.path === '/vite.svg') {
     console.log('⏭️  Skipping catch-all for:', req.path);
     return next();
   }
-  
+
   const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
   const fs = require('fs');
-  
+
   if (fsSync.existsSync(dashboardIndex)) {
     console.log('🎯 Catch-all: Serving dashboard for path:', req.path);
     res.sendFile(dashboardIndex);
@@ -8044,6 +8049,11 @@ app.get('*', (req, res, next) => {
 // ============================================
 // Deployment timestamp: 2025-01-27 - Instagram/Facebook scheduler fix
 
+// Error handling middleware (must be last)
+const { errorHandler, notFoundHandler } = require('./middleware/error-handler');
+app.use(notFoundHandler); // 404 handler for undefined routes
+app.use(errorHandler); // Global error handler
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, async () => {
@@ -8052,11 +8062,11 @@ app.listen(PORT, async () => {
   console.log('='.repeat(50));
   console.log(`\n✅ Server running on http://localhost:${PORT}`);
   console.log(`✅ Queue processor active`);
-  
+
   // Check database connection
   const dbHealthy = await healthCheck();
   console.log(`${dbHealthy ? '✅' : '❌'} Database: ${dbHealthy ? 'Connected to Supabase' : 'Disconnected'}`);
-  
+
   console.log(`\n📋 API Endpoints:`);
   console.log(`   GET  /api/health - Health check`);
   console.log(`   GET  /api/accounts - List all accounts`);
