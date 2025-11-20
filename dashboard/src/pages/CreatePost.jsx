@@ -1003,19 +1003,21 @@ export default function CreatePost() {
           )}
         </div>
 
-        {/* Caption Input */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-gray-300">
-              Caption
-            </label>
+        {/* Caption Input Section */}
+        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">✍️</span>
+              <h3 className="text-xl font-bold text-white">Write Your Post</h3>
+            </div>
             {!caption.trim() && (
               <button
                 onClick={() => navigate('/', { state: { openContentIdeas: true } })}
-                className="text-purple-400 hover:text-purple-300 text-xs font-semibold flex items-center gap-1 transition"
+                className="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2 transition hover:scale-105"
+                title="Get AI-powered content ideas"
               >
                 <span>💡</span>
-                Need ideas? Click here
+                Need ideas?
               </button>
             )}
           </div>
@@ -1533,7 +1535,11 @@ export default function CreatePost() {
 
             {/* Media Upload Section */}
             <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
-              <h3 className="text-xl font-bold text-white mb-4">📁 Upload Media</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📁</span>
+                <h3 className="text-xl font-bold text-white">Upload Media</h3>
+                <span className="text-xs text-gray-400 bg-gray-800/50 px-2 py-1 rounded-full">Optional</span>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -1704,7 +1710,10 @@ export default function CreatePost() {
           {/* Platform Selection with 3D Chips */}
           <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-white">🎯 Select Platforms</h3>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🎯</span>
+                <h3 className="text-xl font-bold text-white">Select Platforms</h3>
+              </div>
               {connectedAccounts.length > 0 && (
                 <div className="flex gap-2">
                   <motion.button
@@ -1716,6 +1725,7 @@ export default function CreatePost() {
                       showSuccess(`Selected all ${allPlatforms.length} platforms! 🎯`);
                     }}
                     className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                    title="Select all connected platforms at once"
                   >
                     ✅ Select All
                   </motion.button>
@@ -1727,6 +1737,7 @@ export default function CreatePost() {
                       showSuccess('Deselected all platforms');
                     }}
                     className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition shadow-lg"
+                    title="Clear all platform selections"
                   >
                     ❌ Clear All
                   </motion.button>
@@ -1745,6 +1756,7 @@ export default function CreatePost() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/connect-accounts')}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-blue-500/50 transition-all"
+                    title="Connect your social media accounts to start posting"
                   >
                     🚀 Connect Accounts
                   </motion.button>
