@@ -330,6 +330,7 @@ export default function Analytics() {
                 });
             }}
             className="group relative bg-gradient-to-r from-green-600/30 to-emerald-600/30 backdrop-blur-md border-2 border-green-400/30 text-white px-6 py-3 rounded-xl hover:from-green-600/40 hover:to-emerald-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-green-500/30 overflow-hidden"
+            title="Export your analytics data as CSV"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
@@ -346,6 +347,7 @@ export default function Analytics() {
               loadHistory();
             }}
             className="group relative bg-blue-600/30 backdrop-blur-md border-2 border-blue-400/30 text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/30 overflow-hidden"
+            title="Refresh analytics data now"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">

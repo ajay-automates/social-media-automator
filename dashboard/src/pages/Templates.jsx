@@ -428,6 +428,7 @@ export default function Templates() {
                 setShowModal(true);
               }}
               className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold whitespace-nowrap transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+              title="Create a new reusable template"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
               <span className="relative">➕ Create Template</span>

@@ -154,6 +154,7 @@ export default function Settings() {
                     onClick={saveEmailSettings}
                     disabled={saving}
                     className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden disabled:opacity-50"
+                    title="Save your email report preferences"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                     <span className="relative">
@@ -167,6 +168,7 @@ export default function Settings() {
                     onClick={sendTestReport}
                     disabled={sendingTest || !reportEmail}
                     className="group/btn relative flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-white/20 text-gray-200 px-6 py-3 rounded-xl hover:bg-gray-700/60 font-semibold transition-all shadow-lg overflow-hidden disabled:opacity-50"
+                    title="Send a test email to verify your settings"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                     <span className="relative">
