@@ -1,31 +1,36 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import NotificationBell from './components/NotificationBell';
+import RouteLoadingFallback from './components/ui/RouteLoadingFallback';
+
+// Core routes - keep in main bundle for fast initial load
 import Dashboard from './pages/Dashboard';
 import CreatePost from './pages/CreatePost';
-import CreateCarousel from './pages/CreateCarousel';
-import Analytics from './pages/Analytics';
-import Calendar from './pages/Calendar';
-import BulkUpload from './pages/BulkUpload';
-import Settings from './pages/Settings';
-import ConnectAccounts from './pages/ConnectAccounts';
-import Templates from './pages/Templates';
-import Pricing from './pages/Pricing';
-import PaymentSuccess from './pages/PaymentSuccess';
-import PaymentCancel from './pages/PaymentCancel';
-import Team from './pages/Team';
-import Approvals from './pages/Approvals';
-import AcceptInvitation from './pages/AcceptInvitation';
-import ContentAgent from './pages/ContentAgent';
-import ContentRecycling from './pages/ContentRecycling';
-import Webhooks from './pages/Webhooks';
-import ABTesting from './pages/ABTesting';
-import HashtagAnalytics from './pages/HashtagAnalytics';
-import NotificationBell from './components/NotificationBell';
+
+// Lazy load all other routes for code splitting
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const Templates = lazy(() => import('./pages/Templates'));
+const Team = lazy(() => import('./pages/Team'));
+const Settings = lazy(() => import('./pages/Settings'));
+const ConnectAccounts = lazy(() => import('./pages/ConnectAccounts'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const BulkUpload = lazy(() => import('./pages/BulkUpload'));
+const CreateCarousel = lazy(() => import('./pages/CreateCarousel'));
+const ContentAgent = lazy(() => import('./pages/ContentAgent'));
+const ContentRecycling = lazy(() => import('./pages/ContentRecycling'));
+const Webhooks = lazy(() => import('./pages/Webhooks'));
+const ABTesting = lazy(() => import('./pages/ABTesting'));
+const HashtagAnalytics = lazy(() => import('./pages/HashtagAnalytics'));
+const Approvals = lazy(() => import('./pages/Approvals'));
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
+const PaymentCancel = lazy(() => import('./pages/PaymentCancel'));
+const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
 
 function Navigation() {
   const location = useLocation();
@@ -309,29 +314,31 @@ function App() {
           <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
             <Navigation />
 
-            <Routes>
-              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
-              <Route path="/content-agent" element={<ProtectedRoute><ContentAgent /></ProtectedRoute>} />
-              <Route path="/content-recycling" element={<ProtectedRoute><ContentRecycling /></ProtectedRoute>} />
-              <Route path="/webhooks" element={<ProtectedRoute><Webhooks /></ProtectedRoute>} />
-              <Route path="/carousel" element={<ProtectedRoute><CreateCarousel /></ProtectedRoute>} />
-              <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-              <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
-              <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
-              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-              <Route path="/approvals" element={<ProtectedRoute><Approvals /></ProtectedRoute>} />
-              <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
-              <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitation /></ProtectedRoute>} />
-              <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />
-              <Route path="/ab-testing" element={<ProtectedRoute><ABTesting /></ProtectedRoute>} />
-              <Route path="/hashtag-analytics" element={<ProtectedRoute><HashtagAnalytics /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-              <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
-              <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
-              <Route path="/cancel" element={<ProtectedRoute><PaymentCancel /></ProtectedRoute>} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <Suspense fallback={<RouteLoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+                <Route path="/content-agent" element={<ProtectedRoute><ContentAgent /></ProtectedRoute>} />
+                <Route path="/content-recycling" element={<ProtectedRoute><ContentRecycling /></ProtectedRoute>} />
+                <Route path="/webhooks" element={<ProtectedRoute><Webhooks /></ProtectedRoute>} />
+                <Route path="/carousel" element={<ProtectedRoute><CreateCarousel /></ProtectedRoute>} />
+                <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+                <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
+                <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
+                <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                <Route path="/approvals" element={<ProtectedRoute><Approvals /></ProtectedRoute>} />
+                <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
+                <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitation /></ProtectedRoute>} />
+                <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />
+                <Route path="/ab-testing" element={<ProtectedRoute><ABTesting /></ProtectedRoute>} />
+                <Route path="/hashtag-analytics" element={<ProtectedRoute><HashtagAnalytics /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+                <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+                <Route path="/cancel" element={<ProtectedRoute><PaymentCancel /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
           </div>
           <Toaster
             position="top-right"
