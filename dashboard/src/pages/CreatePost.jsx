@@ -170,12 +170,15 @@ export default function CreatePost() {
       setConnectedAccounts(accounts);
 
       // Smart Default: Auto-select all connected platforms (except Reddit) if none are selected yet
+      // Removed per user request - user must select platforms manually
+      /*
       if (accounts.length > 0 && platforms.length === 0) {
         const allPlatforms = accounts
           .map(acc => acc.platform)
           .filter(platform => platform !== 'reddit'); // Exclude Reddit from auto-selection
         setPlatforms(allPlatforms);
       }
+      */
     } catch (err) {
       console.error('Error loading connected accounts:', err);
       setConnectedAccounts([]);
