@@ -714,6 +714,7 @@ export default function CreatePost() {
       if (response.data.success) {
         const uploadedUrl = response.data.videoUrl || response.data.url || response.data.imageUrl;
         setImage(uploadedUrl);
+        setMediaType('video'); // Ensure mediaType is set to video
         showSuccess('Video attached successfully! Ready to post.');
 
         // Clear pending video
@@ -815,8 +816,8 @@ export default function CreatePost() {
         variations: useVariations && Object.keys(variations).length > 0 ? variations : undefined,
         platforms: platformsToPost,
         accountIds: selectedAccounts, // Pass selected account per platform
-        imageUrl: image, // Send the Cloudinary URL to the server
-        videoUrl: selectedVideo?.videoUrl || null, // Send the Pexels video URL
+        imageUrl: mediaType === 'video' ? null : image, // Send image only if it's an image
+        videoUrl: mediaType === 'video' ? image : (selectedVideo?.videoUrl || null), // Send video URL if it's a video (uploaded or selected)
         post_metadata: Object.keys(postMetadata).length > 0 ? postMetadata : undefined
       });
 

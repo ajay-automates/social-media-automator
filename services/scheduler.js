@@ -379,11 +379,22 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 // Only post if we have a video URL
                 console.log('    🔍 Checking YouTube video URL:', image_url);
                 // Check for Cloudinary video pattern, generic /video/ path, or common video extensions
-                const isVideo = image_url && (
+                let isVideo = image_url && (
                   image_url.includes('/video/upload/') ||
                   image_url.includes('/video/') ||
                   image_url.match(/\.(mp4|mov|avi|wmv|flv|mkv|webm)$/i)
                 );
+
+                // Fallback for YouTube: if we have a URL and it doesn't look like an image, treat as video
+                // This handles cases where the URL might not have a standard extension but is intended as a video
+                if (!isVideo && image_url && platform === 'youtube') {
+                  const isImage = image_url.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                  if (!isImage) {
+                    console.log('    ⚠️  URL detection ambiguous, assuming video for YouTube');
+                    isVideo = true;
+                  }
+                }
+
                 const videoUrl = isVideo ? image_url : null;
 
                 if (!videoUrl) {
