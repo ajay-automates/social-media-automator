@@ -20,21 +20,21 @@ const { supabase, supabaseAdmin } = require('./database');
 function initiateLinkedInOAuth(userId, redirectUri) {
   const clientId = process.env.LINKEDIN_CLIENT_ID;
   const scope = 'openid profile email w_member_social';
-  
+
   if (!clientId) {
     throw new Error('LinkedIn OAuth not configured. Set LINKEDIN_CLIENT_ID in environment variables.');
   }
-  
+
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-  
+
   const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
   authUrl.searchParams.append('scope', scope);
   authUrl.searchParams.append('state', state);
-  
+
   return authUrl.toString();
 }
 
@@ -50,7 +50,7 @@ async function handleLinkedInCallback(code, state, redirectUri) {
   try {
     // Decode state to get userId
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-    
+
     // Exchange code for access token
     const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
       params: {
@@ -64,21 +64,21 @@ async function handleLinkedInCallback(code, state, redirectUri) {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
-    
+
     const { access_token, expires_in } = tokenResponse.data;
-    
+
     // Get user profile
     const profileResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
       headers: {
         'Authorization': `Bearer ${access_token}`
       }
     });
-    
+
     const profile = profileResponse.data;
-    
+
     // Calculate token expiry
     const expiresAt = new Date(Date.now() + (expires_in * 1000));
-    
+
     // Store in database
     const { data: account, error } = await supabase
       .from('user_accounts')
@@ -98,11 +98,11 @@ async function handleLinkedInCallback(code, state, redirectUri) {
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ LinkedIn account connected for user ${userId}`);
-    
+
     return {
       success: true,
       account: {
@@ -112,7 +112,7 @@ async function handleLinkedInCallback(code, state, redirectUri) {
         connected: true
       }
     };
-    
+
   } catch (error) {
     console.error('❌ LinkedIn OAuth error:', error.message);
     throw new Error('Failed to connect LinkedIn account: ' + error.message);
@@ -134,9 +134,9 @@ async function refreshLinkedInToken(accountId) {
       .eq('id', accountId)
       .eq('platform', 'linkedin')
       .single();
-    
+
     if (fetchError) throw fetchError;
-    
+
     // LinkedIn doesn't support refresh tokens in the standard OAuth flow
     // Instead, we need to re-authenticate when token expires
     // Mark the account as expired
@@ -146,14 +146,14 @@ async function refreshLinkedInToken(accountId) {
         status: 'expired'
       })
       .eq('id', accountId);
-    
+
     if (updateError) throw updateError;
-    
+
     return {
       success: false,
       message: 'LinkedIn token expired. Please reconnect your account.'
     };
-    
+
   } catch (error) {
     console.error('❌ Error refreshing LinkedIn token:', error.message);
     throw error;
@@ -173,14 +173,14 @@ async function refreshLinkedInToken(accountId) {
 function initiateRedditOAuth(userId, redirectUri) {
   const clientId = process.env.REDDIT_CLIENT_ID;
   const scope = 'identity submit read mysubreddits';
-  
+
   if (!clientId) {
     throw new Error('Reddit OAuth not configured. Set REDDIT_CLIENT_ID in environment variables.');
   }
-  
+
   // Generate state parameter for security
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-  
+
   const authUrl = new URL('https://www.reddit.com/api/v1/authorize');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('response_type', 'code');
@@ -188,7 +188,7 @@ function initiateRedditOAuth(userId, redirectUri) {
   authUrl.searchParams.append('redirect_uri', redirectUri);
   authUrl.searchParams.append('duration', 'permanent'); // Get refresh_token
   authUrl.searchParams.append('scope', scope);
-  
+
   return authUrl.toString();
 }
 
@@ -203,13 +203,13 @@ async function handleRedditCallback(code, state, redirectUri) {
   try {
     // Decode state to get userId
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-    
+
     const clientId = process.env.REDDIT_CLIENT_ID;
     const clientSecret = process.env.REDDIT_CLIENT_SECRET;
-    
+
     // Exchange code for access token (Reddit requires Basic Auth)
     const authString = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-    
+
     const tokenResponse = await axios.post(
       'https://www.reddit.com/api/v1/access_token',
       new URLSearchParams({
@@ -225,9 +225,9 @@ async function handleRedditCallback(code, state, redirectUri) {
         }
       }
     );
-    
+
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
-    
+
     // Get user profile
     const profileResponse = await axios.get('https://oauth.reddit.com/api/v1/me', {
       headers: {
@@ -235,9 +235,9 @@ async function handleRedditCallback(code, state, redirectUri) {
         'User-Agent': process.env.REDDIT_USER_AGENT || 'SocialMediaAutomator/1.0'
       }
     });
-    
+
     const profile = profileResponse.data;
-    
+
     // Get moderated subreddits
     const { getModeratedSubreddits } = require('./reddit');
     let moderatedSubreddits = [];
@@ -246,10 +246,10 @@ async function handleRedditCallback(code, state, redirectUri) {
     } catch (error) {
       console.log('⚠️  Could not fetch moderated subreddits:', error.message);
     }
-    
+
     // Calculate token expiry (Reddit tokens expire in 1 hour)
     const expiresAt = new Date(Date.now() + (expires_in * 1000));
-    
+
     // Store in database
     const { data: account, error } = await supabaseAdmin
       .from('user_accounts')
@@ -271,12 +271,12 @@ async function handleRedditCallback(code, state, redirectUri) {
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ Reddit account connected for user ${userId} (u/${profile.name})`);
     console.log(`   📋 Moderates ${moderatedSubreddits.length} subreddit(s)`);
-    
+
     return {
       success: true,
       account: {
@@ -287,7 +287,7 @@ async function handleRedditCallback(code, state, redirectUri) {
         connected: true
       }
     };
-    
+
   } catch (error) {
     console.error('❌ Reddit OAuth error:', error.response?.data || error.message);
     throw new Error('Failed to connect Reddit account: ' + error.message);
@@ -304,9 +304,9 @@ async function refreshRedditToken(refreshToken) {
   try {
     const clientId = process.env.REDDIT_CLIENT_ID;
     const clientSecret = process.env.REDDIT_CLIENT_SECRET;
-    
+
     const authString = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
-    
+
     const response = await axios.post(
       'https://www.reddit.com/api/v1/access_token',
       new URLSearchParams({
@@ -321,12 +321,12 @@ async function refreshRedditToken(refreshToken) {
         }
       }
     );
-    
+
     const { access_token, expires_in } = response.data;
     const expiresAt = new Date(Date.now() + (expires_in * 1000));
-    
+
     console.log('✅ Reddit token refreshed');
-    
+
     return {
       access_token,
       expires_at: expiresAt.toISOString()
@@ -352,14 +352,14 @@ async function initiateTwitterOAuth(userId, callbackUrl) {
   try {
     const consumerKey = process.env.TWITTER_API_KEY;
     const consumerSecret = process.env.TWITTER_API_SECRET;
-    
+
     if (!consumerKey || !consumerSecret) {
       throw new Error('Twitter OAuth not configured. Set TWITTER_API_KEY and TWITTER_API_SECRET in environment variables.');
     }
-    
+
     // Step 1: Get request token
     const requestTokenUrl = 'https://api.twitter.com/oauth/request_token';
-    
+
     // Generate OAuth 1.0a signature
     const oauthParams = {
       oauth_callback: callbackUrl,
@@ -369,7 +369,7 @@ async function initiateTwitterOAuth(userId, callbackUrl) {
       oauth_timestamp: Math.floor(Date.now() / 1000).toString(),
       oauth_version: '1.0'
     };
-    
+
     // Create signature base string
     const signatureBase = createSignatureBase('POST', requestTokenUrl, oauthParams);
     const signingKey = `${encodeURIComponent(consumerSecret)}&`;
@@ -377,14 +377,14 @@ async function initiateTwitterOAuth(userId, callbackUrl) {
       .createHmac('sha1', signingKey)
       .update(signatureBase)
       .digest('base64');
-    
+
     oauthParams.oauth_signature = signature;
-    
+
     // Create Authorization header
     const authHeader = 'OAuth ' + Object.keys(oauthParams)
       .map(key => `${encodeURIComponent(key)}="${encodeURIComponent(oauthParams[key])}"`)
       .join(', ');
-    
+
     // Request token
     const response = await axios.post(requestTokenUrl, null, {
       headers: {
@@ -392,25 +392,25 @@ async function initiateTwitterOAuth(userId, callbackUrl) {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
-    
+
     // Parse response
     const params = new URLSearchParams(response.data);
     const oauthToken = params.get('oauth_token');
     const oauthTokenSecret = params.get('oauth_token_secret');
-    
+
     // Store token secret temporarily (in real production, use Redis or similar)
     // For now, we'll include it in the authorization URL as a parameter
     // Note: This is simplified for the MVP - in production use proper storage
-    
+
     const authUrl = `https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`;
-    
+
     return {
       success: true,
       authUrl,
       oauthToken,
       oauthTokenSecret  // Return this to be stored temporarily
     };
-    
+
   } catch (error) {
     console.error('❌ Twitter OAuth initiation error:', error.message);
     throw new Error('Failed to initiate Twitter OAuth: ' + error.message);
@@ -430,10 +430,10 @@ async function handleTwitterCallback(oauthToken, oauthVerifier, userId, oauthTok
   try {
     const consumerKey = process.env.TWITTER_API_KEY;
     const consumerSecret = process.env.TWITTER_API_SECRET;
-    
+
     // Step 2: Exchange for access token
     const accessTokenUrl = 'https://api.twitter.com/oauth/access_token';
-    
+
     const oauthParams = {
       oauth_consumer_key: consumerKey,
       oauth_nonce: crypto.randomBytes(16).toString('hex'),
@@ -442,7 +442,7 @@ async function handleTwitterCallback(oauthToken, oauthVerifier, userId, oauthTok
       oauth_token: oauthToken,
       oauth_version: '1.0'
     };
-    
+
     // Create signature
     const signatureBase = createSignatureBase('POST', accessTokenUrl, { ...oauthParams, oauth_verifier: oauthVerifier });
     const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(oauthTokenSecret)}`;
@@ -450,13 +450,13 @@ async function handleTwitterCallback(oauthToken, oauthVerifier, userId, oauthTok
       .createHmac('sha1', signingKey)
       .update(signatureBase)
       .digest('base64');
-    
+
     oauthParams.oauth_signature = signature;
-    
+
     const authHeader = 'OAuth ' + Object.keys(oauthParams)
       .map(key => `${encodeURIComponent(key)}="${encodeURIComponent(oauthParams[key])}"`)
       .join(', ');
-    
+
     // Get access token
     const response = await axios.post(accessTokenUrl, `oauth_verifier=${oauthVerifier}`, {
       headers: {
@@ -464,13 +464,13 @@ async function handleTwitterCallback(oauthToken, oauthVerifier, userId, oauthTok
         'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
-    
+
     const params = new URLSearchParams(response.data);
     const accessToken = params.get('oauth_token');
     const accessTokenSecret = params.get('oauth_token_secret');
     const screenName = params.get('screen_name');
     const twitterUserId = params.get('user_id');
-    
+
     // Store in database
     const { data: account, error } = await supabase
       .from('user_accounts')
@@ -490,11 +490,11 @@ async function handleTwitterCallback(oauthToken, oauthVerifier, userId, oauthTok
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ Twitter account connected for user ${userId}`);
-    
+
     return {
       success: true,
       account: {
@@ -504,7 +504,7 @@ async function handleTwitterCallback(oauthToken, oauthVerifier, userId, oauthTok
         connected: true
       }
     };
-    
+
   } catch (error) {
     console.error('❌ Twitter OAuth error:', error.message);
     throw new Error('Failed to connect Twitter account: ' + error.message);
@@ -527,7 +527,7 @@ function createSignatureBase(method, url, params) {
     .sort()
     .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
     .join('&');
-  
+
   return [
     method.toUpperCase(),
     encodeURIComponent(url),
@@ -549,16 +549,16 @@ async function disconnectAccount(userId, platform) {
       .update({ status: 'disconnected' })
       .eq('user_id', userId)
       .eq('platform', platform);
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ ${platform} account(s) disconnected for user ${userId}`);
-    
+
     return {
       success: true,
       message: `${platform} account(s) disconnected successfully`
     };
-    
+
   } catch (error) {
     console.error(`❌ Error disconnecting ${platform}:`, error.message);
     throw error;
@@ -579,16 +579,16 @@ async function disconnectAccountById(userId, accountId) {
       .update({ status: 'disconnected' })
       .eq('id', accountId)
       .eq('user_id', userId); // Ensure user owns this account
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ Account ${accountId} disconnected for user ${userId}`);
-    
+
     return {
       success: true,
       message: 'Account disconnected successfully'
     };
-    
+
   } catch (error) {
     console.error(`❌ Error disconnecting account ${accountId}:`, error.message);
     throw error;
@@ -608,11 +608,11 @@ async function getUserConnectedAccounts(userId) {
       .select('id, platform, platform_name, platform_username, status, connected_at')
       .eq('user_id', userId)
       .eq('status', 'active');
-    
+
     if (error) throw error;
-    
+
     return accounts || [];
-    
+
   } catch (error) {
     console.error('❌ Error fetching connected accounts:', error.message);
     return [];
@@ -633,14 +633,14 @@ function initiateInstagramOAuth(userId) {
   // Use the same FACEBOOK_APP_ID (which has Instagram Graph API enabled)
   const clientId = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
   const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
-  
+
   if (!clientId) {
     throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID or FACEBOOK_APP_ID in environment variables.');
   }
-  
+
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-  
+
   // Instagram Business API (2025 - via Facebook Pages)
   // Modern approach: Get Instagram access through Facebook Page permissions
   // The Instagram Business account MUST be linked to a Facebook Page
@@ -659,7 +659,7 @@ function initiateInstagramOAuth(userId) {
   authUrl.searchParams.append('scope', 'pages_show_list,business_management');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
-  
+
   return authUrl.toString();
 }
 
@@ -674,16 +674,16 @@ async function handleInstagramCallback(code, state) {
   try {
     // Decode state to get userId
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-    
+
     // Instagram uses same App ID/Secret as Facebook (same app with Instagram Graph API enabled)
     const clientId = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
     const clientSecret = process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET;
     const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
-    
+
     if (!clientId || !clientSecret) {
       throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID/INSTAGRAM_APP_SECRET or FACEBOOK_APP_ID/FACEBOOK_APP_SECRET');
     }
-    
+
     // Step 1: Exchange code for access token (Facebook Graph API)
     console.log('📱 Step 1: Exchanging code for access token...');
     const tokenResponse = await axios.get(
@@ -697,10 +697,10 @@ async function handleInstagramCallback(code, state) {
         }
       }
     );
-    
+
     const accessToken = tokenResponse.data.access_token;
     const expiresIn = tokenResponse.data.expires_in || 5184000; // Default 60 days if not provided
-    
+
     // Step 2: Get Facebook Pages (to find Instagram Business Account)
     console.log('📱 Step 2: Getting Facebook Pages...');
     const pagesResponse = await axios.get(
@@ -711,21 +711,21 @@ async function handleInstagramCallback(code, state) {
         }
       }
     );
-    
+
     const pages = pagesResponse.data.data;
     if (!pages || pages.length === 0) {
       throw new Error('No Facebook Pages found. Instagram Business account must be linked to a Facebook Page.');
     }
-    
+
     // Step 3: Get Instagram Business Account ID from first page
     console.log('📱 Step 3: Getting Instagram Business Account ID...');
     console.log('   - Page ID:', pages[0].id);
     console.log('   - Page Name:', pages[0].name);
     console.log('   - Page Token:', pages[0].access_token ? 'exists' : 'missing');
-    
+
     const pageId = pages[0].id;
     const pageToken = pages[0].access_token;
-    
+
     let igBusinessResponse;
     try {
       igBusinessResponse = await axios.get(
@@ -742,21 +742,21 @@ async function handleInstagramCallback(code, state) {
       console.error('   - Status:', igError.response?.status);
       console.error('   - Error:', igError.response?.data);
       console.error('   - Message:', igError.response?.data?.error?.message);
-      
+
       throw new Error(`Facebook API error: ${igError.response?.data?.error?.message || igError.message}. Make sure your Facebook Page has an Instagram Business account linked.`);
     }
-    
+
     console.log('   - Instagram account data:', igBusinessResponse.data);
-    
+
     const igBusinessId = igBusinessResponse.data.instagram_business_account?.id;
     if (!igBusinessId) {
       console.error('❌ No Instagram Business account found on this Page');
       console.error('   - Available fields:', Object.keys(igBusinessResponse.data));
       throw new Error('Instagram Business or Creator account not found on your Facebook Page. Please link your Instagram Business account to this Facebook Page in Instagram app settings.');
     }
-    
+
     console.log('   ✅ Instagram Business ID:', igBusinessId);
-    
+
     // Step 4: Get Instagram username
     console.log('📱 Step 4: Getting Instagram username...');
     const usernameResponse = await axios.get(
@@ -768,12 +768,12 @@ async function handleInstagramCallback(code, state) {
         }
       }
     );
-    
+
     const username = usernameResponse.data.username;
-    
+
     // Step 5: Calculate token expiry
     const expiresAt = new Date(Date.now() + (expiresIn * 1000));
-    
+
     // Step 6: Store in database (use supabaseAdmin to bypass RLS)
     const { data: account, error } = await supabaseAdmin
       .from('user_accounts')
@@ -793,11 +793,11 @@ async function handleInstagramCallback(code, state) {
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ Instagram account connected for user ${userId}`);
-    
+
     return {
       success: true,
       account: {
@@ -807,7 +807,7 @@ async function handleInstagramCallback(code, state) {
         connected: true
       }
     };
-    
+
   } catch (error) {
     console.error('❌ Instagram OAuth error:', error.message);
     throw new Error('Failed to connect Instagram account: ' + error.message);
@@ -826,14 +826,14 @@ async function handleInstagramCallback(code, state) {
 function initiateFacebookOAuth(userId) {
   const clientId = process.env.FACEBOOK_APP_ID;
   const redirectUri = process.env.FACEBOOK_REDIRECT_URI;
-  
+
   if (!clientId) {
     throw new Error('Facebook OAuth not configured. Set FACEBOOK_APP_ID in environment variables.');
   }
-  
+
   // Generate state parameter for security (store userId in it)
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-  
+
   // Facebook OAuth - request permissions for Pages
   // pages_show_list: List pages you manage
   // pages_manage_posts: Post to pages you manage (may require app review for public pages)
@@ -849,7 +849,7 @@ function initiateFacebookOAuth(userId) {
   authUrl.searchParams.append('scope', 'pages_show_list');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('state', state);
-  
+
   return authUrl.toString();
 }
 
@@ -863,11 +863,11 @@ async function handleFacebookCallback(code, state) {
   try {
     // Decode state to get userId
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-    
+
     const redirectUri = process.env.FACEBOOK_REDIRECT_URI;
-    
+
     console.log('📘 Facebook OAuth callback for user:', userId);
-    
+
     // Step 1: Exchange code for access token
     console.log('📘 Step 1: Exchanging code for access token...');
     const tokenResponse = await axios.get(
@@ -881,12 +881,12 @@ async function handleFacebookCallback(code, state) {
         }
       }
     );
-    
+
     const userAccessToken = tokenResponse.data.access_token;
     const expiresIn = tokenResponse.data.expires_in || 0;
-    
+
     console.log('✅ Got user access token, expires in:', expiresIn);
-    
+
     // Step 2: Get user's Facebook Pages
     console.log('📘 Step 2: Getting user\'s Facebook Pages...');
     // Request page token with explicit permissions for posting
@@ -902,11 +902,11 @@ async function handleFacebookCallback(code, state) {
         }
       }
     );
-    
+
     console.log('📘 Pages API response:', JSON.stringify(pagesResponse.data, null, 2));
-    
+
     const pages = pagesResponse.data?.data;
-    
+
     if (!pages || pages.length === 0) {
       console.log('⚠️  No pages found in response. Response structure:', {
         hasData: !!pagesResponse.data?.data,
@@ -915,12 +915,12 @@ async function handleFacebookCallback(code, state) {
       });
       throw new Error('No Facebook Pages found. Please create a Facebook Page first and make sure you are an admin of the page.');
     }
-    
+
     console.log(`✅ Found ${pages.length} Facebook Pages`);
-    
+
     // Save each Page as a separate account
     const savedAccounts = [];
-    
+
     for (const page of pages) {
       // Use page data directly from /me/accounts response
       // No need for extra API call - we already have name, username, etc.
@@ -928,12 +928,12 @@ async function handleFacebookCallback(code, state) {
       const pageAccessToken = page.access_token;
       const pageName = page.name || 'Facebook Page';
       const pageUsername = page.username || page.name || pageId;
-      
+
       console.log(`📘 Processing page: ${pageName} (ID: ${pageId})`);
-      
+
       // Calculate expiry (use page token expiry or default 60 days)
       const expiresAt = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000));
-      
+
       // Save to database (use supabaseAdmin to bypass RLS for backend operations)
       const { data: account, error } = await supabaseAdmin
         .from('user_accounts')
@@ -954,25 +954,25 @@ async function handleFacebookCallback(code, state) {
         })
         .select()
         .single();
-      
+
       if (error) {
         console.error('❌ Error saving Facebook Page:', error);
         continue;
       }
-      
+
       savedAccounts.push(account);
       console.log(`✅ Saved Facebook Page: ${pageName}`);
     }
-    
+
     return {
       success: true,
       accounts: savedAccounts,
       connected: true
     };
-    
+
   } catch (error) {
     console.error('❌ Facebook OAuth error:', error.message);
-    
+
     // Log full error details for debugging
     if (error.response) {
       console.error('❌ Facebook API error response:', {
@@ -981,12 +981,12 @@ async function handleFacebookCallback(code, state) {
         data: error.response.data
       });
     }
-    
+
     // Provide more helpful error messages
     if (error.message.includes('No Facebook Pages')) {
       throw new Error('No Facebook Pages found. Please:\n1. Create a Facebook Page at https://www.facebook.com/pages/create\n2. Make sure you are an admin of the page\n3. Try connecting again');
     }
-    
+
     throw new Error('Failed to connect Facebook account: ' + error.message);
   }
 }
@@ -1002,12 +1002,12 @@ async function getUserCredentialsForPosting(userId) {
     // Use supabaseAdmin to bypass RLS
     const { data: accounts, error } = await supabaseAdmin
       .from('user_accounts')
-      .select('platform, access_token, refresh_token, platform_user_id, platform_username, platform_metadata, token_expires_at')
+      .select('id, platform, access_token, refresh_token, platform_user_id, platform_username, platform_metadata, token_expires_at')
       .eq('user_id', userId)
       .eq('status', 'active');
-    
+
     if (error) throw error;
-    
+
     // Format credentials for posting services (arrays to support multiple accounts per platform)
     const credentials = {
       linkedin: [],
@@ -1026,10 +1026,11 @@ async function getUserCredentialsForPosting(userId) {
       mastodon: [],
       bluesky: []
     };
-    
+
     accounts?.forEach(account => {
       if (account.platform === 'linkedin') {
         credentials.linkedin.push({
+          id: account.id,
           accessToken: account.access_token,
           urn: account.platform_user_id,
           type: 'person'
@@ -1038,33 +1039,34 @@ async function getUserCredentialsForPosting(userId) {
         // Twitter: Support both OAuth 2.0 and OAuth 1.0a credentials
         // OAuth 1.0a credentials are stored in additional_credentials field for media uploads
         console.log('🔐 Loading Twitter credentials for user');
-        
+
         const twitterCreds = {
+          id: account.id,
           bearerToken: account.access_token,
           accessToken: account.access_token
         };
-        
+
         // Get OAuth 1.0a API Key and Secret from environment variables (app-level credentials)
         const apiKey = process.env.TWITTER_API_KEY;
         const apiSecret = process.env.TWITTER_API_SECRET;
-        
+
         if (apiKey && apiSecret) {
           twitterCreds.apiKey = apiKey;
           twitterCreds.apiSecret = apiSecret;
           console.log('   ✅ OAuth 1.0a API credentials found from environment - media uploads enabled');
         }
-        
+
         // Debug: Log what we have in refresh_token
         console.log('   🔍 Refresh token preview:', account.refresh_token ? account.refresh_token.substring(0, 50) : 'null');
         console.log('   🔍 Refresh token length:', account.refresh_token ? account.refresh_token.length : 0);
-        
+
         // Check if OAuth 1.0a credentials are available in additional_credentials field
         if (account.additional_credentials) {
           try {
-            const additional = typeof account.additional_credentials === 'string' 
-              ? JSON.parse(account.additional_credentials) 
+            const additional = typeof account.additional_credentials === 'string'
+              ? JSON.parse(account.additional_credentials)
               : account.additional_credentials;
-            
+
             if (additional.apiKey && additional.apiSecret) {
               console.log('   ✅ OAuth 1.0a credentials found in additional_credentials - media uploads enabled');
               twitterCreds.apiKey = additional.apiKey;
@@ -1074,7 +1076,7 @@ async function getUserCredentialsForPosting(userId) {
             console.log('   ⚠️  Failed to parse additional_credentials');
           }
         }
-        
+
         // Check if OAuth 1.0a access token/secret are in refresh_token field
         // Format: access_token:access_secret
         // OAuth 1.0a tokens typically start with numbers (Twitter user ID + dash)
@@ -1086,7 +1088,7 @@ async function getUserCredentialsForPosting(userId) {
             // OAuth 2.0 refresh token: base64 string (e.g., "b3FqNS1VbTJVcXMt...")
             const firstPart = parts[0];
             const isOAuth1Format = /^\d+-\w/.test(firstPart); // Matches pattern like "1981568508711579648-abc123..."
-            
+
             if (isOAuth1Format && parts.length >= 2) {
               // This is OAuth 1.0a format: access_token:access_secret
               const oauth1AccessToken = parts[0];
@@ -1101,38 +1103,43 @@ async function getUserCredentialsForPosting(userId) {
             console.log('   ⚠️  Failed to parse OAuth 1.0a tokens from refresh_token:', e.message);
           }
         }
-        
+
         if (!twitterCreds.apiKey) {
           console.log('   ⚠️  OAuth 2.0 only - media uploads will fail (missing API Key/Secret)');
         }
-        
+
         if (!twitterCreds.accessTokenOAuth1) {
           console.log('   ⚠️  OAuth 2.0 only - media uploads will fail (missing OAuth 1.0a access token)');
         }
-        
+
         credentials.twitter.push(twitterCreds);
       } else if (account.platform === 'instagram') {
         credentials.instagram.push({
+          id: account.id,
           accessToken: account.access_token,
           igUserId: account.platform_user_id
         });
       } else if (account.platform === 'telegram') {
         credentials.telegram.push({
+          id: account.id,
           botToken: account.access_token,
           chatId: account.platform_user_id
         });
       } else if (account.platform === 'slack') {
         credentials.slack.push({
+          id: account.id,
           webhookUrl: account.access_token,
           channelName: account.platform_username
         });
       } else if (account.platform === 'discord') {
         credentials.discord.push({
+          id: account.id,
           webhookUrl: account.access_token,
           serverName: account.platform_username
         });
       } else if (account.platform === 'reddit') {
         credentials.reddit.push({
+          id: account.id,
           accessToken: account.access_token,
           refreshToken: account.refresh_token,
           tokenExpiresAt: account.token_expires_at,
@@ -1141,11 +1148,13 @@ async function getUserCredentialsForPosting(userId) {
         });
       } else if (account.platform === 'facebook') {
         credentials.facebook.push({
+          id: account.id,
           accessToken: account.access_token,
           pageId: account.platform_user_id
         });
       } else if (account.platform === 'youtube') {
         credentials.youtube.push({
+          id: account.id,
           access_token: account.access_token,
           refresh_token: account.refresh_token,
           platform_user_id: account.platform_user_id,
@@ -1153,6 +1162,7 @@ async function getUserCredentialsForPosting(userId) {
         });
       } else if (account.platform === 'pinterest') {
         credentials.pinterest.push({
+          id: account.id,
           accessToken: account.access_token,
           refreshToken: account.refresh_token,
           userId: account.user_id,
@@ -1161,20 +1171,23 @@ async function getUserCredentialsForPosting(userId) {
         });
       } else if (account.platform === 'medium') {
         credentials.medium.push({
+          id: account.id,
           accessToken: account.access_token,
           userId: account.platform_user_id,
           username: account.platform_username
         });
       } else if (account.platform === 'devto') {
         credentials.devto.push({
+          id: account.id,
           apiKey: account.access_token,
           username: account.platform_username
         });
       } else if (account.platform === 'tumblr') {
         const metadata = account.platform_metadata ? JSON.parse(account.platform_metadata) : {};
         const blogName = metadata.blogName || account.platform_username;
-        
+
         credentials.tumblr.push({
+          id: account.id,
           accessToken: account.access_token,
           accessTokenSecret: account.refresh_token, // Token secret stored as refresh_token
           blogName: blogName,
@@ -1184,6 +1197,7 @@ async function getUserCredentialsForPosting(userId) {
       } else if (account.platform === 'mastodon') {
         const metadata = account.platform_metadata ? JSON.parse(account.platform_metadata) : {};
         credentials.mastodon.push({
+          id: account.id,
           accessToken: account.access_token,
           instanceUrl: metadata.instanceUrl || 'https://mastodon.social',
           username: account.platform_username
@@ -1191,6 +1205,7 @@ async function getUserCredentialsForPosting(userId) {
       } else if (account.platform === 'bluesky') {
         const metadata = account.platform_metadata ? JSON.parse(account.platform_metadata) : {};
         credentials.bluesky.push({
+          id: account.id,
           accessJwt: account.access_token,
           refreshJwt: account.refresh_token,
           did: account.platform_user_id,
@@ -1198,9 +1213,9 @@ async function getUserCredentialsForPosting(userId) {
         });
       }
     });
-    
+
     return credentials;
-    
+
   } catch (error) {
     console.error('❌ Error fetching user credentials for posting:', error.message);
     return {
@@ -1222,20 +1237,20 @@ async function getUserCredentialsForPosting(userId) {
 function initiatePinterestOAuth(userId, redirectUri) {
   const clientId = process.env.PINTEREST_APP_ID;
   const scope = 'boards:read,boards:write,pins:read,pins:write,user_accounts:read';
-  
+
   if (!clientId) {
     throw new Error('Pinterest OAuth not configured. Set PINTEREST_APP_ID in environment variables.');
   }
-  
+
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-  
+
   const authUrl = new URL('https://www.pinterest.com/oauth/');
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', redirectUri);
   authUrl.searchParams.append('scope', scope);
   authUrl.searchParams.append('state', state);
-  
+
   return authUrl.toString();
 }
 
@@ -1244,7 +1259,7 @@ async function handlePinterestCallback(code, state, redirectUri) {
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
 
     // Exchange code for token
-    const tokenResponse = await axios.post('https://api.pinterest.com/v5/oauth/token', 
+    const tokenResponse = await axios.post('https://api.pinterest.com/v5/oauth/token',
       new URLSearchParams({
         grant_type: 'authorization_code',
         code: code,
@@ -1267,7 +1282,7 @@ async function handlePinterestCallback(code, state, redirectUri) {
     const profile = profileResponse.data;
 
     // Store in database
-    const { data, error} = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from('user_accounts')
       .upsert({
         user_id: userId,
@@ -1311,7 +1326,7 @@ async function handlePinterestCallback(code, state, redirectUri) {
 async function initiateTumblrOAuth(userId, redirectUri) {
   try {
     const { getRequestToken } = require('./tumblr');
-    
+
     if (!process.env.TUMBLR_CONSUMER_KEY) {
       throw new Error('Tumblr OAuth not configured. Set TUMBLR_CONSUMER_KEY in environment variables.');
     }
@@ -1450,21 +1465,21 @@ async function handleTumblrCallback(oauthToken, oauthVerifier) {
 function initiateMediumOAuth(userId, redirectUri) {
   const clientId = process.env.MEDIUM_CLIENT_ID;
   const scope = 'basicProfile,publishPost';
-  
+
   if (!clientId) {
     throw new Error('Medium OAuth not configured. Set MEDIUM_CLIENT_ID in environment variables.');
   }
-  
+
   // Generate state parameter for security
   const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-  
+
   const authUrl = new URL('https://medium.com/m/oauth/authorize');
   authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('scope', scope);
   authUrl.searchParams.append('state', state);
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append('redirect_uri', redirectUri);
-  
+
   return authUrl.toString();
 }
 
@@ -1480,9 +1495,9 @@ async function handleMediumCallback(code, state, redirectUri) {
   try {
     // Decode state to get userId
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-    
+
     console.log(`🔄 Processing Medium OAuth callback for user ${userId}...`);
-    
+
     // Exchange code for access token
     const tokenParams = new URLSearchParams({
       code,
@@ -1491,7 +1506,7 @@ async function handleMediumCallback(code, state, redirectUri) {
       grant_type: 'authorization_code',
       redirect_uri: redirectUri
     });
-    
+
     const tokenResponse = await axios.post(
       'https://api.medium.com/v1/tokens',
       tokenParams.toString(),
@@ -1502,16 +1517,16 @@ async function handleMediumCallback(code, state, redirectUri) {
         }
       }
     );
-    
+
     const { access_token, refresh_token, expires_at } = tokenResponse.data;
-    
+
     // Get Medium user info
     const { getMediumUserInfo } = require('./medium');
     const userInfo = await getMediumUserInfo(access_token);
-    
+
     // Calculate token expiry (Medium tokens don't expire but store expires_at if provided)
     const expiresAt = expires_at ? new Date(expires_at * 1000).toISOString() : null;
-    
+
     // Store in database
     const { data: account, error } = await supabase
       .from('user_accounts')
@@ -1532,14 +1547,14 @@ async function handleMediumCallback(code, state, redirectUri) {
       })
       .select()
       .single();
-    
+
     if (error) {
       console.error('Error saving Medium credentials:', error);
       throw error;
     }
-    
+
     console.log(`✅ Medium connected successfully for user ${userId}: @${userInfo.username}`);
-    
+
     return {
       success: true,
       accountId: account.id,
@@ -1548,7 +1563,7 @@ async function handleMediumCallback(code, state, redirectUri) {
       name: userInfo.name,
       platform: 'medium'
     };
-    
+
   } catch (error) {
     console.error('❌ Medium OAuth callback error:', error.response?.data || error.message);
     throw error;
@@ -1560,36 +1575,36 @@ module.exports = {
   initiateLinkedInOAuth,
   handleLinkedInCallback,
   refreshLinkedInToken,
-  
+
   // Reddit
   initiateRedditOAuth,
   handleRedditCallback,
   refreshRedditToken,
-  
+
   // Twitter
   initiateTwitterOAuth,
   handleTwitterCallback,
-  
+
   // Pinterest
   initiatePinterestOAuth,
   handlePinterestCallback,
-  
+
   // Instagram
   initiateInstagramOAuth,
   handleInstagramCallback,
-  
+
   // Facebook
   initiateFacebookOAuth,
   handleFacebookCallback,
-  
+
   // Medium
   initiateMediumOAuth,
   handleMediumCallback,
-  
+
   // Tumblr
   initiateTumblrOAuth,
   handleTumblrCallback,
-  
+
   // Common
   disconnectAccount,
   disconnectAccountById,
