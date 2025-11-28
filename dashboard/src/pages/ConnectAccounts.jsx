@@ -818,7 +818,7 @@ export default function ConnectAccounts() {
 
               {/* YouTube - Working */}
               {!isPlatformConnected('youtube') && (
-                <button onClick={() => handleComingSoon('YouTube')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-200">
+                <button onClick={connectYouTube} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-200">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaYoutube className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">YouTube</span>
