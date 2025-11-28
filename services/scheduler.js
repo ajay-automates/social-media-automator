@@ -22,11 +22,11 @@ let isProcessing = false;
 // Start the scheduler
 function startScheduler() {
   console.log('🚀 Queue processor started - checking every minute');
-  
+
   // Run every minute - process due posts
   cron.schedule('* * * * *', async () => {
     if (isProcessing) return;
-    
+
     try {
       isProcessing = true;
       await processDueQueue();
@@ -40,7 +40,7 @@ function startScheduler() {
   // Run every Monday at 9 AM - send weekly email reports
   cron.schedule('0 9 * * 1', async () => {
     console.log('📧 Running weekly email reports job...');
-    
+
     try {
       const { sendWeeklyReportsToAll } = require('./reports');
       const result = await sendWeeklyReportsToAll();
@@ -49,13 +49,13 @@ function startScheduler() {
       console.error('❌ Email reports job error:', error);
     }
   });
-  
+
   console.log('📧 Email reports scheduler initialized (Mondays at 9 AM)');
 
   // Run every Sunday at 10 AM - content recycling for all users with auto-recycle enabled
   cron.schedule('0 10 * * 0', async () => {
     console.log('♻️  Running content recycling job...');
-    
+
     try {
       const { runAutoRecycleForAllUsers } = require('./content-recycling');
       const result = await runAutoRecycleForAllUsers();
@@ -64,7 +64,7 @@ function startScheduler() {
       console.error('❌ Content recycling job error:', error);
     }
   });
-  
+
   console.log('♻️  Content recycling scheduler initialized (Sundays at 10 AM)');
 }
 
@@ -101,7 +101,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
   try {
     console.log('📹 postNow called with video:', videoUrl ? 'YES' : 'NO');
     let id, user_id, image_url, platformsArray, credentials, postMetadata, variationsData;
-    
+
     // Support both signatures:
     // 1. postNow({id, user_id, text, image_url, platforms, post_metadata}) - for scheduled posts
     // 2. postNow(text, imageUrl, platforms, credentials, post_metadata, useVariations) - for immediate posts
@@ -141,7 +141,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     } else if (imageUrl) {
       console.log(`🖼️ Attaching image: ${imageUrl.substring(0, 50)}...`);
     }
-    
+
     if (!credentials) {
       console.error(`❌ No credentials found`);
       return {};
@@ -154,7 +154,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
       try {
         // Get platform-specific text (use variation if available, otherwise use original text)
         const platformText = variationsData && variationsData[platform] ? variationsData[platform] : text;
-        
+
         console.log(`  → Posting to ${platform}...`);
         if (variationsData && variationsData[platform]) {
           console.log(`    🎨 Using custom variation (${platformText.length} chars)`);
@@ -178,7 +178,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               }
             }
           }
-        } 
+        }
         else if (platform === 'twitter') {
           // Twitter - post to all connected accounts
           if (credentials.twitter && Array.isArray(credentials.twitter)) {
@@ -199,7 +199,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
           } else {
             console.log(`⚠️  No Twitter credentials found`);
           }
-        } 
+        }
         else if (platform === 'telegram') {
           // Telegram - post to all connected bots
           if (credentials.telegram && Array.isArray(credentials.telegram) && credentials.telegram.length > 0) {
@@ -271,7 +271,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   console.log('    🔄 Refreshing Reddit token...');
                   const newToken = await refreshRedditToken(account.refreshToken);
                   accessToken = newToken.access_token;
-                  
+
                   // Update token in database
                   const { supabaseAdmin } = require('./database');
                   await supabaseAdmin
@@ -283,25 +283,25 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                     .eq('platform', 'reddit')
                     .eq('access_token', account.accessToken);
                 }
-                
+
                 // Get target subreddit and title from post metadata
                 const subreddit = postMetadata?.reddit_subreddit || account.moderatedSubreddits[0];
                 const title = postMetadata?.reddit_title || text.substring(0, 300); // Reddit title limit
-                
+
                 if (!subreddit) {
                   console.log(`    ⚠️  No subreddit specified for Reddit post`);
-                  results.reddit.push({ 
-                    success: false, 
-                    error: 'No subreddit specified', 
-                    platform: 'reddit' 
+                  results.reddit.push({
+                    success: false,
+                    error: 'No subreddit specified',
+                    platform: 'reddit'
                   });
                   continue;
                 }
-                
+
                 console.log(`    🔴 Posting to Reddit r/${subreddit}`);
                 const result = await postToReddit(subreddit, title, platformText, image_url, accessToken);
                 results.reddit.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to Reddit - URL: ${result.url}`);
                 } else {
@@ -333,7 +333,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               } catch (err) {
                 console.error(`    ❌ Instagram error:`, err.message);
                 results.instagram = results.instagram || [];
-                results.instagram.push({ 
+                results.instagram.push({
                   success: false,
                   error: err.message,
                   platform: 'instagram'
@@ -341,7 +341,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               }
             }
           }
-        } 
+        }
         else if (platform === 'facebook') {
           // ✅ FIXED: Use database credentials instead of process.env
           if (credentials.facebook && Array.isArray(credentials.facebook)) {
@@ -362,7 +362,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               } catch (err) {
                 console.error(`    ❌ Facebook error:`, err.message);
                 results.facebook = results.facebook || [];
-                results.facebook.push({ 
+                results.facebook.push({
                   success: false,
                   error: err.message,
                   platform: 'facebook'
@@ -377,9 +377,15 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.youtube) {
               try {
                 // Only post if we have a video URL
-                // Check both /video/upload/ (Cloudinary) and /video/ (generic) patterns
-                const videoUrl = image_url && (image_url.includes('/video/upload/') || image_url.includes('/video/')) ? image_url : null;
-                
+                console.log('    🔍 Checking YouTube video URL:', image_url);
+                // Check for Cloudinary video pattern, generic /video/ path, or common video extensions
+                const isVideo = image_url && (
+                  image_url.includes('/video/upload/') ||
+                  image_url.includes('/video/') ||
+                  image_url.match(/\.(mp4|mov|avi|wmv|flv|mkv|webm)$/i)
+                );
+                const videoUrl = isVideo ? image_url : null;
+
                 if (!videoUrl) {
                   console.log(`    ⚠️  Skipping YouTube - no video URL provided`);
                   results.youtube.push({
@@ -389,7 +395,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   });
                   continue;
                 }
-                
+
                 const content = {
                   text: text,
                   videoUrl: videoUrl,
@@ -399,7 +405,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   tags: [],
                   type: 'short'
                 };
-                
+
                 // Match the format that youtube.js expects
                 // Include token_expires_at for proactive refresh
                 const ytCredentials = {
@@ -409,10 +415,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   refresh_token: account.refresh_token,
                   token_expires_at: account.token_expires_at
                 };
-                
+
                 const result = await postToYouTube(content, ytCredentials);
                 results.youtube.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to YouTube (${account.platform_user_id})`);
                 } else {
@@ -428,7 +434,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               }
             }
           }
-        }        
+        }
         else if (platform === 'tiktok') {
           // TikTok - post to all connected accounts
           if (credentials.tiktok && Array.isArray(credentials.tiktok)) {
@@ -437,7 +443,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               try {
                 // TikTok requires video URL
                 const videoUrl = image_url && (image_url.includes('/video/upload/') || image_url.includes('/video/')) ? image_url : null;
-                
+
                 if (!videoUrl) {
                   console.log(`    ⚠️  Skipping TikTok - no video URL provided`);
                   results.tiktok.push({
@@ -447,30 +453,30 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   });
                   continue;
                 }
-                
+
                 // Post to TikTok using postToTikTok from server.js (via require)
                 const tiktokService = require('./tiktok');
-                
+
                 // Check token expiry and refresh if needed
                 let accessToken = account.access_token;
                 if (new Date(account.expires_at) <= new Date()) {
                   const newTokens = await tiktokService.refreshAccessToken(account.refresh_token);
                   accessToken = newTokens.accessToken;
                 }
-                
+
                 // Validate video URL
                 const isValid = await tiktokService.validateVideoUrl(videoUrl);
                 if (!isValid) {
                   throw new Error('Video URL is not accessible');
                 }
-                
+
                 // Post video
                 const result = await tiktokService.postVideo(accessToken, {
                   videoUrl: videoUrl,
                   caption: text || '',
                   privacyLevel: 'PUBLIC_TO_EVERYONE'
                 });
-                
+
                 results.tiktok.push({
                   success: true,
                   platform: 'tiktok',
@@ -478,7 +484,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   publishId: result.publishId,
                   message: result.message
                 });
-                
+
                 console.log(`    ✅ Posted to TikTok (@${account.username}) - Publish ID: ${result.publishId}`);
                 console.log(`    📱 Video sent to TikTok inbox - user will receive notification`);
               } catch (err) {
@@ -508,17 +514,17 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   });
                   continue;
                 }
-                
+
                 const { postToPinterest } = require('./pinterest');
-                
+
                 const result = await postToPinterest(text, image_url, account, {
                   boardId: post_metadata?.pinterestBoardId || null,
                   link: post_metadata?.pinterestLink || null,
                   title: post_metadata?.pinterestTitle || null
                 });
-                
+
                 results.pinterest.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to Pinterest (@${account.username})`);
                 } else {
@@ -542,16 +548,16 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.medium) {
               try {
                 const { postToMedium, extractTitle, formatMediumContent, extractHashtags } = require('./medium');
-                
+
                 // Extract title from text (first line or first 60 chars)
                 const title = extractTitle(text);
-                
+
                 // Format content for Medium (markdown with title and optional image)
                 const content = formatMediumContent(title, text, image_url);
-                
+
                 // Extract hashtags as tags (max 3)
                 const tags = extractHashtags(text);
-                
+
                 const result = await postToMedium(
                   title,
                   content,
@@ -561,9 +567,9 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   null,           // canonicalUrl
                   account         // credentials
                 );
-                
+
                 results.medium.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to Medium (@${account.username}): ${result.url}`);
                 } else {
@@ -588,16 +594,16 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.devto) {
               try {
                 const { postToDevTo, extractTitle, formatDevToContent, extractHashtags } = require('./devto');
-                
+
                 // Extract title from text (first line or first 60 chars)
                 const title = extractTitle(text);
-                
+
                 // Format content for Dev.to (markdown with title and optional image)
                 const body = formatDevToContent(title, text, image_url);
-                
+
                 // Extract hashtags as tags (max 4)
                 const tags = extractHashtags(text);
-                
+
                 const result = await postToDevTo(
                   title,          // title
                   body,           // body_markdown
@@ -608,9 +614,9 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   null,           // description
                   account         // credentials
                 );
-                
+
                 results.devto.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to Dev.to (@${account.username}): ${result.url}`);
                 } else {
@@ -635,19 +641,19 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.tumblr) {
               try {
                 const { formatTumblrPost, postToTumblr } = require('./tumblr');
-                
+
                 // Format post based on whether there's an image
                 const { type, data } = formatTumblrPost(text, image_url);
-                
+
                 const result = await postToTumblr(
                   account.blogName,
                   type,
                   data,
                   account
                 );
-                
+
                 results.tumblr.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to Tumblr (${account.blogName}): ${result.url}`);
                 } else {
@@ -672,19 +678,19 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.mastodon) {
               try {
                 const { postToMastodon, formatMastodonStatus } = require('./mastodon');
-                
+
                 // Format status (handle 500 char limit)
                 const status = formatMastodonStatus(text, 500);
-                
+
                 const result = await postToMastodon(
                   status,
                   image_url,
                   'public', // visibility
                   account
                 );
-                
+
                 results.mastodon.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to Mastodon (@${account.username}): ${result.url}`);
                 } else {
@@ -709,18 +715,18 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.bluesky) {
               try {
                 const { postToBluesky, formatBlueskyText } = require('./bluesky');
-                
+
                 // Format text (handle 300 char limit)
                 const formattedText = formatBlueskyText(text, 300);
-                
+
                 const result = await postToBluesky(
                   formattedText,
                   image_url,
                   account
                 );
-                
+
                 results.bluesky.push(result);
-                
+
                 if (result.success) {
                   console.log(`    ✅ Posted to Bluesky (@${account.handle}): ${result.url}`);
                 } else {
@@ -741,7 +747,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
 
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);
-        results[platform] = { 
+        results[platform] = {
           success: false,
           error: error.message,
           platform: platform
@@ -764,12 +770,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     if (id) {
       await updatePostStatus(id, status, results);
       console.log(`✅ Post [${id}] completed - Status: ${status}`);
-      
+
       // Trigger webhooks for post success/failure
       try {
         const { triggerWebhooks } = require('./webhooks');
         const eventType = hasErrors ? 'post.failed' : 'post.success';
-        
+
         await triggerWebhooks(user_id, eventType, {
           post_id: id,
           text,
@@ -791,17 +797,17 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
         console.error('⚠️ Hashtag tracking error (non-critical):', hashtagError.message);
       }
     }
-    
+
     // Return results for immediate posting
     return results;
 
   } catch (error) {
     console.error(`❌ Error posting:`, error);
-    
+
     // Only update post status if this is a scheduled post (has id)
     if (id) {
       await updatePostStatus(id, 'failed', { error: error.message });
-      
+
       // Trigger webhook for failure
       try {
         const { triggerWebhooks } = require('./webhooks');
@@ -816,7 +822,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
         console.error('⚠️ Webhook trigger error (non-critical):', webhookError.message);
       }
     }
-    
+
     throw error; // Re-throw for immediate posts
   }
 }

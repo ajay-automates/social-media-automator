@@ -36,7 +36,7 @@ async function refreshYouTubeToken(refreshToken, userId = null) {
     console.log('🔄 Refreshing YouTube access token...');
     const clientId = process.env.YOUTUBE_CLIENT_ID;
     const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
-    
+
     if (!clientId || !clientSecret) {
       throw new Error('YouTube OAuth credentials not configured');
     }
@@ -50,13 +50,13 @@ async function refreshYouTubeToken(refreshToken, userId = null) {
 
     const newAccessToken = response.data.access_token;
     console.log('✅ Token refreshed successfully');
-    
+
     // Save refreshed token to database
     if (userId && getSupabaseAdmin()) {
       try {
         await getSupabaseAdmin()
           .from('user_accounts')
-          .update({ 
+          .update({
             access_token: newAccessToken,
             token_expires_at: new Date(Date.now() + response.data.expires_in * 1000).toISOString()
           })
@@ -67,7 +67,7 @@ async function refreshYouTubeToken(refreshToken, userId = null) {
         console.warn('Could not save refreshed token:', dbError.message);
       }
     }
-    
+
     return {
       accessToken: newAccessToken,
       expiresIn: response.data.expires_in
@@ -81,11 +81,11 @@ async function refreshYouTubeToken(refreshToken, userId = null) {
 async function uploadYouTubeShort(videoUrl, credentials, title, description, tags = [], forKids = false) {
   try {
     console.log('📹 Uploading YouTube Short');
-    
+
     let accessToken = credentials.accessToken || credentials.access_token;
     const refreshToken = credentials.refreshToken || credentials.refresh_token;
     const userId = credentials.userId || credentials.user_id;
-    
+
     // Check if token is expired or missing
     if (!accessToken && refreshToken) {
       console.log('🔄 No access token, refreshing...');
@@ -96,36 +96,36 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
       const refreshed = await refreshYouTubeToken(refreshToken, userId);
       accessToken = refreshed.accessToken;
     }
-    
+
     if (!videoUrl || !accessToken) {
       throw new Error('Video URL and access token required');
     }
-    
+
     if (!title || title.trim().length === 0) {
       throw new Error('Video title is required');
     }
-    
+
     if (title.length > 100) {
       throw new Error('Title must be 100 characters or less');
     }
-    
+
     console.log('📥 Downloading video from Cloudinary...');
     const videoResponse = await axios.get(videoUrl, { responseType: 'arraybuffer' });
     const videoBuffer = Buffer.from(videoResponse.data);
     const videoSizeMB = (videoBuffer.length / 1024 / 1024).toFixed(2);
-    
+
     console.log(`   📊 Video size: ${videoSizeMB}MB`);
-    
+
     if (videoSizeMB > 256) {
       throw new Error(`Video too large (${videoSizeMB}MB). Max 256MB for YouTube Shorts`);
     }
-    
+
     // Ensure #Shorts in title for proper categorization
     let finalTitle = title.substring(0, 93); // Leave room for #Shorts
     if (!finalTitle.toLowerCase().includes('#shorts')) {
       finalTitle = finalTitle + ' #Shorts';
     }
-    
+
     const videoMetadata = {
       snippet: {
         title: finalTitle,
@@ -137,7 +137,7 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
         selfDeclaredMadeForKids: false
       }
     };
-    
+
     console.log('📤 Starting upload to YouTube...');
     console.log('📋 Final metadata being sent:');
     console.log(JSON.stringify(videoMetadata, null, 2));
@@ -145,12 +145,12 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     console.log('   - Size:', videoSizeMB, 'MB');
     console.log('   - Title length:', finalTitle.length);
     console.log('   - Has #Shorts:', finalTitle.toLowerCase().includes('#shorts'));
-    
+
     // Try upload with current token, retry with refreshed token on 401
     // Pass userId in credentials for token refresh callback
     const uploadCredentials = { ...credentials, userId };
     let uploadResponse = await uploadVideoResumable(videoBuffer, videoMetadata, accessToken, title, uploadCredentials);
-    
+
     // If 401 error and we have refresh token, refresh and retry
     if (!uploadResponse.success && refreshToken && !uploadResponse.isUploadLimit) {
       console.log('⚠️  Upload failed, checking if token refresh needed...');
@@ -166,19 +166,19 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
         }
       }
     }
-    
+
     // Handle upload limit error specifically
     if (uploadResponse.isUploadLimit) {
       throw new Error('Daily upload limit exceeded. YouTube allows 6 uploads per day by default. Please try again tomorrow or request a quota increase in Google Cloud Console.');
     }
-    
-    
+
+
     if (!uploadResponse.success) {
       throw new Error(uploadResponse.error || 'Upload failed');
     }
-    
+
     console.log(`✅ YouTube Short uploaded: ${uploadResponse.videoId}`);
-    
+
     return {
       success: true,
       videoId: uploadResponse.videoId,
@@ -190,10 +190,10 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     };
   } catch (error) {
     console.error('❌ YouTube upload error:', error.message);
-    
+
     // Handle specific YouTube API errors
     let userFriendlyError = error.message;
-    
+
     if (error.message?.includes('uploadLimitExceeded') || error.message?.includes('exceeded the number of videos')) {
       userFriendlyError = 'Daily upload limit exceeded. YouTube allows 6 uploads per day by default. Please try again tomorrow or request a quota increase in Google Cloud Console.';
     } else if (error.message?.includes('quotaExceeded')) {
@@ -201,7 +201,7 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
     } else if (error.message?.includes('invalidCredentials') || error.message?.includes('401')) {
       userFriendlyError = 'YouTube authentication failed. Please reconnect your YouTube account.';
     }
-    
+
     return {
       success: false,
       error: userFriendlyError,
@@ -215,13 +215,18 @@ async function uploadYouTubeShort(videoUrl, credentials, title, description, tag
 async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTitle, credentials = {}) {
   try {
     const videoSizeMB = videoBuffer.length / (1024 * 1024);
-    
+
     // Use resumable upload for ALL videos (most reliable method)
     console.log('   🔧 Creating resumable upload session...');
     console.log('   📦 Video size:', videoSizeMB.toFixed(2), 'MB');
-    
+
+    // Add categoryId to metadata
+    if (!metadata.snippet.categoryId) {
+      metadata.snippet.categoryId = '22'; // People & Blogs default
+    }
+
     const createSessionResponse = await axios.post(
-      `${YOUTUBE_API_BASE}/videos?uploadType=resumable&part=snippet,status`,
+      `https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status`,
       metadata,
       {
         headers: {
@@ -232,17 +237,17 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
         }
       }
     );
-    
+
     const sessionUri = createSessionResponse.headers['location'];
     if (!sessionUri) {
       console.error('   ❌ No session URI in response headers');
       console.error('   Response headers:', createSessionResponse.headers);
       throw new Error('Could not create upload session - no location header');
     }
-    
+
     console.log('   📍 Upload session created');
     console.log('   Session URI:', sessionUri);
-    
+
     // Upload the actual video binary
     console.log('   📤 Uploading video binary...');
     const uploadDataResponse = await axios.put(sessionUri, videoBuffer, {
@@ -253,11 +258,11 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
       maxContentLength: Infinity,
       maxBodyLength: Infinity
     });
-    
+
     if (!uploadDataResponse.data.id) {
       throw new Error('Video upload failed - no video ID returned');
     }
-    
+
     return {
       success: true,
       videoId: uploadDataResponse.data.id
@@ -267,26 +272,26 @@ async function uploadVideoResumable(videoBuffer, metadata, accessToken, videoTit
     const errorMsg = error.response?.data?.error?.message || error.message;
     const fullError = error.response?.data?.error;
     const errorReason = fullError?.errors?.[0]?.reason;
-    
+
     console.error('❌ YouTube upload error:', errorMsg);
     if (errorCode) console.error('   Error code:', errorCode);
     if (errorReason) console.error('   Error reason:', errorReason);
     if (fullError?.errors) {
       console.error('   Full error details:', JSON.stringify(fullError.errors, null, 2));
     }
-    
+
     // Log the full response data for debugging
     if (error.response?.data) {
       console.error('   Full YouTube API response:', JSON.stringify(error.response.data, null, 2));
     }
-    
+
     // Log request details if session creation failed
     if (error.config) {
       console.error('   Request URL:', error.config.url);
       console.error('   Request method:', error.config.method);
       console.error('   Request data:', typeof error.config.data === 'string' ? error.config.data : JSON.stringify(error.config.data, null, 2));
     }
-    
+
     return {
       success: false,
       error: errorMsg,
@@ -303,17 +308,17 @@ function generateYouTubeOAuthUrl(userId, state) {
   const redirectUri = process.env.APP_URL
     ? `${process.env.APP_URL}/auth/youtube/callback`
     : 'http://localhost:3000/auth/youtube/callback';
-  
+
   if (!clientId) {
     throw new Error('YOUTUBE_CLIENT_ID not configured');
   }
-  
+
   const scope = [
     'https://www.googleapis.com/auth/youtube.upload',
     'https://www.googleapis.com/auth/youtube',
     'https://www.googleapis.com/auth/youtube.readonly'
   ].join(' ');
-  
+
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
@@ -323,7 +328,7 @@ function generateYouTubeOAuthUrl(userId, state) {
     prompt: 'consent',
     state: state
   });
-  
+
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
@@ -334,11 +339,11 @@ async function exchangeYouTubeCode(code) {
     const redirectUri = process.env.APP_URL
       ? `${process.env.APP_URL}/auth/youtube/callback`
       : 'http://localhost:3000/auth/youtube/callback';
-    
+
     if (!clientId || !clientSecret) {
       throw new Error('YouTube OAuth credentials not configured');
     }
-    
+
     const response = await axios.post(YOUTUBE_AUTH_ENDPOINT, {
       code,
       client_id: clientId,
@@ -346,7 +351,7 @@ async function exchangeYouTubeCode(code) {
       redirect_uri: redirectUri,
       grant_type: 'authorization_code'
     });
-    
+
     return {
       accessToken: response.data.access_token,
       refreshToken: response.data.refresh_token,
@@ -362,18 +367,18 @@ async function exchangeYouTubeCode(code) {
 async function getChannelInfo(accessToken) {
   try {
     console.log('📺 Fetching YouTube channel info...');
-    
+
     const response = await axios.get(`${YOUTUBE_API_BASE}/channels?part=id,snippet,statistics,contentDetails`, {
       params: { mine: true },
       headers: { 'Authorization': `Bearer ${accessToken}` }
     });
-    
+
     if (!response.data.items || response.data.items.length === 0) {
       throw new Error('Channel not found');
     }
-    
+
     const channel = response.data.items[0];
-    
+
     return {
       channelId: channel.id,
       title: channel.snippet.title,
@@ -402,10 +407,10 @@ async function postToYouTube(content, credentials) {
       hasAccessToken: !!(credentials.accessToken || credentials.access_token),
       hasRefreshToken: !!(credentials.refreshToken || credentials.refresh_token)
     });
-    
-    const videoUrl = content.videoUrl || 
+
+    const videoUrl = content.videoUrl ||
       (content.imageUrl && content.imageUrl.includes('/video/upload/') ? content.imageUrl : null);
-    
+
     if (!videoUrl) {
       console.log('⚠️  No video URL - YouTube only supports video uploads (Shorts)');
       return {
@@ -414,13 +419,13 @@ async function postToYouTube(content, credentials) {
         platform: 'youtube'
       };
     }
-    
+
     // Add userId to credentials for token refresh
     const credentialsWithUserId = {
       ...credentials,
       userId: credentials.userId || credentials.user_id
     };
-    
+
     const result = await uploadYouTubeShort(
       videoUrl,
       credentialsWithUserId,
@@ -429,17 +434,17 @@ async function postToYouTube(content, credentials) {
       content.tags || [],
       content.forKids || false
     );
-    
+
     return result;
   } catch (error) {
     console.error('❌ YouTube posting error:', error.message);
-    
+
     // Handle upload limit error
     let userFriendlyError = error.message;
     if (error.message?.includes('uploadLimitExceeded') || error.message?.includes('exceeded the number of videos')) {
       userFriendlyError = 'Daily upload limit exceeded. YouTube allows 6 uploads per day by default. Please try again tomorrow or request a quota increase in Google Cloud Console.';
     }
-    
+
     return {
       success: false,
       error: userFriendlyError,
