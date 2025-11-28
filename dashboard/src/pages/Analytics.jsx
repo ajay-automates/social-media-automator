@@ -612,8 +612,18 @@ export default function Analytics() {
                                     onClick={(e) => {
                                       if (!isClickable) {
                                         e.preventDefault();
-                                        // Show toast notification with helpful message
-                                        showError(`Link not available for this ${platformInfo.name} post. The post was successful but the URL wasn't saved. This will be fixed for future posts.`);
+
+                                        // Check if post failed
+                                        const platformResult = post.results && post.results[platform];
+                                        const isFailed = post.status === 'failed' || (platformResult && platformResult.success === false);
+
+                                        if (isFailed) {
+                                          const errorMsg = platformResult && platformResult.error ? platformResult.error : 'Post failed';
+                                          showError(`Post failed: ${errorMsg}`);
+                                        } else {
+                                          // Show toast notification with helpful message for successful but missing link
+                                          showError(`Link not available for this ${platformInfo.name} post. The post was successful but the URL wasn't saved. This will be fixed for future posts.`);
+                                        }
                                       }
                                     }}
                                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border backdrop-blur-sm ${platformInfo.color} transition ${isClickable
