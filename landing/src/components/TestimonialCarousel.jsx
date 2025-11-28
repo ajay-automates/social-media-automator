@@ -14,7 +14,7 @@ export default function TestimonialCarousel({ testimonials }) {
       <motion.div
         className="flex gap-6"
         animate={{
-          x: [0, -50 * testimonials.length + '%'],
+          x: ['0%', '-50%'],
         }}
         transition={{
           x: {
@@ -55,6 +55,7 @@ export default function TestimonialCarousel({ testimonials }) {
               <motion.img
                 src={testimonial.avatar}
                 alt={testimonial.name}
+                loading="lazy"
                 className="w-12 h-12 rounded-full border-2 border-blue-500/50 group-hover:border-blue-400 transition-colors"
                 whileHover={{ scale: 1.1 }}
               />

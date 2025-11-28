@@ -39,6 +39,7 @@ export default function TestimonialGrid({ testimonials }) {
             <motion.img
               src={testimonial.avatar}
               alt={testimonial.name}
+              loading="lazy"
               className="w-10 h-10 rounded-full border-2 border-purple-500/50 group-hover:border-purple-400 transition-colors"
               whileHover={{ scale: 1.15, rotate: 360 }}
               transition={{ duration: 0.3 }}

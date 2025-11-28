@@ -37,7 +37,7 @@ export default function AnimatedText({ texts, className = '' }) {
       <motion.span
         animate={{ opacity: [1, 0] }}
         transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-        className="inline-block w-1 h-12 ml-1 bg-gradient-to-r from-blue-500 to-purple-500"
+        className="inline-block w-[4px] h-[0.9em] ml-1 bg-gradient-to-r from-blue-500 to-purple-500 align-middle"
       />
     </span>
   );

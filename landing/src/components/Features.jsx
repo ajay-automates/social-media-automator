@@ -6,14 +6,16 @@ function Feature3D({ feature, index }) {
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Simplified motion values
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const mouseXSpring = useSpring(x, { stiffness: 150, damping: 15 });
-  const mouseYSpring = useSpring(y, { stiffness: 150, damping: 15 });
+  // Reduced spring config for better performance
+  const mouseXSpring = useSpring(x, { stiffness: 100, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 100, damping: 20 });
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
 
   const handleMouseMove = (e) => {
     if (!ref.current) return;
@@ -56,19 +58,19 @@ function Feature3D({ feature, index }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: 60, scale: 0.8 }}
+      initial={{ opacity: 0, y: 30, scale: 0.9 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, margin: "-50px" }}
       transition={{
-        duration: 0.8,
+        duration: 0.5,
         delay: index * 0.05,
-        ease: [0.25, 0.46, 0.45, 0.94],
+        ease: "easeOut",
       }}
       style={{
         transformStyle: "preserve-3d",
         perspective: "1000px",
       }}
-      className="group relative"
+      className="group relative motion-safe:transform"
     >
       <motion.div
         style={{
@@ -76,69 +78,62 @@ function Feature3D({ feature, index }) {
           rotateY,
           transformStyle: "preserve-3d",
         }}
-        transition={{ type: "spring", stiffness: 150, damping: 15 }}
         className="relative"
       >
-        {/* 3D Shadow Layer */}
+        {/* 3D Shadow Layer - Only show on hover for performance */}
         <motion.div
           style={{
-            transform: "translateZ(-50px)",
+            transform: "translateZ(-30px)",
             background: gradient.shadow,
           }}
           animate={{
-            opacity: isHovered ? 0.8 : 0.4,
-            scale: isHovered ? 1.1 : 1,
+            opacity: isHovered ? 0.6 : 0,
+            scale: isHovered ? 1.05 : 0.95,
           }}
-          transition={{ duration: 0.4 }}
-          className="absolute inset-0 rounded-3xl blur-2xl"
+          transition={{ duration: 0.3 }}
+          className="absolute inset-0 rounded-3xl blur-xl will-change-opacity"
         />
 
-        {/* Main 3D Box - Expands on hover */}
+        {/* Main 3D Box */}
         <motion.div
           animate={{
-            height: isHovered ? 'auto' : 'auto',
-            minHeight: isHovered ? '200px' : '140px',
+            minHeight: isHovered ? '180px' : '140px',
           }}
           style={{
-            transform: isHovered ? "translateZ(50px)" : "translateZ(0px)",
+            transform: isHovered ? "translateZ(30px)" : "translateZ(0px)",
           }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`relative bg-gradient-to-br ${gradient.bg} backdrop-blur-2xl rounded-3xl p-6 border-2 border-white/30 shadow-2xl overflow-hidden`}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className={`relative bg-gradient-to-br ${gradient.bg} backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-xl overflow-hidden will-change-transform`}
         >
-          {/* Static glossy shine - no animation for performance */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent"></div>
-          
-          {/* Additional glossy top shine */}
-          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-3xl"></div>
+          {/* Static glossy shine */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none"></div>
 
           {/* 3D Icon Layer */}
           <motion.div
             style={{
-              transform: isHovered ? "translateZ(30px)" : "translateZ(0px)",
+              transform: isHovered ? "translateZ(20px)" : "translateZ(0px)",
             }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.3 }}
             className="relative z-10"
           >
-            <div className="text-6xl mb-4">
+            <div className="text-5xl mb-3 drop-shadow-md">
               {feature.icon}
             </div>
 
-            {/* Title Layer */}
-            <h3 className="text-base font-bold text-white leading-tight mb-2">
+            <h3 className="text-base font-bold text-white leading-tight mb-2 drop-shadow-sm">
               {feature.title}
             </h3>
 
-            {/* Description expands inside box */}
             <AnimatePresence>
               {isHovered && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  transition={{ duration: 0.3 }}
                   className="overflow-hidden"
                 >
-                  <p className="text-xs text-white/90 leading-relaxed mt-2 pt-2 border-t border-white/20">
+                  <p className="text-xs text-white/95 leading-relaxed mt-2 pt-2 border-t border-white/20 font-medium">
                     {feature.description}
                   </p>
                 </motion.div>
@@ -147,43 +142,15 @@ function Feature3D({ feature, index }) {
 
             {/* Status Badge */}
             {feature.status === 'available' ? (
-              <div className="absolute top-3 right-3">
-                <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold">AVAILABLE</div>
+              <div className="absolute top-2 right-2">
+                <div className="bg-green-500/90 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">NOW</div>
               </div>
             ) : (
-              <div className="absolute top-3 right-3">
-                <div className="bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-bold">SOON</div>
+              <div className="absolute top-2 right-2">
+                <div className="bg-purple-500/90 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">SOON</div>
               </div>
             )}
           </motion.div>
-
-          {/* Layered depth cards in 3D */}
-          <AnimatePresence>
-            {isHovered && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.3 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  style={{
-                    transform: "translateZ(-20px)",
-                  }}
-                  className="absolute inset-2 bg-white/5 rounded-2xl"
-                />
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.2 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  style={{
-                    transform: "translateZ(-40px)",
-                  }}
-                  className="absolute inset-4 bg-white/5 rounded-xl"
-                />
-              </>
-            )}
-          </AnimatePresence>
         </motion.div>
       </motion.div>
     </motion.div>
@@ -234,7 +201,7 @@ export default function Features() {
             </motion.span>
           </motion.div>
 
-          <motion.h2 
+          <motion.h2
             className="text-5xl md:text-7xl font-black text-white mb-8 leading-tight"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -263,8 +230,8 @@ export default function Features() {
             transition={{ delay: 0.3, duration: 1 }}
             className="text-xl text-gray-300 max-w-3xl mx-auto"
           >
-            <span className="text-green-400 font-semibold">12 features available now</span> • 
-            <span className="text-purple-400 font-semibold">6 coming soon</span> • 
+            <span className="text-green-400 font-semibold">12 features available now</span> •
+            <span className="text-purple-400 font-semibold">6 coming soon</span> •
             <span className="text-blue-400 font-semibold">20+ platforms</span>
           </motion.p>
 
@@ -309,7 +276,7 @@ export default function Features() {
         >
           <motion.a
             href="/auth.html"
-            whileHover={{ 
+            whileHover={{
               scale: 1.05,
               transition: { duration: 0.3, ease: "easeOut" }
             }}
