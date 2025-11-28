@@ -46,6 +46,9 @@ export default function CreatePost() {
   const [redditSubreddit, setRedditSubreddit] = useState('');
   const [redditTitle, setRedditTitle] = useState('');
   const [moderatedSubreddits, setModeratedSubreddits] = useState([]);
+  const [pinterestBoards, setPinterestBoards] = useState([]);
+  const [selectedBoard, setSelectedBoard] = useState('');
+  const [pinterestTitle, setPinterestTitle] = useState('');
   const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
   const [showYoutubeModal, setShowYoutubeModal] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
@@ -96,7 +99,9 @@ export default function CreatePost() {
     reddit: 40000,
     discord: 2000,
     slack: 4000,
-    telegram: 4096
+    slack: 4000,
+    telegram: 4096,
+    pinterest: 500
   };
 
   // Calculate character counts for selected platforms
@@ -191,6 +196,29 @@ export default function CreatePost() {
       loadModeratedSubreddits();
     }
   }, [platforms]);
+
+  // Load Pinterest boards when Pinterest is selected
+  useEffect(() => {
+    if (platforms.includes('pinterest')) {
+      loadPinterestBoards();
+    }
+  }, [platforms]);
+
+  const loadPinterestBoards = async () => {
+    try {
+      const response = await api.get('/pinterest/boards');
+      if (response.data && response.data.boards) {
+        setPinterestBoards(response.data.boards);
+        // Auto-select first board if none selected
+        if (response.data.boards.length > 0 && !selectedBoard) {
+          setSelectedBoard(response.data.boards[0].id);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading Pinterest boards:', err);
+      // Don't show error toast here to avoid spamming if not connected yet
+    }
+  };
 
   // Don't auto-load best times - let user click button to get suggestions
 
@@ -779,7 +807,21 @@ export default function CreatePost() {
         return;
       }
       if (!redditSubreddit) {
-        showError('Please select a subreddit for Reddit posting.');
+        showError('Please select a subreddit for Reddit');
+        stopLoading();
+        return;
+      }
+    }
+
+    if (platforms.includes('pinterest')) {
+      if (!image && !selectedVideo) {
+        showError('Pinterest requires an image or video');
+        stopLoading();
+        return;
+      }
+      if (!selectedBoard) {
+        showError('Please select a board for Pinterest');
+        stopLoading();
         return;
       }
     }
@@ -812,6 +854,11 @@ export default function CreatePost() {
       if (platformsToPost.includes('reddit')) {
         postMetadata.reddit_subreddit = redditSubreddit;
         postMetadata.reddit_title = redditTitle;
+      }
+
+      if (platforms.includes('pinterest')) {
+        postMetadata.pinterestBoardId = selectedBoard;
+        postMetadata.pinterestTitle = pinterestTitle;
       }
 
       const response = await api.post('/post/now', {
@@ -934,6 +981,56 @@ export default function CreatePost() {
               animate={{ opacity: 1, height: 'auto' }}
               className="space-y-6"
             >
+              {/* Pinterest-Specific Fields */}
+              {platforms.includes('pinterest') && (
+                <div className="space-y-4 bg-red-900/20 backdrop-blur-sm border border-red-500/30 rounded-lg p-4">
+                  <div className="flex items-center gap-2 text-red-300 font-semibold">
+                    <span>📌</span>
+                    <span>Pinterest Settings</span>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Pin Title <span className="text-gray-500">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={pinterestTitle}
+                      onChange={(e) => setPinterestTitle(e.target.value)}
+                      placeholder="Enter pin title (max 100 chars)"
+                      maxLength={100}
+                      className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder:text-gray-400"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      {pinterestTitle.length}/100 characters
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Board <span className="text-red-400">*</span>
+                    </label>
+                    {pinterestBoards.length > 0 ? (
+                      <select
+                        value={selectedBoard}
+                        onChange={(e) => setSelectedBoard(e.target.value)}
+                        className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      >
+                        {pinterestBoards.map(board => (
+                          <option key={board.id} value={board.id}>
+                            {board.name} ({board.privacy === 'PUBLIC' ? 'Public' : 'Secret'})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="text-sm text-gray-300 bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded p-3">
+                        ⚠️ No boards found. Please create a board on Pinterest first.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Reddit-Specific Fields */}
               {platforms.includes('reddit') && (
                 <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">

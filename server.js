@@ -284,6 +284,8 @@ async function verifyAuth(req, res, next) {
       email: user.email
     };
 
+    console.log(`👤 Auth Verified: ${user.email} (${user.id})`);
+
     next();
   } catch (error) {
     console.error('Auth verification error:', error);
@@ -1287,7 +1289,8 @@ app.get('/template.csv', (req, res) => {
  */
 app.get('/api/queue', verifyAuth, async (req, res) => {
   try {
-    const queue = await getQueue();
+    const userId = req.user.id;
+    const queue = await getQueue(userId);
     res.json({ queue });
   } catch (error) {
     console.error('Error in /api/queue:', error);
@@ -1304,8 +1307,9 @@ app.get('/api/queue', verifyAuth, async (req, res) => {
  */
 app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
   try {
+    const userId = req.user.id;
     const postId = parseInt(req.params.id);
-    const deleted = await deleteFromQueue(postId);
+    const deleted = await deleteFromQueue(postId, userId);
 
     if (deleted) {
       res.json({
@@ -7629,14 +7633,9 @@ app.get('/auth/pinterest/callback', async (req, res) => {
 });
 
 // Get user's Pinterest boards
-app.get('/api/pinterest/boards/:userId', verifyAuth, async (req, res) => {
+app.get('/api/pinterest/boards', verifyAuth, async (req, res) => {
   try {
-    const userId = req.params.userId;
-
-    // Verify the requesting user matches the userId (or is admin)
-    if (req.user.id !== parseInt(userId)) {
-      return res.status(403).json({ success: false, error: 'Unauthorized' });
-    }
+    const userId = req.user.id;
 
     // Get Pinterest credentials
     const { data: account, error } = await supabaseAdmin
