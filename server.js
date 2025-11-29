@@ -8110,6 +8110,21 @@ app.get('*', (req, res, next) => {
     return next();
   }
 
+  // Explicitly serve landing page for public policy routes
+  const publicRoutes = [
+    '/privacy',
+    '/terms',
+    '/refund-policy',
+    '/shipping-policy',
+    '/contact',
+    '/data-deletion'
+  ];
+
+  if (publicRoutes.includes(req.path)) {
+    console.log('📄 Serving public policy page:', req.path);
+    return res.sendFile(path.join(__dirname, 'index.html'));
+  }
+
   const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
   const fs = require('fs');
 
