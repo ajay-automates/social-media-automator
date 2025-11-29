@@ -30,11 +30,11 @@ const PLANS = {
       'API access'
     ]
   },
-  
+
   pro: {
     name: 'Pro',
-    price: 29,
-    annual: 290,          // 2 months free ($29 * 10)
+    price: 0,
+    annual: 0,          // Free
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 3,        // 3 social media accounts
@@ -52,14 +52,14 @@ const PLANS = {
       'Full analytics',
       'Post templates'
     ],
-    stripe_monthly_price_id: process.env.STRIPE_PRO_MONTHLY_PRICE_ID || null,
-    stripe_annual_price_id: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || null
+    razorpay_monthly_plan_id: null,
+    razorpay_annual_plan_id: null
   },
-  
+
   business: {
     name: 'Business',
-    price: 99,
-    annual: 990,          // 2 months free ($99 * 10)
+    price: 0,
+    annual: 0,          // Free
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 10,       // 10 social media accounts
@@ -79,8 +79,8 @@ const PLANS = {
       'Custom integrations',
       'Dedicated account manager'
     ],
-    stripe_monthly_price_id: process.env.STRIPE_BUSINESS_MONTHLY_PRICE_ID || null,
-    stripe_annual_price_id: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID || null
+    razorpay_monthly_plan_id: null,
+    razorpay_annual_plan_id: null
   }
 };
 
@@ -115,7 +115,7 @@ function getAllPlans() {
 function checkLimit(planName, resource, currentUsage) {
   const plan = getPlan(planName);
   const limit = plan.limits[resource];
-  
+
   if (limit === Infinity) {
     return {
       allowed: true,
@@ -123,10 +123,10 @@ function checkLimit(planName, resource, currentUsage) {
       remaining: 'Unlimited'
     };
   }
-  
+
   const remaining = Math.max(0, limit - currentUsage);
   const allowed = currentUsage < limit;
-  
+
   return {
     allowed,
     limit,
@@ -147,7 +147,7 @@ function checkLimit(planName, resource, currentUsage) {
 function checkLimitWithGrace(planName, resource, currentUsage, graceAmount = 2) {
   const plan = getPlan(planName);
   const limit = plan.limits[resource];
-  
+
   if (limit === Infinity) {
     return {
       allowed: true,
@@ -157,11 +157,11 @@ function checkLimitWithGrace(planName, resource, currentUsage, graceAmount = 2) 
       message: null
     };
   }
-  
+
   const remaining = limit - currentUsage;
   const inGracePeriod = currentUsage >= limit && currentUsage < (limit + graceAmount);
   const hardBlock = currentUsage >= (limit + graceAmount);
-  
+
   let message = null;
   if (hardBlock) {
     message = `You've reached your ${plan.name} plan limit of ${limit} ${resource} per month. Please upgrade to continue.`;
@@ -170,7 +170,7 @@ function checkLimitWithGrace(planName, resource, currentUsage, graceAmount = 2) 
   } else if (remaining <= 2 && remaining > 0) {
     message = `Warning: Only ${remaining} ${resource} remaining this month.`;
   }
-  
+
   return {
     allowed: !hardBlock,
     hardBlock,
@@ -193,7 +193,7 @@ function getRecommendedUpgrade(currentPlan) {
     'pro': 'business',
     'business': null  // Already on highest plan
   };
-  
+
   return upgradePath[currentPlan.toLowerCase()] || null;
 }
 
@@ -204,15 +204,15 @@ function getRecommendedUpgrade(currentPlan) {
  */
 function calculateAnnualSavings(planName) {
   const plan = getPlan(planName);
-  
+
   if (plan.price === 0) {
     return null;  // Free plan has no annual option
   }
-  
+
   const monthlyTotal = plan.price * 12;
   const savings = monthlyTotal - plan.annual;
   const monthsFree = Math.round(savings / plan.price);
-  
+
   return {
     monthly: plan.price,
     monthlyTotal,
@@ -231,7 +231,7 @@ function calculateAnnualSavings(planName) {
  */
 function hasFeature(planName, feature) {
   const plan = getPlan(planName);
-  
+
   const featureMap = {
     'ai_captions': plan.limits.ai > 0,
     'bulk_upload': planName !== 'free',
@@ -242,7 +242,7 @@ function hasFeature(planName, feature) {
     'unlimited_posts': plan.limits.posts === Infinity,
     'unlimited_ai': plan.limits.ai === Infinity
   };
-  
+
   return featureMap[feature] !== undefined ? featureMap[feature] : false;
 }
 

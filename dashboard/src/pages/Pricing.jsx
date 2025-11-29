@@ -27,8 +27,8 @@ const plans = {
   },
   pro: {
     name: 'Pro',
-    price: 29,
-    annual: 290,
+    price: 0,
+    annual: 0,
     features: [
       'Unlimited posts',
       '3 social accounts',
@@ -43,8 +43,8 @@ const plans = {
   },
   business: {
     name: 'Business',
-    price: 99,
-    annual: 990,
+    price: 0,
+    annual: 0,
     features: [
       'Unlimited everything',
       '10 social accounts',
@@ -85,6 +85,16 @@ export default function Pricing() {
     }
   };
 
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleUpgrade = async (planName) => {
     if (planName === 'free') {
       navigate('/dashboard');
@@ -99,29 +109,59 @@ export default function Pricing() {
     setLoading(true);
 
     try {
-      // In demo mode, just show a toast
-      if (!process.env.STRIPE_SECRET_KEY) {
-        showError('🎭 Demo Mode: Stripe not configured. Checkout disabled.');
-        setLoading(false);
-        return;
-      }
-
-      // TODO: Get actual price IDs from backend
-      const priceId = billingCycle === 'monthly' 
-        ? `price_${planName}_monthly` 
-        : `price_${planName}_annual`;
-
-      const response = await api.post('/billing/checkout', {
+      // Create Subscription
+      const response = await api.post('/billing/subscription', {
         plan: planName,
-        priceId,
         billingCycle,
       });
 
-      if (response.data?.url) {
-        window.location.href = response.data.url;
-      } else {
-        showError('Failed to create checkout session');
+      // Handle free upgrade
+      if (response.data.free) {
+        showSuccess(`Upgraded to ${planName} plan successfully!`);
+        navigate('/success');
+        return;
       }
+
+      const res = await loadRazorpay();
+      if (!res) {
+        showError('Razorpay SDK failed to load');
+        return;
+      }
+
+      const { subscriptionId, keyId } = response.data;
+
+      const options = {
+        key: keyId,
+        subscription_id: subscriptionId,
+        name: "Social Media Automator",
+        description: `${planName.charAt(0).toUpperCase() + planName.slice(1)} Plan Subscription`,
+        handler: async function (response) {
+          try {
+            // Verify Payment
+            await api.post('/billing/verify', {
+              paymentData: {
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_signature: response.razorpay_signature
+              },
+              plan: planName
+            });
+
+            showSuccess('Subscription activated successfully!');
+            navigate('/success');
+          } catch (err) {
+            console.error('Verification error:', err);
+            showError('Payment verification failed');
+          }
+        },
+        theme: {
+          color: "#3B82F6"
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
     } catch (err) {
       console.error('Checkout error:', err);
       showError(err.response?.data?.error || 'Failed to start checkout');
@@ -131,16 +171,15 @@ export default function Pricing() {
   };
 
   const handleManageSubscription = async () => {
-    try {
-      const response = await api.post('/billing/portal');
-      if (response.data?.url) {
-        window.location.href = response.data.url;
-      } else {
-        showError('Failed to open billing portal');
+    if (window.confirm('Are you sure you want to cancel your subscription? You will be downgraded to the Free plan immediately.')) {
+      try {
+        await api.post('/billing/cancel');
+        showSuccess('Subscription cancelled successfully');
+        loadCurrentPlan();
+      } catch (err) {
+        console.error('Cancellation error:', err);
+        showError('Failed to cancel subscription');
       }
-    } catch (err) {
-      console.error('Portal error:', err);
-      showError('Failed to open billing portal');
     }
   };
 
@@ -159,10 +198,10 @@ export default function Pricing() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-white mb-4">
-            Simple, Transparent Pricing
+            Early Access: Free for Everyone
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            Choose the perfect plan for your needs
+            Join our beta program and get full access to all features for free.
           </p>
 
           {/* Billing Toggle */}
@@ -175,9 +214,8 @@ export default function Pricing() {
               className="relative inline-flex h-8 w-14 items-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
             >
               <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${
-                  billingCycle === 'annual' ? 'translate-x-7' : 'translate-x-1'
-                }`}
+                className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${billingCycle === 'annual' ? 'translate-x-7' : 'translate-x-1'
+                  }`}
               />
             </button>
             <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'annual' ? 'text-white font-semibold bg-purple-500/30 backdrop-blur-sm border border-purple-400/30' : 'text-gray-400'}`}>
@@ -203,15 +241,14 @@ export default function Pricing() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                className={`group relative overflow-visible ${
-                  isPopular
-                    ? 'bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-xl border-2 border-blue-400/50 transform scale-105 shadow-2xl shadow-blue-500/30'
-                    : 'bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 shadow-xl'
-                } p-8 rounded-2xl flex flex-col relative`}
+                className={`group relative overflow-visible ${isPopular
+                  ? 'bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-xl border-2 border-blue-400/50 transform scale-105 shadow-2xl shadow-blue-500/30'
+                  : 'bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 shadow-xl'
+                  } p-8 rounded-2xl flex flex-col relative`}
               >
                 {/* Glossy shine overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                
+
                 {/* Popular Badge */}
                 {isPopular && (
                   <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-50">
@@ -229,17 +266,17 @@ export default function Pricing() {
                 <div className="relative mb-6">
                   <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                   <div className={`text-5xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-white'}`}>
-                    ${isFree ? 0 : billingCycle === 'monthly' ? plan.price : Math.round(plan.annual / 12)}
-                    <span className={`text-lg ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
-                      /{billingCycle === 'monthly' ? 'month' : 'month'}
+                    Free
+                    <span className={`text-lg ml-2 ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
+                      / Early Access
                     </span>
                   </div>
-                  {!isFree && billingCycle === 'annual' && (
-                    <p className={`text-sm ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
-                      or ${plan.annual}/year (save ${getAnnualSavings(plan)})
+                  {!isFree && (
+                    <p className={`text-sm ${isPopular ? 'text-blue-200' : 'text-gray-300'} line-through opacity-60`}>
+                      Normal price: ${key === 'pro' ? '29' : '99'}/mo
                     </p>
                   )}
-                  {isFree && <p className="text-gray-300">Great for getting started</p>}
+                  {isFree && <p className="text-gray-300">Forever free plan</p>}
                 </div>
 
                 <ul className="relative space-y-3 mb-8 flex-grow">
@@ -261,11 +298,10 @@ export default function Pricing() {
                   <button
                     onClick={handleManageSubscription}
                     disabled={isFree}
-                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all ${
-                      isFree
-                        ? 'bg-gray-800/50 backdrop-blur-sm border-2 border-gray-600 text-gray-400 cursor-not-allowed'
-                        : 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-xl hover:shadow-blue-500/30 border-2 border-white/50'
-                    }`}
+                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all ${isFree
+                      ? 'bg-gray-800/50 backdrop-blur-sm border-2 border-gray-600 text-gray-400 cursor-not-allowed'
+                      : 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-xl hover:shadow-blue-500/30 border-2 border-white/50'
+                      }`}
                   >
                     {isFree ? 'Current Plan' : 'Manage Subscription'}
                   </button>
@@ -273,11 +309,10 @@ export default function Pricing() {
                   <button
                     onClick={() => handleUpgrade(key)}
                     disabled={loading}
-                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all group/btn ${
-                      isPopular
-                        ? 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-2xl hover:shadow-white/30 border-2 border-white/50'
-                        : 'bg-gray-800/50 backdrop-blur-sm text-white hover:bg-gray-700/50 border-2 border-white/20 hover:border-white/30'
-                    } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all group/btn ${isPopular
+                      ? 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-2xl hover:shadow-white/30 border-2 border-white/50'
+                      : 'bg-gray-800/50 backdrop-blur-sm text-white hover:bg-gray-700/50 border-2 border-white/20 hover:border-white/30'
+                      } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
                     <span className="relative">{loading ? 'Processing...' : isFree ? 'Get Started' : 'Start Free Trial'}</span>

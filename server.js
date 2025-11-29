@@ -6919,23 +6919,76 @@ app.get('/api/billing/plans', (req, res) => {
  * POST /api/billing/checkout
  * Create Stripe checkout session
  */
-app.post('/api/billing/checkout', verifyAuth, async (req, res) => {
+/**
+ * POST /api/billing/subscription
+ * Create Razorpay subscription
+ */
+app.post('/api/billing/subscription', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { priceId, plan } = req.body;
+    const { plan, billingCycle } = req.body;
 
-    const successUrl = `${req.protocol}://${req.get('host')}/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${req.protocol}://${req.get('host')}/cancel`;
+    // Get plan details
+    const planConfig = getAllPlans()[plan];
+    if (!planConfig) {
+      return res.status(400).json({ success: false, error: 'Invalid plan selected' });
+    }
 
-    const session = await createCheckoutSession(userId, priceId, plan, successUrl, cancelUrl);
+    // Check if plan is free (price is 0)
+    if (planConfig.price === 0) {
+      // Direct upgrade for free plans
+      const { error } = await supabase
+        .from('subscriptions')
+        .upsert({
+          user_id: userId,
+          plan: plan,
+          status: 'active',
+          current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
+          razorpay_subscription_id: `free_${Date.now()}`
+        }, {
+          onConflict: 'user_id'
+        });
 
-    res.json(session);
+      if (error) throw error;
+
+      return res.json({ success: true, free: true });
+    }
+
+    const planId = billingCycle === 'annual'
+      ? planConfig.razorpay_annual_plan_id
+      : planConfig.razorpay_monthly_plan_id;
+
+    if (!planId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Razorpay Plan ID not configured. Please contact support.'
+      });
+    }
+
+    const result = await createSubscription(userId, planId);
+    res.json(result);
+
   } catch (error) {
-    console.error('Error creating checkout:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    console.error('Error creating subscription:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * POST /api/billing/verify
+ * Verify Razorpay payment
+ */
+app.post('/api/billing/verify', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { paymentData, plan } = req.body;
+
+    await verifyPayment(userId, paymentData, plan);
+    res.json({ success: true });
+
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -6943,20 +6996,18 @@ app.post('/api/billing/checkout', verifyAuth, async (req, res) => {
  * POST /api/billing/portal
  * Create Stripe customer portal session
  */
-app.post('/api/billing/portal', verifyAuth, async (req, res) => {
+/**
+ * POST /api/billing/cancel
+ * Cancel subscription
+ */
+app.post('/api/billing/cancel', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const returnUrl = `${req.protocol}://${req.get('host')}/dashboard`;
-
-    const session = await createPortalSession(userId, returnUrl);
-
-    res.json(session);
+    await cancelSubscription(userId);
+    res.json({ success: true });
   } catch (error) {
-    console.error('Error creating portal session:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    console.error('Error cancelling subscription:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -7048,22 +7099,10 @@ app.post('/api/reports/test-email', verifyAuth, async (req, res) => {
  * POST /api/billing/webhook
  * Handle Stripe webhook events (unprotected)
  */
-app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+app.post('/api/billing/webhook', async (req, res) => {
   try {
-    const sig = req.headers['stripe-signature'];
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    if (!webhookSecret) {
-      throw new Error('Stripe webhook secret not configured');
-    }
-
-    // Verify webhook signature
-    const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-
-    // Handle the event
-    await handleWebhook(event);
-
-    res.json({ received: true });
+    await handleWebhook(req);
+    res.json({ status: 'ok' });
   } catch (error) {
     console.error('Webhook error:', error);
     res.status(400).send(`Webhook Error: ${error.message}`);
