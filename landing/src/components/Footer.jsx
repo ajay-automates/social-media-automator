@@ -113,6 +113,21 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/refund-policy" className="hover:text-white transition-colors">
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/shipping-policy" className="hover:text-white transition-colors">
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-white transition-colors">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
                 <Link to="/data-deletion" className="hover:text-white transition-colors">
                   Data Deletion
                 </Link>
@@ -154,7 +169,7 @@ export default function Footer() {
             <span>•</span>
             <Link to="/data-deletion" className="hover:text-white transition-colors">Data Deletion</Link>
           </div>
-          
+
           {/* Social Icons */}
           <div className="flex gap-4">
             {['Twitter', 'LinkedIn', 'GitHub'].map((social) => (
