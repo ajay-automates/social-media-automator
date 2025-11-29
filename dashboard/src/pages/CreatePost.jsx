@@ -70,6 +70,7 @@ export default function CreatePost() {
   const [bestTimes, setBestTimes] = useState([]);
   const [loadingBestTimes, setLoadingBestTimes] = useState(false);
   const [showBestTimes, setShowBestTimes] = useState(false); // Start hidden, show after clicking button
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Draft Post Scorer state
   const [draftScore, setDraftScore] = useState(null);
@@ -2403,45 +2404,69 @@ export default function CreatePost() {
             }}
           />
 
-          {/* Live Post Preview */}
-          <div className="fixed bottom-8 right-8 z-40 hidden xl:block">
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-gray-900/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 w-[400px] max-h-[600px] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  📱 Live Preview
-                </h3>
-                <span className="text-xs text-gray-400 bg-white/10 px-2 py-1 rounded-full">
-                  Updates as you type
-                </span>
-              </div>
-
-              <PostPreview
-                caption={caption}
-                image={image}
-                video={selectedVideo}
-                platforms={platforms}
-              />
-            </motion.div>
-          </div>
-
-          {/* Mobile Preview Toggle */}
-          <div className="fixed bottom-24 right-6 z-40 xl:hidden">
+          {/* Preview Button */}
+          <div className="flex justify-end mt-4 mb-8">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                // Toggle a modal for mobile preview (can be implemented later or reuse the desktop one in a modal)
-                showSuccess('Preview feature is optimized for desktop view currently');
-              }}
-              className="bg-blue-600 text-white p-4 rounded-full shadow-lg shadow-blue-600/30"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowPreviewModal(true)}
+              className="flex items-center gap-2 bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold border border-gray-700 hover:bg-gray-700 transition shadow-lg"
             >
-              <span className="text-2xl">👁️</span>
+              <span className="text-xl">👁️</span>
+              Preview Post
             </motion.button>
           </div>
+
+          {/* Preview Modal */}
+          {showPreviewModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowPreviewModal(false)}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-gray-900 border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+              >
+                <div className="p-6 border-b border-white/10 flex justify-between items-center bg-gray-900/50 sticky top-0 z-10 backdrop-blur-md">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    📱 Post Preview
+                  </h3>
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="text-gray-400 hover:text-white transition p-2 rounded-lg hover:bg-white/10"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="p-8 bg-gray-950/50 min-h-[400px] flex items-center justify-center">
+                  <PostPreview
+                    caption={caption}
+                    image={image}
+                    video={selectedVideo}
+                    platforms={platforms}
+                  />
+                </div>
+
+                <div className="p-6 border-t border-white/10 flex justify-end gap-3 bg-gray-900">
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="px-6 py-2 text-gray-300 hover:text-white font-medium"
+                  >
+                    Keep Editing
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowPreviewModal(false);
+                      handlePost();
+                    }}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
+                  >
+                    Post Now
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
           {/* Caption Improver Modal */}
           <CaptionImproverModal
