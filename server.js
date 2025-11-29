@@ -14,7 +14,7 @@ const fs = require('fs').promises;
 const fsSync = require('fs');
 const crypto = require('crypto');
 const axios = require('axios');
-const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
+// const stripe = process.env.STRIPE_SECRET_KEY ? require('stripe')(process.env.STRIPE_SECRET_KEY) : null;
 const { createClient } = require('@supabase/supabase-js');
 const { encryptState, decryptState } = require('./utilities/oauthState');
 const {
@@ -309,12 +309,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://checkout.razorpay.com", "https://js.stripe.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://checkout.razorpay.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.googleusercontent.com", "https://i.pravatar.cc"],
       connectSrc: ["'self'", "https://*.supabase.co", "https://api.razorpay.com", "https://lumberjack-cx.razorpay.com"],
-      frameSrc: ["'self'", "https://api.razorpay.com", "https://js.stripe.com"],
+      frameSrc: ["'self'", "https://api.razorpay.com"],
       upgradeInsecureRequests: [], // Allow mixed content if necessary (though prod should be https)
     },
   },
