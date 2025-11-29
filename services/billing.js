@@ -8,10 +8,19 @@ const crypto = require('crypto');
 const { supabase } = require('./database');
 const { getPlan, checkLimitWithGrace, getRecommendedUpgrade } = require('../config/plans');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay;
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  try {
+    razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET
+    });
+  } catch (err) {
+    console.warn('⚠️ Failed to initialize Razorpay:', err.message);
+  }
+} else {
+  console.warn('⚠️ Razorpay keys missing. Billing features disabled.');
+}
 
 // ============================================
 // RAZORPAY SUBSCRIPTIONS
@@ -26,6 +35,7 @@ const razorpay = new Razorpay({
 async function createSubscription(userId, planId) {
   try {
     // Create subscription
+    if (!razorpay) throw new Error('Payment gateway not configured');
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       customer_notify: 1,
@@ -69,6 +79,7 @@ async function verifyPayment(userId, paymentData, planName) {
     }
 
     // Get subscription details to calculate dates
+    if (!razorpay) throw new Error('Payment gateway not configured');
     const subDetails = await razorpay.subscriptions.fetch(razorpay_subscription_id);
 
     // Update subscription in database
@@ -114,7 +125,9 @@ async function cancelSubscription(userId) {
     }
 
     // Cancel in Razorpay
-    await razorpay.subscriptions.cancel(sub.razorpay_subscription_id);
+    if (razorpay) {
+      await razorpay.subscriptions.cancel(sub.razorpay_subscription_id);
+    }
 
     // Update DB
     await supabase
