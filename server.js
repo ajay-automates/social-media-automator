@@ -312,7 +312,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://checkout.razorpay.com", "https://js.stripe.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.googleusercontent.com"],
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.googleusercontent.com", "https://i.pravatar.cc"],
       connectSrc: ["'self'", "https://*.supabase.co", "https://api.razorpay.com", "https://lumberjack-cx.razorpay.com"],
       frameSrc: ["'self'", "https://api.razorpay.com", "https://js.stripe.com"],
       upgradeInsecureRequests: [], // Allow mixed content if necessary (though prod should be https)
