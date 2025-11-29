@@ -395,7 +395,7 @@ startScheduler();
 const landingPath = path.join(__dirname, 'landing-dist');
 if (fsSync.existsSync(landingPath)) {
   app.use(express.static(landingPath, { index: false }));
-  const landingRoutes = ['/', '/privacy', '/terms', '/data-deletion'];
+  const landingRoutes = ['/', '/privacy', '/terms', '/data-deletion', '/refund-policy', '/contact', '/shipping-policy'];
   landingRoutes.forEach((route) => {
     app.get(route, (req, res) => {
       res.sendFile(path.join(landingPath, 'index.html'));
