@@ -13,6 +13,7 @@ import VideoSearchModal from '../components/VideoSearchModal';
 import VideoPreview from '../components/VideoPreview';
 import CaptionImproverModal from '../components/CaptionImproverModal';
 import ImageCaptionModal from '../components/ImageCaptionModal';
+import PostPreview from '../components/PostPreview';
 // Onboarding temporarily disabled
 // import { useOnboarding, OnboardingProvider } from '../contexts/OnboardingContext';
 
@@ -2396,9 +2397,51 @@ export default function CreatePost() {
             onClose={() => setShowVideoModal(false)}
             onSelectVideo={(video) => {
               setSelectedVideo(video);
+              setShowVideoModal(false);
+              // Log selection
               console.log('✅ Video selected:', video);
             }}
           />
+
+          {/* Live Post Preview */}
+          <div className="fixed bottom-8 right-8 z-40 hidden xl:block">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-gray-900/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 w-[400px] max-h-[600px] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  📱 Live Preview
+                </h3>
+                <span className="text-xs text-gray-400 bg-white/10 px-2 py-1 rounded-full">
+                  Updates as you type
+                </span>
+              </div>
+
+              <PostPreview
+                caption={caption}
+                image={image}
+                video={selectedVideo}
+                platforms={platforms}
+              />
+            </motion.div>
+          </div>
+
+          {/* Mobile Preview Toggle */}
+          <div className="fixed bottom-24 right-6 z-40 xl:hidden">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                // Toggle a modal for mobile preview (can be implemented later or reuse the desktop one in a modal)
+                showSuccess('Preview feature is optimized for desktop view currently');
+              }}
+              className="bg-blue-600 text-white p-4 rounded-full shadow-lg shadow-blue-600/30"
+            >
+              <span className="text-2xl">👁️</span>
+            </motion.button>
+          </div>
 
           {/* Caption Improver Modal */}
           <CaptionImproverModal
