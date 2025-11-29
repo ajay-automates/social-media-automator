@@ -300,7 +300,26 @@ async function verifyAuth(req, res, next) {
 // Trust Railway's reverse proxy for accurate IP detection (rate limiting)
 app.set('trust proxy', 1);
 
+const helmet = require('helmet');
+
 app.use(cors());
+
+// Security headers with Helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://checkout.razorpay.com", "https://js.stripe.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.googleusercontent.com"],
+      connectSrc: ["'self'", "https://*.supabase.co", "https://api.razorpay.com", "https://lumberjack-cx.razorpay.com"],
+      frameSrc: ["'self'", "https://api.razorpay.com", "https://js.stripe.com"],
+      upgradeInsecureRequests: [], // Allow mixed content if necessary (though prod should be https)
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Required for some third-party iframes/scripts
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(session({
