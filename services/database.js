@@ -32,21 +32,21 @@ async function addPost(postData) {
       status: 'queued',
       created_at: new Date().toISOString()
     };
-    
+
     // Add user_id if provided (for multi-tenant)
     if (postData.userId) {
       insertData.user_id = postData.userId;
     }
-    
+
     // Use supabaseAdmin to bypass RLS for backend operations
     const { data, error } = await supabaseAdmin
       .from('posts')
       .insert([insertData])
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     console.log(`✅ Added to database queue (ID: ${data.id}, User: ${postData.userId || 'N/A'})`);
     return data;
   } catch (error) {
@@ -61,14 +61,14 @@ async function addPost(postData) {
 async function getDuePosts() {
   try {
     const now = new Date().toISOString();
-    
+
     const { data, error } = await supabase
       .from('posts')
       .select('*')
       .eq('status', 'queued')
       .lte('schedule_time', now)
       .order('schedule_time', { ascending: true });
-    
+
     if (error) throw error;
     return data || [];
   } catch (error) {
@@ -88,7 +88,7 @@ async function getAllQueuedPosts() {
       .in('status', ['queued', 'posted', 'failed', 'partial'])
       .order('schedule_time', { ascending: true })
       .limit(100);
-    
+
     if (error) throw error;
     return data || [];
   } catch (error) {
@@ -107,7 +107,7 @@ async function updatePostStatus(postId, status, results = null) {
       status: status,
       posted_at: new Date().toISOString()
     };
-    
+
     if (results) {
       // Ensure results is properly formatted (object, not string)
       // If it's already an object, use it directly
@@ -122,9 +122,9 @@ async function updatePostStatus(postId, status, results = null) {
       } else {
         updateData.results = results;
       }
-      
+
     }
-    
+
     // Use supabaseAdmin to bypass RLS for backend operations
     const { data, error } = await supabaseAdmin
       .from('posts')
@@ -132,12 +132,12 @@ async function updatePostStatus(postId, status, results = null) {
       .eq('id', postId)
       .select()
       .single();
-    
+
     if (error) {
       console.error(`❌ Database update error:`, error);
       throw error;
     }
-    
+
     return data;
   } catch (error) {
     console.error(`❌ Database error (updatePostStatus):`, error.message);
@@ -154,7 +154,7 @@ async function deletePost(postId) {
       .from('posts')
       .delete()
       .eq('id', postId);
-    
+
     if (error) throw error;
     console.log(`🗑️ Deleted post ${postId} from queue`);
     return true;
@@ -175,16 +175,16 @@ async function getPostHistory(limit = 50, userId = null) {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
-    
+
     // Filter by user_id if provided (multi-tenant)
     if (userId) {
       query = query.eq('user_id', userId);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) throw error;
-    
+
     // Parse results if they're stored as JSON strings
     const parsedData = (data || []).map(post => {
       if (post.results && typeof post.results === 'string') {
@@ -196,7 +196,7 @@ async function getPostHistory(limit = 50, userId = null) {
       }
       return post;
     });
-    
+
     console.log(`📋 Retrieved ${parsedData.length || 0} posts from history for user ${userId || 'all'}`);
     return parsedData;
   } catch (error) {
@@ -214,19 +214,19 @@ async function getPlatformStats(userId = null) {
       .from('posts')
       .select('platforms, status, results, user_id')
       .in('status', ['posted', 'failed', 'partial']);
-    
+
     // Filter by user if provided (multi-tenant)
     if (userId) {
       query = query.eq('user_id', userId);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) throw error;
-    
+
     // Calculate stats per platform
     const stats = {};
-    
+
     data.forEach(post => {
       // Handle platforms as JSON string or array
       let platforms = post.platforms;
@@ -238,18 +238,18 @@ async function getPlatformStats(userId = null) {
           platforms = [];
         }
       }
-      
+
       if (!Array.isArray(platforms)) {
         platforms = [];
       }
-      
+
       platforms.forEach(platform => {
         if (!stats[platform]) {
           stats[platform] = { total: 0, successful: 0, failed: 0 };
         }
-        
+
         stats[platform].total++;
-        
+
         if (post.results && post.results[platform]) {
           if (post.results[platform].success) {
             stats[platform].successful++;
@@ -259,13 +259,13 @@ async function getPlatformStats(userId = null) {
         }
       });
     });
-    
+
     // Calculate success rates
     Object.keys(stats).forEach(platform => {
       const s = stats[platform];
       s.successRate = s.total > 0 ? Math.round((s.successful / s.total) * 100) : 0;
     });
-    
+
     return stats;
   } catch (error) {
     console.error('❌ Database error (getPlatformStats):', error.message);
@@ -278,74 +278,47 @@ async function getPlatformStats(userId = null) {
  */
 async function getAnalyticsOverview(userId) {
   try {
-    // Get all posts for user
-    const { data: allPosts, error: allError } = await supabase
-      .from('posts')
-      .select('id, status, created_at')
-      .eq('user_id', userId);
-    
-    if (allError) throw allError;
-    
-    // Calculate total posts
-    const totalPosts = allPosts ? allPosts.length : 0;
-    
-    // Get posts this month
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    
-    const { data: monthPosts, error: monthError } = await supabase
-      .from('posts')
-      .select('id')
-      .eq('user_id', userId)
-      .gte('created_at', startOfMonth.toISOString());
-    
-    if (monthError) throw monthError;
-    
-    const postsThisMonth = monthPosts ? monthPosts.length : 0;
-    
-    // Get posts today
+
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-    
-    const { data: todayPosts, error: todayError } = await supabase
-      .from('posts')
-      .select('id')
-      .eq('user_id', userId)
-      .gte('created_at', startOfDay.toISOString());
-    
-    const postsToday = todayError ? 0 : (todayPosts ? todayPosts.length : 0);
-    
-    // Get scheduled count
-    const { data: scheduledData, error: scheduledError } = await supabase
-      .from('posts')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('status', 'queued');
-    
-    const scheduledCount = scheduledError ? 0 : (scheduledData ? scheduledData.length : 0);
-    
+
+    // Run all independent queries in parallel
+    const [
+      { count: totalPosts },
+      { count: postsThisMonth },
+      { count: postsToday },
+      { count: scheduledCount },
+      { data: completedPosts },
+      { data: platformPosts }
+    ] = await Promise.all([
+      // Total posts
+      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+
+      // Posts this month
+      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', startOfMonth.toISOString()),
+
+      // Posts today
+      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', startOfDay.toISOString()),
+
+      // Scheduled count
+      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'queued'),
+
+      // Completed posts (for success rate)
+      supabase.from('posts').select('status').eq('user_id', userId).in('status', ['posted', 'failed', 'partial']),
+
+      // Active platforms
+      supabase.from('posts').select('platforms').eq('user_id', userId)
+    ]);
+
     // Calculate success rate
-    const { data: completedPosts, error: completedError } = await supabase
-      .from('posts')
-      .select('status')
-      .eq('user_id', userId)
-      .in('status', ['posted', 'failed', 'partial']);
-    
-    if (completedError) throw completedError;
-    
     const successfulPosts = completedPosts ? completedPosts.filter(p => p.status === 'posted').length : 0;
     const totalCompleted = completedPosts ? completedPosts.length : 0;
     const successRate = totalCompleted > 0 ? Math.round((successfulPosts / totalCompleted) * 100) : 0;
-    
-    // Get active platforms (unique platforms from all posts)
-    const { data: platformPosts, error: platformError } = await supabase
-      .from('posts')
-      .select('platforms')
-      .eq('user_id', userId);
-    
-    if (platformError) throw platformError;
-    
+
+    // Calculate active platforms
     const platformSet = new Set();
     if (platformPosts) {
       platformPosts.forEach(post => {
@@ -355,12 +328,12 @@ async function getAnalyticsOverview(userId) {
       });
     }
     const activePlatforms = platformSet.size;
-    
+
     return {
-      totalPosts,
-      postsThisMonth,
-      postsToday,
-      scheduledCount,
+      totalPosts: totalPosts || 0,
+      postsThisMonth: postsThisMonth || 0,
+      postsToday: postsToday || 0,
+      scheduledCount: scheduledCount || 0,
       successRate,
       activePlatforms
     };
@@ -383,7 +356,7 @@ async function getTimelineData(userId, days = 30) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
     startDate.setHours(0, 0, 0, 0);
-    
+
     // Get all posts in date range
     const { data, error } = await supabase
       .from('posts')
@@ -391,14 +364,14 @@ async function getTimelineData(userId, days = 30) {
       .eq('user_id', userId)
       .gte('created_at', startDate.toISOString())
       .order('created_at', { ascending: true });
-    
+
     if (error) throw error;
-    
+
     // Create date arrays
     const dates = [];
     const successful = [];
     const failed = [];
-    
+
     // Generate all dates in range
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
@@ -408,13 +381,13 @@ async function getTimelineData(userId, days = 30) {
       successful.push(0);
       failed.push(0);
     }
-    
+
     // Count posts per day
     if (data && data.length > 0) {
       data.forEach(post => {
         const postDate = new Date(post.created_at).toISOString().split('T')[0];
         const dateIndex = dates.indexOf(postDate);
-        
+
         if (dateIndex >= 0) {
           // Count as successful if status is 'posted'
           if (post.status === 'posted') {
@@ -426,12 +399,12 @@ async function getTimelineData(userId, days = 30) {
             if (post.results) {
               let hasSuccess = false;
               let hasFailure = false;
-              
+
               Object.values(post.results).forEach(result => {
                 if (result.success) hasSuccess = true;
                 else hasFailure = true;
               });
-              
+
               if (hasSuccess) successful[dateIndex]++;
               if (hasFailure) failed[dateIndex]++;
             }
@@ -439,7 +412,7 @@ async function getTimelineData(userId, days = 30) {
         }
       });
     }
-    
+
     return {
       dates,
       successful,
@@ -462,20 +435,20 @@ async function cleanupOldPosts() {
   try {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    
+
     const { data, error } = await supabase
       .from('posts')
       .delete()
       .neq('status', 'queued')
       .lt('posted_at', sevenDaysAgo.toISOString())
       .select();
-    
+
     if (error) throw error;
-    
+
     if (data && data.length > 0) {
       console.log(`🧹 Cleaned up ${data.length} old post(s) from database`);
     }
-    
+
     return data ? data.length : 0;
   } catch (error) {
     console.error('❌ Database error (cleanupOldPosts):', error.message);
@@ -492,7 +465,7 @@ async function healthCheck() {
       .from('posts')
       .select('count')
       .limit(1);
-    
+
     if (error) throw error;
     return true;
   } catch (error) {
