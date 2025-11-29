@@ -37,7 +37,7 @@ export default function RefundPolicy() {
                                 You can cancel your subscription at any time directly from your dashboard.
                             </p>
                             <ul className="text-gray-300 space-y-2 list-disc list-inside">
-                                <li><strong>How to Cancel:</strong> Go to Settings > Billing > Manage Subscription > Cancel Plan.</li>
+                                <li><strong>How to Cancel:</strong> Go to Settings → Billing → Manage Subscription → Cancel Plan.</li>
                                 <li><strong>Effect of Cancellation:</strong> Your subscription will remain active until the end of the current billing period. After that, your account will downgrade to the Free plan.</li>
                                 <li><strong>Data Retention:</strong> We retain your data for 30 days after cancellation in case you decide to reactivate. You can request immediate deletion at any time.</li>
                             </ul>
