@@ -33,8 +33,8 @@ const PLANS = {
 
   pro: {
     name: 'Pro',
-    price: 0,
-    annual: 0,          // Free
+    price: 29,
+    annual: 290,        // 2 months free
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 3,        // 3 social media accounts
@@ -52,14 +52,14 @@ const PLANS = {
       'Full analytics',
       'Post templates'
     ],
-    razorpay_monthly_plan_id: null,
-    razorpay_annual_plan_id: null
+    razorpay_monthly_plan_id: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID,
+    razorpay_annual_plan_id: process.env.RAZORPAY_PRO_ANNUAL_PLAN_ID
   },
 
   business: {
     name: 'Business',
-    price: 0,
-    annual: 0,          // Free
+    price: 99,
+    annual: 990,        // 2 months free
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 10,       // 10 social media accounts
@@ -79,8 +79,8 @@ const PLANS = {
       'Custom integrations',
       'Dedicated account manager'
     ],
-    razorpay_monthly_plan_id: null,
-    razorpay_annual_plan_id: null
+    razorpay_monthly_plan_id: process.env.RAZORPAY_BUSINESS_MONTHLY_PLAN_ID,
+    razorpay_annual_plan_id: process.env.RAZORPAY_BUSINESS_ANNUAL_PLAN_ID
   }
 };
 

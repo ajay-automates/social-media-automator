@@ -6936,7 +6936,7 @@ app.get('/api/billing/plans', (req, res) => {
 
 /**
  * POST /api/billing/checkout
- * Create Stripe checkout session
+ * Create Razorpay subscription
  */
 /**
  * POST /api/billing/subscription
@@ -7013,7 +7013,7 @@ app.post('/api/billing/verify', verifyAuth, async (req, res) => {
 
 /**
  * POST /api/billing/portal
- * Create Stripe customer portal session
+ * Manage subscription
  */
 /**
  * POST /api/billing/cancel
@@ -7116,7 +7116,7 @@ app.post('/api/reports/test-email', verifyAuth, async (req, res) => {
 
 /**
  * POST /api/billing/webhook
- * Handle Stripe webhook events (unprotected)
+ * Handle Razorpay webhook events (unprotected)
  */
 app.post('/api/billing/webhook', async (req, res) => {
   try {

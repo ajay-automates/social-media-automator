@@ -172,7 +172,7 @@ async function handleWebhook(req) {
     const event = req.body.event;
     const payload = req.body.payload;
 
-    console.log(`📨 Razorpay webhook: ${event}`);
+    // console.log(`📨 Razorpay webhook: ${event}`);
 
     switch (event) {
       case 'subscription.charged':
