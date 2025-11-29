@@ -31,8 +31,8 @@ const featureVars = {
 
     // Payment (Required for billing)
     payment: [
-        'STRIPE_SECRET_KEY',
-        'STRIPE_WEBHOOK_SECRET'
+        'RAZORPAY_KEY_ID',
+        'RAZORPAY_KEY_SECRET'
     ]
 };
 
