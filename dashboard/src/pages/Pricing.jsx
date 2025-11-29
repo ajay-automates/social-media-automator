@@ -27,8 +27,8 @@ const plans = {
   },
   pro: {
     name: 'Pro',
-    price: 0,
-    annual: 0,
+    price: 29,
+    annual: 290,
     features: [
       'Unlimited posts',
       '3 social accounts',
@@ -43,8 +43,8 @@ const plans = {
   },
   business: {
     name: 'Business',
-    price: 0,
-    annual: 0,
+    price: 99,
+    annual: 990,
     features: [
       'Unlimited everything',
       '10 social accounts',
@@ -184,7 +184,7 @@ export default function Pricing() {
   };
 
   const getPrice = (plan) => {
-    return billingCycle === 'monthly' ? plan.price : plan.annual / 12;
+    return billingCycle === 'monthly' ? plan.price : Math.round(plan.annual / 12);
   };
 
   const getAnnualSavings = (plan) => {
@@ -198,10 +198,10 @@ export default function Pricing() {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-white mb-4">
-            Early Access: Free for Everyone
+            Simple, Transparent Pricing
           </h1>
           <p className="text-xl text-gray-300 mb-8">
-            Join our beta program and get full access to all features for free.
+            Choose the plan that fits your needs. No hidden fees.
           </p>
 
           {/* Billing Toggle */}
@@ -266,17 +266,17 @@ export default function Pricing() {
                 <div className="relative mb-6">
                   <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                   <div className={`text-5xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-white'}`}>
-                    Free
+                    {isFree ? 'Free' : `$${getPrice(plan)}`}
                     <span className={`text-lg ml-2 ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
-                      / Early Access
+                      {isFree ? '/ forever' : '/ mo'}
                     </span>
                   </div>
-                  {!isFree && (
-                    <p className={`text-sm ${isPopular ? 'text-blue-200' : 'text-gray-300'} line-through opacity-60`}>
-                      Normal price: ${key === 'pro' ? '29' : '99'}/mo
+                  {isFree && <p className="text-gray-300">Forever free plan</p>}
+                  {!isFree && billingCycle === 'annual' && (
+                    <p className="text-green-400 text-sm">
+                      Save ${getAnnualSavings(plan)} per year
                     </p>
                   )}
-                  {isFree && <p className="text-gray-300">Forever free plan</p>}
                 </div>
 
                 <ul className="relative space-y-3 mb-8 flex-grow">
