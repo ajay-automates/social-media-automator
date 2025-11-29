@@ -75,9 +75,9 @@ export default function Hero() {
             variants={itemVariants}
             className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
           >
-            Post to <span className="text-blue-400 font-semibold">20+ platforms</span> at once. 
-            <span className="text-green-400 font-semibold">10 working now</span>, 5+ coming soon. 
-            Generate <span className="text-purple-400 font-semibold">AI captions & images</span> with Claude & Stability AI. 
+            Post to <span className="text-blue-400 font-semibold">20+ platforms</span> at once.
+            <span className="text-green-400 font-semibold">Working now</span>, 5+ coming soon.
+            Generate <span className="text-purple-400 font-semibold">AI captions & images</span> with Claude & Stability AI.
             Schedule weeks in advance. Save <span className="text-pink-400 font-semibold">20+ hours</span> per week.
           </motion.p>
 

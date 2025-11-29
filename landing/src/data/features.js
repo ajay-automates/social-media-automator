@@ -29,7 +29,7 @@ export const features = {
     {
       id: 1,
       title: "Multi-Platform Posting",
-      description: "Post to 20+ platforms simultaneously—LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky. Instagram, Facebook, YouTube, Pinterest, TikTok pending approval.",
+      description: "Post to 20+ platforms simultaneously—LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky, YouTube. Instagram, Facebook, Pinterest, TikTok pending approval.",
       icon: "🚀",
       status: "available"
     },
@@ -172,12 +172,12 @@ export const platforms = {
     { name: "Dev.to", Icon: FaMedium, color: "from-gray-900 to-black", status: "working" },
     { name: "Tumblr", Icon: FaTumblr, color: "from-indigo-600 to-blue-600", status: "working" },
     { name: "Mastodon", Icon: SiMastodon, color: "from-purple-600 to-purple-700", status: "working" },
-    { name: "Bluesky", Icon: SiBluesky, color: "from-blue-400 to-blue-500", status: "working" }
+    { name: "Bluesky", Icon: SiBluesky, color: "from-blue-400 to-blue-500", status: "working" },
+    { name: "YouTube", Icon: FaYoutube, color: "from-red-600 to-red-700", status: "working" }
   ],
   pending: [
     { name: "Instagram", Icon: FaInstagram, color: "from-pink-500 to-purple-500", status: "pending" },
     { name: "Facebook", Icon: FaFacebook, color: "from-blue-600 to-blue-700", status: "pending" },
-    { name: "YouTube", Icon: FaYoutube, color: "from-red-600 to-red-700", status: "pending" },
     { name: "Pinterest", Icon: FaPinterest, color: "from-red-500 to-red-600", status: "pending" },
     { name: "TikTok", Icon: FaTiktok, color: "from-black to-cyan-500", status: "pending" }
   ],
@@ -192,4 +192,3 @@ export const platforms = {
 
 // Flat array for components that need it
 export const allPlatforms = [...platforms.working, ...platforms.pending, ...platforms.comingSoon];
-
