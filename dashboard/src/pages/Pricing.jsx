@@ -27,8 +27,8 @@ const plans = {
   },
   pro: {
     name: 'Pro',
-    price: 29,
-    annual: 290,
+    price: 19,
+    annual: 190,
     features: [
       'Unlimited posts',
       '3 social accounts',

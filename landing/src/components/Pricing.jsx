@@ -22,7 +22,7 @@ export default function Pricing() {
     },
     {
       name: 'Pro',
-      price: { monthly: 29, yearly: 290 },
+      price: { monthly: 19, yearly: 190 },
       description: 'Perfect for professionals',
       features: [
         { text: 'Unlimited posts', included: true, highlight: true },
@@ -117,9 +117,8 @@ export default function Pricing() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -10, scale: 1.02 }}
-              className={`relative glass rounded-2xl p-8 ${
-                plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
-              }`}
+              className={`relative glass rounded-2xl p-8 ${plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+                }`}
             >
               {plan.popular && (
                 <motion.div
@@ -166,11 +165,10 @@ export default function Pricing() {
                 href="/auth.html"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className={`block w-full text-center py-4 rounded-xl font-bold transition-all ${
-                  plan.popular
+                className={`block w-full text-center py-4 rounded-xl font-bold transition-all ${plan.popular
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:shadow-blue-500/50'
                     : 'glass hover:bg-white/20 text-white'
-                }`}
+                  }`}
               >
                 {plan.cta}
               </motion.a>

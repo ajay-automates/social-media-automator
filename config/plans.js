@@ -33,8 +33,8 @@ const PLANS = {
 
   pro: {
     name: 'Pro',
-    price: 29,
-    annual: 290,        // 2 months free
+    price: 19,
+    annual: 190,        // 2 months free
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 3,        // 3 social media accounts
