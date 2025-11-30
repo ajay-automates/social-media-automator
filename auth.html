@@ -193,39 +193,76 @@
   </div>
 
   <script>
+  <!-- Error Banner -->
+  <div id="errorBanner" class="hidden fixed top-0 left-0 right-0 bg-red-600 text-white p-4 text-center z-50">
+    <p id="errorText" class="font-bold"></p>
+    <button onclick="window.location.reload()" class="underline mt-2 text-sm">Reload Page</button>
+  </div>
+
+  <script>
+    // Global Error Handler
+    window.onerror = function(msg, url, line, col, error) {
+      const errorText = document.getElementById('errorText');
+      const banner = document.getElementById('errorBanner');
+      if (errorText && banner) {
+        errorText.textContent = `System Error: ${msg}`;
+        banner.classList.remove('hidden');
+      }
+      return false;
+    };
+
     // Initialize Supabase client
     const SUPABASE_URL = 'https://gzchblilbthkfuxqhoyo.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6Y2hibGlsYnRoa2Z1eHFob3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDgzOTcsImV4cCI6MjA3Njg4NDM5N30.h85XUXsVvxYAdMA9odgO4W5RN1148MDOO86XhwgOnb8';
 
     let supabaseClient;
 
+    // Helper to show errors
+    function showSystemError(msg) {
+      const errorText = document.getElementById('errorText');
+      const banner = document.getElementById('errorBanner');
+      if (errorText && banner) {
+        errorText.textContent = msg;
+        banner.classList.remove('hidden');
+      }
+      console.error(msg);
+    }
+
+    // Wait for Supabase to load with retry
+    async function waitForSupabase() {
+      let retries = 20; // 10 seconds total
+      while (typeof supabase === 'undefined' && retries > 0) {
+        console.log(`Waiting for Supabase... (${retries} retries left)`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        retries--;
+      }
+      return typeof supabase !== 'undefined';
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        // Wait for Supabase to load if it hasn't yet
-        if (typeof supabase === 'undefined') {
-          console.log('Waiting for Supabase library...');
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-
-        if (typeof supabase === 'undefined') {
-          console.error('Supabase library not loaded');
-          alert('Critical Error: Supabase library failed to load. Please check your connection or ad blocker.');
+        const loaded = await waitForSupabase();
+        
+        if (!loaded) {
+          showSystemError('Connection Error: Unable to load authentication services. Please check your internet connection and reload.');
           return;
         }
 
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase client initialized with URL:', SUPABASE_URL);
+        console.log('✅ Supabase client initialized');
 
-        // Persist config for Dashboard to use (in case env vars are missing there)
-        localStorage.setItem('sm_supabase_url', SUPABASE_URL);
-        localStorage.setItem('sm_supabase_key', SUPABASE_ANON_KEY);
-        console.log('💾 Persisted Supabase config to localStorage');
+        // Persist config for Dashboard
+        try {
+          localStorage.setItem('sm_supabase_url', SUPABASE_URL);
+          localStorage.setItem('sm_supabase_key', SUPABASE_ANON_KEY);
+        } catch (e) {
+          console.warn('LocalStorage access denied:', e);
+        }
 
-        // Check session after initialization
+        // Check session
         checkExistingSession();
       } catch (err) {
-        console.error('Error initializing Supabase:', err);
-        alert('Error initializing authentication: ' + err.message);
+        showSystemError('Initialization Error: ' + err.message);
       }
     });
 
@@ -261,14 +298,19 @@
       event.preventDefault();
 
       if (!supabaseClient) {
-        alert('❌ Supabase not initialized. Please refresh the page.');
+        showSystemError('System not ready. Please wait a moment or reload.');
         return;
       }
 
       const email = document.getElementById('signInEmail').value;
       const password = document.getElementById('signInPassword').value;
+      const btn = event.target.querySelector('button');
+      const originalText = btn.textContent;
 
       try {
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+
         const { data, error } = await supabaseClient.auth.signInWithPassword({
           email,
           password
@@ -276,31 +318,16 @@
 
         if (error) throw error;
 
-        // Robustly persist session for Dashboard
-        // 1. Standard Supabase key - Derived from URL
-        // URL format: https://<project-id>.supabase.co
-        let projectId = 'gzchblilbthkfuxqhoyo'; // Fallback
-        try {
-          const urlObj = new URL(SUPABASE_URL);
-          const parts = urlObj.hostname.split('.');
-          if (parts.length > 0) {
-            projectId = parts[0];
-          }
-        } catch (e) {
-          console.error('Error parsing Supabase URL:', e);
-        }
-
-        const storageKey = `sb-${projectId}-auth-token`;
+        // Persist session
+        const storageKey = `sb-${getProjectId()}-auth-token`;
         localStorage.setItem(storageKey, JSON.stringify(data.session));
-
-        // 2. Legacy/Backup key
         localStorage.setItem('supabase.auth.token', data.session.access_token);
-
-        console.log('✅ Session persisted to', storageKey);
 
         window.location.href = '/dashboard';
       } catch (error) {
         alert('❌ Error: ' + error.message);
+        btn.disabled = false;
+        btn.textContent = originalText;
       }
     }
 
@@ -309,14 +336,19 @@
       event.preventDefault();
 
       if (!supabaseClient) {
-        alert('❌ Supabase not initialized. Please refresh the page.');
+        showSystemError('System not ready. Please wait a moment or reload.');
         return;
       }
 
       const email = document.getElementById('signUpEmail').value;
       const password = document.getElementById('signUpPassword').value;
+      const btn = event.target.querySelector('button');
+      const originalText = btn.textContent;
 
       try {
+        btn.disabled = true;
+        btn.textContent = 'Creating account...';
+
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password
@@ -328,6 +360,9 @@
         showSignIn();
       } catch (error) {
         alert('❌ Error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
       }
     }
 
@@ -336,13 +371,18 @@
       event.preventDefault();
 
       if (!supabaseClient) {
-        alert('❌ Supabase not initialized. Please refresh the page.');
+        showSystemError('System not ready. Please wait a moment or reload.');
         return;
       }
 
       const email = document.getElementById('forgotEmail').value;
+      const btn = event.target.querySelector('button');
+      const originalText = btn.textContent;
 
       try {
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
         const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + '/auth'
         });
@@ -353,26 +393,36 @@
         showSignIn();
       } catch (error) {
         alert('❌ Error: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+
+    // Helper to extract project ID
+    function getProjectId() {
+      try {
+        const urlObj = new URL(SUPABASE_URL);
+        const parts = urlObj.hostname.split('.');
+        return parts.length > 0 ? parts[0] : 'default';
+      } catch (e) {
+        return 'default';
       }
     }
 
     // Get the current domain for redirects
     function getRedirectUrl(path) {
-      // Use window.location.origin to get protocol + hostname + port
-      // This automatically strips any query parameters or paths
-      const origin = window.location.origin;
-      return origin + path;
+      return window.location.origin + path;
     }
 
     // Social login functions
     async function signInWithGoogle() {
       if (!supabaseClient) {
-        alert('❌ Supabase not initialized. Please refresh the page.');
+        showSystemError('System not ready. Please wait a moment or reload.');
         return;
       }
 
       try {
-        // Update button text to show loading state
         const signInBtn = document.getElementById('signInGoogleBtn');
         const signUpBtn = document.getElementById('signUpGoogleBtn');
 
@@ -385,8 +435,6 @@
           signUpBtn.querySelector('#signUpGoogleText').textContent = 'Connecting...';
         }
 
-        console.log('Initiating Google OAuth with redirect to:', getRedirectUrl('/dashboard'));
-
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
@@ -396,7 +444,6 @@
 
         if (error) throw error;
       } catch (error) {
-        // Reset button state on error
         const signInBtn = document.getElementById('signInGoogleBtn');
         const signUpBtn = document.getElementById('signUpGoogleBtn');
 
@@ -410,19 +457,17 @@
         }
 
         console.error('Google OAuth Error:', error);
-        alert('❌ Error connecting with Google: ' + error.message + '\n\nPlease make sure you have Google OAuth configured in your Supabase project.');
+        alert('❌ Error connecting with Google: ' + error.message);
       }
     }
 
     async function signInWithGithub() {
       if (!supabaseClient) {
-        alert('❌ Supabase not initialized. Please refresh the page.');
+        showSystemError('System not ready. Please wait a moment or reload.');
         return;
       }
 
       try {
-        console.log('Initiating GitHub OAuth with redirect to:', getRedirectUrl('/dashboard'));
-
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'github',
           options: {
@@ -444,8 +489,6 @@
         if (session && !error) {
           console.log('✅ User already logged in, redirecting to dashboard');
           window.location.href = getRedirectUrl('/dashboard');
-        } else {
-          console.log('ℹ️ No session found - user not authenticated');
         }
       } catch (err) {
         console.error('Error checking session:', err);
