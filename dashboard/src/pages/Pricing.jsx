@@ -27,8 +27,8 @@ const plans = {
   },
   pro: {
     name: 'Pro',
-    price: 19,
-    annual: 190,
+    price: 1000,
+    annual: 10000,
     features: [
       'Unlimited posts',
       '3 social accounts',
@@ -43,8 +43,8 @@ const plans = {
   },
   business: {
     name: 'Business',
-    price: 99,
-    annual: 990,
+    price: 15000,
+    annual: 150000,
     features: [
       'Unlimited everything',
       '10 social accounts',
@@ -135,7 +135,7 @@ export default function Pricing() {
         subscription_id: subscriptionId,
         name: "Social Media Automator",
         description: `${planName.charAt(0).toUpperCase() + planName.slice(1)} Plan Subscription`,
-        currency: "USD", // Set currency to USD
+        currency: "INR", // Set currency to INR
         handler: async function (response) {
           try {
             // Verify Payment
@@ -270,7 +270,7 @@ export default function Pricing() {
                 <div className="relative mb-6">
                   <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                   <div className={`text-5xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-white'}`}>
-                    {isFree ? 'Free' : `$${getPrice(plan)}`}
+                    {isFree ? 'Free' : `₹${getPrice(plan)}`}
                     <span className={`text-lg ml-2 ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
                       {isFree ? '/ forever' : '/ mo'}
                     </span>
@@ -278,7 +278,7 @@ export default function Pricing() {
                   {isFree && <p className="text-gray-300">Forever free plan</p>}
                   {!isFree && billingCycle === 'annual' && (
                     <p className="text-green-400 text-sm">
-                      Save ${getAnnualSavings(plan)} per year
+                      Save ₹${getAnnualSavings(plan)} per year
                     </p>
                   )}
                 </div>

@@ -33,8 +33,8 @@ const PLANS = {
 
   pro: {
     name: 'Pro',
-    price: 19,
-    annual: 190,        // 2 months free
+    price: 1000,        // ₹1000/month
+    annual: 10000,      // ₹10000/year (2 months free)
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 3,        // 3 social media accounts
@@ -58,8 +58,8 @@ const PLANS = {
 
   business: {
     name: 'Business',
-    price: 99,
-    annual: 990,        // 2 months free
+    price: 15000,       // ₹15000/month
+    annual: 150000,    // ₹150000/year (2 months free)
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 10,       // 10 social media accounts
