@@ -216,6 +216,11 @@
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('✅ Supabase client initialized with URL:', SUPABASE_URL);
 
+        // Persist config for Dashboard to use (in case env vars are missing there)
+        localStorage.setItem('sm_supabase_url', SUPABASE_URL);
+        localStorage.setItem('sm_supabase_key', SUPABASE_ANON_KEY);
+        console.log('💾 Persisted Supabase config to localStorage');
+
         // Check session after initialization
         checkExistingSession();
       } catch (err) {
