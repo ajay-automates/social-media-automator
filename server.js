@@ -353,6 +353,11 @@ app.use('/api', apiLimiter);             // General API - moderate (100/15min)
 app.use(publicLimiter);                  // Public routes - lenient (200/15min)
 
 
+// Redirect /auth.html to /auth to ensure env vars are injected (MUST be before static files)
+app.get('/auth.html', (req, res) => {
+  res.redirect('/auth');
+});
+
 // IMPORTANT: Serve dashboard static files FIRST in production (with correct MIME types)
 if (process.env.NODE_ENV === 'production') {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
@@ -456,11 +461,6 @@ app.get('/auth', async (req, res) => {
     console.error('Error serving auth page:', err);
     res.status(500).send('Error loading auth page');
   }
-});
-
-// Redirect /auth.html to /auth to ensure env vars are injected
-app.get('/auth.html', (req, res) => {
-  res.redirect('/auth');
 });
 
 // Serve React Dashboard static assets first (before catch-all)
@@ -8228,4 +8228,4 @@ app.listen(PORT, async () => {
   console.log(`   POST /api/ai/image/generate - Generate AI images`);
   console.log('\n' + '='.repeat(50) + '\n');
 });
-// Force redeploy - Fix dynamic project ID in auth
+// Force redeploy - Fix auth.html redirect priority
