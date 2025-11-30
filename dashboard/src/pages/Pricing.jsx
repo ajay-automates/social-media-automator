@@ -43,8 +43,8 @@ const plans = {
   },
   business: {
     name: 'Business',
-    price: 15000,
-    annual: 150000,
+    price: 5000,
+    annual: 50000,
     features: [
       'Unlimited everything',
       '10 social accounts',

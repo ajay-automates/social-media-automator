@@ -58,8 +58,8 @@ const PLANS = {
 
   business: {
     name: 'Business',
-    price: 15000,       // ₹15000/month
-    annual: 150000,    // ₹150000/year (2 months free)
+    price: 5000,        // ₹5000/month
+    annual: 50000,     // ₹50000/year (2 months free)
     limits: {
       posts: Infinity,    // Unlimited posts
       accounts: 10,       // 10 social media accounts
