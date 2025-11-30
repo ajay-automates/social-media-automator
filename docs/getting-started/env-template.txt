@@ -85,6 +85,21 @@ STRIPE_BUSINESS_MONTHLY_PRICE_ID=price_business_monthly_id
 STRIPE_BUSINESS_ANNUAL_PRICE_ID=price_business_annual_id
 
 # ====================================================================================
+# RAZORPAY BILLING (for SaaS subscriptions)
+# ====================================================================================
+# Get these from: Razorpay Dashboard > Settings > API Keys
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_razorpay_webhook_secret
+
+# Razorpay Plan IDs (create plans in Razorpay Dashboard > Settings > Plans)
+# Current Plan IDs (INR):
+RAZORPAY_PRO_MONTHLY_PLAN_ID=plan_Rm5g9Giq9nW7uc
+RAZORPAY_PRO_ANNUAL_PLAN_ID=plan_Rm5hhJ07F40teI
+RAZORPAY_BUSINESS_MONTHLY_PLAN_ID=plan_Rm5ioPCBVTvfOS
+RAZORPAY_BUSINESS_ANNUAL_PLAN_ID=plan_Rm5jRZMaOXjEGr
+
+# ====================================================================================
 # SERVER CONFIGURATION
 # ====================================================================================
 PORT=3000
