@@ -101,7 +101,6 @@ export default function CreatePost() {
     reddit: 40000,
     discord: 2000,
     slack: 4000,
-    slack: 4000,
     telegram: 4096,
     pinterest: 500
   };
