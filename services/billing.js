@@ -52,8 +52,28 @@ async function createSubscription(userId, planId, billingCycle = null) {
       userId, 
       planId, 
       billingCycle,
-      totalCount 
+      totalCount,
+      planIdLength: planId?.length,
+      planIdPrefix: planId?.substring(0, 10)
     });
+    
+    // Verify plan exists in Razorpay before creating subscription
+    try {
+      const planDetails = await razorpay.plans.fetch(planId);
+      console.log('✅ Plan verified in Razorpay:', {
+        id: planDetails.id,
+        item: planDetails.item,
+        period: planDetails.period,
+        interval: planDetails.interval
+      });
+    } catch (planError) {
+      console.error('❌ Plan verification failed:', {
+        planId,
+        error: planError.message,
+        description: planError.description
+      });
+      throw new Error(`Invalid plan ID: ${planError.description || planError.message}`);
+    }
     
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
