@@ -3,7 +3,33 @@
 ## Problem
 Razorpay is showing INR (Indian Rupees) instead of USD because the plans were created with INR currency in the Razorpay dashboard.
 
-## Solution: Create USD Plans in Razorpay
+## Good News! ✅
+**Yes, you can accept USD payments with your existing Indian Razorpay account!** Razorpay supports multi-currency payments, including USD, even for accounts registered in India.
+
+## Solution: Enable International Payments & Create USD Plans
+
+### Step 1: Enable International Payments in Razorpay
+
+1. **Log in to Razorpay Dashboard**
+   - Go to https://dashboard.razorpay.com
+   - Navigate to **Settings → Payment Methods → International Payments**
+
+2. **Request Activation**
+   - Click **"Request"** or **"Enable International Payments"**
+   - Provide necessary business information
+   - Ensure your business details are complete and accurate
+   - Razorpay may require additional documentation (invoices, bank statements)
+
+3. **Wait for Approval**
+   - Razorpay typically reviews applications within **5-7 working days**
+   - Once approved, you can accept payments in USD and 100+ other currencies
+
+4. **Important Notes:**
+   - **Settlements**: International payments (USD) will be settled in your Indian bank account in **INR** (converted automatically at current exchange rate)
+   - **Compliance**: For RBI regulations, you may need to provide invoices and buyer's address details for international transactions
+   - **Transaction Fees**: International payment fees may differ from domestic rates
+
+### Step 2: Create USD Plans in Razorpay
 
 The currency is set when creating the plan in Razorpay, not in the code. You need to create new plans with USD currency.
 
@@ -64,13 +90,7 @@ The currency is set when creating the plan in Razorpay, not in the code. You nee
    RAZORPAY_BUSINESS_ANNUAL_PLAN_ID=plan_xxxxx_USD
    ```
 
-4. **Enable International Payments (if needed)**
-
-   - Go to **Settings → International Payments**
-   - Enable **"Accept International Payments"**
-   - Select **USD** as supported currency
-
-5. **Redeploy**
+4. **Redeploy**
 
    After updating environment variables, Railway will automatically redeploy.
 
@@ -85,6 +105,10 @@ The currency is set when creating the plan in Razorpay, not in the code. You nee
 - **Currency is Plan-Level**: The currency is set when creating the plan and cannot be changed later. You must create new plans with USD.
 
 - **Old Plans**: You can keep the old INR plans for existing customers, but new subscriptions will use the USD plans.
+
+- **Settlement in INR**: Even though customers pay in USD, Razorpay will settle the funds to your Indian bank account in **INR** (converted at the current exchange rate). This is automatic and handled by Razorpay.
+
+- **Multi-Currency Support**: Once international payments are enabled, you can accept payments in 100+ currencies, but settlements will always be in INR for Indian accounts.
 
 ## Verification
 
