@@ -105,6 +105,8 @@ const { postToReddit, getModeratedSubreddits } = require('./services/reddit');
 const {
   createCheckoutSession,
   createPortalSession,
+  createSubscription,
+  verifyPayment,
   handleWebhook,
   checkUsage,
   incrementUsage,
