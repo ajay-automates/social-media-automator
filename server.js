@@ -431,8 +431,31 @@ if (fsSync.existsSync(landingPath)) {
 }
 
 // Auth page
-app.get('/auth', (req, res) => {
-  res.sendFile(path.join(__dirname, 'auth.html'));
+app.get('/auth', async (req, res) => {
+  try {
+    const authPath = path.join(__dirname, 'auth.html');
+    let content = await fs.readFile(authPath, 'utf8');
+
+    // Inject environment variables
+    if (process.env.SUPABASE_URL) {
+      content = content.replace(
+        /const SUPABASE_URL = '.*';/,
+        `const SUPABASE_URL = '${process.env.SUPABASE_URL}';`
+      );
+    }
+
+    if (process.env.SUPABASE_ANON_KEY) {
+      content = content.replace(
+        /const SUPABASE_ANON_KEY = '.*';/,
+        `const SUPABASE_ANON_KEY = '${process.env.SUPABASE_ANON_KEY}';`
+      );
+    }
+
+    res.send(content);
+  } catch (err) {
+    console.error('Error serving auth page:', err);
+    res.status(500).send('Error loading auth page');
+  }
 });
 
 // Serve React Dashboard static assets first (before catch-all)
