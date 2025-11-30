@@ -233,7 +233,19 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6Y2hibGlsYnRoa2Z1eHFob3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDgzOTcsImV4cCI6MjA3Njg4NDM5N30.h85XUXsVvxYAdMA9odgO4W5RN1148MDOO86XhwgOnb8';
     
     // Initialize client
-    let supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabaseClient;
+    try {
+      if (typeof supabase === 'undefined') {
+        console.error('Supabase library not loaded');
+        alert('Critical Error: Supabase library failed to load. Please check your connection or ad blocker.');
+      } else {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase client initialized with URL:', SUPABASE_URL);
+      }
+    } catch (err) {
+      console.error('Error initializing Supabase:', err);
+      alert('Error initializing authentication: ' + err.message);
+    }
 
     // Form toggle functions
     function showSignIn() {
