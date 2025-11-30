@@ -91,7 +91,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/auth.html" className="hover:text-white transition-colors">
+                <a href="/auth" className="hover:text-white transition-colors">
                   Sign Up
                 </a>
               </li>

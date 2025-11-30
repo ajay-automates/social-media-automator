@@ -87,7 +87,7 @@ export default function Hero() {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
           >
             <motion.a
-              href="/auth.html"
+              href="/auth"
               whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4)" }}
               whileTap={{ scale: 0.95 }}
               className="group relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-10 py-5 rounded-xl font-bold text-lg overflow-hidden"
