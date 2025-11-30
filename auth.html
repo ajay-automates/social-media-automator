@@ -298,6 +298,69 @@
       return typeof supabase !== 'undefined';
     }
 
+    // Handle OAuth callback (when redirected back from Google/GitHub)
+    async function handleOAuthCallback() {
+      try {
+        // Check if URL contains OAuth callback parameters
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const error = hashParams.get('error');
+        const errorDescription = hashParams.get('error_description');
+
+        if (error) {
+          console.error('OAuth error:', error, errorDescription);
+          showSystemError(`OAuth Error: ${errorDescription || error}. Please try again.`);
+          // Clean URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+          return;
+        }
+
+        if (accessToken && supabaseClient) {
+          console.log('🔐 OAuth callback detected, processing...');
+          
+          // Exchange the tokens for a session
+          const { data, error: sessionError } = await supabaseClient.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ''
+          });
+
+          if (sessionError) {
+            console.error('❌ Error setting OAuth session:', sessionError);
+            showSystemError('Failed to complete sign-in. Please try again.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+          }
+
+          if (data?.session) {
+            console.log('✅ OAuth session established:', data.user?.email);
+            
+            // Persist session
+            try {
+              const storageKey = `sb-${getProjectId()}-auth-token`;
+              localStorage.setItem(storageKey, JSON.stringify(data.session));
+              localStorage.setItem('supabase.auth.token', data.session.access_token);
+              console.log('✅ OAuth session saved to localStorage');
+            } catch (storageError) {
+              console.warn('Could not save OAuth session to localStorage:', storageError);
+            }
+
+            // Clean URL hash
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // Redirect to dashboard
+            console.log('✅ Redirecting to dashboard after OAuth...');
+            window.location.replace(getRedirectUrl('/dashboard'));
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('❌ Error handling OAuth callback:', err);
+        showSystemError('Error processing sign-in. Please try again.');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         // Validate Supabase configuration
@@ -332,6 +395,13 @@
         console.log('✅ Supabase client initialized');
         console.log('Supabase URL:', SUPABASE_URL);
         console.log('Supabase Key:', SUPABASE_ANON_KEY ? 'Present (' + SUPABASE_ANON_KEY.substring(0, 20) + '...)' : 'Missing');
+
+        // Check for OAuth callback FIRST (before checking existing session)
+        if (window.location.hash.includes('access_token') || window.location.hash.includes('error')) {
+          console.log('🔍 OAuth callback detected in URL hash');
+          await handleOAuthCallback();
+          return; // Don't continue with normal initialization if handling OAuth
+        }
 
         // Test the connection with a simple API call
         try {
