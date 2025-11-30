@@ -333,6 +333,8 @@
 
     // Get the current domain for redirects
     function getRedirectUrl(path) {
+      // Use window.location.origin to get protocol + hostname + port
+      // This automatically strips any query parameters or paths
       const origin = window.location.origin;
       return origin + path;
     }
