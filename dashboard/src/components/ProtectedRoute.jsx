@@ -25,8 +25,8 @@ export default function ProtectedRoute({ children }) {
           <p className="text-gray-600 mb-6">
             Please log in to access the dashboard. The app is running in protected mode.
           </p>
-          <a 
-            href="/auth.html" 
+          <a
+            href="/auth"
             className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition inline-block"
           >
             Go to Login →

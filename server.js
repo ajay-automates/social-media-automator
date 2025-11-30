@@ -458,6 +458,11 @@ app.get('/auth', async (req, res) => {
   }
 });
 
+// Redirect /auth.html to /auth to ensure env vars are injected
+app.get('/auth.html', (req, res) => {
+  res.redirect('/auth');
+});
+
 // Serve React Dashboard static assets first (before catch-all)
 try {
   const dashboardPath = path.join(__dirname, 'dashboard/dist');
@@ -486,7 +491,8 @@ try {
 // Old dashboard removed - using React Dashboard now
 
 // Serve React Dashboard index.html for /dashboard routes
-app.get('/dashboard/*', (req, res) => {
+// Serve React Dashboard index.html for /dashboard routes
+app.get(['/dashboard', '/dashboard/*'], (req, res) => {
   const dashboardIndex = path.join(__dirname, 'dashboard/dist/index.html');
   const fs = require('fs');
 
@@ -8222,4 +8228,4 @@ app.listen(PORT, async () => {
   console.log(`   POST /api/ai/image/generate - Generate AI images`);
   console.log('\n' + '='.repeat(50) + '\n');
 });
-// Force redeploy
+// Force redeploy - Fix dynamic project ID in auth

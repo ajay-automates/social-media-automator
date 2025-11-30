@@ -271,8 +271,28 @@
 
         if (error) throw error;
 
-        // Store session and redirect
+        // Robustly persist session for Dashboard
+        // 1. Standard Supabase key - Derived from URL
+        // URL format: https://<project-id>.supabase.co
+        let projectId = 'gzchblilbthkfuxqhoyo'; // Fallback
+        try {
+          const urlObj = new URL(SUPABASE_URL);
+          const parts = urlObj.hostname.split('.');
+          if (parts.length > 0) {
+            projectId = parts[0];
+          }
+        } catch (e) {
+          console.error('Error parsing Supabase URL:', e);
+        }
+
+        const storageKey = `sb-${projectId}-auth-token`;
+        localStorage.setItem(storageKey, JSON.stringify(data.session));
+
+        // 2. Legacy/Backup key
         localStorage.setItem('supabase.auth.token', data.session.access_token);
+
+        console.log('✅ Session persisted to', storageKey);
+
         window.location.href = '/dashboard';
       } catch (error) {
         alert('❌ Error: ' + error.message);
