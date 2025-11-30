@@ -30,9 +30,10 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
  * Create Razorpay subscription
  * @param {string} userId - User ID from Supabase auth
  * @param {string} planId - Razorpay Plan ID
+ * @param {string} billingCycle - 'monthly' or 'annual' (optional, for logging)
  * @returns {object} Subscription details
  */
-async function createSubscription(userId, planId) {
+async function createSubscription(userId, planId, billingCycle = null) {
   try {
     // Create subscription
     if (!razorpay) throw new Error('Payment gateway not configured');
@@ -41,14 +42,26 @@ async function createSubscription(userId, planId) {
       throw new Error('Plan ID is required');
     }
     
-    console.log('🔍 Creating Razorpay subscription:', { userId, planId });
+    // Determine total_count based on billing cycle
+    // For monthly: 120 cycles = 10 years
+    // For annual: 10 cycles = 10 years
+    // Razorpay will use the plan's billing cycle, but we set total_count accordingly
+    const totalCount = billingCycle === 'annual' ? 10 : 120;
+    
+    console.log('🔍 Creating Razorpay subscription:', { 
+      userId, 
+      planId, 
+      billingCycle,
+      totalCount 
+    });
     
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       customer_notify: 1,
-      total_count: 120, // 10 years (max limit usually)
+      total_count: totalCount,
       notes: {
-        userId: userId
+        userId: userId,
+        billingCycle: billingCycle || 'monthly'
       }
     });
 
