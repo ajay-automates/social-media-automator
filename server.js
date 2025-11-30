@@ -7086,10 +7086,10 @@ app.post('/api/billing/subscription', verifyAuth, async (req, res) => {
       monthlyPlanId: planConfig.razorpay_monthly_plan_id,
       annualPlanId: planConfig.razorpay_annual_plan_id,
       envVars: {
-        RAZORPAY_PRO_MONTHLY_PLAN_ID: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID ? 'SET' : 'NOT SET',
-        RAZORPAY_PRO_ANNUAL_PLAN_ID: process.env.RAZORPAY_PRO_ANNUAL_PLAN_ID ? 'SET' : 'NOT SET',
-        RAZORPAY_BUSINESS_MONTHLY_PLAN_ID: process.env.RAZORPAY_BUSINESS_MONTHLY_PLAN_ID ? 'SET' : 'NOT SET',
-        RAZORPAY_BUSINESS_ANNUAL_PLAN_ID: process.env.RAZORPAY_BUSINESS_ANNUAL_PLAN_ID ? 'SET' : 'NOT SET'
+        RAZORPAY_PRO_MONTHLY_PLAN_ID: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID ? `SET (${process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID.substring(0, 15)}...)` : 'NOT SET',
+        RAZORPAY_PRO_ANNUAL_PLAN_ID: process.env.RAZORPAY_PRO_ANNUAL_PLAN_ID ? `SET (${process.env.RAZORPAY_PRO_ANNUAL_PLAN_ID.substring(0, 15)}...)` : 'NOT SET',
+        RAZORPAY_BUSINESS_MONTHLY_PLAN_ID: process.env.RAZORPAY_BUSINESS_MONTHLY_PLAN_ID ? `SET (${process.env.RAZORPAY_BUSINESS_MONTHLY_PLAN_ID.substring(0, 15)}...)` : 'NOT SET',
+        RAZORPAY_BUSINESS_ANNUAL_PLAN_ID: process.env.RAZORPAY_BUSINESS_ANNUAL_PLAN_ID ? `SET (${process.env.RAZORPAY_BUSINESS_ANNUAL_PLAN_ID.substring(0, 15)}...)` : 'NOT SET'
       }
     });
 

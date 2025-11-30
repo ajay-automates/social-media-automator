@@ -82,11 +82,18 @@ async function createSubscription(userId, planId, billingCycle = null) {
       source: error.source,
       step: error.step,
       reason: error.reason,
-      metadata: error.metadata
+      metadata: error.metadata,
+      statusCode: error.statusCode,
+      error: error.error
     });
     
+    // Log full error object for debugging
+    if (error.error) {
+      console.error('❌ Razorpay API Error:', JSON.stringify(error.error, null, 2));
+    }
+    
     // Return more detailed error message
-    const errorMessage = error.description || error.message || 'Failed to create subscription';
+    const errorMessage = error.description || error.error?.description || error.message || 'Failed to create subscription';
     throw new Error(errorMessage);
   }
 }
