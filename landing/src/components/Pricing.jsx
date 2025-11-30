@@ -162,12 +162,12 @@ export default function Pricing() {
               </ul>
 
               <motion.a
-                href="/auth.html"
+                href="/auth"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className={`block w-full text-center py-4 rounded-xl font-bold transition-all ${plan.popular
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:shadow-blue-500/50'
-                    : 'glass hover:bg-white/20 text-white'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:shadow-blue-500/50'
+                  : 'glass hover:bg-white/20 text-white'
                   }`}
               >
                 {plan.cta}
