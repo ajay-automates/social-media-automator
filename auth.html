@@ -307,10 +307,18 @@
         const refreshToken = hashParams.get('refresh_token');
         const error = hashParams.get('error');
         const errorDescription = hashParams.get('error_description');
+        const type = hashParams.get('type'); // 'recovery', 'signup', 'signin', etc.
 
         if (error) {
           console.error('OAuth error:', error, errorDescription);
-          showSystemError(`OAuth Error: ${errorDescription || error}. Please try again.`);
+          
+          // Handle specific error: account already exists
+          if (error === 'signup_disabled' || errorDescription?.includes('already registered')) {
+            showSystemError('An account with this email already exists. Please sign in with your email and password, or use the "Link Google Account" option in settings.');
+          } else {
+            showSystemError(`OAuth Error: ${errorDescription || error}. Please try again.`);
+          }
+          
           // Clean URL
           window.history.replaceState({}, document.title, window.location.pathname);
           return;
@@ -318,6 +326,35 @@
 
         if (accessToken && supabaseClient) {
           console.log('🔐 OAuth callback detected, processing...');
+          console.log('OAuth type:', type);
+          
+          // First, check if user already has a session (from email/password login)
+          const { data: existingSession } = await supabaseClient.auth.getSession();
+          
+          if (existingSession?.session) {
+            console.log('✅ Existing session found, linking Google identity...');
+            console.log('Existing user email:', existingSession.session.user?.email);
+            
+            // User is already logged in, link the Google identity
+            try {
+              const { data: linkData, error: linkError } = await supabaseClient.auth.linkIdentity({
+                provider: 'google',
+                options: {
+                  redirectTo: getRedirectUrl('/dashboard')
+                }
+              });
+              
+              if (linkError) {
+                console.error('❌ Error linking Google identity:', linkError);
+                // If linking fails, try to set the session anyway
+                console.log('Attempting to set session directly...');
+              } else {
+                console.log('✅ Google identity linked successfully');
+              }
+            } catch (linkErr) {
+              console.warn('Link identity attempt failed, continuing with session setup:', linkErr);
+            }
+          }
           
           // Exchange the tokens for a session
           const { data, error: sessionError } = await supabaseClient.auth.setSession({
@@ -327,13 +364,24 @@
 
           if (sessionError) {
             console.error('❌ Error setting OAuth session:', sessionError);
-            showSystemError('Failed to complete sign-in. Please try again.');
+            
+            // Check if it's an account conflict error
+            if (sessionError.message?.includes('already registered') || 
+                sessionError.message?.includes('User already registered')) {
+              showSystemError('An account with this email already exists. Please sign in with your email and password first, then you can link your Google account in settings.');
+            } else {
+              showSystemError('Failed to complete sign-in: ' + sessionError.message);
+            }
+            
             window.history.replaceState({}, document.title, window.location.pathname);
             return;
           }
 
           if (data?.session) {
-            console.log('✅ OAuth session established:', data.user?.email);
+            console.log('✅ OAuth session established');
+            console.log('User email:', data.user?.email);
+            console.log('User ID:', data.user?.id);
+            console.log('Identities:', data.user?.identities);
             
             // Persist session
             try {
@@ -352,11 +400,19 @@
             console.log('✅ Redirecting to dashboard after OAuth...');
             window.location.replace(getRedirectUrl('/dashboard'));
             return;
+          } else {
+            console.error('❌ No session data received from OAuth callback');
+            showSystemError('Failed to establish session. Please try signing in again.');
+            window.history.replaceState({}, document.title, window.location.pathname);
           }
         }
       } catch (err) {
         console.error('❌ Error handling OAuth callback:', err);
-        showSystemError('Error processing sign-in. Please try again.');
+        console.error('Error details:', {
+          message: err.message,
+          stack: err.stack
+        });
+        showSystemError('Error processing sign-in. Please try again or use email/password sign-in.');
         window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
@@ -872,14 +928,49 @@
           signUpBtn.querySelector('#signUpGoogleText').textContent = 'Connecting...';
         }
 
+        // Check if user is already signed in
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (session) {
+          console.log('✅ User already signed in, linking Google identity...');
+          console.log('Current user email:', session.user?.email);
+          
+          // User is already logged in, link the Google identity
+          const { data: linkData, error: linkError } = await supabaseClient.auth.linkIdentity({
+            provider: 'google',
+            options: {
+              redirectTo: getRedirectUrl('/auth') // Redirect back to auth page to handle callback
+            }
+          });
+          
+          if (linkError) {
+            throw linkError;
+          }
+          
+          // If linkIdentity doesn't redirect, the identity is already linked or linking is in progress
+          console.log('✅ Google identity linking initiated');
+          return;
+        }
+
+        // User is not signed in, proceed with normal OAuth sign-in
+        console.log('🔐 Initiating Google OAuth sign-in...');
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: getRedirectUrl('/dashboard')
+            redirectTo: getRedirectUrl('/auth'), // Redirect to /auth to handle callback
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent'
+            }
           }
         });
 
         if (error) throw error;
+        
+        // If signInWithOAuth doesn't redirect immediately, log it
+        if (data?.url) {
+          console.log('✅ OAuth URL generated, redirecting...');
+        }
       } catch (error) {
         const signInBtn = document.getElementById('signInGoogleBtn');
         const signUpBtn = document.getElementById('signUpGoogleBtn');
@@ -894,7 +985,13 @@
         }
 
         console.error('Google OAuth Error:', error);
-        alert('❌ Error connecting with Google: ' + error.message);
+        
+        let errorMessage = 'Error connecting with Google: ' + error.message;
+        if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+          errorMessage = 'An account with this email already exists. Please sign in with your email and password first.';
+        }
+        
+        alert('❌ ' + errorMessage);
       }
     }
 
