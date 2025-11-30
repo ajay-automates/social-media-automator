@@ -3,12 +3,40 @@
 ## Problem
 Razorpay is showing INR (Indian Rupees) instead of USD because the plans were created with INR currency in the Razorpay dashboard.
 
-## Good News! ✅
-**Yes, you can accept USD payments with your existing Indian Razorpay account!** Razorpay supports multi-currency payments, including USD, even for accounts registered in India.
+## ⚠️ Important Limitation
+
+**Your business type may not support international card payments directly in Razorpay.**
+
+If you see this message in Razorpay Dashboard:
+- "Your business type is not supported for international card payments"
+- "You can accept Payments in International Currencies only using PayPal. They CANNOT be collected in INR."
+
+This means:
+- ❌ You **cannot** create USD subscription plans for international card payments
+- ✅ You **can** use PayPal for USD payments (but PayPal payments cannot be in INR)
+- ⚠️ PayPal payments will be in USD and settled to your PayPal account (not directly to your Indian bank account)
+
+## Solution Options
+
+### Option 1: Use PayPal for USD Payments (Recommended if international cards not supported)
+
+If your business type doesn't support international cards, you'll need to:
+1. Link your PayPal account in Razorpay Dashboard
+2. Accept payments via PayPal in USD
+3. PayPal will handle the currency conversion
+4. Funds will be in your PayPal account (you can then transfer to your bank)
+
+**Note:** Razorpay subscriptions may not work with PayPal. You might need to use one-time payments or payment links instead of subscriptions.
+
+### Option 2: Request International Card Support (If Available)
+
+Some business types can request international card payment support:
 
 ## Solution: Enable International Payments & Create USD Plans
 
-### Step 1: Enable International Payments in Razorpay
+### Option 2A: Enable International Card Payments (If Your Business Type Supports It)
+
+**Note:** This only works if Razorpay approves your business type for international cards. If you see "Your business type is not supported for international card payments," skip to Option 1 (PayPal).
 
 1. **Log in to Razorpay Dashboard**
    - Go to https://dashboard.razorpay.com
@@ -25,11 +53,15 @@ Razorpay is showing INR (Indian Rupees) instead of USD because the plans were cr
    - Once approved, you can accept payments in USD and 100+ other currencies
 
 4. **Important Notes:**
-   - **Settlements**: International payments (USD) will be settled in your Indian bank account in **INR** (converted automatically at current exchange rate)
+   - **Settlements**: International card payments (USD) will be settled in your Indian bank account in **INR** (converted automatically at current exchange rate)
    - **Compliance**: For RBI regulations, you may need to provide invoices and buyer's address details for international transactions
    - **Transaction Fees**: International payment fees may differ from domestic rates
 
-### Step 2: Create USD Plans in Razorpay
+### Option 2B: Create USD Subscription Plans (Only if International Cards Are Supported)
+
+**⚠️ This only works if your business type supports international card payments!**
+
+If you can accept international cards, you can create USD subscription plans:
 
 The currency is set when creating the plan in Razorpay, not in the code. You need to create new plans with USD currency.
 
@@ -118,6 +150,25 @@ After setup:
 3. The Razorpay checkout should show USD currency
 4. Verify the amount matches your pricing ($19, $99, etc.)
 
+## Alternative: Switch to Stripe (Recommended for International Payments)
+
+If Razorpay doesn't support international cards for your business type, consider using **Stripe** instead:
+
+### Why Stripe?
+- ✅ Better international payment support
+- ✅ Native USD support (no currency conversion needed)
+- ✅ Works with all business types
+- ✅ Better subscription management
+- ✅ Direct USD settlements (if you have a US bank account) or automatic INR conversion
+
+### Migration Steps:
+1. Create a Stripe account (supports Indian businesses)
+2. Set up products and prices in USD
+3. Update the codebase to use Stripe instead of Razorpay
+4. Update environment variables
+
+See `docs/features/billing-pricing.md` for Stripe setup instructions.
+
 ## Troubleshooting
 
 **Still showing INR?**
@@ -126,8 +177,17 @@ After setup:
 - Make sure you're using the new USD plan IDs, not the old INR ones
 - Clear browser cache and try again
 
+**"Business type not supported" error?**
+- Your business type doesn't support international card payments in Razorpay
+- Use PayPal for USD payments (Option 1)
+- Or consider switching to Stripe (recommended)
+
+**PayPal payments:**
+- PayPal payments will be in USD and go to your PayPal account
+- You'll need to transfer from PayPal to your bank account manually
+- PayPal handles currency conversion for customers
+
 **Currency conversion?**
-- Razorpay will handle currency conversion automatically
-- Customers can pay in their local currency
-- You'll receive settlement in your account's base currency
+- For international cards: Razorpay converts USD to INR automatically, settled to your Indian bank
+- For PayPal: Payments stay in USD in your PayPal account, you handle conversion when transferring
 
