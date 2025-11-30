@@ -7096,7 +7096,7 @@ app.post('/api/billing/subscription', verifyAuth, async (req, res) => {
       });
     }
 
-    const result = await createSubscription(userId, planId);
+    const result = await createSubscription(userId, planId, billingCycle);
     res.json(result);
 
   } catch (error) {
