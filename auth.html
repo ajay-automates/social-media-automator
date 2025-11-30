@@ -21,11 +21,11 @@
     <div class="bg-gray-800 p-8 rounded-lg shadow-2xl">
       <!-- Toggle Tabs -->
       <div class="flex gap-2 mb-6 bg-gray-700 p-1 rounded-lg">
-        <button id="signInTab" onclick="showSignIn()" type="button"
+        <button id="signInTab" type="button"
           class="flex-1 py-2 rounded-lg font-bold transition bg-gray-600 text-white cursor-pointer">
           Sign In
         </button>
-        <button id="signUpTab" onclick="showSignUp()" class="flex-1 py-2 rounded-lg font-bold transition text-gray-400 cursor-pointer" type="button">
+        <button id="signUpTab" class="flex-1 py-2 rounded-lg font-bold transition text-gray-400 cursor-pointer" type="button">
           Sign Up
         </button>
       </div>
@@ -36,7 +36,7 @@
 
         <!-- Google OAuth Button - Prominent -->
         <div class="mb-6">
-          <button id="signInGoogleBtn" onclick="signInWithGoogle()"
+          <button id="signInGoogleBtn"
             class="w-full bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-lg font-bold transition flex items-center justify-center gap-2 shadow-md">
             <svg class="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4"
@@ -59,7 +59,7 @@
           <div class="flex-1 border-t border-gray-600"></div>
         </div>
 
-        <form onsubmit="handleSignIn(event)" class="space-y-4" novalidate>
+        <form id="signInFormElement" class="space-y-4" novalidate>
           <div>
             <label class="block text-sm text-gray-400 mb-2">Email</label>
             <input type="email" id="signInEmail" required
@@ -84,14 +84,14 @@
         </form>
 
         <div class="mt-4">
-          <a href="#" onclick="showForgotPassword()" class="text-sm text-blue-400 hover:text-blue-300">
+          <a href="#" id="forgotPasswordLink" class="text-sm text-blue-400 hover:text-blue-300">
             Forgot password?
           </a>
         </div>
 
         <!-- GitHub Alternative -->
         <div class="mt-4">
-          <button onclick="signInWithGithub()"
+          <button id="signInGithubBtnBottom"
             class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded-lg font-bold transition flex items-center justify-center gap-2 text-sm">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path
@@ -108,7 +108,7 @@
 
         <!-- Google OAuth Button - Prominent -->
         <div class="mb-6">
-          <button id="signUpGoogleBtn" onclick="signInWithGoogle()"
+          <button id="signUpGoogleBtn"
             class="w-full bg-white hover:bg-gray-100 text-gray-900 py-3 rounded-lg font-bold transition flex items-center justify-center gap-2 shadow-md">
             <svg class="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4"
@@ -131,7 +131,7 @@
           <div class="flex-1 border-t border-gray-600"></div>
         </div>
 
-        <form onsubmit="handleSignUp(event)" class="space-y-4" novalidate>
+        <form id="signUpFormElement" class="space-y-4" novalidate>
           <div>
             <label class="block text-sm text-gray-400 mb-2">Email</label>
             <input type="email" id="signUpEmail" required
@@ -158,7 +158,7 @@
 
         <!-- GitHub Alternative -->
         <div class="mt-4">
-          <button onclick="signInWithGithub()"
+          <button id="signUpGithubBtn"
             class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded-lg font-bold transition flex items-center justify-center gap-2 text-sm">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path
@@ -173,7 +173,7 @@
       <div id="forgotPasswordForm" class="hidden">
         <h2 class="text-2xl font-bold mb-6">Reset Password</h2>
 
-        <form onsubmit="handleForgotPassword(event)" class="space-y-4">
+        <form id="forgotPasswordFormElement" class="space-y-4">
           <div>
             <label class="block text-sm text-gray-400 mb-2">Email</label>
             <input type="email" id="forgotEmail" required
@@ -187,7 +187,7 @@
         </form>
 
         <div class="mt-4">
-          <a href="#" onclick="showSignIn()" class="text-sm text-blue-400 hover:text-blue-300">
+          <a href="#" id="backToSignInLink" class="text-sm text-blue-400 hover:text-blue-300">
             ← Back to sign in
           </a>
         </div>
@@ -203,7 +203,7 @@
   <!-- Error Banner -->
   <div id="errorBanner" class="hidden fixed top-0 left-0 right-0 bg-red-600 text-white p-4 text-center z-50">
     <p id="errorText" class="font-bold"></p>
-    <button onclick="window.location.reload()" class="underline mt-2 text-sm">Reload Page</button>
+    <button id="reloadPageBtn" class="underline mt-2 text-sm">Reload Page</button>
   </div>
 
   <!-- Debug Console (Hidden by default, press Ctrl+D to toggle) -->
@@ -875,6 +875,85 @@
         // Don't show error to user - this is non-critical
       }
     }
+
+    // Attach event listeners to all buttons and forms (CSP-compliant)
+    // This runs after DOM is loaded to ensure all elements exist
+    function attachEventListeners() {
+      // Tab buttons
+      const signInTab = document.getElementById('signInTab');
+      const signUpTab = document.getElementById('signUpTab');
+      if (signInTab) signInTab.addEventListener('click', showSignIn);
+      if (signUpTab) signUpTab.addEventListener('click', showSignUp);
+
+      // Sign-in form
+      const signInForm = document.getElementById('signInFormElement');
+      if (signInForm) {
+        signInForm.addEventListener('submit', handleSignIn);
+      }
+
+      // Sign-up form
+      const signUpForm = document.getElementById('signUpFormElement');
+      if (signUpForm) {
+        signUpForm.addEventListener('submit', handleSignUp);
+      }
+
+      // Forgot password form
+      const forgotPasswordForm = document.getElementById('forgotPasswordFormElement');
+      if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', handleForgotPassword);
+      }
+
+      // Google OAuth buttons
+      const signInGoogleBtn = document.getElementById('signInGoogleBtn');
+      const signUpGoogleBtn = document.getElementById('signUpGoogleBtn');
+      if (signInGoogleBtn) signInGoogleBtn.addEventListener('click', signInWithGoogle);
+      if (signUpGoogleBtn) signUpGoogleBtn.addEventListener('click', signInWithGoogle);
+
+      // GitHub OAuth buttons
+      const signInGithubBtn = document.getElementById('signInGithubBtn');
+      const signInGithubBtnBottom = document.getElementById('signInGithubBtnBottom');
+      const signUpGithubBtn = document.getElementById('signUpGithubBtn');
+      if (signInGithubBtn) signInGithubBtn.addEventListener('click', signInWithGithub);
+      if (signInGithubBtnBottom) signInGithubBtnBottom.addEventListener('click', signInWithGithub);
+      if (signUpGithubBtn) signUpGithubBtn.addEventListener('click', signInWithGithub);
+
+      // Links
+      const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+      const backToSignInLink = document.getElementById('backToSignInLink');
+      if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          showForgotPassword();
+        });
+      }
+      if (backToSignInLink) {
+        backToSignInLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          showSignIn();
+        });
+      }
+
+      // Reload button
+      const reloadPageBtn = document.getElementById('reloadPageBtn');
+      if (reloadPageBtn) {
+        reloadPageBtn.addEventListener('click', () => {
+          window.location.reload();
+        });
+      }
+    }
+
+    // Attach event listeners when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachEventListeners);
+    } else {
+      // DOM is already loaded
+      attachEventListeners();
+    }
+
+    // Run diagnostics on page load (after a delay)
+    setTimeout(() => {
+      runDiagnostics();
+    }, 2000);
   </script>
 </body>
 
