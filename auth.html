@@ -21,11 +21,11 @@
     <div class="bg-gray-800 p-8 rounded-lg shadow-2xl">
       <!-- Toggle Tabs -->
       <div class="flex gap-2 mb-6 bg-gray-700 p-1 rounded-lg">
-        <button id="signInTab" onclick="showSignIn()"
-          class="flex-1 py-2 rounded-lg font-bold transition bg-gray-600 text-white">
+        <button id="signInTab" onclick="showSignIn()" type="button"
+          class="flex-1 py-2 rounded-lg font-bold transition bg-gray-600 text-white cursor-pointer">
           Sign In
         </button>
-        <button id="signUpTab" onclick="showSignUp()" class="flex-1 py-2 rounded-lg font-bold transition text-gray-400">
+        <button id="signUpTab" onclick="showSignUp()" class="flex-1 py-2 rounded-lg font-bold transition text-gray-400 cursor-pointer" type="button">
           Sign Up
         </button>
       </div>
@@ -59,22 +59,26 @@
           <div class="flex-1 border-t border-gray-600"></div>
         </div>
 
-        <form onsubmit="handleSignIn(event)" class="space-y-4">
+        <form onsubmit="handleSignIn(event)" class="space-y-4" novalidate>
           <div>
             <label class="block text-sm text-gray-400 mb-2">Email</label>
             <input type="email" id="signInEmail" required
               class="w-full p-3 bg-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="you@example.com">
+              placeholder="you@example.com"
+              autocomplete="email">
           </div>
 
           <div>
             <label class="block text-sm text-gray-400 mb-2">Password</label>
             <input type="password" id="signInPassword" required
               class="w-full p-3 bg-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="••••••••">
+              placeholder="••••••••"
+              autocomplete="current-password">
           </div>
 
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition">
+          <div id="signInError" class="hidden text-red-400 text-sm mt-2"></div>
+
+          <button type="submit" id="signInButton" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed">
             Sign In with Email
           </button>
         </form>
@@ -127,23 +131,27 @@
           <div class="flex-1 border-t border-gray-600"></div>
         </div>
 
-        <form onsubmit="handleSignUp(event)" class="space-y-4">
+        <form onsubmit="handleSignUp(event)" class="space-y-4" novalidate>
           <div>
             <label class="block text-sm text-gray-400 mb-2">Email</label>
             <input type="email" id="signUpEmail" required
               class="w-full p-3 bg-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500 outline-none"
-              placeholder="you@example.com">
+              placeholder="you@example.com"
+              autocomplete="email">
           </div>
 
           <div>
             <label class="block text-sm text-gray-400 mb-2">Password</label>
             <input type="password" id="signUpPassword" required minlength="6"
               class="w-full p-3 bg-gray-700 rounded-lg text-white focus:ring-2 focus:ring-green-500 outline-none"
-              placeholder="••••••••">
+              placeholder="••••••••"
+              autocomplete="new-password">
             <p class="text-xs text-gray-400 mt-1">At least 6 characters</p>
           </div>
 
-          <button type="submit" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold transition">
+          <div id="signUpError" class="hidden text-red-400 text-sm mt-2"></div>
+
+          <button type="submit" id="signUpButton" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed">
             Create Account with Email
           </button>
         </form>
@@ -198,10 +206,10 @@
     <button onclick="window.location.reload()" class="underline mt-2 text-sm">Reload Page</button>
   </div>
 
-  <!-- Debug Console (Temporary) -->
+  <!-- Debug Console (Hidden by default, press Ctrl+D to toggle) -->
   <div id="debugConsole"
-    class="fixed bottom-0 left-0 right-0 bg-black bg-opacity-90 text-green-400 p-4 h-48 overflow-y-auto font-mono text-xs z-50 border-t border-green-500">
-    <div>Debug Console initialized...</div>
+    class="hidden fixed bottom-0 left-0 right-0 bg-black bg-opacity-90 text-green-400 p-4 h-48 overflow-y-auto font-mono text-xs z-40 border-t border-green-500 pointer-events-none">
+    <div>Debug Console initialized... (Press Ctrl+D to toggle)</div>
   </div>
 
   <script>
@@ -217,18 +225,35 @@
       }
     }
 
-    // Override console methods
+    // Toggle debug console with Ctrl+D
+    let debugConsoleVisible = false;
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        const consoleDiv = document.getElementById('debugConsole');
+        if (consoleDiv) {
+          debugConsoleVisible = !debugConsoleVisible;
+          consoleDiv.classList.toggle('hidden', !debugConsoleVisible);
+        }
+      }
+    });
+
+    // Override console methods (only log to screen if console is visible)
     const originalLog = console.log;
     const originalError = console.error;
 
     console.log = function (...args) {
       originalLog.apply(console, args);
-      logToScreen(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+      if (debugConsoleVisible) {
+        logToScreen(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+      }
     };
 
     console.error = function (...args) {
       originalError.apply(console, args);
-      logToScreen(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '), 'error');
+      if (debugConsoleVisible) {
+        logToScreen(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '), 'error');
+      }
     };
 
     // Global Error Handler
@@ -275,6 +300,27 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
       try {
+        // Validate Supabase configuration
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+          const errorMsg = 'Configuration Error: Supabase credentials are missing. Please check server configuration.';
+          showSystemError(errorMsg);
+          console.error('Missing Supabase config:', {
+            hasUrl: !!SUPABASE_URL,
+            hasKey: !!SUPABASE_ANON_KEY
+          });
+          return;
+        }
+
+        // Check if Supabase URL is valid
+        try {
+          new URL(SUPABASE_URL);
+        } catch (urlError) {
+          const errorMsg = 'Configuration Error: Invalid Supabase URL. Please check server configuration.';
+          showSystemError(errorMsg);
+          console.error('Invalid Supabase URL:', SUPABASE_URL);
+          return;
+        }
+
         const loaded = await waitForSupabase();
 
         if (!loaded) {
@@ -285,6 +331,18 @@
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('✅ Supabase client initialized');
 
+        // Test the connection
+        try {
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (error && error.message && !error.message.includes('No session')) {
+            console.warn('Supabase connection test warning:', error.message);
+          } else {
+            console.log('✅ Supabase connection verified');
+          }
+        } catch (testError) {
+          console.warn('Supabase connection test failed (non-critical):', testError.message);
+        }
+
         // Persist config for Dashboard
         try {
           localStorage.setItem('sm_supabase_url', SUPABASE_URL);
@@ -293,10 +351,14 @@
           console.warn('LocalStorage access denied:', e);
         }
 
-        // Check session
-        checkExistingSession();
+        // Check session after a brief delay to ensure client is ready
+        setTimeout(() => {
+          checkExistingSession();
+        }, 100);
       } catch (err) {
         showSystemError('Initialization Error: ' + err.message);
+        console.error('Full error:', err);
+        console.error('Error stack:', err.stack);
       }
     });
 
@@ -331,37 +393,135 @@
     async function handleSignIn(event) {
       event.preventDefault();
 
+      // Clear previous errors
+      const errorDiv = document.getElementById('signInError');
+      if (errorDiv) {
+        errorDiv.classList.add('hidden');
+        errorDiv.textContent = '';
+      }
+
       if (!supabaseClient) {
-        showSystemError('System not ready. Please wait a moment or reload.');
+        const errorMsg = 'System not ready. Please wait a moment or reload.';
+        showSystemError(errorMsg);
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
         return;
       }
 
-      const email = document.getElementById('signInEmail').value;
-      const password = document.getElementById('signInPassword').value;
-      const btn = event.target.querySelector('button');
-      const originalText = btn.textContent;
+      const emailInput = document.getElementById('signInEmail');
+      const passwordInput = document.getElementById('signInPassword');
+      const email = emailInput?.value?.trim();
+      const password = passwordInput?.value;
+
+      // Validate inputs
+      if (!email) {
+        const errorMsg = 'Please enter your email address.';
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
+        emailInput?.focus();
+        return;
+      }
+
+      if (!password) {
+        const errorMsg = 'Please enter your password.';
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
+        passwordInput?.focus();
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        const errorMsg = 'Please enter a valid email address.';
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
+        emailInput?.focus();
+        return;
+      }
+
+      const btn = document.getElementById('signInButton');
+      const originalText = btn?.textContent || 'Sign In with Email';
 
       try {
-        btn.disabled = true;
-        btn.textContent = 'Signing in...';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Signing in...';
+        }
 
+        console.log('Attempting to sign in with email:', email);
         const { data, error } = await supabaseClient.auth.signInWithPassword({
           email,
           password
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase sign-in error:', error);
+          throw error;
+        }
+
+        if (!data || !data.session) {
+          console.error('No session data received:', data);
+          throw new Error('No session data received. Please try again.');
+        }
+
+        console.log('✅ Sign-in successful, session received');
 
         // Persist session
-        const storageKey = `sb-${getProjectId()}-auth-token`;
-        localStorage.setItem(storageKey, JSON.stringify(data.session));
-        localStorage.setItem('supabase.auth.token', data.session.access_token);
+        try {
+          const storageKey = `sb-${getProjectId()}-auth-token`;
+          localStorage.setItem(storageKey, JSON.stringify(data.session));
+          localStorage.setItem('supabase.auth.token', data.session.access_token);
+          console.log('✅ Session saved to localStorage');
+        } catch (storageError) {
+          console.warn('Could not save to localStorage:', storageError);
+          // Continue anyway - session is still valid
+        }
 
+        // Redirect to dashboard
+        console.log('Redirecting to dashboard...');
         window.location.href = '/dashboard';
       } catch (error) {
-        alert('❌ Error: ' + error.message);
-        btn.disabled = false;
-        btn.textContent = originalText;
+        console.error('Sign in error details:', {
+          message: error.message,
+          status: error.status,
+          error: error
+        });
+
+        let errorMessage = 'Failed to sign in. Please check your credentials and try again.';
+        
+        // Provide more specific error messages
+        if (error.message) {
+          if (error.message.includes('Invalid login credentials') || error.message.includes('Email not confirmed')) {
+            errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+          } else if (error.message.includes('Email rate limit exceeded')) {
+            errorMessage = 'Too many sign-in attempts. Please wait a few minutes and try again.';
+          } else if (error.message.includes('Network')) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        if (errorDiv) {
+          errorDiv.textContent = '❌ ' + errorMessage;
+          errorDiv.classList.remove('hidden');
+        } else {
+          alert('❌ ' + errorMessage);
+        }
+        
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
       }
     }
 
@@ -369,34 +529,144 @@
     async function handleSignUp(event) {
       event.preventDefault();
 
+      // Clear previous errors
+      const errorDiv = document.getElementById('signUpError');
+      if (errorDiv) {
+        errorDiv.classList.add('hidden');
+        errorDiv.textContent = '';
+      }
+
       if (!supabaseClient) {
-        showSystemError('System not ready. Please wait a moment or reload.');
+        const errorMsg = 'System not ready. Please wait a moment or reload.';
+        showSystemError(errorMsg);
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
         return;
       }
 
-      const email = document.getElementById('signUpEmail').value;
-      const password = document.getElementById('signUpPassword').value;
-      const btn = event.target.querySelector('button');
-      const originalText = btn.textContent;
+      const emailInput = document.getElementById('signUpEmail');
+      const passwordInput = document.getElementById('signUpPassword');
+      const email = emailInput?.value?.trim();
+      const password = passwordInput?.value;
+
+      // Validate inputs
+      if (!email) {
+        const errorMsg = 'Please enter your email address.';
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
+        emailInput?.focus();
+        return;
+      }
+
+      if (!password) {
+        const errorMsg = 'Please enter a password.';
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
+        passwordInput?.focus();
+        return;
+      }
+
+      if (password.length < 6) {
+        const errorMsg = 'Password must be at least 6 characters long.';
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
+        passwordInput?.focus();
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        const errorMsg = 'Please enter a valid email address.';
+        if (errorDiv) {
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+        }
+        emailInput?.focus();
+        return;
+      }
+
+      const btn = document.getElementById('signUpButton');
+      const originalText = btn?.textContent || 'Create Account with Email';
 
       try {
-        btn.disabled = true;
-        btn.textContent = 'Creating account...';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = 'Creating account...';
+        }
 
+        console.log('Attempting to sign up with email:', email);
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase sign-up error:', error);
+          throw error;
+        }
 
-        alert('✅ Account created! Please check your email to verify your account.');
-        showSignIn();
+        console.log('✅ Sign-up successful');
+
+        // Show success message
+        if (errorDiv) {
+          errorDiv.textContent = '✅ Account created! Please check your email to verify your account.';
+          errorDiv.classList.remove('hidden');
+          errorDiv.classList.add('text-green-400');
+          errorDiv.classList.remove('text-red-400');
+        } else {
+          alert('✅ Account created! Please check your email to verify your account.');
+        }
+
+        // Switch to sign-in form after a delay
+        setTimeout(() => {
+          showSignIn();
+        }, 2000);
       } catch (error) {
-        alert('❌ Error: ' + error.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
+        console.error('Sign up error details:', {
+          message: error.message,
+          status: error.status,
+          error: error
+        });
+
+        let errorMessage = 'Failed to create account. Please try again.';
+        
+        // Provide more specific error messages
+        if (error.message) {
+          if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+            errorMessage = 'An account with this email already exists. Please sign in instead.';
+          } else if (error.message.includes('Password')) {
+            errorMessage = 'Password does not meet requirements. Please use at least 6 characters.';
+          } else if (error.message.includes('Email')) {
+            errorMessage = 'Invalid email address. Please check and try again.';
+          } else if (error.message.includes('Network')) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+          } else {
+            errorMessage = error.message;
+          }
+        }
+
+        if (errorDiv) {
+          errorDiv.textContent = '❌ ' + errorMessage;
+          errorDiv.classList.remove('hidden');
+          errorDiv.classList.remove('text-green-400');
+          errorDiv.classList.add('text-red-400');
+        } else {
+          alert('❌ ' + errorMessage);
+        }
+        
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = originalText;
+        }
       }
     }
 
@@ -519,13 +789,20 @@
     // Check if user is already logged in
     async function checkExistingSession() {
       try {
+        if (!supabaseClient) {
+          console.warn('Supabase client not ready for session check');
+          return;
+        }
         const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (session && !error) {
           console.log('✅ User already logged in, redirecting to dashboard');
           window.location.href = getRedirectUrl('/dashboard');
+        } else if (error) {
+          console.warn('Session check error (non-critical):', error.message);
         }
       } catch (err) {
         console.error('Error checking session:', err);
+        // Don't show error to user - this is non-critical
       }
     }
   </script>

@@ -439,27 +439,98 @@ if (fsSync.existsSync(landingPath)) {
 app.get('/auth', async (req, res) => {
   try {
     const authPath = path.join(__dirname, 'auth.html');
+    
+    // Check if file exists
+    try {
+      await fs.access(authPath);
+    } catch (accessErr) {
+      console.error('❌ Auth.html file not found at:', authPath);
+      console.error('Current directory:', __dirname);
+      return res.status(500).send(`
+        <html>
+          <body style="font-family: Arial; padding: 40px; text-align: center;">
+            <h1>❌ Configuration Error</h1>
+            <p>Auth page file not found. Please check server configuration.</p>
+            <p style="color: #666; font-size: 12px;">Path: ${authPath}</p>
+          </body>
+        </html>
+      `);
+    }
+
     let content = await fs.readFile(authPath, 'utf8');
 
-    // Inject environment variables safely
+    // Inject environment variables safely with multiple regex patterns
     if (process.env.SUPABASE_URL) {
-      content = content.replace(
+      // Try multiple patterns to match different quote styles
+      const patterns = [
+        /const SUPABASE_URL = ['"].*?['"];/,
         /const SUPABASE_URL = '.*';/,
-        `const SUPABASE_URL = ${JSON.stringify(process.env.SUPABASE_URL)};`
-      );
+        /const SUPABASE_URL = ".*";/
+      ];
+      
+      let replaced = false;
+      for (const pattern of patterns) {
+        if (pattern.test(content)) {
+          content = content.replace(
+            pattern,
+            `const SUPABASE_URL = ${JSON.stringify(process.env.SUPABASE_URL)};`
+          );
+          replaced = true;
+          console.log('✅ Injected SUPABASE_URL from environment');
+          break;
+        }
+      }
+      
+      if (!replaced) {
+        console.warn('⚠️  Could not find SUPABASE_URL pattern to replace');
+      }
+    } else {
+      console.warn('⚠️  SUPABASE_URL environment variable not set');
     }
 
     if (process.env.SUPABASE_ANON_KEY) {
-      content = content.replace(
+      // Try multiple patterns to match different quote styles
+      const patterns = [
+        /const SUPABASE_ANON_KEY = ['"].*?['"];/,
         /const SUPABASE_ANON_KEY = '.*';/,
-        `const SUPABASE_ANON_KEY = ${JSON.stringify(process.env.SUPABASE_ANON_KEY)};`
-      );
+        /const SUPABASE_ANON_KEY = ".*";/
+      ];
+      
+      let replaced = false;
+      for (const pattern of patterns) {
+        if (pattern.test(content)) {
+          content = content.replace(
+            pattern,
+            `const SUPABASE_ANON_KEY = ${JSON.stringify(process.env.SUPABASE_ANON_KEY)};`
+          );
+          replaced = true;
+          console.log('✅ Injected SUPABASE_ANON_KEY from environment');
+          break;
+        }
+      }
+      
+      if (!replaced) {
+        console.warn('⚠️  Could not find SUPABASE_ANON_KEY pattern to replace');
+      }
+    } else {
+      console.warn('⚠️  SUPABASE_ANON_KEY environment variable not set');
     }
 
+    // Set proper content type
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(content);
   } catch (err) {
-    console.error('Error serving auth page:', err);
-    res.status(500).send('Error loading auth page');
+    console.error('❌ Error serving auth page:', err);
+    console.error('Stack:', err.stack);
+    res.status(500).send(`
+      <html>
+        <body style="font-family: Arial; padding: 40px; text-align: center;">
+          <h1>❌ Server Error</h1>
+          <p>Error loading authentication page. Please try again later.</p>
+          <p style="color: #666; font-size: 12px;">${err.message}</p>
+        </body>
+      </html>
+    `);
   }
 });
 
