@@ -36,6 +36,13 @@ async function createSubscription(userId, planId) {
   try {
     // Create subscription
     if (!razorpay) throw new Error('Payment gateway not configured');
+    
+    if (!planId) {
+      throw new Error('Plan ID is required');
+    }
+    
+    console.log('🔍 Creating Razorpay subscription:', { userId, planId });
+    
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       customer_notify: 1,
@@ -45,6 +52,8 @@ async function createSubscription(userId, planId) {
       }
     });
 
+    console.log('✅ Subscription created successfully:', subscription.id);
+
     return {
       success: true,
       subscriptionId: subscription.id,
@@ -53,7 +62,19 @@ async function createSubscription(userId, planId) {
 
   } catch (error) {
     console.error('❌ Error creating subscription:', error);
-    throw new Error('Failed to create subscription');
+    console.error('❌ Error details:', {
+      message: error.message,
+      description: error.description,
+      field: error.field,
+      source: error.source,
+      step: error.step,
+      reason: error.reason,
+      metadata: error.metadata
+    });
+    
+    // Return more detailed error message
+    const errorMessage = error.description || error.message || 'Failed to create subscription';
+    throw new Error(errorMessage);
   }
 }
 

@@ -7079,10 +7079,20 @@ app.post('/api/billing/subscription', verifyAuth, async (req, res) => {
       ? planConfig.razorpay_annual_plan_id
       : planConfig.razorpay_monthly_plan_id;
 
+    console.log('🔍 Subscription request:', {
+      plan,
+      billingCycle,
+      planId,
+      monthlyPlanId: planConfig.razorpay_monthly_plan_id,
+      annualPlanId: planConfig.razorpay_annual_plan_id
+    });
+
     if (!planId) {
+      const missingPlan = billingCycle === 'annual' ? 'annual' : 'monthly';
+      console.error(`❌ Missing Razorpay ${missingPlan} plan ID for ${plan} plan`);
       return res.status(400).json({
         success: false,
-        error: 'Razorpay Plan ID not configured. Please contact support.'
+        error: `Razorpay ${missingPlan} Plan ID not configured for ${plan} plan. Please contact support.`
       });
     }
 
