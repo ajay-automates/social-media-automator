@@ -135,6 +135,7 @@ export default function Pricing() {
         subscription_id: subscriptionId,
         name: "Social Media Automator",
         description: `${planName.charAt(0).toUpperCase() + planName.slice(1)} Plan Subscription`,
+        currency: "USD", // Set currency to USD
         handler: async function (response) {
           try {
             // Verify Payment
@@ -156,6 +157,9 @@ export default function Pricing() {
         },
         theme: {
           color: "#3B82F6"
+        },
+        prefill: {
+          // Optional: prefill customer details
         }
       };
 
