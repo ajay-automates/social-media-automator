@@ -330,17 +330,26 @@
 
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('✅ Supabase client initialized');
+        console.log('Supabase URL:', SUPABASE_URL);
+        console.log('Supabase Key:', SUPABASE_ANON_KEY ? 'Present (' + SUPABASE_ANON_KEY.substring(0, 20) + '...)' : 'Missing');
 
-        // Test the connection
+        // Test the connection with a simple API call
         try {
           const { data, error } = await supabaseClient.auth.getSession();
           if (error && error.message && !error.message.includes('No session')) {
-            console.warn('Supabase connection test warning:', error.message);
+            console.warn('⚠️ Supabase connection test warning:', error.message);
+            // This is OK - just means no existing session
           } else {
             console.log('✅ Supabase connection verified');
+            if (data?.session) {
+              console.log('✅ Existing session found');
+            } else {
+              console.log('ℹ️ No existing session (this is normal for new users)');
+            }
           }
         } catch (testError) {
-          console.warn('Supabase connection test failed (non-critical):', testError.message);
+          console.error('❌ Supabase connection test failed:', testError.message);
+          showSystemError('Warning: Could not verify Supabase connection. Sign-in may not work properly.');
         }
 
         // Persist config for Dashboard
@@ -457,7 +466,18 @@
           btn.textContent = 'Signing in...';
         }
 
-        console.log('Attempting to sign in with email:', email);
+        // Verify Supabase client is ready
+        if (!supabaseClient || typeof supabaseClient.auth === 'undefined') {
+          throw new Error('Authentication service not ready. Please reload the page.');
+        }
+
+        console.log('🔐 Attempting to sign in with email:', email);
+        console.log('Supabase client status:', {
+          initialized: !!supabaseClient,
+          hasAuth: !!supabaseClient.auth,
+          url: SUPABASE_URL
+        });
+
         const { data, error } = await supabaseClient.auth.signInWithPassword({
           email,
           password
@@ -487,8 +507,30 @@
         }
 
         // Redirect to dashboard
-        console.log('Redirecting to dashboard...');
-        window.location.href = '/dashboard';
+        console.log('✅ Sign-in successful, redirecting to dashboard...');
+        console.log('Session data:', {
+          access_token: data.session.access_token ? 'Present' : 'Missing',
+          expires_at: data.session.expires_at,
+          user: data.user?.email
+        });
+        
+        // Try multiple redirect methods for reliability
+        try {
+          // Method 1: Direct redirect
+          window.location.href = '/dashboard';
+          
+          // Method 2: Fallback after 1 second if redirect didn't work
+          setTimeout(() => {
+            if (window.location.pathname !== '/dashboard') {
+              console.warn('Redirect may have failed, trying alternative method...');
+              window.location.replace('/dashboard');
+            }
+          }, 1000);
+        } catch (redirectError) {
+          console.error('Redirect error:', redirectError);
+          // Last resort: manual navigation
+          window.location = '/dashboard';
+        }
       } catch (error) {
         console.error('Sign in error details:', {
           message: error.message,
@@ -714,6 +756,27 @@
       }
     }
 
+    // Diagnostic function to check system status
+    function runDiagnostics() {
+      const diagnostics = {
+        supabaseUrl: SUPABASE_URL || 'MISSING',
+        supabaseKey: SUPABASE_ANON_KEY ? 'Present' : 'MISSING',
+        supabaseClient: supabaseClient ? 'Initialized' : 'NOT INITIALIZED',
+        supabaseLibrary: typeof supabase !== 'undefined' ? 'Loaded' : 'NOT LOADED',
+        localStorage: typeof localStorage !== 'undefined' ? 'Available' : 'NOT AVAILABLE',
+        currentUrl: window.location.href,
+        userAgent: navigator.userAgent.substring(0, 50) + '...'
+      };
+      
+      console.log('🔍 System Diagnostics:', diagnostics);
+      return diagnostics;
+    }
+
+    // Run diagnostics on page load (after a delay)
+    setTimeout(() => {
+      runDiagnostics();
+    }, 2000);
+
     // Get the current domain for redirects
     function getRedirectUrl(path) {
       return window.location.origin + path;
@@ -796,9 +859,16 @@
         const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (session && !error) {
           console.log('✅ User already logged in, redirecting to dashboard');
-          window.location.href = getRedirectUrl('/dashboard');
+          console.log('Session info:', {
+            expires_at: session.expires_at,
+            user: session.user?.email
+          });
+          // Use replace instead of href to avoid adding to history
+          window.location.replace(getRedirectUrl('/dashboard'));
         } else if (error) {
           console.warn('Session check error (non-critical):', error.message);
+        } else {
+          console.log('ℹ️ No existing session found');
         }
       } catch (err) {
         console.error('Error checking session:', err);
