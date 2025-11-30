@@ -246,6 +246,42 @@ function hasFeature(planName, feature) {
   return featureMap[feature] !== undefined ? featureMap[feature] : false;
 }
 
+// Validate plan IDs on module load
+function validatePlanIds() {
+  const missing = [];
+  
+  if (!PLANS.pro.razorpay_monthly_plan_id) {
+    missing.push('RAZORPAY_PRO_MONTHLY_PLAN_ID');
+  }
+  if (!PLANS.pro.razorpay_annual_plan_id) {
+    missing.push('RAZORPAY_PRO_ANNUAL_PLAN_ID');
+  }
+  if (!PLANS.business.razorpay_monthly_plan_id) {
+    missing.push('RAZORPAY_BUSINESS_MONTHLY_PLAN_ID');
+  }
+  if (!PLANS.business.razorpay_annual_plan_id) {
+    missing.push('RAZORPAY_BUSINESS_ANNUAL_PLAN_ID');
+  }
+  
+  if (missing.length > 0) {
+    console.warn('⚠️  Missing Razorpay Plan IDs:', missing.join(', '));
+    console.warn('⚠️  Some subscription features may not work correctly.');
+  } else {
+    console.log('✅ All Razorpay Plan IDs configured');
+    console.log('📋 Plan IDs:', {
+      pro_monthly: PLANS.pro.razorpay_monthly_plan_id,
+      pro_annual: PLANS.pro.razorpay_annual_plan_id,
+      business_monthly: PLANS.business.razorpay_monthly_plan_id,
+      business_annual: PLANS.business.razorpay_annual_plan_id
+    });
+  }
+}
+
+// Run validation on module load
+if (process.env.NODE_ENV !== 'test') {
+  validatePlanIds();
+}
+
 module.exports = {
   PLANS,
   getPlan,

@@ -7084,15 +7084,25 @@ app.post('/api/billing/subscription', verifyAuth, async (req, res) => {
       billingCycle,
       planId,
       monthlyPlanId: planConfig.razorpay_monthly_plan_id,
-      annualPlanId: planConfig.razorpay_annual_plan_id
+      annualPlanId: planConfig.razorpay_annual_plan_id,
+      envVars: {
+        RAZORPAY_PRO_MONTHLY_PLAN_ID: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID ? 'SET' : 'NOT SET',
+        RAZORPAY_PRO_ANNUAL_PLAN_ID: process.env.RAZORPAY_PRO_ANNUAL_PLAN_ID ? 'SET' : 'NOT SET',
+        RAZORPAY_BUSINESS_MONTHLY_PLAN_ID: process.env.RAZORPAY_BUSINESS_MONTHLY_PLAN_ID ? 'SET' : 'NOT SET',
+        RAZORPAY_BUSINESS_ANNUAL_PLAN_ID: process.env.RAZORPAY_BUSINESS_ANNUAL_PLAN_ID ? 'SET' : 'NOT SET'
+      }
     });
 
     if (!planId) {
       const missingPlan = billingCycle === 'annual' ? 'annual' : 'monthly';
+      const envVarName = `RAZORPAY_${plan.toUpperCase()}_${missingPlan.toUpperCase()}_PLAN_ID`;
       console.error(`❌ Missing Razorpay ${missingPlan} plan ID for ${plan} plan`);
+      console.error(`❌ Expected environment variable: ${envVarName}`);
+      console.error(`❌ Current value: ${process.env[envVarName] || 'undefined'}`);
       return res.status(400).json({
         success: false,
-        error: `Razorpay ${missingPlan} Plan ID not configured for ${plan} plan. Please contact support.`
+        error: `Razorpay ${missingPlan} Plan ID not configured for ${plan} plan. Please contact support.`,
+        details: `Environment variable ${envVarName} is not set or is empty.`
       });
     }
 
