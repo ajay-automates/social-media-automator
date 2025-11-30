@@ -198,11 +198,46 @@
     <button onclick="window.location.reload()" class="underline mt-2 text-sm">Reload Page</button>
   </div>
 
+  <!-- Debug Console (Temporary) -->
+  <div id="debugConsole"
+    class="fixed bottom-0 left-0 right-0 bg-black bg-opacity-90 text-green-400 p-4 h-48 overflow-y-auto font-mono text-xs z-50 border-t border-green-500">
+    <div>Debug Console initialized...</div>
+  </div>
+
   <script>
+    // Debug logger
+    function logToScreen(msg, type = 'info') {
+      const consoleDiv = document.getElementById('debugConsole');
+      if (consoleDiv) {
+        const line = document.createElement('div');
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${type.toUpperCase()}: ${msg}`;
+        if (type === 'error') line.style.color = '#ff6b6b';
+        consoleDiv.appendChild(line);
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      }
+    }
+
+    // Override console methods
+    const originalLog = console.log;
+    const originalError = console.error;
+
+    console.log = function (...args) {
+      originalLog.apply(console, args);
+      logToScreen(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+    };
+
+    console.error = function (...args) {
+      originalError.apply(console, args);
+      logToScreen(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '), 'error');
+    };
+
     // Global Error Handler
     window.onerror = function (msg, url, line, col, error) {
       const errorText = document.getElementById('errorText');
       const banner = document.getElementById('errorBanner');
+
+      console.error(`Global Error: ${msg} at ${line}:${col}`);
+
       if (errorText && banner) {
         errorText.textContent = `System Error: ${msg}`;
         banner.classList.remove('hidden');
