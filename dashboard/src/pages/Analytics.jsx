@@ -44,13 +44,13 @@ export default function Analytics() {
   useEffect(() => {
     loadAnalytics();
     loadHistory();
-    loadInsights();
+    // loadInsights(); // Commented out - AI Insights removed from UI
 
     // Auto-refresh every 30 seconds
     const interval = setInterval(() => {
       loadAnalytics();
       loadHistory();
-      loadInsights();
+      // loadInsights(); // Commented out - AI Insights removed from UI
     }, 30000);
 
     return () => clearInterval(interval);
@@ -61,7 +61,7 @@ export default function Analytics() {
     const handleFocus = () => {
       loadAnalytics();
       loadHistory();
-      loadInsights();
+      // loadInsights(); // Commented out - AI Insights removed from UI
     };
 
     window.addEventListener('focus', handleFocus);
@@ -709,8 +709,8 @@ export default function Analytics() {
         </div>
       </motion.div>
 
-      {/* AI Insights Section */}
-      {(insights.length > 0 || patterns.length > 0) && (
+      {/* AI Insights Section - REMOVED */}
+      {false && (insights.length > 0 || patterns.length > 0) && (
         <>
           {/* Insights Stats Cards */}
           {insightsStats && (
@@ -885,8 +885,8 @@ export default function Analytics() {
         </>
       )}
 
-      {/* Analyze Button for Empty State */}
-      {insights.length === 0 && patterns.length === 0 && analytics && analytics.totalPosts > 0 && (
+      {/* Analyze Button for Empty State - REMOVED */}
+      {false && insights.length === 0 && patterns.length === 0 && analytics && analytics.totalPosts > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 text-center">
           <div className="glass border-2 border-white/20 rounded-2xl p-12 max-w-2xl mx-auto">
             <FaBrain className="w-20 h-20 text-cyan-400 mx-auto mb-6" />
