@@ -225,7 +225,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         timestamp={article.timestamp}
                         bulletPoints={article.bulletPoints}
                         isTrending={article.isTrending}
-                        isFeatured={index === 1} // Center card is featured
+                        isFeatured={index === 0} // First card is featured
                         position={index === 0 ? 'left' : index === 1 ? 'center' : index === 2 ? 'right' : 'center'}
                         onReadArticle={() => handleReadArticle(article)}
                         onGeneratePost={() => handleGeneratePost(article)}
