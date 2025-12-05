@@ -165,6 +165,7 @@ function Navigation() {
                 </Link>
               ))}
 
+            </div>
           </div>
 
           {/* User Section */}
