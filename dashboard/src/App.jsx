@@ -57,6 +57,9 @@ function Navigation() {
     { path: '/analytics', label: 'Analytics', icon: '📈', category: 'Features' },
     { path: '/content-agent', label: 'AI Agent', icon: '🤖', category: 'Features' },
     { path: '/team', label: 'Team', icon: '👥', category: 'Features' },
+    { path: '/viral-posts', label: 'Viral Posts', icon: '🔥', category: 'Features' },
+    { path: '/ai-news', label: 'AI News', icon: '📰', category: 'Features' },
+    { path: '/saved-items', label: 'Saved Items', icon: '🔖', category: 'Features' },
 
     // Content Tools
     { path: '/carousel', label: 'Create Carousel', icon: '📸', category: 'Content' },

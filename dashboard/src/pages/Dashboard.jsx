@@ -13,6 +13,8 @@ import AnimatedBackground from '../components/ui/AnimatedBackground';
 import ContentIdeasModal from '../components/ContentIdeasModal';
 import { OnboardingProvider, useOnboarding } from '../contexts/OnboardingContext';
 import OnboardingFlow from '../components/onboarding/OnboardingFlow';
+import TrendingPostsSection from '../components/dashboard/TrendingPostsSection';
+import AINewsFeedSection from '../components/dashboard/AINewsFeedSection';
 
 function DashboardContent() {
   const navigate = useNavigate();
@@ -548,6 +550,12 @@ function DashboardContent() {
             </div>
           </Card3D>
         </div>
+
+        {/* NEW: Trending Posts Section */}
+        <TrendingPostsSection />
+
+        {/* NEW: AI News Feed Section */}
+        <AINewsFeedSection />
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10">
