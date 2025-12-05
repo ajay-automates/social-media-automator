@@ -441,7 +441,7 @@ if (fsSync.existsSync(landingPath)) {
 app.get('/auth', async (req, res) => {
   try {
     const authPath = path.join(__dirname, 'auth.html');
-    
+
     // Check if file exists
     try {
       await fs.access(authPath);
@@ -469,7 +469,7 @@ app.get('/auth', async (req, res) => {
         /const SUPABASE_URL = '.*';/,
         /const SUPABASE_URL = ".*";/
       ];
-      
+
       let replaced = false;
       for (const pattern of patterns) {
         if (pattern.test(content)) {
@@ -482,7 +482,7 @@ app.get('/auth', async (req, res) => {
           break;
         }
       }
-      
+
       if (!replaced) {
         console.warn('⚠️  Could not find SUPABASE_URL pattern to replace');
       }
@@ -497,7 +497,7 @@ app.get('/auth', async (req, res) => {
         /const SUPABASE_ANON_KEY = '.*';/,
         /const SUPABASE_ANON_KEY = ".*";/
       ];
-      
+
       let replaced = false;
       for (const pattern of patterns) {
         if (pattern.test(content)) {
@@ -510,7 +510,7 @@ app.get('/auth', async (req, res) => {
           break;
         }
       }
-      
+
       if (!replaced) {
         console.warn('⚠️  Could not find SUPABASE_ANON_KEY pattern to replace');
       }
@@ -1429,22 +1429,36 @@ app.get('/api/queue', verifyAuth, async (req, res) => {
 app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const postId = parseInt(req.params.id);
-    const deleted = await deleteFromQueue(postId, userId);
+    const postId = req.params.id; // Don't parseInt - support UUIDs
 
-    if (deleted) {
+    console.log(`🗑️  DELETE /api/queue/${postId} - User: ${userId}`);
+
+    const result = await deleteFromQueue(postId, userId);
+
+    console.log(`🗑️  Delete result:`, JSON.stringify(result, null, 2));
+
+    if (result.success && result.count > 0) {
+      console.log(`✅ Successfully deleted post ${postId}`);
       res.json({
         success: true,
-        message: 'Post removed from queue'
+        message: 'Post removed from queue',
+        count: result.count
       });
-    } else {
+    } else if (result.success && result.count === 0) {
+      console.log(`⚠️  Post ${postId} not found or not owned by user ${userId}`);
       res.status(404).json({
         success: false,
-        error: 'Post not found'
+        error: 'Post not found or you do not have permission to delete it'
+      });
+    } else {
+      console.error(`❌ Delete failed:`, result.error);
+      res.status(500).json({
+        success: false,
+        error: result.error || 'Failed to delete post'
       });
     }
   } catch (error) {
-    console.error('Error in /api/queue/:id:', error);
+    console.error('❌ Error in /api/queue/:id:', error);
     res.status(500).json({
       success: false,
       error: error.message

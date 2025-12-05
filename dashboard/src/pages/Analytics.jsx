@@ -681,23 +681,49 @@ export default function Analytics() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => {
-                              // Navigate to create post with prefilled data
-                              const state = {
-                                clonedCaption: post.text || post.caption,
-                                clonedPlatforms: platforms,
-                                clonedImageUrl: post.image_url
-                              };
-                              window.location.href = `/create?clone=${JSON.stringify(state)}`;
-                            }}
-                            className="px-3 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded hover:bg-purple-600/30 transition-all text-xs font-semibold"
-                            title="Clone this post"
-                          >
-                            📋 Clone
-                          </motion.button>
+                          <div className="flex gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => {
+                                // Navigate to create post with prefilled data
+                                const state = {
+                                  clonedCaption: post.text || post.caption,
+                                  clonedPlatforms: platforms,
+                                  clonedImageUrl: post.image_url
+                                };
+                                window.location.href = `/create?clone=${JSON.stringify(state)}`;
+                              }}
+                              className="px-3 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded hover:bg-purple-600/30 transition-all text-xs font-semibold"
+                              title="Clone this post"
+                            >
+                              📋 Clone
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={async () => {
+                                if (confirm('Are you sure you want to delete this post record?')) {
+                                  try {
+                                    await api.delete(`/queue/${post.id}`);
+                                    showSuccess('Post deleted');
+                                    // Refresh history
+                                    const response = await api.get('/posts/history');
+                                    if (response.data.success) {
+                                      setHistory(response.data.history);
+                                    }
+                                  } catch (err) {
+                                    console.error('Error deleting post:', err);
+                                    showError('Failed to delete post');
+                                  }
+                                }
+                              }}
+                              className="px-3 py-1 bg-red-600/20 text-red-300 border border-red-500/30 rounded hover:bg-red-600/30 transition-all text-xs font-semibold"
+                              title="Delete this post"
+                            >
+                              🗑️ Delete
+                            </motion.button>
+                          </div>
                         </td>
                       </tr>
                     );

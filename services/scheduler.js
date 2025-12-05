@@ -892,9 +892,7 @@ async function getQueue(userId) {
 
 async function deleteFromQueue(postId, userId) {
   try {
-    const { error } = await supabase
-      .from('posts')
-      .delete()
+    const { error, count } = await supabase      .from('posts')      .delete({ count: 'exact' })
       .eq('id', postId)
       .eq('user_id', userId);
 
@@ -902,7 +900,7 @@ async function deleteFromQueue(postId, userId) {
       throw error;
     }
 
-    return { success: true };
+    return { success: true, count };
   } catch (error) {
     console.error('Error deleting from queue:', error);
     return { success: false, error: error.message };

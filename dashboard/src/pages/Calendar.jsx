@@ -293,6 +293,57 @@ export default function Calendar() {
     }
   };
 
+  // Navigate between posts with arrow keys
+  const navigatePost = (direction) => {
+    if (!selectedEvent || filteredEvents.length === 0) return;
+
+    // Sort events by start time to ensure logical navigation
+    const sortedEvents = [...filteredEvents].sort((a, b) => new Date(a.start) - new Date(b.start));
+    const currentIndex = sortedEvents.findIndex(e => e.id === selectedEvent.id);
+
+    if (currentIndex === -1) return;
+
+    let newIndex = currentIndex + direction;
+
+    // Loop around
+    if (newIndex < 0) newIndex = sortedEvents.length - 1;
+    if (newIndex >= sortedEvents.length) newIndex = 0;
+
+    setSelectedEvent(sortedEvents[newIndex]);
+  };
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!showEventModal) return;
+
+      if (e.key === 'ArrowLeft') {
+        navigatePost(-1);
+      } else if (e.key === 'ArrowRight') {
+        navigatePost(1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showEventModal, selectedEvent, filteredEvents]);
+
+  // Handle clicking a date to go to Agenda view
+  const handleDrillDown = (date) => {
+    setView('agenda');
+    // You might need to set the date as well if the calendar doesn't automatically
+    // But react-big-calendar usually handles the date navigation internally or via a 'date' prop if controlled.
+    // Since we are not controlling 'date' prop explicitly in the state shown above (only 'view'), 
+    // we might need to add a 'date' state if we want to force it. 
+    // However, let's try just switching view first. 
+    // Actually, to jump to the specific date, we should probably control the date state.
+    // Let's check if 'date' prop is used. It's not in the visible code.
+    // We can add a 'date' state.
+    setCurrentDate(date);
+  };
+
+  const [currentDate, setCurrentDate] = useState(new Date());
+
   // Custom event styling with platform colors
   const eventStyleGetter = (event) => {
     const primaryPlatform = event.platforms?.[0];
@@ -591,6 +642,9 @@ export default function Calendar() {
                 eventPropGetter={eventStyleGetter}
                 view={view}
                 onView={setView}
+                date={currentDate}
+                onNavigate={setCurrentDate}
+                onDrillDown={handleDrillDown}
                 views={['month', 'week', 'day', 'agenda']}
                 className="calendar-ios"
                 resizable={false}
@@ -806,39 +860,57 @@ export default function Calendar() {
                 )}
 
                 {/* Actions - Dark */}
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => {
-                      // Clone the post
-                      const state = {
-                        clonedCaption: selectedEvent.text,
-                        clonedPlatforms: selectedEvent.platforms || [],
-                        clonedImageUrl: selectedEvent.image_url
-                      };
-                      window.location.href = `/create?clone=${JSON.stringify(state)}`;
-                    }}
-                    className="flex-1 bg-[#5ac8fa] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#6ad8ff] transition"
-                    style={{
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
-                    }}
-                  >
-                    📋 Clone
-                  </button>
-                  <button
-                    onClick={handleDeletePost}
-                    className="flex-1 bg-[#ff453a] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#ff6259] transition"
-                    style={{
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
-                    }}
-                  >
-                    Delete Post
-                  </button>
-                  <button
-                    onClick={() => setShowEventModal(false)}
-                    className="flex-1 ios-button-secondary px-6 py-3"
-                  >
-                    Close
-                  </button>
+                <div className="flex flex-col gap-3 pt-4">
+                  <div className="flex justify-between items-center pb-2">
+                    <button
+                      onClick={() => navigatePost(-1)}
+                      className="text-[#98989d] hover:text-white transition flex items-center gap-1 text-sm font-medium"
+                    >
+                      ← Previous
+                    </button>
+                    <span className="text-[#38383a] text-xs">Use arrow keys</span>
+                    <button
+                      onClick={() => navigatePost(1)}
+                      className="text-[#98989d] hover:text-white transition flex items-center gap-1 text-sm font-medium"
+                    >
+                      Next →
+                    </button>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        // Clone the post
+                        const state = {
+                          clonedCaption: selectedEvent.text,
+                          clonedPlatforms: selectedEvent.platforms || [],
+                          clonedImageUrl: selectedEvent.image_url
+                        };
+                        window.location.href = `/create?clone=${JSON.stringify(state)}`;
+                      }}
+                      className="flex-1 bg-[#5ac8fa] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#6ad8ff] transition"
+                      style={{
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+                      }}
+                    >
+                      📋 Clone
+                    </button>
+                    <button
+                      onClick={handleDeletePost}
+                      className="flex-1 bg-[#ff453a] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#ff6259] transition"
+                      style={{
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
+                      }}
+                    >
+                      Delete Post
+                    </button>
+                    <button
+                      onClick={() => setShowEventModal(false)}
+                      className="flex-1 ios-button-secondary px-6 py-3"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
