@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 /**
  * OverlappingCardCarousel - Netflix-style horizontal scroll carousel
- * Clean, minimal, no 3D effects
+ * Arrows always visible, smooth horizontal scrolling
  */
 export default function OverlappingCardCarousel({
     children,
@@ -13,7 +13,6 @@ export default function OverlappingCardCarousel({
     const scrollContainerRef = useRef(null);
     const [showLeftArrow, setShowLeftArrow] = useState(false);
     const [showRightArrow, setShowRightArrow] = useState(true);
-    const [isHovering, setIsHovering] = useState(false);
 
     // Check scroll position to show/hide arrows
     const checkScrollPosition = () => {
@@ -31,7 +30,13 @@ export default function OverlappingCardCarousel({
         checkScrollPosition();
         container.addEventListener('scroll', checkScrollPosition);
 
-        return () => container.removeEventListener('scroll', checkScrollPosition);
+        // Also check on window resize
+        window.addEventListener('resize', checkScrollPosition);
+
+        return () => {
+            container.removeEventListener('scroll', checkScrollPosition);
+            window.removeEventListener('resize', checkScrollPosition);
+        };
     }, []);
 
     const scroll = (direction) => {
@@ -48,11 +53,7 @@ export default function OverlappingCardCarousel({
     };
 
     return (
-        <div
-            className={`relative ${className}`}
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-        >
+        <div className={`relative ${className}`}>
             {/* Scroll Container - Netflix style: clean horizontal scroll */}
             <div
                 ref={scrollContainerRef}
@@ -67,63 +68,57 @@ export default function OverlappingCardCarousel({
                 {children}
             </div>
 
-            {/* Left Arrow */}
-            <AnimatePresence>
-                {showLeftArrow && isHovering && (
-                    <motion.button
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        transition={{ duration: 0.2 }}
-                        onClick={() => scroll('left')}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/70 transition-all shadow-xl"
-                        aria-label="Scroll left"
+            {/* Left Arrow - ALWAYS VISIBLE when there's content to scroll */}
+            {showLeftArrow && (
+                <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => scroll('left')}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-black/90 transition-all shadow-xl"
+                    aria-label="Scroll left"
+                >
+                    <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke={arrowColor}
+                        viewBox="0 0 24 24"
                     >
-                        <svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke={arrowColor}
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
-                    </motion.button>
-                )}
-            </AnimatePresence>
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 19l-7-7 7-7"
+                        />
+                    </svg>
+                </motion.button>
+            )}
 
-            {/* Right Arrow */}
-            <AnimatePresence>
-                {showRightArrow && isHovering && (
-                    <motion.button
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2 }}
-                        onClick={() => scroll('right')}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/70 transition-all shadow-xl"
-                        aria-label="Scroll right"
+            {/* Right Arrow - ALWAYS VISIBLE when there's content to scroll */}
+            {showRightArrow && (
+                <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => scroll('right')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-black/90 transition-all shadow-xl"
+                    aria-label="Scroll right"
+                >
+                    <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke={arrowColor}
+                        viewBox="0 0 24 24"
                     >
-                        <svg
-                            className="w-6 h-6"
-                            fill="none"
-                            stroke={arrowColor}
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                            />
-                        </svg>
-                    </motion.button>
-                )}
-            </AnimatePresence>
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                        />
+                    </svg>
+                </motion.button>
+            )}
 
             {/* Hide scrollbar */}
             <style jsx>{`
