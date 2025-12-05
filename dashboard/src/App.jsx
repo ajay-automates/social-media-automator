@@ -37,24 +37,30 @@ function Navigation() {
   const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
 
-  // TIER 1: Core Navigation (Always visible - 4 items)
+  // TIER 1: Core Navigation (Always visible - 3 items)
   const coreNavItems = [
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/create', label: 'Create Post', icon: '✨' },
     { path: '/calendar', label: 'Calendar', icon: '📅' },
-    { path: '/analytics', label: 'Analytics', icon: '📈' },
   ];
 
-  // TIER 2: Quick Actions (Secondary nav - 3 items)
+  // TIER 2: Quick Actions (Secondary nav - 1 item)
   const quickActionItems = [
     { path: '/connect-accounts', label: 'Accounts', icon: '🔗' },
-    { path: '/content-agent', label: 'AI Agent', icon: '🤖' },
-    { path: '/team', label: 'Team', icon: '👥' },
   ];
 
-  // TIER 3: Advanced Features (User dropdown - organized by category)
+  // TIER 3: More Menu (Dropdown - organized by category)
+  const moreMenuItems = [
+    // Key Features
+    { path: '/analytics', label: 'Analytics', icon: '📈', category: 'Features' },
+    { path: '/content-agent', label: 'AI Agent', icon: '🤖', category: 'Features' },
+    { path: '/team', label: 'Team', icon: '👥', category: 'Features' },
+  ];
+
+  // TIER 4: Advanced Features (User dropdown - organized by category)
   const advancedMenuItems = [
     // Content Tools
     { path: '/carousel', label: 'Create Carousel', icon: '📸', category: 'Content' },
@@ -76,7 +82,7 @@ function Navigation() {
   ];
 
   // All items for mobile menu
-  const allNavItems = [...coreNavItems, ...quickActionItems, ...advancedMenuItems];
+  const allNavItems = [...coreNavItems, ...quickActionItems, ...moreMenuItems, ...advancedMenuItems];
 
   return (
     <motion.nav
@@ -162,6 +168,63 @@ function Navigation() {
                   />
                 </Link>
               ))}
+
+              {/* More Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setMoreMenuOpen(!moreMenuOpen)}
+                  className="relative group px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 text-gray-400 hover:text-purple-200"
+                >
+                  <span>⋯</span>
+                  <span>More</span>
+                  <svg className={`w-3 h-3 transition-transform ${moreMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+
+                  {/* Hover glow */}
+                  <motion.div
+                    className="absolute inset-0 rounded-lg bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                </button>
+
+                {/* More Dropdown Menu */}
+                <AnimatePresence>
+                  {moreMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-56 glass border-2 border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%)',
+                        backdropFilter: 'blur(20px)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+                      }}
+                    >
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-blue-500/10 pointer-events-none"></div>
+
+                      <div className="relative py-2">
+                        {moreMenuItems.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => setMoreMenuOpen(false)}
+                            className={`flex items-center gap-3 px-4 py-2.5 transition-all ${isActive(item.path)
+                              ? 'bg-gradient-to-r from-purple-600/30 to-pink-600/30 text-purple-300 border-l-2 border-purple-400'
+                              : 'text-gray-300 hover:bg-white/10 hover:text-white hover:border-l-2 hover:border-purple-400/50'
+                              }`}
+                          >
+                            <span className="text-lg">{item.icon}</span>
+                            <span className="text-sm font-medium">{item.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
