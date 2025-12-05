@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import NewsCard from './NewsCard';
+import GeneratePostPreview from './GeneratePostPreview';
 
 /**
  * AINewsFeedSection - Container for AI news with overlapping card layout
@@ -16,6 +17,12 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Preview Modal State
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [selectedArticle, setSelectedArticle] = useState(null);
+    const [generatedContent, setGeneratedContent] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // Mock data for fallback
     const mockNews = [
@@ -161,13 +168,55 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         }
     };
 
+    const generateContentFromArticle = (article) => {
+        return `Check out this latest AI news: "${article.headline}"\n\n${article.source} reports: ${article.bulletPoints[0]}\n\nSource: ${article.url || article.link}`;
+    };
+
     const handleGeneratePost = (article) => {
         console.log('Generate post from:', article);
+        setSelectedArticle(article);
+        setGeneratedContent(generateContentFromArticle(article));
+        setIsPreviewOpen(true);
+    };
+
+    const handleRegenerate = async () => {
+        if (!selectedArticle) return;
+
+        setIsGenerating(true);
+        // Simulate AI delay for better UX
+        setTimeout(() => {
+            // Simple variation for now - in production this would call the AI API
+            const variations = [
+                `🔥 Hot off the press from ${selectedArticle.source}: ${selectedArticle.headline}\n\nKey takeaway: ${selectedArticle.bulletPoints[0]}\n\nRead more: ${selectedArticle.url}`,
+                `🤖 AI News Update: "${selectedArticle.headline}"\n\nWhy it matters: ${selectedArticle.bulletPoints[0]}\n\n🔗 ${selectedArticle.url}`,
+                `Breaking news in AI! ${selectedArticle.headline} just dropped. \n\n${selectedArticle.bulletPoints[0]}\n\nSource: ${selectedArticle.url}`
+            ];
+            const random = variations[Math.floor(Math.random() * variations.length)];
+            setGeneratedContent(random);
+            setIsGenerating(false);
+        }, 1500);
+    };
+
+    const handlePostNow = (platforms) => {
         navigate('/create-post', {
             state: {
-                initialContent: `Check out this latest AI news: "${article.headline}"\n\n${article.source} reports: ${article.bulletPoints[0]}\n\nSource: ${article.url}`,
-                sourceUrl: article.url,
-                type: 'news'
+                initialContent: generatedContent,
+                sourceUrl: selectedArticle?.url,
+                type: 'news',
+                immediate: true, // signal to create post page to focus on posting
+                platforms: platforms || []
+            }
+        });
+    };
+
+    const handleSchedule = (platforms) => {
+        navigate('/create-post', {
+            state: {
+                initialContent: generatedContent,
+                sourceUrl: selectedArticle?.url,
+                type: 'news',
+                schedule: true, // signal to create post page to open schedule
+                platforms: platforms || []
             }
         });
     };
@@ -233,6 +282,18 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                     />
                 ))}
             </OverlappingCardCarousel>
+
+            {/* Generate Post Preview Modal */}
+            <GeneratePostPreview
+                isOpen={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                article={selectedArticle}
+                generatedContent={generatedContent}
+                isGenerating={isGenerating}
+                onRegenerate={handleRegenerate}
+                onPostNow={handlePostNow}
+                onSchedule={handleSchedule}
+            />
         </motion.div>
     );
 }
