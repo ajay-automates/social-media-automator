@@ -43,9 +43,8 @@ async function fetchRedditTrending(subreddit = 'all', limit = 25) {
 
     // Filter for high-quality trending posts
     const trending = posts.filter(p =>
-      p.score > 1000 &&
-      p.upvote_ratio > 0.85 &&
-      p.num_comments > 50
+      p.score > 500 &&
+      p.upvote_ratio > 0.80
     );
 
     console.log(`   ✅ Found ${trending.length} trending topics on Reddit`);
@@ -98,7 +97,7 @@ async function fetchGoogleTrends(geo = 'US') {
     console.log(`\n🔍 Fetching Google Trends for ${geo}...`);
 
     // Google Trends Daily RSS feed
-    const url = `https://trends.google.com/trends/trendingsearches/daily/rss?geo=${geo}`;
+    const url = `https://trends.google.com/trending/rss?geo=${geo}`;
 
     const response = await axios.get(url, {
       headers: {
@@ -156,18 +155,72 @@ async function fetchGoogleTrends(geo = 'US') {
  * @param {Object} options - Fetch options
  * @returns {Promise<Array>} All trending topics
  */
+/**
+ * Fetch trending topics from Hacker News (Algolia API)
+ * @returns {Promise<Array>} Trending topics
+ */
+async function fetchHackerNewsTrending() {
+  try {
+    console.log('\n👨‍💻 Fetching Hacker News trends...');
+    // Fetch stories with > 200 points
+    const url = 'https://hn.algolia.com/api/v1/search?tags=story&numericFilters=points>200';
+
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'SocialMediaAutomator/1.0'
+      }
+    });
+
+    const hits = response.data.hits || [];
+
+    const trending = hits.map(hit => ({
+      topic: hit.title,
+      source: 'hacker_news',
+      score: Math.min(100, Math.round(hit.points / 10)), // Normalize points
+      volume: hit.points,
+      category: 'tech',
+      url: `https://news.ycombinator.com/item?id=${hit.objectID}`
+    }));
+
+    console.log(`   ✅ Found ${trending.length} trending stories on Hacker News`);
+    return trending;
+
+  } catch (error) {
+    console.error('❌ Hacker News fetch error:', error.message);
+    return [];
+  }
+}
+
+/**
+ * Aggregate trends from all sources
+ * @param {Object} options - Fetch options
+ * @returns {Promise<Array>} All trending topics
+ */
 async function fetchAllTrends(options = {}) {
   try {
     console.log('\n🌐 Fetching trends from all sources...');
 
-    const [googleTrends, redditTrends] = await Promise.all([
+    // If subreddit is 'all', use a curated list of AI/Tech subreddits
+    let redditTrends = [];
+    if (!options.subreddit || options.subreddit === 'all') {
+      const subreddits = ['artificial', 'MachineLearning', 'ChatGPT', 'technology', 'Futurology'];
+      const results = await Promise.all(
+        subreddits.map(sub => fetchRedditTrending(sub, 10))
+      );
+      redditTrends = results.flat();
+    } else {
+      redditTrends = await fetchRedditTrending(options.subreddit, options.limit || 25);
+    }
+
+    const [googleTrends, hackerNewsTrends] = await Promise.all([
       fetchGoogleTrends(options.geo || 'US'),
-      fetchRedditTrending(options.subreddit || 'all', options.limit || 25)
+      fetchHackerNewsTrending()
     ]);
 
     const allTrends = [
       ...googleTrends,
-      ...redditTrends
+      ...redditTrends,
+      ...hackerNewsTrends
     ];
 
     // Sort by score (descending)

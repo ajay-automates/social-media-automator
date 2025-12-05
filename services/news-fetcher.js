@@ -9,18 +9,15 @@ async function fetchLatestAINews() {
     console.log('📰 Fetching latest AI news from RSS feeds...');
 
     const sources = [
-        {
-            name: 'TechCrunch AI',
-            url: 'https://techcrunch.com/category/artificial-intelligence/feed/'
-        },
-        {
-            name: 'Google News (AI Tools)',
-            url: 'https://news.google.com/rss/search?q=new+AI+tools+when:2d&hl=en-US&gl=US&ceid=US:en'
-        },
-        {
-            name: 'VentureBeat AI',
-            url: 'https://venturebeat.com/category/ai/feed/'
-        }
+        { name: 'OpenAI Blog', url: 'https://openai.com/blog/rss/' },
+        { name: 'Anthropic News', url: 'https://www.anthropic.com/news/rss' },
+        { name: 'Google AI Blog', url: 'https://blog.google/technology/ai/rss/' },
+        { name: 'DeepMind Blog', url: 'https://deepmind.google/blog/rss.xml' },
+        { name: 'Microsoft AI', url: 'https://blogs.microsoft.com/ai/feed/' },
+        { name: 'TechCrunch AI', url: 'https://techcrunch.com/category/artificial-intelligence/feed/' },
+        { name: 'The Verge AI', url: 'https://www.theverge.com/ai-artificial-intelligence/rss/index.xml' },
+        { name: 'Wired AI', url: 'https://www.wired.com/tag/artificial-intelligence/feed' },
+        { name: 'Ars Technica AI', url: 'https://arstechnica.com/tag/artificial-intelligence/feed/' }
     ];
 
     let allNews = [];
@@ -34,6 +31,7 @@ async function fetchLatestAINews() {
             const normalizedItems = items.map(item => ({
                 title: item.title ? item.title[0] : 'No Title',
                 link: item.link ? item.link[0] : '',
+                url: item.link ? item.link[0] : '', // Alias for compatibility
                 pubDate: item.pubDate ? new Date(item.pubDate[0]) : new Date(),
                 description: item.description ? item.description[0] : '',
                 source: source.name

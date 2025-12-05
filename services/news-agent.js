@@ -234,19 +234,18 @@ async function fetchNewsByCategory(bypassCache = false) {
 /**
  * Get trending news (legacy function for compatibility)
  */
+/**
+ * Get trending news (Uses specialized AI news fetcher)
+ */
 async function fetchTrendingNews(limit = 20) {
   try {
-    console.log('\n📰 Fetching trending news...');
+    console.log('\n📰 Fetching trending AI news...');
 
-    const grouped = await fetchNewsByCategory();
+    // Use the specialized AI news fetcher
+    const { fetchLatestAINews } = require('./news-fetcher');
+    const aiNews = await fetchLatestAINews();
 
-    // Flatten and return articles
-    const articles = [];
-    for (const [category, data] of Object.entries(grouped)) {
-      articles.push(...data.articles);
-    }
-
-    return articles.slice(0, limit);
+    return aiNews.slice(0, limit);
 
   } catch (error) {
     console.error('❌ Error fetching trending news:', error);

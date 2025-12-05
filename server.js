@@ -319,19 +319,6 @@ app.use(helmet({
       frameSrc: ["'self'", "https://api.razorpay.com"],
       upgradeInsecureRequests: [], // Allow mixed content if necessary (though prod should be https)
     },
-  },
-  crossOriginEmbedderPolicy: false, // Required for some third-party iframes/scripts
-}));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000  // 24 hours
   }
 }));
 
@@ -2703,6 +2690,48 @@ app.get('/api/content-agent/trends', verifyAuth, async (req, res) => {
       success: false,
       error: error.message || 'Failed to fetch trends'
     });
+  }
+});
+
+/**
+ * GET /api/trends/live
+ * Get live trending topics from Google and Reddit (no auth required for read-only if public, but keeping verifyAuth for consistency)
+ */
+app.get('/api/trends/live', verifyAuth, async (req, res) => {
+  try {
+    const { limit = 20 } = req.query;
+
+    console.log(`🔥 Fetching live trends...`);
+
+    const trends = await fetchAllTrends({ limit: parseInt(limit) });
+
+    res.json({
+      success: true,
+      trends,
+      count: trends.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error in /api/trends/live:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch live trends'
+    });
+  }
+});
+
+/**
+ * GET /api/news/trending
+ * Fetch trending AI news from updated RSS sources
+ */
+app.get('/api/news/trending', verifyAuth, async (req, res) => {
+  try {
+    const { limit = 20 } = req.query;
+    const news = await fetchTrendingNews(parseInt(limit));
+    res.json({ success: true, news, count: news.length });
+  } catch (error) {
+    console.error('❌ Error in /api/news/trending:', error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to fetch trending news' });
   }
 });
 

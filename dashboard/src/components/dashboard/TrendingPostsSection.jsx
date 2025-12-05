@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import api from '../../lib/api';
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import TrendingCard from './TrendingCard';
 
@@ -7,11 +9,15 @@ import TrendingCard from './TrendingCard';
  * TrendingPostsSection - Container for trending posts with overlapping card layout
  * 
  * Props:
- * - posts: array of trending post objects
- * - loading: boolean
+ * - posts: array of trending post objects (optional override)
+ * - loading: boolean (optional override)
  */
-export default function TrendingPostsSection({ posts = [], loading = false }) {
-    // Mock data for development
+export default function TrendingPostsSection({ posts: initialPosts, loading: initialLoading }) {
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Mock data for fallback
     const mockPosts = [
         {
             id: 1,
@@ -36,70 +42,63 @@ export default function TrendingPostsSection({ posts = [], loading = false }) {
             timestamp: '6h ago',
             content: 'This AI tool just automated my entire workflow. I\'m literally saving 20 hours per week now. Link in bio! #ProductivityHack #AI',
             engagement: { likes: 89000, retweets: 15600, score: 92 }
-        },
-        {
-            id: 4,
-            platform: 'twitter',
-            author: 'Sam Altman',
-            timestamp: '8h ago',
-            content: 'The future of AI is not about replacing humans, it\'s about augmenting human capabilities. Excited for what\'s coming next.',
-            engagement: { likes: 67800, retweets: 19200, score: 97 }
-        },
-        {
-            id: 5,
-            platform: 'reddit',
-            author: 'u/MachineLearning',
-            timestamp: '10h ago',
-            content: 'Just tested the new Claude 4 and wow... the context window improvements are game-changing for long-form content creation.',
-            engagement: { likes: 34500, retweets: 11200, score: 94 }
-        },
-        {
-            id: 6,
-            platform: 'twitter',
-            author: 'Yann LeCun',
-            timestamp: '11h ago',
-            content: 'Objective-driven AI is the path forward. LLMs are just an off-ramp on the highway to AGI. We need world models. 🧠',
-            engagement: { likes: 56200, retweets: 18400, score: 91 }
-        },
-        {
-            id: 7,
-            platform: 'tiktok',
-            author: '@codingwithlewis',
-            timestamp: '12h ago',
-            content: 'Stop coding boilerplate! Use this AI agent to scaffold your entire full-stack app in seconds. Watch till the end! 🤯',
-            engagement: { likes: 112000, retweets: 45000, score: 96 }
-        },
-        {
-            id: 8,
-            platform: 'reddit',
-            author: 'u/SingularityNews',
-            timestamp: '14h ago',
-            content: 'DeepMind just solved a 50-year-old math problem using AlphaGeometry. The implications for scientific discovery are massive.',
-            engagement: { likes: 41200, retweets: 8500, score: 93 }
-        },
-        {
-            id: 9,
-            platform: 'twitter',
-            author: 'Andrej Karpathy',
-            timestamp: '15h ago',
-            content: 'The gradient of progress in AI is steeper than we think. What feels like magic today will be hello world tomorrow.',
-            engagement: { likes: 89500, retweets: 23100, score: 99 }
-        },
-        {
-            id: 10,
-            platform: 'tiktok',
-            author: '@futurism_daily',
-            timestamp: '16h ago',
-            content: 'This robot can now fold laundry faster than a human. The household chore revolution is finally here! 🤖👕',
-            engagement: { likes: 76400, retweets: 12300, score: 88 }
         }
     ];
 
+    useEffect(() => {
+        // If posts are provided via props, use them
+        if (initialPosts && initialPosts.length > 0) {
+            setPosts(initialPosts);
+            setLoading(initialLoading || false);
+            return;
+        }
+
+        const fetchTrends = async () => {
+            try {
+                setLoading(true);
+                const response = await api.get('/trends/live?limit=10');
+
+                if (response.data.success && response.data.trends && response.data.trends.length > 0) {
+                    // Map live trends to post format
+                    const formattedTrends = response.data.trends.map((trend, index) => ({
+                        id: index,
+                        platform: trend.source || 'web',
+                        author: trend.source === 'reddit' ? `r/${trend.category || 'all'}` : 'Google Trends',
+                        timestamp: 'Trending Now',
+                        content: trend.topic,
+                        limit_content: true, // Flag to indicate we might want to limit content length or styling
+                        url: trend.url,
+                        engagement: {
+                            likes: trend.volume || 0,
+                            retweets: 0,
+                            score: trend.score || 80
+                        }
+                    }));
+                    setPosts(formattedTrends);
+                } else {
+                    // Fallback to mock if API returns empty
+                    setPosts(mockPosts);
+                }
+            } catch (err) {
+                console.error('Failed to fetch live trends:', err);
+                setPosts(mockPosts);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTrends();
+    }, [initialPosts, initialLoading]);
+
     const displayPosts = posts.length > 0 ? posts : mockPosts;
+    const isLoading = initialLoading !== undefined ? initialLoading : loading;
 
     const handleViewPost = (post) => {
         console.log('View post:', post);
-        // TODO: Open post in modal or new tab
+        if (post.url) {
+            window.open(post.url, '_blank');
+        }
     };
 
     const handleSave = (post) => {
@@ -107,7 +106,7 @@ export default function TrendingPostsSection({ posts = [], loading = false }) {
         // TODO: Save to user's saved items
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="mb-8 relative z-10">
                 <div className="animate-pulse">
@@ -136,13 +135,13 @@ export default function TrendingPostsSection({ posts = [], loading = false }) {
                         Discover what's going viral across Twitter, Reddit, TikTok & more
                     </p>
                 </div>
-                <Link
+                {/* <Link
                     to="/viral-posts"
                     className="text-orange-400 hover:text-orange-300 font-semibold text-sm inline-flex items-center gap-1 transition-colors"
                 >
                     <span>View All Viral</span>
                     <span>→</span>
-                </Link>
+                </Link> */}
             </div>
 
             {/* Overlapping Cards Carousel */}

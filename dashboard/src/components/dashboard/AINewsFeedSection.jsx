@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import api from '../../lib/api';
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import NewsCard from './NewsCard';
 
@@ -7,11 +9,15 @@ import NewsCard from './NewsCard';
  * AINewsFeedSection - Container for AI news with overlapping card layout
  * 
  * Props:
- * - news: array of AI news objects
- * - loading: boolean
+ * - news: array of AI news objects (optional override)
+ * - loading: boolean (optional override)
  */
-export default function AINewsFeedSection({ news = [], loading = false }) {
-    // Mock data for development
+export default function AINewsFeedSection({ news: initialNews, loading: initialLoading }) {
+    const [news, setNews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Mock data for fallback
     const mockNews = [
         {
             id: 1,
@@ -28,19 +34,6 @@ export default function AINewsFeedSection({ news = [], loading = false }) {
         },
         {
             id: 2,
-            headline: 'Anthropic Releases Claude 4: The Most Helpful AI Assistant Yet',
-            source: 'Anthropic',
-            timestamp: '3h ago',
-            bulletPoints: [
-                'Enhanced constitutional AI for safer responses',
-                'Better long-form content generation',
-                'Improved code generation and debugging',
-                'Extended context to 500K tokens'
-            ],
-            isTrending: false
-        },
-        {
-            id: 3,
             headline: 'Google Gemini Ultra Surpasses Human Performance on 57 Benchmarks',
             source: 'Google',
             timestamp: '5h ago',
@@ -53,20 +46,7 @@ export default function AINewsFeedSection({ news = [], loading = false }) {
             isTrending: true
         },
         {
-            id: 4,
-            headline: 'Microsoft Copilot Gets Major Upgrade with GPT-4 Turbo Integration',
-            source: 'Microsoft',
-            timestamp: '7h ago',
-            bulletPoints: [
-                'Faster response times with GPT-4 Turbo',
-                'Better code completion and suggestions',
-                'Enhanced natural language to SQL capabilities',
-                'New plugins for Office 365 integration'
-            ],
-            isTrending: false
-        },
-        {
-            id: 5,
+            id: 3,
             headline: 'Meta Unveils Llama 3: Open-Source AI Model Rivals Proprietary Giants',
             source: 'Meta',
             timestamp: '9h ago',
@@ -77,79 +57,100 @@ export default function AINewsFeedSection({ news = [], loading = false }) {
                 'Strong multilingual capabilities across 100+ languages'
             ],
             isTrending: true
-        },
-        {
-            id: 6,
-            headline: 'Midjourney V7 Alpha Testing Begins with Video Capabilities',
-            source: 'OpenAI',
-            timestamp: '10h ago',
-            bulletPoints: [
-                'Text-to-video generation up to 10 seconds',
-                'Hyper-realistic lighting and physics engine',
-                'New character consistency tools for storytelling',
-                'Real-time upscaling features'
-            ],
-            isTrending: true
-        },
-        {
-            id: 7,
-            headline: 'Tesla Optimus Gen 2 Now Learning from Human Motion Data',
-            source: 'Meta',
-            timestamp: '11h ago',
-            bulletPoints: [
-                'End-to-end neural network control',
-                'Smooth hand dexterity for delicate tasks',
-                'Walking speed increased by 30%',
-                'Mass production slated for late 2025'
-            ],
-            isTrending: false
-        },
-        {
-            id: 8,
-            headline: 'Hugging Face Launches "Open Robotics" Initiative',
-            source: 'Microsoft',
-            timestamp: '12h ago',
-            bulletPoints: [
-                'Open-source foundation models for robot control',
-                'Collaboration with 50+ universities',
-                'Unified dataset for physical world interaction',
-                'Democratizing access to advanced robotics'
-            ],
-            isTrending: true
-        },
-        {
-            id: 9,
-            headline: 'NVIDIA H200 Chips Ship Early to Meet AI Demand',
-            source: 'Google',
-            timestamp: '13h ago',
-            bulletPoints: [
-                '141GB of HBM3e memory per GPU',
-                '40% faster inference than H100',
-                'Critical for next-gen 1T+ parameter models',
-                'Record-breaking quarterly revenue forecast'
-            ],
-            isTrending: false
-        },
-        {
-            id: 10,
-            headline: 'Apple Siri 2.0 Rumored to Launch at WWDC with On-Device LLM',
-            source: 'Anthropic',
-            timestamp: '14h ago',
-            bulletPoints: [
-                'Runs locally on iPhone 16 Pro',
-                'Deep integration with Shortcuts and apps',
-                'Privacy-first design with no cloud processing',
-                'Conversational context retention'
-            ],
-            isTrending: true
         }
     ];
 
+    useEffect(() => {
+        if (initialNews && initialNews.length > 0) {
+            setNews(initialNews);
+            setLoading(initialLoading || false);
+            return;
+        }
+
+        const fetchNews = async () => {
+            try {
+                setLoading(true);
+                // Use the new simplified endpoint or the existing one
+                const response = await api.get('/news/trending?limit=20');
+
+                if (response.data.success && response.data.news) {
+                    // Flatten the categorized news object
+                    let allArticles = [];
+                    Object.values(response.data.news).forEach(category => {
+                        if (category.articles && Array.isArray(category.articles)) {
+                            allArticles = [...allArticles, ...category.articles];
+                        }
+                    });
+
+                    // Sort by recency
+                    allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+                    // Deduplicate by title
+                    const uniqueArticles = Array.from(new Map(allArticles.map(item => [item.title, item])).values());
+
+                    // Map to component format
+                    const formattedNews = uniqueArticles.slice(0, 15).map((article, index) => {
+                        // Calculate relative time safely
+                        const date = new Date(article.pubDate || article.timestamp || new Date());
+                        const now = new Date();
+                        const diffInMs = now - date;
+                        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+
+                        let timestamp;
+                        if (isNaN(diffInHours)) {
+                            timestamp = 'Recently';
+                        } else if (diffInHours < 1) {
+                            timestamp = 'Just now';
+                        } else if (diffInHours < 24) {
+                            timestamp = `${diffInHours}h ago`;
+                        } else {
+                            timestamp = `${Math.floor(diffInHours / 24)}d ago`;
+                        }
+
+                        // format description as bullet points (simple split by sentences)
+                        const description = article.description || '';
+                        // Remove HTML tags if any
+                        const cleanDesc = description.replace(/<[^>]*>?/gm, '');
+                        // Split into "points" effectively just using the summary as one point if short, or splitting if long
+                        const bulletPoints = cleanDesc.length > 100
+                            ? [cleanDesc.substring(0, 150) + '...']
+                            : [cleanDesc];
+
+                        return {
+                            id: index,
+                            headline: article.title,
+                            source: article.source || 'AI News',
+                            timestamp: timestamp,
+                            bulletPoints: bulletPoints,
+                            isTrending: index < 3, // Top 3 are trending
+                            url: article.link
+                        };
+                    });
+
+                    setNews(formattedNews.length > 0 ? formattedNews : mockNews);
+                } else {
+                    setNews(mockNews);
+                }
+            } catch (err) {
+                console.error('Failed to fetch AI news:', err);
+                setNews(mockNews);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNews();
+    }, [initialNews, initialLoading]);
+
     const displayNews = news.length > 0 ? news : mockNews;
+    const isLoading = initialLoading !== undefined ? initialLoading : loading;
 
     const handleReadArticle = (article) => {
         console.log('Read article:', article);
-        // TODO: Open article in modal or new tab
+        if (article.url) {
+            window.open(article.url, '_blank');
+        }
     };
 
     const handleGeneratePost = (article) => {
@@ -162,7 +163,7 @@ export default function AINewsFeedSection({ news = [], loading = false }) {
         // TODO: Save to user's saved items
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="mb-8 relative z-10">
                 <div className="animate-pulse">
