@@ -238,7 +238,7 @@ function DashboardContent() {
   if (loading) {
     return (
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Dashboard</h1>
+
         <DashboardSkeleton />
       </div>
     );
@@ -288,16 +288,7 @@ function DashboardContent() {
         {/* Animated Background */}
         <AnimatedBackground variant="blue" />
 
-        <div className="mb-8 relative z-10">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent mb-2"
-          >
-            Dashboard
-          </motion.h1>
-          <p className="text-gray-400">Welcome back! Manage your social media posts from one place.</p>
-        </div>
+
 
         {/* 1. Trending Posts Section (Moved to Top) */}
         <TrendingPostsSection />
