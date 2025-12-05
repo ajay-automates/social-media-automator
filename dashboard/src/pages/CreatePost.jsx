@@ -71,6 +71,8 @@ export default function CreatePost() {
   const [loadingBestTimes, setLoadingBestTimes] = useState(false);
   const [showBestTimes, setShowBestTimes] = useState(false); // Start hidden, show after clicking button
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState(null);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   // Draft Post Scorer state
   const [draftScore, setDraftScore] = useState(null);
@@ -134,18 +136,47 @@ export default function CreatePost() {
     loadTemplates();
   }, []);
 
-  // Handle pre-filled ideas from Content Ideas Generator
+  // Auto-post state
+  const [isAutoPosting, setIsAutoPosting] = useState(false);
+
+  // Handle pre-filled ideas from Content Ideas Generator or News Feed
   useEffect(() => {
-    if (location.state?.ideaText) {
-      setCaption(location.state.ideaText);
-      if (location.state.platforms && location.state.platforms.length > 0) {
-        setPlatforms(location.state.platforms);
+    const state = location.state;
+    if (state?.ideaText || state?.initialContent) {
+      setCaption(state.ideaText || state.initialContent);
+
+      if (state.platforms && state.platforms.length > 0) {
+        setPlatforms(state.platforms);
       }
-      showSuccess('Idea loaded! Start writing your post 💡');
+
+      if (state.immediate) {
+        setIsAutoPosting(true);
+      } else {
+        showSuccess('Content loaded! Start writing your post 💡');
+      }
+
       // Clear the state so it doesn't persist on refresh
       window.history.replaceState({}, '');
     }
   }, [location]);
+
+  // Handle Auto-posting or Auto-scheduling
+  useEffect(() => {
+    if (isAutoPosting && caption && platforms.length > 0) {
+      if (location.state?.schedule) {
+        // If schedule requested, open modal
+        setIsAutoPosting(false);
+        setShowScheduleModal(true);
+      } else {
+        // Immediate post
+        const timer = setTimeout(() => {
+          handlePost();
+          setIsAutoPosting(false);
+        }, 500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isAutoPosting, caption, platforms]);
 
   // Auto-select default accounts when platforms change
   useEffect(() => {
@@ -520,6 +551,51 @@ export default function CreatePost() {
       console.error('Schedule error:', err);
       const errorMessage = err.response?.data?.error || err.message || 'Failed to schedule post';
       showError(errorMessage);
+    } finally {
+      stopLoading();
+    }
+  };
+
+  const handleManualSchedule = () => {
+    if (!caption.trim()) {
+      showError('Please enter a caption first');
+      return;
+    }
+    if (platforms.length === 0) {
+      showError('Please select at least one platform');
+      return;
+    }
+    setShowScheduleModal(true);
+  };
+
+  const confirmSchedule = async () => {
+    if (!scheduledDate) {
+      showError('Please select a date and time');
+      return;
+    }
+
+    startLoading('Scheduling post...');
+    try {
+      const requestData = {
+        text: caption.trim(),
+        platforms,
+        imageUrl: image,
+        scheduleTime: new Date(scheduledDate).toISOString(),
+        redditTitle: platforms.includes('reddit') ? redditTitle : undefined,
+        redditSubreddit: platforms.includes('reddit') ? redditSubreddit : undefined
+      };
+
+      const response = await api.post('/post/schedule', requestData);
+
+      if (response.data.success) {
+        showSuccess(`Post scheduled! Redirecting to calendar...`);
+        celebrateSuccess();
+        setShowScheduleModal(false);
+        setTimeout(() => navigate('/calendar'), 1500);
+      }
+    } catch (err) {
+      console.error('Schedule error:', err);
+      showError('Failed to schedule post');
     } finally {
       stopLoading();
     }
@@ -2131,6 +2207,7 @@ export default function CreatePost() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={handleManualSchedule}
                   className="bg-gray-800/50 backdrop-blur-sm border border-white/10 text-gray-200 px-6 py-3 rounded-lg font-semibold hover:bg-gray-700/50 transition"
                 >
                   📅 Schedule
@@ -2138,6 +2215,42 @@ export default function CreatePost() {
               </div>
             </div>
           </div>
+
+          {/* Schedule Modal */}
+          {showScheduleModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-gray-900 border border-white/10 p-6 rounded-xl w-full max-w-md shadow-2xl"
+              >
+                <h2 className="text-xl font-bold text-white mb-4">📅 Schedule Post</h2>
+                <p className="text-gray-400 text-sm mb-4">Choose a date and time to publish this post.</p>
+
+                <input
+                  type="datetime-local"
+                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white mb-6 focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                  min={new Date().toISOString().slice(0, 16)}
+                />
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowScheduleModal(false)}
+                    className="px-4 py-2 text-gray-300 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={confirmSchedule}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+                  >
+                    Confirm Schedule
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
 
           {/* AI Modal */}
           {showAIModal && (

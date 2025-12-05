@@ -43,9 +43,22 @@ export default function GeneratePostPreview({
     isGenerating,
     onRegenerate,
     onPostNow,
-    onSchedule
+    onSchedule,
+    connectedPlatforms = []
 }) {
-    const [selectedPlatforms, setSelectedPlatforms] = useState(['linkedin', 'twitter']);
+    // Filter platforms if connectedPlatforms is provided and has items
+    const visiblePlatforms = connectedPlatforms.length > 0
+        ? DISPLAY_PLATFORMS.filter(p => connectedPlatforms.includes(p))
+        : DISPLAY_PLATFORMS; // Fallback to all if none passed (or handle empty state)
+
+    const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+
+    // Auto-select all available platforms on open
+    useEffect(() => {
+        if (isOpen && visiblePlatforms.length > 0) {
+            setSelectedPlatforms(visiblePlatforms);
+        }
+    }, [isOpen, visiblePlatforms.length]);
 
     const togglePlatform = (platform) => {
         setSelectedPlatforms(prev =>
@@ -138,7 +151,7 @@ export default function GeneratePostPreview({
                             Select Platforms
                         </label>
                         <div className="flex flex-wrap gap-3">
-                            {DISPLAY_PLATFORMS.map(platform => {
+                            {visiblePlatforms.map(platform => {
                                 const config = PLATFORM_CONFIG[platform];
                                 const isSelected = selectedPlatforms.includes(platform);
                                 const Icon = config.Icon;

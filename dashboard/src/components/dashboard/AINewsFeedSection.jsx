@@ -23,6 +23,23 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [selectedArticle, setSelectedArticle] = useState(null);
     const [generatedContent, setGeneratedContent] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [connectedPlatforms, setConnectedPlatforms] = useState([]);
+
+    // Fetch connected accounts
+    useEffect(() => {
+        const fetchAccounts = async () => {
+            try {
+                const response = await api.get('/accounts');
+                if (response.data && response.data.accounts) {
+                    const platforms = response.data.accounts.map(acc => acc.platform);
+                    setConnectedPlatforms([...new Set(platforms)]); // Unique platforms
+                }
+            } catch (error) {
+                console.error('Failed to fetch connected accounts:', error);
+            }
+        };
+        fetchAccounts();
+    }, []);
 
     // Mock data for fallback
     const mockNews = [
@@ -293,6 +310,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                 onRegenerate={handleRegenerate}
                 onPostNow={handlePostNow}
                 onSchedule={handleSchedule}
+                connectedPlatforms={connectedPlatforms}
             />
         </motion.div>
     );
