@@ -2,14 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * OverlappingCardCarousel - Reusable carousel with 3D overlapping card effect
- * 
- * Features:
- * - Horizontal scroll with snap points
- * - Navigation arrows (appear on hover)
- * - Touch/swipe support
- * - Perspective container for 3D effects
- * - GPU-accelerated smooth scrolling
+ * OverlappingCardCarousel - Netflix-style horizontal scroll carousel
+ * Clean, minimal, no 3D effects
  */
 export default function OverlappingCardCarousel({
     children,
@@ -43,7 +37,7 @@ export default function OverlappingCardCarousel({
     const scroll = (direction) => {
         if (!scrollContainerRef.current) return;
 
-        const scrollAmount = 350; // Approximate card width + gap
+        const scrollAmount = 300; // Card width + gap
         const newScrollLeft = scrollContainerRef.current.scrollLeft +
             (direction === 'left' ? -scrollAmount : scrollAmount);
 
@@ -59,23 +53,18 @@ export default function OverlappingCardCarousel({
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
         >
-            {/* Scroll Container with Perspective */}
+            {/* Scroll Container - Netflix style: clean horizontal scroll */}
             <div
                 ref={scrollContainerRef}
-                className="flex gap-4 lg:gap-0 overflow-x-auto scrollbar-hide scroll-smooth"
+                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
                 style={{
-                    perspective: '1000px',
-                    perspectiveOrigin: 'center',
                     scrollSnapType: 'x mandatory',
                     WebkitOverflowScrolling: 'touch',
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none'
                 }}
             >
-                {/* Negative margin for overlap on desktop */}
-                <div className="flex gap-4 lg:-mx-5 lg:gap-0">
-                    {children}
-                </div>
+                {children}
             </div>
 
             {/* Left Arrow */}
