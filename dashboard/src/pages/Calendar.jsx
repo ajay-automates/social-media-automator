@@ -207,6 +207,28 @@ export default function Calendar() {
     showSuccess(`Exported ${filteredEvents.length} posts to CSV`);
   };
 
+  // Schedule 10 AI Posts
+  const handleScheduleAIPosts = async () => {
+    try {
+      const confirmed = confirm('This will schedule 10 posts about today\'s AI news. Continue?');
+      if (!confirmed) return;
+
+      showSuccess('Generating 10 AI posts... This may take a minute.');
+
+      const response = await api.post('/ai-tools/schedule-now');
+
+      if (response.data.success) {
+        showSuccess(`Successfully scheduled ${response.data.scheduled || 10} AI posts!`);
+        loadScheduledPosts(); // Refresh calendar
+      } else {
+        showError(response.data.error || 'Failed to schedule AI posts');
+      }
+    } catch (err) {
+      console.error('Error scheduling AI posts:', err);
+      showError(err.response?.data?.error || 'Failed to schedule AI posts');
+    }
+  };
+
   // iCal Export
   const exportToICal = () => {
     const icalEvents = filteredEvents.map(event => {
@@ -419,6 +441,21 @@ export default function Calendar() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleScheduleAIPosts}
+              className="ios-button flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Schedule 10 AI Posts
+            </motion.button>
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

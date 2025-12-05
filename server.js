@@ -1467,6 +1467,35 @@ app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/ai-tools/schedule-now
+ * Manually trigger scheduling of 10 AI posts (protected)
+ */
+app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log(`🤖 Manual AI posts scheduling triggered by user: ${userId}`);
+
+    // Import the scheduler function
+    const { scheduleAIToolsPosts } = require('./services/ai-tools-scheduler');
+
+    // Run the scheduler for this specific user
+    const result = await scheduleAIToolsPosts(userId);
+
+    res.json({
+      success: true,
+      scheduled: result.scheduled || 10,
+      message: 'AI posts scheduled successfully!'
+    });
+  } catch (error) {
+    console.error('❌ Error in /api/ai-tools/schedule-now:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to schedule AI posts'
+    });
+  }
+});
+
+/**
  * GET /api/history
  * Get post history (protected)
  */

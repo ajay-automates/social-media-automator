@@ -59,8 +59,9 @@ async function getDefaultUserId() {
 
 /**
  * Generate and schedule 10 posts about AI tools for the day
+ * @param {string} specificUserId - Optional user ID to schedule for (if not provided, uses default)
  */
-async function scheduleAIToolsPosts() {
+async function scheduleAIToolsPosts(specificUserId = null) {
     console.log('🤖 Starting daily AI tools post generation...');
 
     try {
@@ -68,8 +69,8 @@ async function scheduleAIToolsPosts() {
             throw new Error('ANTHROPIC_API_KEY not configured');
         }
 
-        // Get user ID
-        const userId = await getDefaultUserId();
+        // Get user ID - use specific user if provided, otherwise get default
+        const userId = specificUserId || await getDefaultUserId();
         if (!userId) {
             throw new Error('No user found to schedule posts for');
         }
@@ -84,6 +85,9 @@ async function scheduleAIToolsPosts() {
         const scheduleTimes = calculateScheduleTimes(tools.length);
 
         // 3. Generate content and schedule each post
+        let scheduled = 0;
+        let failed = 0;
+
         for (let i = 0; i < tools.length; i++) {
             const tool = tools[i];
             const scheduledTime = scheduleTimes[i];
@@ -114,18 +118,32 @@ async function scheduleAIToolsPosts() {
                 // Actually schedule the post
                 await schedulePost(postData);
                 console.log(`✅ Successfully scheduled post for ${tool.name}`);
+                scheduled++;
 
             } catch (error) {
                 console.error(`❌ Error generating/scheduling post for ${tool.name}:`, error.message);
+                failed++;
             }
         }
 
         console.log('✅ Daily AI tools scheduling completed!');
-        return true;
+        console.log(`📊 Results: ${scheduled} scheduled, ${failed} failed`);
+
+        return {
+            success: true,
+            scheduled,
+            failed,
+            total: tools.length
+        };
 
     } catch (error) {
         console.error('❌ Error in scheduleAIToolsPosts:', error);
-        return false;
+        return {
+            success: false,
+            error: error.message,
+            scheduled: 0,
+            failed: 0
+        };
     }
 }
 
