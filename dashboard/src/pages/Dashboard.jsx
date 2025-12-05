@@ -7,7 +7,7 @@ import { NoPostsEmpty } from '../components/ui/EmptyState';
 import { showError } from '../components/ui/Toast';
 import { staggerContainer } from '../utils/animations';
 import UpgradeModal from '../components/UpgradeModal';
-import Card3D from '../components/ui/Card3D';
+import SimpleCard from '../components/ui/SimpleCard';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import AnimatedBackground from '../components/ui/AnimatedBackground';
 import ContentIdeasModal from '../components/ContentIdeasModal';
@@ -328,88 +328,60 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* Stats Cards with 3D Tilt */}
+        {/* Stats Cards - Clean & Flat */}
         <motion.div
           variants={staggerContainer}
           initial="initial"
           animate="animate"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 relative z-10"
         >
-          <Card3D
+          <SimpleCard
             gradient="from-blue-400/80 via-blue-500/60 to-cyan-500/80"
-            shadowColor="rgba(59, 130, 246, 0.5)"
           >
             <div className="p-6">
-              <motion.div
-                className="text-5xl mb-2"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                📝
-              </motion.div>
+              <div className="text-5xl mb-2">📝</div>
               <div className="text-4xl font-bold text-gray-50">
                 <AnimatedNumber value={displayStats.postsToday || 0} />
               </div>
               <div className="text-blue-200 mt-2 font-medium">Posts Today</div>
             </div>
-          </Card3D>
+          </SimpleCard>
 
-          <Card3D
+          <SimpleCard
             gradient="from-green-400/80 via-emerald-500/60 to-teal-500/80"
-            shadowColor="rgba(16, 185, 129, 0.5)"
           >
             <div className="p-6">
-              <motion.div
-                className="text-5xl mb-2"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
-              >
-                🌐
-              </motion.div>
+              <div className="text-5xl mb-2">🌐</div>
               <div className="text-4xl font-bold text-gray-50">
                 <AnimatedNumber value={displayStats.activePlatforms || 0} />
               </div>
               <div className="text-green-200 mt-2 font-medium">Platforms</div>
             </div>
-          </Card3D>
+          </SimpleCard>
 
-          <Card3D
+          <SimpleCard
             gradient="from-purple-400/80 via-purple-500/60 to-pink-500/80"
-            shadowColor="rgba(168, 85, 247, 0.5)"
           >
             <div className="p-6">
-              <motion.div
-                className="text-5xl mb-2"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
-              >
-                ✓
-              </motion.div>
+              <div className="text-5xl mb-2">✓</div>
               <div className="text-4xl font-bold text-gray-50">
                 <AnimatedNumber value={displayStats.successRate || 0} suffix="%" />
               </div>
               <div className="text-purple-200 mt-2 font-medium">Success Rate</div>
             </div>
-          </Card3D>
+          </SimpleCard>
 
-          <Card3D
+          <SimpleCard
             gradient="from-orange-400/80 via-amber-500/60 to-yellow-500/80"
-            shadowColor="rgba(251, 146, 60, 0.5)"
           >
             <div className="p-6">
-              <motion.div
-                className="text-5xl mb-2"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 0.6 }}
-              >
-                📅
-              </motion.div>
+              <div className="text-5xl mb-2">📅</div>
               <div className="text-4xl font-bold text-gray-50">
                 <AnimatedNumber value={displayStats.scheduledCount || 0} />
               </div>
               <div className="text-orange-200 mt-2 font-medium">Scheduled</div>
             </div>
-          </Card3D>
+          </SimpleCard>
         </motion.div>
 
         {/* No Connected Accounts Banner */}
@@ -455,10 +427,8 @@ function DashboardContent() {
 
         {/* Quick Actions */}
         <div className="mb-8 relative z-10">
-          <Card3D
+          <SimpleCard
             gradient="from-gray-800/80 via-gray-900/60 to-black/80"
-            shadowColor="rgba(107, 114, 128, 0.3)"
-            hover3D={false}
           >
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
@@ -467,88 +437,74 @@ function DashboardContent() {
               </div>
               <div className="flex gap-4 flex-wrap">
                 <Link to="/create">
-                  <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(59, 130, 246, 0.4)" }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg"
+                  <button
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
                     title="Create a new social media post"
                   >
                     ➕ Create New Post
-                  </motion.button>
+                  </button>
                 </Link>
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(147, 51, 234, 0.4)" }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={() => setShowContentIdeas(true)}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
                   title="Get AI-powered content ideas for your next post"
                 >
                   💡 Get Content Ideas
-                </motion.button>
+                </button>
 
                 {/* Pending Approvals (Owner/Admin only) */}
                 {(userRole === 'owner' || userRole === 'admin') && pendingApprovalsCount > 0 && (
                   <Link to="/approvals">
-                    <motion.button
-                      whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(234, 179, 8, 0.4)" }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold inline-flex items-center gap-2 shadow-lg relative"
+                    <button
+                      className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity relative"
                       title="Review posts waiting for your approval"
                     >
                       ⏳ Pending Approvals
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
                         {pendingApprovalsCount}
                       </span>
-                    </motion.button>
+                    </button>
                   </Link>
                 )}
 
                 {/* My Drafts (All users) */}
                 {draftsCount > 0 && (
                   <Link to="/create">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20 relative"
+                    <button
+                      className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20 relative"
                       title="Continue editing your draft posts"
                     >
                       📝 My Drafts
                       <span className="ml-1 bg-blue-500/30 text-blue-300 text-xs font-bold px-2 py-0.5 rounded-full">
                         {draftsCount}
                       </span>
-                    </motion.button>
+                    </button>
                   </Link>
                 )}
 
                 <Link to="/calendar">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
+                  <button
+                    className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
                   >
                     📅 View Calendar
-                  </motion.button>
+                  </button>
                 </Link>
                 <Link to="/analytics">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
+                  <button
+                    className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
                   >
                     📊 View Analytics
-                  </motion.button>
+                  </button>
                 </Link>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={handleRestartOnboarding}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-purple-500/50 transition inline-flex items-center gap-2"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2"
                 >
                   🎓 Start Tutorial
-                </motion.button>
+                </button>
               </div>
             </div>
-          </Card3D>
+          </SimpleCard>
         </div>
 
         {/* NEW: Trending Posts Section */}
@@ -559,9 +515,8 @@ function DashboardContent() {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10">
-          <Card3D
+          <SimpleCard
             gradient="from-blue-500/20 via-cyan-500/20 to-blue-600/20"
-            shadowColor="rgba(59, 130, 246, 0.3)"
           >
             <div className="p-6">
               <div className="text-5xl mb-4">📝</div>
@@ -571,11 +526,10 @@ function DashboardContent() {
                 Create Post →
               </Link>
             </div>
-          </Card3D>
+          </SimpleCard>
 
-          <Card3D
+          <SimpleCard
             gradient="from-purple-500/20 via-pink-500/20 to-purple-600/20"
-            shadowColor="rgba(168, 85, 247, 0.3)"
           >
             <div className="p-6">
               <div className="text-5xl mb-4">📊</div>
@@ -585,11 +539,10 @@ function DashboardContent() {
                 View Analytics →
               </Link>
             </div>
-          </Card3D>
+          </SimpleCard>
 
-          <Card3D
+          <SimpleCard
             gradient="from-green-500/20 via-emerald-500/20 to-green-600/20"
-            shadowColor="rgba(16, 185, 129, 0.3)"
           >
             <div className="p-6">
               <div className="text-5xl mb-4">⚙️</div>
@@ -599,7 +552,7 @@ function DashboardContent() {
                 Open Settings →
               </Link>
             </div>
-          </Card3D>
+          </SimpleCard>
         </div>
 
         {/* Upgrade Modal */}
