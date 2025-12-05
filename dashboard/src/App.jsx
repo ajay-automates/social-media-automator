@@ -37,7 +37,6 @@ function Navigation() {
   const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
 
   // TIER 1: Core Navigation (Always visible - 3 items)
@@ -52,16 +51,13 @@ function Navigation() {
     { path: '/connect-accounts', label: 'Accounts', icon: '🔗' },
   ];
 
-  // TIER 3: More Menu (Dropdown - organized by category)
-  const moreMenuItems = [
-    // Key Features
+  // TIER 3: User Dropdown (organized by category)
+  const userMenuItems = [
+    // Key Features (NEW - moved from main nav)
     { path: '/analytics', label: 'Analytics', icon: '📈', category: 'Features' },
     { path: '/content-agent', label: 'AI Agent', icon: '🤖', category: 'Features' },
     { path: '/team', label: 'Team', icon: '👥', category: 'Features' },
-  ];
 
-  // TIER 4: Advanced Features (User dropdown - organized by category)
-  const advancedMenuItems = [
     // Content Tools
     { path: '/carousel', label: 'Create Carousel', icon: '📸', category: 'Content' },
     { path: '/bulk-upload', label: 'Bulk Upload', icon: '📤', category: 'Content' },
@@ -82,7 +78,7 @@ function Navigation() {
   ];
 
   // All items for mobile menu
-  const allNavItems = [...coreNavItems, ...quickActionItems, ...moreMenuItems, ...advancedMenuItems];
+  const allNavItems = [...coreNavItems, ...quickActionItems, ...userMenuItems];
 
   return (
     <motion.nav
@@ -283,9 +279,9 @@ function Navigation() {
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 pointer-events-none"></div>
 
                     <div className="relative py-2">
-                      {/* Group advanced items by category */}
-                      {['Content', 'Analytics', 'Automation', 'Settings'].map((category, catIdx) => {
-                        const categoryItems = advancedMenuItems.filter(item => item.category === category);
+                      {/* Group items by category */}
+                      {['Features', 'Content', 'Analytics', 'Automation', 'Settings'].map((category, catIdx) => {
+                        const categoryItems = userMenuItems.filter(item => item.category === category);
                         if (categoryItems.length === 0) return null;
 
                         return (
