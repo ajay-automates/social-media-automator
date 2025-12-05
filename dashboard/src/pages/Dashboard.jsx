@@ -299,7 +299,95 @@ function DashboardContent() {
           <p className="text-gray-400">Welcome back! Manage your social media posts from one place.</p>
         </div>
 
-        {/* Usage Summary */}
+        {/* 1. Trending Posts Section (Moved to Top) */}
+        <TrendingPostsSection />
+
+        {/* 2. AI News Feed Section (Moved to Top) */}
+        <AINewsFeedSection />
+
+        {/* 3. Quick Actions */}
+        <div className="mb-8 relative z-10 mt-8">
+          <SimpleCard
+            gradient="from-gray-800/80 via-gray-900/60 to-black/80"
+          >
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-2xl">⚡</span>
+                <h2 className="text-2xl font-bold text-gray-100">Quick Actions</h2>
+              </div>
+              <div className="flex gap-4 flex-wrap">
+                <Link to="/create" className="flex-1 min-w-[200px]">
+                  <button
+                    className="w-full justify-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
+                    title="Create a new social media post"
+                  >
+                    ➕ Create New Post
+                  </button>
+                </Link>
+                <button
+                  onClick={() => setShowContentIdeas(true)}
+                  className="flex-1 min-w-[200px] justify-center bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
+                  title="Get AI-powered content ideas for your next post"
+                >
+                  💡 Get Content Ideas
+                </button>
+
+                {/* Pending Approvals (Owner/Admin only) */}
+                {(userRole === 'owner' || userRole === 'admin') && pendingApprovalsCount > 0 && (
+                  <Link to="/approvals" className="flex-1 min-w-[200px]">
+                    <button
+                      className="w-full justify-center bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity relative"
+                      title="Review posts waiting for your approval"
+                    >
+                      ⏳ Pending Approvals
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+                        {pendingApprovalsCount}
+                      </span>
+                    </button>
+                  </Link>
+                )}
+
+                {/* My Drafts (All users) */}
+                {draftsCount > 0 && (
+                  <Link to="/create" className="flex-1 min-w-[200px]">
+                    <button
+                      className="w-full justify-center bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20 relative"
+                      title="Continue editing your draft posts"
+                    >
+                      📝 My Drafts
+                      <span className="ml-1 bg-blue-500/30 text-blue-300 text-xs font-bold px-2 py-0.5 rounded-full">
+                        {draftsCount}
+                      </span>
+                    </button>
+                  </Link>
+                )}
+
+                <Link to="/calendar" className="flex-1 min-w-[200px]">
+                  <button
+                    className="w-full justify-center bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
+                  >
+                    📅 View Calendar
+                  </button>
+                </Link>
+                <Link to="/analytics" className="flex-1 min-w-[200px]">
+                  <button
+                    className="w-full justify-center bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
+                  >
+                    📊 View Analytics
+                  </button>
+                </Link>
+                <button
+                  onClick={handleRestartOnboarding}
+                  className="flex-1 min-w-[200px] justify-center bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2"
+                >
+                  🎓 Start Tutorial
+                </button>
+              </div>
+            </div>
+          </SimpleCard>
+        </div>
+
+        {/* 4. Usage Summary (Moved below Quick Actions) */}
         {billingInfo && billingInfo.usage && billingInfo.usage.posts && billingInfo.plan && billingInfo.plan.name && (
           <div className="mb-6 relative z-10">
             <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg p-4 flex items-center justify-between">
@@ -328,7 +416,7 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* Stats Cards - Clean & Flat */}
+        {/* 4. Stats Cards (Moved below Quick Actions) */}
         <motion.div
           variants={staggerContainer}
           initial="initial"
@@ -392,7 +480,7 @@ function DashboardContent() {
             className="mb-8 relative z-10"
           >
             <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-lg border-2 border-blue-400/30 rounded-2xl p-8 text-center shadow-2xl shadow-blue-500/20">
-              <div className="text-6xl mb-4">🔗</div>
+              <div className="text-6xl mb-4">�</div>
               <h2 className="text-3xl font-bold text-white mb-3">No Platforms Connected</h2>
               <p className="text-gray-300 mb-6 text-lg">
                 Connect your social media accounts to start posting across multiple platforms instantly!
@@ -404,7 +492,7 @@ function DashboardContent() {
                   onClick={() => navigate('/connect-accounts')}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all inline-flex items-center gap-2"
                 >
-                  <span>🚀 Connect Accounts</span>
+                  <span>� Connect Accounts</span>
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -424,94 +512,6 @@ function DashboardContent() {
             <NoPostsEmpty onCreate={handleCreatePost} />
           </div>
         )}
-
-        {/* Quick Actions */}
-        <div className="mb-8 relative z-10">
-          <SimpleCard
-            gradient="from-gray-800/80 via-gray-900/60 to-black/80"
-          >
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-2xl">⚡</span>
-                <h2 className="text-2xl font-bold text-gray-100">Quick Actions</h2>
-              </div>
-              <div className="flex gap-4 flex-wrap">
-                <Link to="/create">
-                  <button
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
-                    title="Create a new social media post"
-                  >
-                    ➕ Create New Post
-                  </button>
-                </Link>
-                <button
-                  onClick={() => setShowContentIdeas(true)}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
-                  title="Get AI-powered content ideas for your next post"
-                >
-                  💡 Get Content Ideas
-                </button>
-
-                {/* Pending Approvals (Owner/Admin only) */}
-                {(userRole === 'owner' || userRole === 'admin') && pendingApprovalsCount > 0 && (
-                  <Link to="/approvals">
-                    <button
-                      className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white px-6 py-3 rounded-lg font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity relative"
-                      title="Review posts waiting for your approval"
-                    >
-                      ⏳ Pending Approvals
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-                        {pendingApprovalsCount}
-                      </span>
-                    </button>
-                  </Link>
-                )}
-
-                {/* My Drafts (All users) */}
-                {draftsCount > 0 && (
-                  <Link to="/create">
-                    <button
-                      className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20 relative"
-                      title="Continue editing your draft posts"
-                    >
-                      📝 My Drafts
-                      <span className="ml-1 bg-blue-500/30 text-blue-300 text-xs font-bold px-2 py-0.5 rounded-full">
-                        {draftsCount}
-                      </span>
-                    </button>
-                  </Link>
-                )}
-
-                <Link to="/calendar">
-                  <button
-                    className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
-                  >
-                    📅 View Calendar
-                  </button>
-                </Link>
-                <Link to="/analytics">
-                  <button
-                    className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/20"
-                  >
-                    📊 View Analytics
-                  </button>
-                </Link>
-                <button
-                  onClick={handleRestartOnboarding}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2"
-                >
-                  🎓 Start Tutorial
-                </button>
-              </div>
-            </div>
-          </SimpleCard>
-        </div>
-
-        {/* NEW: Trending Posts Section */}
-        <TrendingPostsSection />
-
-        {/* NEW: AI News Feed Section */}
-        <AINewsFeedSection />
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10">

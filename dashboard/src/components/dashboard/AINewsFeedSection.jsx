@@ -77,6 +77,71 @@ export default function AINewsFeedSection({ news = [], loading = false }) {
                 'Strong multilingual capabilities across 100+ languages'
             ],
             isTrending: true
+        },
+        {
+            id: 6,
+            headline: 'Midjourney V7 Alpha Testing Begins with Video Capabilities',
+            source: 'OpenAI',
+            timestamp: '10h ago',
+            bulletPoints: [
+                'Text-to-video generation up to 10 seconds',
+                'Hyper-realistic lighting and physics engine',
+                'New character consistency tools for storytelling',
+                'Real-time upscaling features'
+            ],
+            isTrending: true
+        },
+        {
+            id: 7,
+            headline: 'Tesla Optimus Gen 2 Now Learning from Human Motion Data',
+            source: 'Meta',
+            timestamp: '11h ago',
+            bulletPoints: [
+                'End-to-end neural network control',
+                'Smooth hand dexterity for delicate tasks',
+                'Walking speed increased by 30%',
+                'Mass production slated for late 2025'
+            ],
+            isTrending: false
+        },
+        {
+            id: 8,
+            headline: 'Hugging Face Launches "Open Robotics" Initiative',
+            source: 'Microsoft',
+            timestamp: '12h ago',
+            bulletPoints: [
+                'Open-source foundation models for robot control',
+                'Collaboration with 50+ universities',
+                'Unified dataset for physical world interaction',
+                'Democratizing access to advanced robotics'
+            ],
+            isTrending: true
+        },
+        {
+            id: 9,
+            headline: 'NVIDIA H200 Chips Ship Early to Meet AI Demand',
+            source: 'Google',
+            timestamp: '13h ago',
+            bulletPoints: [
+                '141GB of HBM3e memory per GPU',
+                '40% faster inference than H100',
+                'Critical for next-gen 1T+ parameter models',
+                'Record-breaking quarterly revenue forecast'
+            ],
+            isTrending: false
+        },
+        {
+            id: 10,
+            headline: 'Apple Siri 2.0 Rumored to Launch at WWDC with On-Device LLM',
+            source: 'Anthropic',
+            timestamp: '14h ago',
+            bulletPoints: [
+                'Runs locally on iPhone 16 Pro',
+                'Deep integration with Shortcuts and apps',
+                'Privacy-first design with no cloud processing',
+                'Conversational context retention'
+            ],
+            isTrending: true
         }
     ];
 

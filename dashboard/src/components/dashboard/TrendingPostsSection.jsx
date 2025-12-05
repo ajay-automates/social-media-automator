@@ -52,6 +52,46 @@ export default function TrendingPostsSection({ posts = [], loading = false }) {
             timestamp: '10h ago',
             content: 'Just tested the new Claude 4 and wow... the context window improvements are game-changing for long-form content creation.',
             engagement: { likes: 34500, retweets: 11200, score: 94 }
+        },
+        {
+            id: 6,
+            platform: 'twitter',
+            author: 'Yann LeCun',
+            timestamp: '11h ago',
+            content: 'Objective-driven AI is the path forward. LLMs are just an off-ramp on the highway to AGI. We need world models. 🧠',
+            engagement: { likes: 56200, retweets: 18400, score: 91 }
+        },
+        {
+            id: 7,
+            platform: 'tiktok',
+            author: '@codingwithlewis',
+            timestamp: '12h ago',
+            content: 'Stop coding boilerplate! Use this AI agent to scaffold your entire full-stack app in seconds. Watch till the end! 🤯',
+            engagement: { likes: 112000, retweets: 45000, score: 96 }
+        },
+        {
+            id: 8,
+            platform: 'reddit',
+            author: 'u/SingularityNews',
+            timestamp: '14h ago',
+            content: 'DeepMind just solved a 50-year-old math problem using AlphaGeometry. The implications for scientific discovery are massive.',
+            engagement: { likes: 41200, retweets: 8500, score: 93 }
+        },
+        {
+            id: 9,
+            platform: 'twitter',
+            author: 'Andrej Karpathy',
+            timestamp: '15h ago',
+            content: 'The gradient of progress in AI is steeper than we think. What feels like magic today will be hello world tomorrow.',
+            engagement: { likes: 89500, retweets: 23100, score: 99 }
+        },
+        {
+            id: 10,
+            platform: 'tiktok',
+            author: '@futurism_daily',
+            timestamp: '16h ago',
+            content: 'This robot can now fold laundry faster than a human. The household chore revolution is finally here! 🤖👕',
+            engagement: { likes: 76400, retweets: 12300, score: 88 }
         }
     ];
 
