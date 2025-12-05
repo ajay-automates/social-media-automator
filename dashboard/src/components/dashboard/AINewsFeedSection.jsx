@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import NewsCard from './NewsCard';
@@ -76,11 +76,15 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                 if (response.data.success && response.data.news) {
                     // Flatten the categorized news object
                     let allArticles = [];
-                    Object.values(response.data.news).forEach(category => {
-                        if (category.articles && Array.isArray(category.articles)) {
-                            allArticles = [...allArticles, ...category.articles];
-                        }
-                    });
+                    if (Array.isArray(response.data.news)) {
+                        allArticles = response.data.news;
+                    } else {
+                        Object.values(response.data.news).forEach(category => {
+                            if (category.articles && Array.isArray(category.articles)) {
+                                allArticles = [...allArticles, ...category.articles];
+                            }
+                        });
+                    }
 
                     // Sort by recency
                     allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
@@ -89,17 +93,17 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                     const uniqueArticles = Array.from(new Map(allArticles.map(item => [item.title, item])).values());
 
                     // Map to component format
-                    const formattedNews = uniqueArticles.slice(0, 15).map((article, index) => {
+                    const formattedNews = uniqueArticles.slice(0, 20).map((article, index) => {
                         // Calculate relative time safely
-                        const date = new Date(article.pubDate || article.timestamp || new Date());
+                        let date = new Date(article.pubDate || article.timestamp || new Date());
+                        if (isNaN(date.getTime())) date = new Date();
+
                         const now = new Date();
                         const diffInMs = now - date;
                         const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
 
                         let timestamp;
-                        if (isNaN(diffInHours)) {
-                            timestamp = 'Recently';
-                        } else if (diffInHours < 1) {
+                        if (diffInHours < 1) {
                             timestamp = 'Just now';
                         } else if (diffInHours < 24) {
                             timestamp = `${diffInHours}h ago`;
@@ -116,6 +120,9 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                             ? [cleanDesc.substring(0, 150) + '...']
                             : [cleanDesc];
 
+                        // Ensure we rely on 'url' property, fallback to 'link'
+                        const articleUrl = article.url || article.link;
+
                         return {
                             id: index,
                             headline: article.title,
@@ -123,7 +130,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                             timestamp: timestamp,
                             bulletPoints: bulletPoints,
                             isTrending: index < 3, // Top 3 are trending
-                            url: article.link
+                            url: articleUrl
                         };
                     });
 
@@ -145,6 +152,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
 
     const displayNews = news.length > 0 ? news : mockNews;
     const isLoading = initialLoading !== undefined ? initialLoading : loading;
+    const navigate = useNavigate();
 
     const handleReadArticle = (article) => {
         console.log('Read article:', article);
@@ -155,7 +163,13 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
 
     const handleGeneratePost = (article) => {
         console.log('Generate post from:', article);
-        // TODO: Navigate to create post with AI-generated content
+        navigate('/create-post', {
+            state: {
+                initialContent: `Check out this latest AI news: "${article.headline}"\n\n${article.source} reports: ${article.bulletPoints[0]}\n\nSource: ${article.url}`,
+                sourceUrl: article.url,
+                type: 'news'
+            }
+        });
     };
 
     const handleSave = (article) => {
