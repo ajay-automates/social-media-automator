@@ -108,36 +108,17 @@ export default function TrendingPostsSection({ posts: initialPosts, loading: ini
 
                 if (response.data.success && response.data.trends && response.data.trends.length > 0) {
                     // Map live trends to post format
-                    const formattedTrends = response.data.trends.map((trend, index) => ({
-                        id: index,
-                        platform: trend.source || 'web',
-                        author: trend.source === 'reddit' ? `r/${trend.category || 'all'}` : 'Google Trends',
-                        timestamp: 'Trending Now',
-                        content: trend.topic,
-                        limit_content: true, // Flag to indicate we might want to limit content length or styling
-                        url: trend.url,
-                        engagement: {
-                            likes: trend.volume || 0,
-                            retweets: 0,
-                            score: trend.score || 80
-                        }
-                    }));
-                    setPosts(formattedTrends);
-                } else {
-                    // Fallback to mock if API returns empty
+                } catch (err) {
+                    console.error('Failed to fetch live trends:', err);
                     setPosts(mockPosts);
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
                 }
-            } catch (err) {
-                console.error('Failed to fetch live trends:', err);
-                setPosts(mockPosts);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+            };
 
-        fetchTrends();
-    }, [initialPosts, initialLoading]);
+            fetchTrends();
+        }, [initialPosts, initialLoading]);
 
     const displayPosts = posts.length > 0 ? posts : mockPosts;
     const isLoading = initialLoading !== undefined ? initialLoading : loading;
