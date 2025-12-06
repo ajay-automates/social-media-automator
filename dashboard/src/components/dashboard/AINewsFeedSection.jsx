@@ -144,11 +144,23 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const handleRefresh = async () => {
         try {
             setRefreshing(true);
+            console.log('🔄 Refreshing AI news feed...');
+            
             const response = await api.post('/news/refresh');
+            console.log('📰 Refresh response:', response.data);
+            
             if (response.data.success && response.data.news) {
                 const formattedNews = formatNewsData(response.data.news);
-                setNews(formattedNews);
-                showSuccess('Feed refreshed!');
+                console.log('📊 Formatted news count:', formattedNews.length);
+                
+                // Clear old news first, then set new news to force re-render
+                setNews([]);
+                setTimeout(() => {
+                    setNews(formattedNews);
+                    showSuccess(`✅ Feed refreshed! Loaded ${formattedNews.length} articles`);
+                }, 100);
+            } else {
+                showError('No news data received');
             }
         } catch (error) {
             console.error('Refresh failed:', error);

@@ -600,15 +600,21 @@ app.post('/api/news/refresh', verifyAuth, async (req, res) => {
   try {
     const { clearNewsCache, fetchTrendingNews } = require('./services/news-agent');
 
-    console.log('🔄 Force refreshing AI news...');
+    console.log('🔄 Force refreshing AI news for user:', req.user.id);
     clearNewsCache(); // Clear cache to ensure fresh data
 
+    // Fetch fresh news articles
     const news = await fetchTrendingNews(20);
+    
+    console.log(`✅ Refreshed ${news.length} news articles`);
 
+    // Return fresh data with timestamp to prevent caching
     res.json({
       success: true,
       news: news || [],
-      message: 'News feed refreshed'
+      message: 'News feed refreshed',
+      timestamp: new Date().toISOString(),
+      count: news.length
     });
   } catch (error) {
     console.error('Error refreshing news:', error);
