@@ -607,6 +607,17 @@ app.get('/api/health', async (req, res) => {
 });
 
 /**
+ * GET /api/auth/verify
+ * Verify user token and return user info (protected)
+ */
+app.get('/api/auth/verify', verifyAuth, (req, res) => {
+  res.json({
+    success: true,
+    user: req.user
+  });
+});
+
+/**
  * GET /api/accounts
  * Get user's connected accounts (protected)
  */
