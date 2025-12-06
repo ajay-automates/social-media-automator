@@ -43,66 +43,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         fetchAccounts();
     }, []);
 
-    // Mock data for fallback - PERPLEXITY-STYLE DATA
-    const mockNews = [
-        {
-            id: 1,
-            headline: 'OpenAI Releases GPT-5 with Major Performance Improvements',
-            summary: 'GPT-5 brings 3x speed boost, 50% cost reduction, and new vision capabilities to AI applications. Available to all API users immediately.',
-            image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop',
-            source: 'OpenAI',
-            timestamp: '1h ago',
-            sourceCount: 58,
-            isTrending: true,
-            isBreaking: true,
-            url: 'https://openai.com/blog/gpt-5'
-        },
-        {
-            id: 2,
-            headline: 'Google Gemini Ultra Surpasses Human Performance on 57 Benchmarks',
-            summary: 'Gemini Ultra achieves state-of-the-art results across math, coding, and reasoning tasks, marking a significant milestone in AI development.',
-            image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=400&fit=crop',
-            source: 'Google',
-            timestamp: '5h ago',
-            sourceCount: 72,
-            isTrending: true,
-            isBreaking: false,
-            url: 'https://blog.google/technology/ai/gemini-ultra'
-        },
-        {
-            id: 3,
-            headline: 'Meta Unveils Llama 3: Open-Source AI Model Rivals Proprietary Giants',
-            summary: 'Llama 3 offers competitive performance with GPT-4 and Claude while being fully open-source with commercial licensing.',
-            image: 'https://images.unsplash.com/photo-1655393001768-d946c97d6fd1?w=800&h=400&fit=crop',
-            source: 'Meta',
-            timestamp: '9h ago',
-            sourceCount: 45,
-            isTrending: true,
-            isFeatured: true,
-            url: 'https://ai.meta.com/blog/llama-3'
-        },
-        {
-            id: 4,
-            headline: 'Anthropic Announces Claude 4 with Enhanced Safety Features',
-            summary: 'Claude 4 introduces constitutional AI improvements and better alignment, making it safer for enterprise deployments.',
-            image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=400&fit=crop',
-            source: 'Anthropic',
-            timestamp: '12h ago',
-            sourceCount: 34,
-            isTrending: false,
-            isFeatured: false,
-            url: 'https://anthropic.com/claude-4'
-        }
-    ];
-
     useEffect(() => {
-        // USE MOCK DATA WITH IMAGES - RSS feeds + scraping takes time
-        // Uncomment below to use live data after backend restart
-        setNews(mockNews);
-        setLoading(false);
-        return;
-
-        /* LIVE DATA - Requires backend restart to load image scraper
         if (initialNews && initialNews.length > 0) {
             setNews(initialNews);
             setLoading(initialLoading || false);
@@ -179,24 +120,25 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         };
                     });
 
-                    setNews(formattedNews.length > 0 ? formattedNews : mockNews);
+                    // Real data only - empty if backend returns nothing
+                    setNews(formattedNews);
                 } else {
-                    setNews(mockNews);
+                    setNews([]);
                 }
             } catch (err) {
                 console.error('Failed to fetch AI news:', err);
-                setNews(mockNews);
                 setError(err.message);
+                setNews([]); // No mock data fallback
             } finally {
                 setLoading(false);
             }
         };
 
         fetchNews();
-        */
-    }, []);
+    }, [initialNews, initialLoading]);
 
-    const displayNews = news.length > 0 ? news : mockNews;
+    // REAL DATA ONLY: news array directly
+    const displayNews = news;
     const isLoading = initialLoading !== undefined ? initialLoading : loading;
     const navigate = useNavigate();
 
@@ -309,6 +251,12 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                 </div>
             </div>
         );
+    }
+
+    // If no news, don't fallback to mock data (User Request: "Real content always") 
+    // Just show nothing or a simplified empty state if strictly no data.
+    if (displayNews.length === 0) {
+        return null;
     }
 
     return (

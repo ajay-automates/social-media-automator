@@ -573,6 +573,26 @@ app.get(['/dashboard', '/dashboard/*'], (req, res) => {
 // ============================================
 
 /**
+ * GET /api/trends
+ * Fetch trending topics/posts from aggregated sources
+ */
+app.get('/api/trends', verifyAuth, async (req, res) => {
+  try {
+    const trends = await fetchAllTrends();
+    res.json({
+      success: true,
+      trends: trends || []
+    });
+  } catch (error) {
+    console.error('Error fetching trends:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * Health check (unprotected)
  */
 app.get('/api/health', async (req, res) => {
