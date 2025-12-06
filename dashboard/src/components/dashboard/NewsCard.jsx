@@ -19,17 +19,23 @@ export default function NewsCard({
 }) {
     const [isSaved, setIsSaved] = useState(false);
 
-    // Client-side fallback: Use Bing Image Search if server image fails or is missing
-    // This bypasses server-side IP blocking by running in the user's browser
+    // Client-side fallback: Bing Image
     const bingFallbackUrl = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(headline + ' ' + (source || '') + ' AI news')}&w=800&h=450&c=7&rs=1&p=0`;
 
-    const [imgSrc, setImgSrc] = useState(image || bingFallbackUrl);
-    const [hasError, setHasError] = useState(false);
+    // State to track image source and error status
+    // Status: 'initial' | 'fallback' | 'error'
+    const [imgState, setImgState] = useState('initial');
+    const [currentSrc, setCurrentSrc] = useState(image || bingFallbackUrl);
 
     useEffect(() => {
-        // If prop changes, reset. If image is valid, use it. If null, use Bing immediately.
-        setImgSrc(image || bingFallbackUrl);
-        setHasError(false);
+        // Reset state when props change
+        if (image) {
+            setImgState('initial');
+            setCurrentSrc(image);
+        } else {
+            setImgState('fallback');
+            setCurrentSrc(bingFallbackUrl);
+        }
     }, [image, headline, source]);
 
     // Generate gradient based on source
@@ -51,6 +57,17 @@ export default function NewsCard({
         if (onSave) onSave();
     };
 
+    const handleError = () => {
+        if (imgState === 'initial') {
+            // Main image failed, try fallback
+            setImgState('fallback');
+            setCurrentSrc(bingFallbackUrl);
+        } else {
+            // Fallback also failed, show gradient
+            setImgState('error');
+        }
+    };
+
     const getBadges = () => {
         const badges = [];
         if (isBreaking) badges.push({ text: 'BREAKING', color: 'from-red-500 to-pink-500' });
@@ -70,22 +87,16 @@ export default function NewsCard({
                 }}
             >
                 {/* Image or Gradient Header */}
-                <div className={`relative h-[220px] w-full overflow-hidden ${hasError ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
-                    {!hasError ? (
+                <div className={`relative h-[220px] w-full overflow-hidden ${imgState === 'error' ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
+
+                    {imgState !== 'error' ? (
                         <img
-                            src={imgSrc}
+                            src={currentSrc}
                             alt={headline}
                             className="w-full h-full object-cover"
-                            onError={() => {
-                                // If current image fails...
-                                if (imgSrc !== bingFallbackUrl) {
-                                    // Try fallback
-                                    setImgSrc(bingFallbackUrl);
-                                } else {
-                                    // If fallback also fails, show gradient
-                                    setHasError(true);
-                                }
-                            }}
+                            onError={handleError}
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center">
