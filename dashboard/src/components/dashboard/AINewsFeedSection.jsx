@@ -20,6 +20,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0); // Force re-render on refresh
 
     // Preview Modal State
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -146,19 +147,22 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             setRefreshing(true);
             console.log('🔄 Refreshing AI news feed...');
             
+            // Clear old news immediately for visual feedback
+            setNews([]);
+            
             const response = await api.post('/news/refresh');
             console.log('📰 Refresh response:', response.data);
             
             if (response.data.success && response.data.news) {
                 const formattedNews = formatNewsData(response.data.news);
                 console.log('📊 Formatted news count:', formattedNews.length);
+                console.log('📰 First article:', formattedNews[0]?.headline);
                 
-                // Clear old news first, then set new news to force re-render
-                setNews([]);
-                setTimeout(() => {
-                    setNews(formattedNews);
-                    showSuccess(`✅ Feed refreshed! Loaded ${formattedNews.length} articles`);
-                }, 100);
+                // Update news state and refresh key to force re-render
+                setNews(formattedNews);
+                setRefreshKey(prev => prev + 1); // Force carousel re-render
+                
+                showSuccess(`✅ Feed refreshed! Loaded ${formattedNews.length} articles`);
             } else {
                 showError('No news data received');
             }
@@ -324,7 +328,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             </div>
 
             {/* Overlapping Cards Carousel */}
-            <OverlappingCardCarousel arrowColor="white">
+            <OverlappingCardCarousel key={refreshKey} arrowColor="white">
                 {displayNews.map((article, index) => (
                     <NewsCard
                         key={article.id}
