@@ -43,46 +43,141 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         fetchAccounts();
     }, []);
 
-    // Mock data for fallback
+    // Mock data for fallback - NEWSLETTER-QUALITY DATA
     const mockNews = [
         {
             id: 1,
-            headline: 'OpenAI Announces GPT-5 with Revolutionary Reasoning Capabilities',
+            headline: 'OpenAI Releases GPT-5 with Major Performance Improvements',
             source: 'OpenAI',
+            author: 'Sam Altman',
             timestamp: '1h ago',
+            readTime: 8,
+            difficulty: 'Intermediate',
+            tldr: 'GPT-5 brings 3x speed boost, 50% cost reduction, and new vision capabilities to AI applications.',
             bulletPoints: [
-                'Advanced multi-step reasoning across complex problems',
-                '10x larger context window (1M tokens)',
-                'Native multimodal understanding (text, image, audio, video)',
-                'Improved factual accuracy and reduced hallucinations'
+                '3x faster inference time compared to GPT-4',
+                '50% cost reduction for API usage',
+                'Enhanced multimodal vision capabilities',
+                '200K context window (up from 128K)',
+                'New reasoning capabilities for complex problems',
+                'Available to all API users immediately'
             ],
-            isTrending: true
+            analysis: 'Developers can now build more complex AI applications without latency issues. The cost reduction makes AI accessible to startups and small businesses, potentially democratizing access to advanced AI capabilities.',
+            stats: [
+                '1.2M discussions across social platforms',
+                'Trending #1 on Hacker News for 6 hours',
+                '847 comments on r/MachineLearning',
+                '15K+ shares on Twitter in first hour',
+                '$0.03 per 1K tokens (down from $0.06)'
+            ],
+            relatedArticles: [
+                { title: 'GPT-5 vs Claude Sonnet 4: Performance Comparison', url: '#' },
+                { title: 'How to Migrate from GPT-4 to GPT-5', url: '#' },
+                { title: 'GPT-5 API Documentation and Examples', url: '#' }
+            ],
+            isTrending: true,
+            isBreaking: true,
+            url: 'https://openai.com/blog/gpt-5'
         },
         {
             id: 2,
             headline: 'Google Gemini Ultra Surpasses Human Performance on 57 Benchmarks',
             source: 'Google',
+            author: 'Sundar Pichai',
             timestamp: '5h ago',
+            readTime: 12,
+            difficulty: 'Advanced',
+            tldr: 'Gemini Ultra achieves state-of-the-art results across math, coding, and reasoning tasks, marking a significant milestone in AI development.',
             bulletPoints: [
-                'State-of-the-art performance across math, coding, and reasoning',
-                'Native multimodal training from the ground up',
-                'Efficient scaling with reduced compute requirements',
-                'Integration with Google Workspace products'
+                'Outperforms humans on 57 out of 60 major benchmarks',
+                'Native multimodal training from ground up',
+                '40% more efficient than previous models',
+                'Integrated into Google Workspace products',
+                'Available in 180+ countries starting today',
+                'Free tier includes 60 queries per minute'
             ],
-            isTrending: true
+            analysis: 'This represents a fundamental shift in AI capabilities. The native multimodal approach allows Gemini to understand context across different data types more naturally than previous models that were adapted for multimodality.',
+            stats: [
+                '2.5M API signups in first 24 hours',
+                '95% accuracy on complex reasoning tasks',
+                'Processing speed: 2.3 seconds per query',
+                '890K developers already testing',
+                'Trending across 45 countries'
+            ],
+            relatedArticles: [
+                { title: 'Gemini Ultra Technical Deep Dive', url: '#' },
+                { title: 'Comparing Gemini Ultra to GPT-5', url: '#' }
+            ],
+            isTrending: true,
+            isBreaking: false,
+            url: 'https://blog.google/technology/ai/gemini-ultra'
         },
         {
             id: 3,
             headline: 'Meta Unveils Llama 3: Open-Source AI Model Rivals Proprietary Giants',
             source: 'Meta',
+            author: 'Mark Zuckerberg',
             timestamp: '9h ago',
+            readTime: 10,
+            difficulty: 'Intermediate',
+            tldr: 'Llama 3 offers competitive performance with GPT-4 and Claude while being fully open-source with commercial licensing.',
             bulletPoints: [
                 'Fully open-source with commercial licensing',
                 'Competitive performance with GPT-4 and Claude',
-                'Optimized for efficient inference on consumer hardware',
-                'Strong multilingual capabilities across 100+ languages'
+                'Optimized for consumer hardware (RTX 4090)',
+                'Strong multilingual support (100+ languages)',
+                'Community-driven development model',
+                'No usage restrictions or API costs'
             ],
-            isTrending: true
+            analysis: 'The open-source nature of Llama 3 could accelerate AI innovation by allowing developers to fine-tune and deploy models without vendor lock-in. This challenges the closed-source approach of OpenAI and Anthropic.',
+            stats: [
+                '500K downloads in first 6 hours',
+                '12K GitHub stars within 24 hours',
+                '340 community fine-tunes already published',
+                'Running on 50K+ self-hosted instances',
+                'Trending #1 on Hugging Face'
+            ],
+            relatedArticles: [
+                { title: 'How to Deploy Llama 3 Locally', url: '#' },
+                { title: 'Llama 3 Fine-Tuning Guide', url: '#' },
+                { title: 'Open Source vs Closed Source AI Models', url: '#' }
+            ],
+            isTrending: true,
+            isFeatured: true,
+            url: 'https://ai.meta.com/blog/llama-3'
+        },
+        {
+            id: 4,
+            headline: 'Anthropic Announces Claude 4 with Enhanced Safety Features',
+            source: 'Anthropic',
+            author: 'Dario Amodei',
+            timestamp: '12h ago',
+            readTime: 6,
+            difficulty: 'Beginner',
+            tldr: 'Claude 4 introduces constitutional AI improvements and better alignment, making it safer for enterprise deployments.',
+            bulletPoints: [
+                'Advanced constitutional AI for better alignment',
+                'Reduced hallucination rate by 60%',
+                'Enterprise-grade security and compliance',
+                'Improved context understanding (150K tokens)',
+                'Real-time fact-checking capabilities',
+                'Available through AWS Bedrock'
+            ],
+            analysis: 'The focus on safety and alignment makes Claude 4 particularly attractive for enterprise use cases where accuracy and reliability are critical. The AWS integration simplifies deployment for existing cloud users.',
+            stats: [
+                '230 enterprise customers already onboarded',
+                '99.7% uptime SLA guarantee',
+                '45% faster response times',
+                '150K context window capacity',
+                '$15/month for Pro tier'
+            ],
+            relatedArticles: [
+                { title: 'Claude 4 Safety Benchmarks', url: '#' },
+                { title: 'Enterprise AI Deployment Best Practices', url: '#' }
+            ],
+            isTrending: false,
+            isFeatured: false,
+            url: 'https://anthropic.com/claude-4'
         }
     ];
 
@@ -325,10 +420,19 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         key={article.id}
                         headline={article.headline}
                         source={article.source}
+                        author={article.author}
                         timestamp={article.timestamp}
+                        readTime={article.readTime}
+                        difficulty={article.difficulty}
+                        tldr={article.tldr}
                         bulletPoints={article.bulletPoints}
+                        analysis={article.analysis}
+                        stats={article.stats}
+                        relatedArticles={article.relatedArticles}
+                        url={article.url}
+                        isBreaking={article.isBreaking || false}
                         isTrending={article.isTrending}
-                        isFeatured={index === 0} // First card is featured
+                        isFeatured={article.isFeatured || index === 0} // First card or explicitly featured
                         position={index === 0 ? 'left' : index === 1 ? 'center' : index === 2 ? 'right' : 'center'}
                         onReadArticle={() => handleReadArticle(article)}
                         onGeneratePost={() => handleGeneratePost(article)}
