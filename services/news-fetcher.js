@@ -1,5 +1,6 @@
 const axios = require('axios');
 const xml2js = require('xml2js');
+const { extractImagesFromUrls } = require('./image-scraper');
 
 /**
  * Fetch latest AI news from multiple RSS sources
@@ -54,6 +55,24 @@ async function fetchLatestAINews() {
     const uniqueNews = deduplicateNews(recentNews);
 
     console.log(`✨ Found ${uniqueNews.length} unique news items from the last 48 hours`);
+
+    // Extract images from URLs for articles without images
+    const articlesNeedingImages = uniqueNews.filter(item => !item.image && item.url);
+    if (articlesNeedingImages.length > 0) {
+        console.log(`🖼️  Extracting images from ${articlesNeedingImages.length} article URLs...`);
+        const urls = articlesNeedingImages.map(item => item.url);
+        const imageMap = await extractImagesFromUrls(urls, 3); // 3 concurrent requests
+
+        // Update articles with extracted images
+        uniqueNews.forEach(item => {
+            if (!item.image && imageMap.has(item.url)) {
+                item.image = imageMap.get(item.url);
+            }
+        });
+
+        const extractedCount = Array.from(imageMap.values()).filter(img => img !== null).length;
+        console.log(`✅ Successfully extracted ${extractedCount} images from article pages`);
+    }
 
     // Sort by date (newest first)
     return uniqueNews.sort((a, b) => b.pubDate - a.pubDate);
