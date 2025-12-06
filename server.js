@@ -302,6 +302,10 @@ async function verifyAuth(req, res, next) {
 // Trust Railway's reverse proxy for accurate IP detection (rate limiting)
 app.set('trust proxy', 1);
 
+// Body Parsers - REQUIRED for req.body to work
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 const helmet = require('helmet');
 
 app.use(cors());
