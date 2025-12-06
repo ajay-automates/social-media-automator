@@ -2,10 +2,29 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 /**
+ * Search for a relevant image using Bing Image Search (Thumbnail API)
+ * This acts as a fallback when direct scraping is blocked (e.g. 403 Forbidden)
+ */
+async function searchBingImage(query) {
+    if (!query) return null;
+    try {
+        // Append 'AI news' to context
+        const encodedQuery = encodeURIComponent(query);
+        // Bing Thumbnail API - unofficial but highly reliable for fallbacks
+        // w=800, h=450 (16:9 aspect ratio approx)
+        const imageUrl = `https://tse2.mm.bing.net/th?q=${encodedQuery}&w=800&h=450&c=7&rs=1&p=0`;
+        return imageUrl;
+    } catch (error) {
+        console.error('Bing fallback failed:', error.message);
+        return null;
+    }
+}
+
+/**
  * Extract Open Graph image from a URL
  * Fast and reliable - just parses meta tags
  */
-async function extractImageFromUrl(url) {
+async function extractImageFromUrl(url, fallbackQuery = null) {
     try {
         // Fetch the HTML with a timeout and robust headers
         const response = await axios.get(url, {
@@ -24,7 +43,7 @@ async function extractImageFromUrl(url) {
                 'Sec-Fetch-User': '?1',
                 'Upgrade-Insecure-Requests': '1'
             },
-            timeout: 8000, // Increased timeout
+            timeout: 8000,
             maxRedirects: 3
         });
 
@@ -57,23 +76,39 @@ async function extractImageFromUrl(url) {
         }
 
         return imageUrl || null;
+
     } catch (error) {
-        console.error(`Failed to extract image from ${url}:`, error.message);
+        // If blocking or error occurs, and we have a fallback query, use Bing
+        if (fallbackQuery) {
+            try {
+                // console.log(`Scraping failed for ${url}, trying Bing fallback for "${fallbackQuery}"...`);
+                return await searchBingImage(fallbackQuery);
+            } catch (k) {
+                return null;
+            }
+        }
         return null;
     }
 }
 
 /**
  * Batch extract images from multiple URLs with concurrency limit
+ * Accepts array of URL strings OR objects { url, query }
  */
-async function extractImagesFromUrls(urls, concurrency = 3) {
+async function extractImagesFromUrls(items, concurrency = 3) {
     const results = new Map();
 
     // Process in batches to avoid overwhelming servers
-    for (let i = 0; i < urls.length; i += concurrency) {
-        const batch = urls.slice(i, i + concurrency);
-        const promises = batch.map(async (url) => {
-            const image = await extractImageFromUrl(url);
+    for (let i = 0; i < items.length; i += concurrency) {
+        const batch = items.slice(i, i + concurrency);
+
+        const promises = batch.map(async (item) => {
+            const url = typeof item === 'string' ? item : item.url;
+            const query = typeof item === 'object' ? item.query : null;
+
+            // If item is just URL, we can't use fallback efficiently unless we deduce title (impossible)
+            // But news-fetcher will pass object
+            const image = await extractImageFromUrl(url, query);
             return { url, image };
         });
 

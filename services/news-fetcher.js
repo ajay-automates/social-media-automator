@@ -60,8 +60,8 @@ async function fetchLatestAINews() {
     const articlesNeedingImages = uniqueNews.filter(item => !item.image && item.url);
     if (articlesNeedingImages.length > 0) {
         console.log(`🖼️  Extracting images from ${articlesNeedingImages.length} article URLs...`);
-        const urls = articlesNeedingImages.map(item => item.url);
-        const imageMap = await extractImagesFromUrls(urls, 3); // 3 concurrent requests
+        const itemsToScrape = articlesNeedingImages.map(item => ({ url: item.url, query: item.title }));
+        const imageMap = await extractImagesFromUrls(itemsToScrape, 3); // 3 concurrent requests
 
         // Update articles with extracted images
         uniqueNews.forEach(item => {
