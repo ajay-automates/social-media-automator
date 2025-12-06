@@ -96,6 +96,13 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     ];
 
     useEffect(() => {
+        // USE MOCK DATA WITH IMAGES - RSS feeds + scraping takes time
+        // Uncomment below to use live data after backend restart
+        setNews(mockNews);
+        setLoading(false);
+        return;
+
+        /* LIVE DATA - Requires backend restart to load image scraper
         if (initialNews && initialNews.length > 0) {
             setNews(initialNews);
             setLoading(initialLoading || false);
@@ -186,7 +193,8 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         };
 
         fetchNews();
-    }, [initialNews, initialLoading]);
+        */
+    }, []);
 
     const displayNews = news.length > 0 ? news : mockNews;
     const isLoading = initialLoading !== undefined ? initialLoading : loading;
