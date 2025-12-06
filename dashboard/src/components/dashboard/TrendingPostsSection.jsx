@@ -108,17 +108,41 @@ export default function TrendingPostsSection({ posts: initialPosts, loading: ini
 
                 if (response.data.success && response.data.trends && response.data.trends.length > 0) {
                     // Map live trends to post format
-                } catch (err) {
-                    console.error('Failed to fetch live trends:', err);
+                    const formattedTrends = response.data.trends.map((trend, index) => ({
+                        id: index,
+                        platform: trend.source || 'web',
+                        author: trend.source === 'reddit' ? `r/${trend.category || 'all'}` : 'Google Trends',
+                        timestamp: 'Trending Now',
+                        content: trend.topic,
+                        limit_content: true,
+                        url: trend.url,
+                        engagement: {
+                            likes: trend.volume || 0,
+                            retweets: 0,
+                            comments: 0,
+                            views: 0
+                        },
+                        viralScore: trend.score ? (trend.score / 10) : 7.0,
+                        topReply: null,
+                        hashtags: [],
+                        isBreaking: false
+                    }));
+                    setPosts(formattedTrends);
+                } else {
+                    // Fallback to mock if API returns empty
                     setPosts(mockPosts);
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
                 }
-            };
+            } catch (err) {
+                console.error('Failed to fetch live trends:', err);
+                setPosts(mockPosts);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            fetchTrends();
-        }, [initialPosts, initialLoading]);
+        fetchTrends();
+    }, [initialPosts, initialLoading]);
 
     const displayPosts = posts.length > 0 ? posts : mockPosts;
     const isLoading = initialLoading !== undefined ? initialLoading : loading;
