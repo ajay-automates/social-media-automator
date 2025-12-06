@@ -34,6 +34,20 @@ export default function NewsCard({
 }) {
     const [isSaved, setIsSaved] = useState(false);
 
+    // Generate gradient based on source
+    const getSourceGradient = () => {
+        const gradients = {
+            'OpenAI': 'from-emerald-500 to-teal-600',
+            'Google': 'from-blue-500 to-indigo-600',
+            'Meta': 'from-purple-500 to-pink-600',
+            'Anthropic': 'from-orange-500 to-red-600',
+            'DeepMind': 'from-cyan-500 to-blue-600',
+            'TechCrunch': 'from-green-500 to-emerald-600',
+            'default': 'from-gray-600 to-gray-800'
+        };
+        return gradients[source] || gradients.default;
+    };
+
     const handleSave = () => {
         setIsSaved(!isSaved);
         if (onSave) onSave();
@@ -53,78 +67,54 @@ export default function NewsCard({
             <motion.div
                 whileHover={{ y: -4 }}
                 className="rounded-xl backdrop-blur-md border border-white/10 overflow-hidden transition-all duration-300 hover:border-white/30 cursor-pointer"
-                style={{
-                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
-                    minHeight: '480px'
-                }}
-                onClick={onReadArticle}
+                key={idx}
+                className={`px-2 py-1 rounded-md text-[10px] font-bold bg-gradient-to-r ${badge.color} text-white shadow-lg`}
             >
-                {/* Featured Image */}
-                <div className="relative h-[220px] w-full overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
-                    {image ? (
-                        <img
-                            src={image}
-                            alt={headline}
-                            className="w-full h-full object-cover"
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-6xl">📰</span>
-                        </div>
-                    )}
-
-                    {/* Badges overlay */}
-                    {getBadges().length > 0 && (
-                        <div className="absolute top-3 left-3 flex gap-2">
-                            {getBadges().map((badge, idx) => (
-                                <span
-                                    key={idx}
-                                    className={`px-2 py-1 rounded-md text-[10px] font-bold bg-gradient-to-r ${badge.color} text-white shadow-lg`}
-                                >
-                                    {badge.text}
-                                </span>
+                {badge.text}
+            </span>
                             ))}
-                        </div>
-                    )}
+        </div>
+    )
+}
 
-                    {/* Save button overlay */}
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleSave();
-                        }}
-                        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors"
-                    >
-                        <span className="text-lg">{isSaved ? '📌' : '🔖'}</span>
-                    </button>
-                </div>
+{/* Save button overlay */ }
+<button
+    onClick={(e) => {
+        e.stopPropagation();
+        handleSave();
+    }}
+    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center hover:bg-black/60 transition-colors"
+>
+    <span className="text-lg">{isSaved ? '📌' : '🔖'}</span>
+</button>
+                </div >
 
-                {/* Content */}
-                <div className="p-5">
-                    {/* Headline */}
-                    <h3 className="text-white text-lg font-bold leading-tight mb-3 line-clamp-2">
-                        {headline}
-                    </h3>
+    {/* Content */ }
+    < div className = "p-5" >
+        {/* Headline */ }
+        < h3 className = "text-white text-lg font-bold leading-tight mb-3 line-clamp-2" >
+            { headline }
+                    </h3 >
 
-                    {/* Summary */}
-                    <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-3">
-                        {summary}
-                    </p>
+    {/* Summary */ }
+    < p className = "text-gray-300 text-sm leading-relaxed mb-4 line-clamp-3" >
+        { summary }
+                    </p >
 
-                    {/* Metadata */}
-                    <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-                        <div className="flex items-center gap-2">
-                            <span className="flex items-center gap-1">
-                                <span className="text-blue-400">🔗</span>
-                                <span className="font-medium">{sourceCount} sources</span>
-                            </span>
-                            <span>•</span>
-                            <span>{timestamp}</span>
-                        </div>
-                    </div>
+    {/* Metadata */ }
+    < div className = "flex items-center justify-between text-xs text-gray-400 mb-4" >
+        <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1">
+                <span className="text-blue-400">🔗</span>
+                <span className="font-medium">{sourceCount} sources</span>
+            </span>
+            <span>•</span>
+            <span>{timestamp}</span>
+        </div>
+                    </div >
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
+    {/* Action Buttons */ }
+    < div className = "flex gap-2" >
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -143,9 +133,9 @@ export default function NewsCard({
                         >
                             Generate Post
                         </button>
-                    </div>
-                </div>
-            </motion.div>
-        </div>
+                    </div >
+                </div >
+            </motion.div >
+        </div >
     );
 }
