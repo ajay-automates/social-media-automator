@@ -13,7 +13,7 @@ import AnimatedBackground from '../components/ui/AnimatedBackground';
 import ContentIdeasModal from '../components/ContentIdeasModal';
 import { OnboardingProvider, useOnboarding } from '../contexts/OnboardingContext';
 import OnboardingFlow from '../components/onboarding/OnboardingFlow';
-import TrendingPostsSection from '../components/dashboard/TrendingPostsSection';
+
 import AINewsFeedSection from '../components/dashboard/AINewsFeedSection';
 
 function DashboardContent() {
@@ -290,8 +290,7 @@ function DashboardContent() {
 
 
 
-        {/* 1. Trending Posts Section (Moved to Top) */}
-        <TrendingPostsSection />
+
 
         {/* 2. AI News Feed Section (Moved to Top) */}
         <AINewsFeedSection />
