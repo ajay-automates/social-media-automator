@@ -28,7 +28,7 @@ export default function NewsCard({
             'Anthropic': 'from-orange-500 to-red-600',
             'DeepMind': 'from-cyan-500 to-blue-600',
             'TechCrunch': 'from-green-500 to-emerald-600',
-            'default': 'from-gray-600 to-gray-800'
+            'default': 'from-blue-600 to-violet-800'
         };
         return gradients[source] || gradients.default;
     };
