@@ -20,23 +20,37 @@ export default function NewsCard({
     const [isSaved, setIsSaved] = useState(false);
 
     // Client-side fallback: Bing Image
-    const bingFallbackUrl = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(headline + ' ' + (source || '') + ' AI news')}&w=800&h=450&c=7&rs=1&p=0`;
+    // Uses tse1.mm.bing.net which is often more reliable and permissive
+    const bingFallbackUrl = `https://tse1.mm.bing.net/th?q=${encodeURIComponent(headline + ' ' + (source || '') + ' AI news')}&w=800&h=450&c=7&rs=1&p=0`;
 
-    // State to track image source and error status
-    // Status: 'initial' | 'fallback' | 'error'
-    const [imgState, setImgState] = useState('initial');
+    // State to track image display mode
+    // 'initial' = try prop image
+    // 'fallback' = try bing image
+    // 'error' = show gradient
+    const [displayMode, setDisplayMode] = useState('initial');
     const [currentSrc, setCurrentSrc] = useState(image || bingFallbackUrl);
 
     useEffect(() => {
         // Reset state when props change
         if (image) {
-            setImgState('initial');
+            setDisplayMode('initial');
             setCurrentSrc(image);
         } else {
-            setImgState('fallback');
+            setDisplayMode('fallback');
             setCurrentSrc(bingFallbackUrl);
         }
     }, [image, headline, source]);
+
+    const handleError = () => {
+        if (displayMode === 'initial') {
+            // Main image failed, switch to fallback
+            setDisplayMode('fallback');
+            setCurrentSrc(bingFallbackUrl);
+        } else {
+            // Fallback also failed, show gradient
+            setDisplayMode('error');
+        }
+    };
 
     // Generate gradient based on source
     const getSourceGradient = () => {
@@ -55,17 +69,6 @@ export default function NewsCard({
     const handleSave = () => {
         setIsSaved(!isSaved);
         if (onSave) onSave();
-    };
-
-    const handleError = () => {
-        if (imgState === 'initial') {
-            // Main image failed, try fallback
-            setImgState('fallback');
-            setCurrentSrc(bingFallbackUrl);
-        } else {
-            // Fallback also failed, show gradient
-            setImgState('error');
-        }
     };
 
     const getBadges = () => {
@@ -87,10 +90,11 @@ export default function NewsCard({
                 }}
             >
                 {/* Image or Gradient Header */}
-                <div className={`relative h-[220px] w-full overflow-hidden ${imgState === 'error' ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
+                <div className={`relative h-[220px] w-full overflow-hidden ${displayMode === 'error' ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
 
-                    {imgState !== 'error' ? (
+                    {displayMode !== 'error' ? (
                         <img
+                            key={currentSrc} // Critical: Force re-render when src changes to clear broken state
                             src={currentSrc}
                             alt={headline}
                             className="w-full h-full object-cover"
