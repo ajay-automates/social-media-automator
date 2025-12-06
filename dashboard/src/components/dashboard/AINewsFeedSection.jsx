@@ -246,7 +246,18 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             }
         } catch (error) {
             console.error('Posting failed:', error);
-            showError(error.response?.data?.error || 'Failed to post content');
+            const errorData = error.response?.data?.error;
+            let errorMessage = 'Failed to post content';
+
+            if (errorData) {
+                if (typeof errorData === 'string') {
+                    errorMessage = errorData;
+                } else if (typeof errorData === 'object') {
+                    errorMessage = errorData.message || errorData.code || JSON.stringify(errorData);
+                }
+            }
+
+            showError(errorMessage);
         } finally {
             setIsGenerating(false);
         }
