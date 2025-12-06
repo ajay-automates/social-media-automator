@@ -154,7 +154,7 @@ export default function NewsCard({
                                     onReadArticle();
                                 }
                             }}
-                            className="flex-1 px-4 py-2.5 rounded-lg border border-white/20 text-white text-sm font-medium hover:bg-white/10 transition-colors"
+                            className="flex-1 px-4 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium transition-colors border border-gray-700"
                         >
                             Read Article
                         </button>
