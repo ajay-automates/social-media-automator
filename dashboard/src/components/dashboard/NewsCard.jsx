@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 export default function NewsCard({
@@ -18,6 +18,19 @@ export default function NewsCard({
     onSave
 }) {
     const [isSaved, setIsSaved] = useState(false);
+
+    // Client-side fallback: Use Bing Image Search if server image fails or is missing
+    // This bypasses server-side IP blocking by running in the user's browser
+    const bingFallbackUrl = `https://tse2.mm.bing.net/th?q=${encodeURIComponent(headline + ' ' + (source || '') + ' AI news')}&w=800&h=450&c=7&rs=1&p=0`;
+
+    const [imgSrc, setImgSrc] = useState(image || bingFallbackUrl);
+    const [hasError, setHasError] = useState(false);
+
+    useEffect(() => {
+        // If prop changes, reset. If image is valid, use it. If null, use Bing immediately.
+        setImgSrc(image || bingFallbackUrl);
+        setHasError(false);
+    }, [image, headline, source]);
 
     // Generate gradient based on source
     const getSourceGradient = () => {
@@ -57,26 +70,21 @@ export default function NewsCard({
                 }}
             >
                 {/* Image or Gradient Header */}
-                <div className={`relative h-[220px] w-full overflow-hidden ${!image ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
-                    {image ? (
+                <div className={`relative h-[220px] w-full overflow-hidden ${hasError ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
+                    {!hasError ? (
                         <img
-                            src={image}
+                            src={imgSrc}
                             alt={headline}
                             className="w-full h-full object-cover"
-                            onError={(e) => {
-                                // Fallback to gradient if image fails to load
-                                e.target.style.display = 'none';
-                                e.target.parentElement.classList.add('bg-gradient-to-br', ...getSourceGradient().split(' '));
-                                const fallbackIcon = document.createElement('div');
-                                fallbackIcon.className = 'w-full h-full flex items-center justify-center';
-                                fallbackIcon.innerHTML = `<span class="text-8xl opacity-30">${source === 'OpenAI' ? '🤖' :
-                                    source === 'Google' ? '🔍' :
-                                        source === 'Meta' ? '👥' :
-                                            source === 'Anthropic' ? '🧠' :
-                                                source === 'DeepMind' ? '🎯' :
-                                                    source === 'TechCrunch' ? '📱' : '📰'
-                                    }</span>`;
-                                e.target.parentElement.appendChild(fallbackIcon);
+                            onError={() => {
+                                // If current image fails...
+                                if (imgSrc !== bingFallbackUrl) {
+                                    // Try fallback
+                                    setImgSrc(bingFallbackUrl);
+                                } else {
+                                    // If fallback also fails, show gradient
+                                    setHasError(true);
+                                }
                             }}
                         />
                     ) : (
