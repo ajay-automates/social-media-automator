@@ -24,6 +24,7 @@ export default function TrendingPostsSection({ posts: initialPosts, loading: ini
             platform: 'twitter',
             author: 'elonmusk',
             timestamp: '2h ago',
+            image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop',
             content: `AI will change everything over the next 5 years. The advancements in reasoning and multimodal capabilities are absolutely insane. 
 
 We're seeing models that can now understand context across images, videos, and text simultaneously. This isn't just incremental progress - it's a fundamental shift in how AI systems work.
@@ -45,6 +46,7 @@ Stay ahead of the curve or get left behind. The future is here. 🚀`,
             platform: 'reddit',
             author: 'AIResearcher',
             timestamp: '4h ago',
+            image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=400&fit=crop',
             content: `OpenAI just released GPT-5 preview and it's absolutely insane. The multimodal capabilities are beyond anything I've seen.
 
 Key highlights from my testing:
@@ -70,6 +72,7 @@ This is a massive leap forward. If you're building AI applications, you need to 
             platform: 'twitter',
             author: 'sama',
             timestamp: '6h ago',
+            image: 'https://images.unsplash.com/photo-1655393001768-d946c97d6fd1?w=800&h=400&fit=crop',
             content: `We've been working on something special. GPT-5 brings 3x speed improvements, 50% cost reduction, and capabilities that will blow your mind.
 
 What's new:
@@ -95,6 +98,7 @@ The AI revolution accelerates. This is just the beginning. 🎯`,
             platform: 'linkedin',
             author: 'satyanadella',
             timestamp: '8h ago',
+            image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=400&fit=crop',
             content: `Excited to announce our partnership with OpenAI to bring GPT-5 to Microsoft 365. This will transform how millions of people work every day.
 
 Imagine:
@@ -177,6 +181,7 @@ Productivity is about to get a massive upgrade. The way we work is changing fore
                         author={post.author}
                         timestamp={post.timestamp}
                         content={post.content}
+                        image={post.image}
                         engagement={post.engagement}
                         viralScore={post.viralScore || 0}
                         topReply={post.topReply}

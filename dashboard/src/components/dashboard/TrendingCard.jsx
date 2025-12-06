@@ -10,6 +10,7 @@ export default function TrendingCard({
     author = 'Unknown',
     timestamp = '2h ago',
     content = 'This is a trending post...',
+    image = null,
     engagement = { likes: 0, retweets: 0, comments: 0, views: 0 },
     viralScore = 0,
     topReply = null,
@@ -34,6 +35,17 @@ export default function TrendingCard({
     };
 
     const config = platformConfig[platform] || platformConfig.twitter;
+
+    // Get platform gradient for fallback
+    const getPlatformGradient = () => {
+        const gradients = {
+            twitter: 'from-blue-500 to-cyan-600',
+            reddit: 'from-orange-500 to-red-600',
+            tiktok: 'from-pink-500 to-purple-600',
+            linkedin: 'from-blue-600 to-indigo-700'
+        };
+        return gradients[platform] || gradients.twitter;
+    };
 
     // Format large numbers
     const formatNumber = (num) => {
@@ -114,9 +126,29 @@ export default function TrendingCard({
                     </div>
                 </div>
 
+                {/* Image Section (if available) */}
+                {image && (
+                    <div className="relative h-[200px] w-full overflow-hidden">
+                        <img
+                            src={image}
+                            alt="Post visual"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                // Fallback to gradient if image fails to load
+                                e.target.style.display = 'none';
+                                e.target.parentElement.classList.add('bg-gradient-to-br', ...getPlatformGradient().split(' '));
+                                const fallbackIcon = document.createElement('div');
+                                fallbackIcon.className = 'w-full h-full flex items-center justify-center';
+                                fallbackIcon.innerHTML = `<span class="text-8xl opacity-30">${config.icon}</span>`;
+                                e.target.parentElement.appendChild(fallbackIcon);
+                            }}
+                        />
+                    </div>
+                )}
+
                 {/* Post Content */}
                 <div className="p-4">
-                    <p className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
+                    <p className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap line-clamp-6">
                         {content}
                     </p>
                 </div>
@@ -186,11 +218,18 @@ export default function TrendingCard({
                 {/* Actions */}
                 <div className="p-4 flex gap-2 border-t border-white/10">
                     <button
-                        onClick={onViewPost}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (url && url !== '#') {
+                                window.open(url, '_blank');
+                            } else {
+                                onViewPost();
+                            }
+                        }}
                         className="flex-1 bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all inline-flex items-center justify-center gap-2"
                     >
                         <span>🔗</span>
-                        <span>View Tweet</span>
+                        <span>View Post</span>
                     </button>
                     <button
                         onClick={onGeneratePost}
