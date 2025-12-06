@@ -48,6 +48,47 @@ const newsCache = {
 };
 
 /**
+ * Extract image URL from RSS item
+ * Supports: media:content, media:thumbnail, enclosure, and HTML img tags
+ */
+function extractImageFromRSSItem(item) {
+  try {
+    // Try media:content (common in many feeds)
+    if (item['media:content'] && item['media:content'][0] && item['media:content'][0].$) {
+      const url = item['media:content'][0].$.url;
+      if (url) return url;
+    }
+
+    // Try media:thumbnail
+    if (item['media:thumbnail'] && item['media:thumbnail'][0] && item['media:thumbnail'][0].$) {
+      const url = item['media:thumbnail'][0].$.url;
+      if (url) return url;
+    }
+
+    // Try enclosure tag
+    if (item.enclosure && item.enclosure[0] && item.enclosure[0].$) {
+      const enclosure = item.enclosure[0].$;
+      if (enclosure.type && enclosure.type.startsWith('image/')) {
+        return enclosure.url;
+      }
+    }
+
+    // Try to extract from description HTML
+    if (item.description && item.description[0]) {
+      const desc = item.description[0];
+      const imgMatch = desc.match(/<img[^>]+src="([^">]+)"/);
+      if (imgMatch && imgMatch[1]) {
+        return imgMatch[1];
+      }
+    }
+
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
  * Fetch news from Google News RSS
  * Completely free, no API key needed
  * @param {string} category - Category key
@@ -85,8 +126,11 @@ async function fetchGoogleNewsRSS(category, hoursBack = 24, useSpecificKeyword =
       }
     });
 
-    // Parse XML
-    const parser = new xml2js.Parser();
+    // Parse XML with media namespace support
+    const parser = new xml2js.Parser({
+      explicitArray: true,
+      tagNameProcessors: [xml2js.processors.stripPrefix] // Strip namespace prefixes
+    });
     const result = await parser.parseStringPromise(response.data);
 
     if (!result.rss || !result.rss.channel || !result.rss.channel[0].item) {
@@ -107,6 +151,7 @@ async function fetchGoogleNewsRSS(category, hoursBack = 24, useSpecificKeyword =
         title: item.title ? item.title[0] : 'No Title',
         description: item.description ? item.description[0].replace(/<[^>]*>/g, '').substring(0, 200) : '',
         url: item.link ? item.link[0] : '',
+        image: extractImageFromRSSItem(item),
         source: item.source && item.source[0] && item.source[0].$ ? item.source[0].$.url : 'Google News',
         publishedAt: pubDate.toISOString(),
         category: category,

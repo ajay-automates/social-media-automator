@@ -33,7 +33,8 @@ async function fetchLatestAINews() {
                 link: item.link ? item.link[0] : '',
                 url: item.link ? item.link[0] : '', // Alias for compatibility
                 pubDate: item.pubDate ? new Date(item.pubDate[0]) : new Date(),
-                description: item.description ? item.description[0] : '',
+                description: item.description ? item.description[0].replace(/<[^>]*>/g, '') : '',
+                image: extractImageFromItem(item),
                 source: source.name
             }));
 
@@ -59,6 +60,57 @@ async function fetchLatestAINews() {
 }
 
 /**
+ * Extract image URL from RSS item
+ * Supports: media:content, media:thumbnail, enclosure, and HTML img tags
+ */
+function extractImageFromItem(item) {
+    try {
+        // Try media:content (common in many feeds)
+        if (item['media:content'] && item['media:content'][0] && item['media:content'][0].$) {
+            const url = item['media:content'][0].$.url;
+            if (url) return url;
+        }
+
+        // Try media:thumbnail
+        if (item['media:thumbnail'] && item['media:thumbnail'][0] && item['media:thumbnail'][0].$) {
+            const url = item['media:thumbnail'][0].$.url;
+            if (url) return url;
+        }
+
+        // Try enclosure tag (podcasts and some news feeds)
+        if (item.enclosure && item.enclosure[0] && item.enclosure[0].$) {
+            const enclosure = item.enclosure[0].$;
+            if (enclosure.type && enclosure.type.startsWith('image/')) {
+                return enclosure.url;
+            }
+        }
+
+        // Try to extract from description HTML
+        if (item.description && item.description[0]) {
+            const desc = item.description[0];
+            // Look for img tags
+            const imgMatch = desc.match(/<img[^>]+src="([^">]+)"/);
+            if (imgMatch && imgMatch[1]) {
+                return imgMatch[1];
+            }
+        }
+
+        // Try content:encoded (WordPress feeds)
+        if (item['content:encoded'] && item['content:encoded'][0]) {
+            const content = item['content:encoded'][0];
+            const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+            if (imgMatch && imgMatch[1]) {
+                return imgMatch[1];
+            }
+        }
+
+        return null;
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
  * Parse RSS feed URL
  */
 async function parseRSS(url) {
@@ -70,7 +122,11 @@ async function parseRSS(url) {
             timeout: 10000 // 10s timeout
         });
 
-        const parser = new xml2js.Parser();
+        // Configure parser to handle media namespaces
+        const parser = new xml2js.Parser({
+            explicitArray: true,
+            tagNameProcessors: [xml2js.processors.stripPrefix] // This helps with media: prefix
+        });
         const result = await parser.parseStringPromise(response.data);
 
         if (!result.rss || !result.rss.channel || !result.rss.channel[0].item) {

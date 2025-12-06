@@ -49,7 +49,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             id: 1,
             headline: 'OpenAI Releases GPT-5 with Major Performance Improvements',
             summary: 'GPT-5 brings 3x speed boost, 50% cost reduction, and new vision capabilities to AI applications. Available to all API users immediately.',
-            image: null,
+            image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop',
             source: 'OpenAI',
             timestamp: '1h ago',
             sourceCount: 58,
@@ -61,7 +61,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             id: 2,
             headline: 'Google Gemini Ultra Surpasses Human Performance on 57 Benchmarks',
             summary: 'Gemini Ultra achieves state-of-the-art results across math, coding, and reasoning tasks, marking a significant milestone in AI development.',
-            image: null,
+            image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=400&fit=crop',
             source: 'Google',
             timestamp: '5h ago',
             sourceCount: 72,
@@ -73,7 +73,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             id: 3,
             headline: 'Meta Unveils Llama 3: Open-Source AI Model Rivals Proprietary Giants',
             summary: 'Llama 3 offers competitive performance with GPT-4 and Claude while being fully open-source with commercial licensing.',
-            image: null,
+            image: 'https://images.unsplash.com/photo-1655393001768-d946c97d6fd1?w=800&h=400&fit=crop',
             source: 'Meta',
             timestamp: '9h ago',
             sourceCount: 45,
@@ -85,7 +85,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             id: 4,
             headline: 'Anthropic Announces Claude 4 with Enhanced Safety Features',
             summary: 'Claude 4 introduces constitutional AI improvements and better alignment, making it safer for enterprise deployments.',
-            image: null,
+            image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&h=400&fit=crop',
             source: 'Anthropic',
             timestamp: '12h ago',
             sourceCount: 34,
@@ -161,8 +161,11 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         return {
                             id: index,
                             headline: article.title,
+                            summary: bulletPoints[0], // Use first bullet point as summary
+                            image: article.image || article.imageUrl || null,
                             source: article.source || 'AI News',
                             timestamp: timestamp,
+                            sourceCount: 1,
                             bulletPoints: bulletPoints,
                             isTrending: index < 3, // Top 3 are trending
                             url: articleUrl
