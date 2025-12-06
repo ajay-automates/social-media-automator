@@ -51,14 +51,16 @@ export default function GeneratePostPreview({
         ? DISPLAY_PLATFORMS.filter(p => connectedPlatforms.includes(p))
         : DISPLAY_PLATFORMS; // Fallback to all if none passed (or handle empty state)
 
+    // Auto-select disabled per user request
     const [selectedPlatforms, setSelectedPlatforms] = useState([]);
 
-    // Auto-select all available platforms on open
-    useEffect(() => {
-        if (isOpen && visiblePlatforms.length > 0) {
+    const toggleSelectAll = () => {
+        if (selectedPlatforms.length === visiblePlatforms.length) {
+            setSelectedPlatforms([]);
+        } else {
             setSelectedPlatforms(visiblePlatforms);
         }
-    }, [isOpen, visiblePlatforms.length]);
+    };
 
     const togglePlatform = (platform) => {
         setSelectedPlatforms(prev =>
@@ -147,9 +149,17 @@ export default function GeneratePostPreview({
 
                     {/* Platform Selector */}
                     <div>
-                        <label className="block text-xs font-semibold text-[#8e8e93] uppercase tracking-wide mb-2">
-                            Select Platforms
-                        </label>
+                        <div className="flex justify-between items-center mb-2">
+                            <label className="text-xs font-semibold text-[#8e8e93] uppercase tracking-wide">
+                                Select Platforms
+                            </label>
+                            <button
+                                onClick={toggleSelectAll}
+                                className="text-xs text-[#0a84ff] hover:text-[#0071e3] font-medium transition"
+                            >
+                                {selectedPlatforms.length === visiblePlatforms.length ? 'Deselect All' : 'Select All'}
+                            </button>
+                        </div>
                         <div className="flex flex-wrap gap-3">
                             {visiblePlatforms.map(platform => {
                                 const config = PLATFORM_CONFIG[platform];

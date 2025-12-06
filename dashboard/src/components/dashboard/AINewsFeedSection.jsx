@@ -5,6 +5,8 @@ import api from '../../lib/api';
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import NewsCard from './NewsCard';
 import GeneratePostPreview from './GeneratePostPreview';
+import { celebrateSuccess } from '../../utils/animations';
+import { showSuccess, showError } from '../../components/ui/Toast';
 
 /**
  * AINewsFeedSection - Container for AI news with overlapping card layout
@@ -214,16 +216,40 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         }, 1500);
     };
 
-    const handlePostNow = (platforms) => {
-        navigate('/create', {
-            state: {
-                initialContent: generatedContent,
-                sourceUrl: selectedArticle?.url,
-                type: 'news',
-                immediate: true, // signal to create post page to focus on posting
-                platforms: platforms || []
+    const handlePostNow = async (platforms) => {
+        if (!platforms || platforms.length === 0) {
+            showError('Please select at least one platform');
+            return;
+        }
+
+        try {
+            setIsGenerating(true); // Re-use generating state for loading UI
+
+            // Check auth first
+            const authCheck = await api.get('/auth/verify');
+            if (!authCheck.data?.user) {
+                showError('Please login to post');
+                return;
             }
-        });
+
+            const response = await api.post('/post/now', {
+                text: generatedContent,
+                platforms: platforms,
+                source: selectedArticle?.source || 'AI News',
+                sourceUrl: selectedArticle?.url
+            });
+
+            if (response.data.success) {
+                showSuccess('Posted successfully! 🚀');
+                celebrateSuccess();
+                setIsPreviewOpen(false);
+            }
+        } catch (error) {
+            console.error('Posting failed:', error);
+            showError(error.response?.data?.error || 'Failed to post content');
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     const handleSchedule = (platforms) => {
