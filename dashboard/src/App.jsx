@@ -46,15 +46,16 @@ function Navigation() {
     { path: '/calendar', label: 'Calendar', icon: '📅' },
   ];
 
-  // TIER 2: Quick Actions (Secondary nav - 1 item)
+  // TIER 2: Quick Actions (Secondary nav - 3 items)
   const quickActionItems = [
     { path: '/connect-accounts', label: 'Accounts', icon: '🔗' },
+    { path: '/analytics', label: 'Analytics', icon: '📈' },
+    { path: '/pricing', label: 'Pricing', icon: '💎' },
   ];
 
   // TIER 3: User Dropdown (organized by category)
   const userMenuItems = [
-    // Key Features (NEW - moved from main nav)
-    { path: '/analytics', label: 'Analytics', icon: '📈', category: 'Features' },
+    // Key Features
     { path: '/content-agent', label: 'AI Agent', icon: '🤖', category: 'Features' },
     { path: '/team', label: 'Team', icon: '👥', category: 'Features' },
     { path: '/viral-posts', label: 'Viral Posts', icon: '🔥', category: 'Features' },
@@ -77,7 +78,6 @@ function Navigation() {
 
     // Settings
     { path: '/settings', label: 'Settings', icon: '⚙️', category: 'Settings' },
-    { path: '/pricing', label: 'Pricing', icon: '💎', category: 'Settings' },
   ];
 
   // All items for mobile menu
