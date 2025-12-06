@@ -55,7 +55,6 @@ export default function NewsCard({
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
                     minHeight: '480px'
                 }}
-                onClick={onReadArticle}
             >
                 {/* Image or Gradient Header */}
                 <div className={`relative h-[220px] w-full overflow-hidden ${!image ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
@@ -71,11 +70,11 @@ export default function NewsCard({
                                 const fallbackIcon = document.createElement('div');
                                 fallbackIcon.className = 'w-full h-full flex items-center justify-center';
                                 fallbackIcon.innerHTML = `<span class="text-8xl opacity-30">${source === 'OpenAI' ? '🤖' :
-                                        source === 'Google' ? '🔍' :
-                                            source === 'Meta' ? '👥' :
-                                                source === 'Anthropic' ? '🧠' :
-                                                    source === 'DeepMind' ? '🎯' :
-                                                        source === 'TechCrunch' ? '📱' : '📰'
+                                    source === 'Google' ? '🔍' :
+                                        source === 'Meta' ? '👥' :
+                                            source === 'Anthropic' ? '🧠' :
+                                                source === 'DeepMind' ? '🎯' :
+                                                    source === 'TechCrunch' ? '📱' : '📰'
                                     }</span>`;
                                 e.target.parentElement.appendChild(fallbackIcon);
                             }}
@@ -149,7 +148,11 @@ export default function NewsCard({
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                if (onReadArticle) onReadArticle();
+                                if (url && url !== '#') {
+                                    window.open(url, '_blank');
+                                } else if (onReadArticle) {
+                                    onReadArticle();
+                                }
                             }}
                             className="flex-1 px-4 py-2.5 rounded-lg border border-white/20 text-white text-sm font-medium hover:bg-white/10 transition-colors"
                         >
