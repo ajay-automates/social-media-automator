@@ -318,8 +318,8 @@ app.use(helmet({
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://checkout.razorpay.com", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com", "https://*.googleusercontent.com", "https://i.pravatar.cc"],
-      connectSrc: ["'self'", "https://*.supabase.co", "https://gzchblilbthkfuxqhoyo.supabase.co", "https://api.razorpay.com", "https://lumberjack-cx.razorpay.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "*"], // Allow all external images for news feed
+      connectSrc: ["'self'", "https://*.supabase.co", "https://gzchblilbthkfuxqhoyo.supabase.co", "https://api.razorpay.com", "https://lumberjack-cx.razorpay.com", "https://*.bing.net"],
       frameSrc: ["'self'", "https://api.razorpay.com"],
       upgradeInsecureRequests: [], // Allow mixed content if necessary (though prod should be https)
     },

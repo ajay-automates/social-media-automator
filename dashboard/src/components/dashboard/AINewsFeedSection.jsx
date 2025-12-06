@@ -144,7 +144,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const handleRefresh = async () => {
         try {
             setRefreshing(true);
-            const response = await api.post('/api/news/refresh');
+            const response = await api.post('/news/refresh');
             if (response.data.success && response.data.news) {
                 const formattedNews = formatNewsData(response.data.news);
                 setNews(formattedNews);
