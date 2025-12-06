@@ -215,7 +215,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     };
 
     const handlePostNow = (platforms) => {
-        navigate('/create-post', {
+        navigate('/create', {
             state: {
                 initialContent: generatedContent,
                 sourceUrl: selectedArticle?.url,
@@ -227,7 +227,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     };
 
     const handleSchedule = (platforms) => {
-        navigate('/create-post', {
+        navigate('/create', {
             state: {
                 initialContent: generatedContent,
                 sourceUrl: selectedArticle?.url,
