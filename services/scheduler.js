@@ -10,6 +10,7 @@ const { postToFacebookPage } = require('./facebook');
 const { postToYouTube } = require('./youtube');
 const { getUserCredentialsForPosting, refreshRedditToken } = require('./oauth');
 const { updatePostStatus } = require('./database');
+const cache = require('./cache');
 
 // Use shared Supabase admin client from database.js
 const { createClient } = require('@supabase/supabase-js');
@@ -782,6 +783,11 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
       await updatePostStatus(id, status, results);
       console.log(`✅ Post [${id}] completed - Status: ${status}`);
 
+      // Invalidate analytics cache for this user (post status changed)
+      if (user_id && user_id !== 'immediate') {
+        cache.invalidateUserCacheByCategory(user_id, ['analytics', 'platform_stats']);
+      }
+
       // Trigger webhooks for post success/failure
       try {
         const { triggerWebhooks } = require('./webhooks');
@@ -818,6 +824,11 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
     // Only update post status if this is a scheduled post (has id)
     if (id) {
       await updatePostStatus(id, 'failed', { error: error.message });
+
+      // Invalidate analytics cache for this user (post status changed)
+      if (user_id && user_id !== 'immediate') {
+        cache.invalidateUserCacheByCategory(user_id, ['analytics', 'platform_stats']);
+      }
 
       // Trigger webhook for failure
       try {

@@ -33,9 +33,12 @@ function DashboardContent() {
   const { restartOnboarding, goToStep, isNewUser } = useOnboarding();
 
   useEffect(() => {
-    loadDashboardData();
-    loadBillingInfo();
-    loadTeamData();
+    // Load all data in parallel for faster dashboard load
+    Promise.all([
+      loadDashboardData(),
+      loadBillingInfo(),
+      loadTeamData()
+    ]).catch(err => console.error('Error loading dashboard data:', err));
   }, []);
 
   // Auto-open tutorial for first-time users or users without connected accounts
@@ -146,35 +149,41 @@ function DashboardContent() {
       if (plan && plan.name === 'free' && usage && usage.posts && usage.posts.used >= usage.posts.limit) {
         setShowUpgrade(true);
       }
+      return data;
     } catch (err) {
       console.error('Error loading billing info:', err);
       // Set default empty billing info on error
       setBillingInfo(null);
+      return null;
     }
   };
 
   const loadTeamData = async () => {
     try {
-      // Load workspace info to get user role
-      const workspaceRes = await api.get('/workspace/info').catch(() => null);
+      // Load all team data in parallel for speed
+      const [workspaceRes, approvalsRes, draftsRes] = await Promise.all([
+        api.get('/workspace/info').catch(() => null),
+        api.get('/notifications/count').catch(() => null),
+        api.get('/posts/drafts').catch(() => null)
+      ]);
+
       if (workspaceRes?.data?.success) {
         setUserRole(workspaceRes.data.workspace.role);
       }
 
-      // Load pending approvals count (for Owner/Admin)
-      const approvalsRes = await api.get('/notifications/count').catch(() => null);
       if (approvalsRes?.data?.success) {
         setPendingApprovalsCount(approvalsRes.data.count || 0);
       }
 
-      // Load drafts count (for all users)
-      const draftsRes = await api.get('/posts/drafts').catch(() => null);
       if (draftsRes?.data?.success) {
         setDraftsCount(draftsRes.data.drafts?.length || 0);
       }
+
+      return true;
     } catch (err) {
       console.error('Error loading team data:', err);
       // Silently fail - team features are optional
+      return false;
     }
   };
 
@@ -217,10 +226,12 @@ function DashboardContent() {
           recentPosts: []
         });
       }
+      return true;
     } catch (err) {
       console.error('Error loading dashboard:', err);
       setError(err.message);
       showError('Failed to load dashboard data');
+      return false;
     } finally {
       setLoading(false);
     }

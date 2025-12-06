@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const cache = require('./cache');
 
 // Initialize Supabase client (ANON key - respects RLS)
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
@@ -210,6 +211,13 @@ async function getPostHistory(limit = 50, userId = null) {
  */
 async function getPlatformStats(userId = null) {
   try {
+    // Check cache first
+    const cacheKey = userId ? `platform_stats:${userId}` : 'platform_stats:global';
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     let query = supabase
       .from('posts')
       .select('platforms, status, results, user_id')
@@ -266,6 +274,9 @@ async function getPlatformStats(userId = null) {
       s.successRate = s.total > 0 ? Math.round((s.successful / s.total) * 100) : 0;
     });
 
+    // Cache the result
+    cache.set(cacheKey, stats, cache.CACHE_DURATIONS.platform_stats);
+
     return stats;
   } catch (error) {
     console.error('❌ Database error (getPlatformStats):', error.message);
@@ -278,6 +289,13 @@ async function getPlatformStats(userId = null) {
  */
 async function getAnalyticsOverview(userId) {
   try {
+    // Check cache first
+    const cacheKey = `analytics_overview:${userId}`;
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -329,7 +347,7 @@ async function getAnalyticsOverview(userId) {
     }
     const activePlatforms = platformSet.size;
 
-    return {
+    const result = {
       totalPosts: totalPosts || 0,
       postsThisMonth: postsThisMonth || 0,
       postsToday: postsToday || 0,
@@ -337,6 +355,11 @@ async function getAnalyticsOverview(userId) {
       successRate,
       activePlatforms
     };
+
+    // Cache the result
+    cache.set(cacheKey, result, cache.CACHE_DURATIONS.analytics_overview);
+
+    return result;
   } catch (error) {
     console.error('❌ Database error (getAnalyticsOverview):', error.message);
     return {

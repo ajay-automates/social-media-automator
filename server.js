@@ -8413,6 +8413,57 @@ app.get('*', (req, res, next) => {
 });
 
 // ============================================
+// CACHE MANAGEMENT ENDPOINTS
+// ============================================
+const cache = require('./services/cache');
+
+// Get cache statistics
+app.get('/api/admin/cache/stats', verifyAuth, async (req, res) => {
+  try {
+    // Only admins can view cache stats
+    const stats = cache.getStats();
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('Error getting cache stats:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Clear cache for current user (useful after making changes)
+app.post('/api/admin/cache/clear-user', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    cache.invalidateUserCache(userId);
+    res.json({
+      success: true,
+      message: `Cache cleared for user ${userId}`
+    });
+  } catch (error) {
+    console.error('Error clearing user cache:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Clear specific cache categories for current user
+app.post('/api/admin/cache/clear-categories', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { categories } = req.body;
+    cache.invalidateUserCacheByCategory(userId, categories || []);
+    res.json({
+      success: true,
+      message: `Cache cleared for categories: ${(categories || []).join(', ')}`
+    });
+  } catch (error) {
+    console.error('Error clearing cache categories:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
 // START SERVER
 // ============================================
 // Deployment timestamp: 2025-01-27 - Instagram/Facebook scheduler fix
