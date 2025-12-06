@@ -593,6 +593,33 @@ app.get('/api/trends', verifyAuth, async (req, res) => {
 });
 
 /**
+ * POST /api/news/refresh
+ * Force refresh AI news (clear cache and fetch fresh)
+ */
+app.post('/api/news/refresh', verifyAuth, async (req, res) => {
+  try {
+    const { clearNewsCache, fetchTrendingNews } = require('./services/news-agent');
+
+    console.log('🔄 Force refreshing AI news...');
+    clearNewsCache(); // Clear cache to ensure fresh data
+
+    const news = await fetchTrendingNews(20);
+
+    res.json({
+      success: true,
+      news: news || [],
+      message: 'News feed refreshed'
+    });
+  } catch (error) {
+    console.error('Error refreshing news:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
  * Health check (unprotected)
  */
 app.get('/api/health', async (req, res) => {

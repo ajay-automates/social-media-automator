@@ -18,6 +18,7 @@ import { showSuccess, showError } from '../../components/ui/Toast';
 export default function AINewsFeedSection({ news: initialNews, loading: initialLoading }) {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
 
     // Preview Modal State
@@ -43,6 +44,72 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         fetchAccounts();
     }, []);
 
+    // Formatting Logic
+    const formatNewsData = (rawNews) => {
+        // Flatten the categorized news object
+        let allArticles = [];
+        if (Array.isArray(rawNews)) {
+            allArticles = rawNews;
+        } else {
+            Object.values(rawNews).forEach(category => {
+                if (category.articles && Array.isArray(category.articles)) {
+                    allArticles = [...allArticles, ...category.articles];
+                }
+            });
+        }
+
+        // Sort by recency
+        allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        // Deduplicate by title
+        const uniqueArticles = Array.from(new Map(allArticles.map(item => [item.title, item])).values());
+
+        // Map to component format
+        return uniqueArticles.slice(0, 20).map((article, index) => {
+            // Calculate relative time safely
+            let date = new Date(article.pubDate || article.timestamp || new Date());
+            if (isNaN(date.getTime())) date = new Date();
+
+            const now = new Date();
+            const diffInMs = now - date;
+            const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+
+            let timestamp;
+            if (diffInHours < 1) {
+                timestamp = 'Just now';
+            } else if (diffInHours < 24) {
+                timestamp = `${diffInHours}h ago`;
+            } else {
+                timestamp = `${Math.floor(diffInHours / 24)}d ago`;
+            }
+
+            // format description as bullet points (simple split by sentences)
+            const description = article.description || '';
+            // Remove HTML tags if any
+            const cleanDesc = description.replace(/<[^>]*>?/gm, '');
+            // Split into "points" effectively just using the summary as one point if short, or splitting if long
+            const bulletPoints = cleanDesc.length > 100
+                ? [cleanDesc.substring(0, 150) + '...']
+                : [cleanDesc];
+
+            // Ensure we rely on 'url' property, fallback to 'link'
+            const articleUrl = article.url || article.link;
+
+            return {
+                id: index,
+                headline: article.title,
+                summary: bulletPoints[0], // Use first bullet point as summary
+                image: article.image || article.imageUrl || null,
+                source: article.source || 'AI News',
+                timestamp: timestamp,
+                sourceCount: 1,
+                bulletPoints: bulletPoints,
+                isTrending: index < 3, // Top 3 are trending
+                url: articleUrl
+            };
+        });
+    };
+
     useEffect(() => {
         if (initialNews && initialNews.length > 0) {
             setNews(initialNews);
@@ -57,70 +124,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                 const response = await api.get('/news/trending?limit=20');
 
                 if (response.data.success && response.data.news) {
-                    // Flatten the categorized news object
-                    let allArticles = [];
-                    if (Array.isArray(response.data.news)) {
-                        allArticles = response.data.news;
-                    } else {
-                        Object.values(response.data.news).forEach(category => {
-                            if (category.articles && Array.isArray(category.articles)) {
-                                allArticles = [...allArticles, ...category.articles];
-                            }
-                        });
-                    }
-
-                    // Sort by recency
-                    allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-
-                    // Deduplicate by title
-                    const uniqueArticles = Array.from(new Map(allArticles.map(item => [item.title, item])).values());
-
-                    // Map to component format
-                    const formattedNews = uniqueArticles.slice(0, 20).map((article, index) => {
-                        // Calculate relative time safely
-                        let date = new Date(article.pubDate || article.timestamp || new Date());
-                        if (isNaN(date.getTime())) date = new Date();
-
-                        const now = new Date();
-                        const diffInMs = now - date;
-                        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-
-                        let timestamp;
-                        if (diffInHours < 1) {
-                            timestamp = 'Just now';
-                        } else if (diffInHours < 24) {
-                            timestamp = `${diffInHours}h ago`;
-                        } else {
-                            timestamp = `${Math.floor(diffInHours / 24)}d ago`;
-                        }
-
-                        // format description as bullet points (simple split by sentences)
-                        const description = article.description || '';
-                        // Remove HTML tags if any
-                        const cleanDesc = description.replace(/<[^>]*>?/gm, '');
-                        // Split into "points" effectively just using the summary as one point if short, or splitting if long
-                        const bulletPoints = cleanDesc.length > 100
-                            ? [cleanDesc.substring(0, 150) + '...']
-                            : [cleanDesc];
-
-                        // Ensure we rely on 'url' property, fallback to 'link'
-                        const articleUrl = article.url || article.link;
-
-                        return {
-                            id: index,
-                            headline: article.title,
-                            summary: bulletPoints[0], // Use first bullet point as summary
-                            image: article.image || article.imageUrl || null,
-                            source: article.source || 'AI News',
-                            timestamp: timestamp,
-                            sourceCount: 1,
-                            bulletPoints: bulletPoints,
-                            isTrending: index < 3, // Top 3 are trending
-                            url: articleUrl
-                        };
-                    });
-
-                    // Real data only - empty if backend returns nothing
+                    const formattedNews = formatNewsData(response.data.news);
                     setNews(formattedNews);
                 } else {
                     setNews([]);
@@ -137,9 +141,26 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         fetchNews();
     }, [initialNews, initialLoading]);
 
+    const handleRefresh = async () => {
+        try {
+            setRefreshing(true);
+            const response = await api.post('/api/news/refresh');
+            if (response.data.success && response.data.news) {
+                const formattedNews = formatNewsData(response.data.news);
+                setNews(formattedNews);
+                showSuccess('Feed refreshed!');
+            }
+        } catch (error) {
+            console.error('Refresh failed:', error);
+            showError('Failed to refresh feed');
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     // REAL DATA ONLY: news array directly
     const displayNews = news;
-    const isLoading = initialLoading !== undefined ? initialLoading : loading;
+    const isLoading = (initialLoading !== undefined ? initialLoading : loading) && !refreshing; // Don't show full skeleton on refresh, just button spinner
     const navigate = useNavigate();
 
     const handleReadArticle = (article) => {
@@ -277,13 +298,17 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         Latest updates from OpenAI, Anthropic, Google & AI ecosystem
                     </p>
                 </div>
-                <Link
-                    to="/ai-news"
-                    className="text-cyan-400 hover:text-cyan-300 font-semibold text-sm inline-flex items-center gap-1 transition-colors"
+                {/* Refresh Button replacing 'View All News' */}
+                <button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 hover:shadow-cyan-500/20 shadow-lg border border-gray-700 hover:border-cyan-500/30 transition-all text-sm font-medium text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
-                    <span>View All News</span>
-                    <span>→</span>
-                </Link>
+                    <span className={`text-lg transition-transform duration-700 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180'}`}>
+                        🔄
+                    </span>
+                    {refreshing ? 'Refreshing...' : 'Refresh Feed'}
+                </button>
             </div>
 
             {/* Overlapping Cards Carousel */}

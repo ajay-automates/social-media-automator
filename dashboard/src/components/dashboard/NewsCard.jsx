@@ -19,13 +19,16 @@ export default function NewsCard({
 }) {
     const [isSaved, setIsSaved] = useState(false);
 
-    // Client-side fallback: Bing Image
-    // Uses tse1.mm.bing.net which is often more reliable and permissive
+    // Fallback URLs
+    // 1. Proxy (bypasses CORS/Referrer blocks)
+    const proxyUrl = image ? `https://wsrv.nl/?url=${encodeURIComponent(image)}&w=800&h=450&fit=cover` : null;
+    // 2. Bing Search (Fallback if proxy fails or no image provided)
     const bingFallbackUrl = `https://tse1.mm.bing.net/th?q=${encodeURIComponent(headline + ' ' + (source || '') + ' AI news')}&w=800&h=450&c=7&rs=1&p=0`;
 
     // State to track image display mode
-    // 'initial' = try prop image
-    // 'fallback' = try bing image
+    // 'initial' = try prop image directly
+    // 'proxy' = try via wsrv.nl proxy
+    // 'bing' = try bing image search
     // 'error' = show gradient
     const [displayMode, setDisplayMode] = useState('initial');
     const [currentSrc, setCurrentSrc] = useState(image || bingFallbackUrl);
@@ -36,18 +39,25 @@ export default function NewsCard({
             setDisplayMode('initial');
             setCurrentSrc(image);
         } else {
-            setDisplayMode('fallback');
+            setDisplayMode('bing');
             setCurrentSrc(bingFallbackUrl);
         }
     }, [image, headline, source]);
 
     const handleError = () => {
-        if (displayMode === 'initial') {
-            // Main image failed, switch to fallback
-            setDisplayMode('fallback');
+        if (displayMode === 'initial' && proxyUrl) {
+            // Main image failed, try proxy
+            // console.log('Main image failed, trying proxy...');
+            setDisplayMode('proxy');
+            setCurrentSrc(proxyUrl);
+        } else if (displayMode === 'initial' || displayMode === 'proxy') {
+            // Proxy failed (or didn't exist), try Bing
+            // console.log('Proxy failed, trying Bing...');
+            setDisplayMode('bing');
             setCurrentSrc(bingFallbackUrl);
         } else {
-            // Fallback also failed, show gradient
+            // Bing failed, show gradient
+            // console.log('Bing failed, showing gradient.');
             setDisplayMode('error');
         }
     };
@@ -94,11 +104,12 @@ export default function NewsCard({
 
                     {displayMode !== 'error' ? (
                         <img
-                            key={currentSrc} // Critical: Force re-render when src changes to clear broken state
+                            key={currentSrc} // Critical: Force re-render when src changes
                             src={currentSrc}
                             alt={headline}
                             className="w-full h-full object-cover"
                             onError={handleError}
+                            crossOrigin="anonymous" // Try to request correctly
                             referrerPolicy="no-referrer"
                             loading="lazy"
                         />
