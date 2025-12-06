@@ -64,14 +64,14 @@ export default function TrendingCard({
     };
 
     return (
-        <div className="flex-shrink-0 w-[320px]">
+        <div className="flex-shrink-0 w-[380px]">
             {/* Card content - Rich, detailed design */}
             <motion.div
                 whileHover={{ y: -4 }}
                 className={`rounded-xl backdrop-blur-md border border-white/10 overflow-hidden transition-all duration-300 hover:border-white/30 ${getBadgeGlow()}`}
                 style={{
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
-                    minHeight: '480px'
+                    minHeight: '650px'
                 }}
             >
                 {/* Header with badges */}
@@ -116,17 +116,9 @@ export default function TrendingCard({
 
                 {/* Post Content */}
                 <div className="p-4">
-                    <p className={`text-gray-200 text-sm leading-relaxed ${!isExpanded ? 'line-clamp-4' : ''}`}>
+                    <p className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
                         {content}
                     </p>
-                    {content.length > 200 && (
-                        <button
-                            onClick={() => setIsExpanded(!isExpanded)}
-                            className="text-blue-400 hover:text-blue-300 text-xs mt-2 font-medium"
-                        >
-                            {isExpanded ? 'Show less' : 'Read more...'}
-                        </button>
-                    )}
                 </div>
 
                 {/* Engagement Metrics */}

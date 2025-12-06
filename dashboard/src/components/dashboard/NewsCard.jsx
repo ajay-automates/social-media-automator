@@ -28,8 +28,8 @@ export default function NewsCard({
 }) {
     const [expandedSections, setExpandedSections] = useState({
         keyUpdates: true,
-        analysis: false,
-        stats: false
+        analysis: true,
+        stats: true
     });
     const [isSaved, setIsSaved] = useState(false);
 
@@ -66,14 +66,14 @@ export default function NewsCard({
     };
 
     return (
-        <div className="flex-shrink-0 w-[340px]">
+        <div className="flex-shrink-0 w-[400px]">
             {/* Card content - Newsletter-style design */}
             <motion.div
                 whileHover={{ y: -4 }}
                 className={`rounded-xl backdrop-blur-md border border-white/10 overflow-hidden transition-all duration-300 hover:border-white/30 ${getBadgeGlow()}`}
                 style={{
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
-                    minHeight: '580px'
+                    minHeight: '750px'
                 }}
             >
                 {/* Header with badges */}
