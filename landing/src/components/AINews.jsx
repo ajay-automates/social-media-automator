@@ -452,7 +452,7 @@ export default function AINews() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
-                        <h3 className="text-2xl font-bold text-white mb-6">More Trending AI News</h3>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-6">More Trending AI News</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto pb-4">
                             {remainingNews.map((article) => (
                                 <motion.div
@@ -461,22 +461,23 @@ export default function AINews() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.4 }}
-                                    whileHover={{ y: -4 }}
-                                    className="rounded-xl backdrop-blur-md border border-white/10 overflow-hidden transition-all duration-300 hover:border-white/30 cursor-pointer flex-shrink-0"
+                                    whileHover={{ scale: 1.05, y: -8 }}
+                                    className="bg-white rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:border-purple-300 hover:shadow-xl cursor-pointer flex-shrink-0 shadow-md"
                                     style={{
-                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
                                         minHeight: '400px'
                                     }}
                                 >
                                     {/* Image */}
-                                    <div className="relative h-[200px] w-full overflow-hidden bg-gray-800">
-                                        <img
+                                    <div className="relative h-[200px] w-full overflow-hidden bg-gray-100">
+                                        <motion.img
                                             src={getImageSrc(article)}
                                             alt={article.headline}
                                             className="w-full h-full object-cover"
                                             onError={() => handleImageError(article.id, article.image)}
                                             crossOrigin="anonymous"
                                             referrerPolicy="no-referrer"
+                                            whileHover={{ scale: 1.1 }}
+                                            transition={{ duration: 0.3 }}
                                         />
                                         <div className="absolute top-3 left-3">
                                             <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg">
@@ -486,22 +487,22 @@ export default function AINews() {
                                     </div>
 
                                     {/* Content */}
-                                    <div className="p-5">
-                                        <h4 className="text-white text-lg font-bold leading-tight mb-3 line-clamp-2">
+                                    <div className="p-5 bg-white">
+                                        <h4 className="text-gray-900 text-lg font-bold leading-tight mb-3 line-clamp-2">
                                             {article.headline}
                                         </h4>
-                                        <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-3">
+                                        <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
                                             {article.summary}
                                         </p>
-                                        <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
-                                            <span>{article.source}</span>
+                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                                            <span className="font-medium">{article.source}</span>
                                             <span>{article.timestamp}</span>
                                         </div>
                                         <a
                                             href={article.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="block w-full px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm font-medium transition-all text-center"
+                                            className="block w-full px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm font-medium transition-all text-center shadow-md hover:shadow-lg"
                                         >
                                             Read More
                                         </a>
