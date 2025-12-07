@@ -20,15 +20,26 @@ export default function AINews() {
         const fetchNews = async () => {
             try {
                 setLoading(true);
+                console.log('🔍 Fetching AI news from:', `${API_BASE_URL}/api/news/public?limit=12`);
                 const response = await fetch(`${API_BASE_URL}/api/news/public?limit=12`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('📰 News API response:', data);
 
                 if (data.success && data.news) {
                     const formattedNews = formatNewsData(data.news);
+                    console.log('✅ Formatted news:', formattedNews.length, 'articles');
                     setNews(formattedNews);
+                } else {
+                    console.warn('⚠️ No news data in response:', data);
                 }
             } catch (error) {
-                console.error('Failed to fetch AI news:', error);
+                console.error('❌ Failed to fetch AI news:', error);
+                // Don't hide section on error - show empty state or fallback
             } finally {
                 setLoading(false);
             }
@@ -123,7 +134,7 @@ export default function AINews() {
             <section className="relative py-20 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
                 <div className="container mx-auto px-4">
                     <div className="animate-pulse">
-                        <div className="h-12 bg-white/10 rounded w-64 mb-8"></div>
+                        <div className="h-12 bg-white/10 rounded w-64 mb-8 mx-auto"></div>
                         <div className="h-96 bg-white/5 rounded-2xl"></div>
                     </div>
                 </div>
@@ -131,7 +142,20 @@ export default function AINews() {
         );
     }
 
-    if (news.length === 0) return null;
+    // Show section even if no news (for debugging)
+    if (news.length === 0 && !loading) {
+        return (
+            <section className="relative py-20 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
+                <div className="container mx-auto px-4 text-center">
+                    <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                        📰 Viral AI News
+                    </h2>
+                    <p className="text-gray-400">Loading latest AI news...</p>
+                    <p className="text-gray-500 text-sm mt-2">If this persists, check console for API errors</p>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="relative py-20 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
