@@ -9,7 +9,11 @@
 
   body {
     @apply bg-white text-gray-900 antialiased;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+  }
+  
+  * {
+    font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
   }
   
   /* Performance optimizations */

@@ -21,18 +21,18 @@ export default function Header() {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
+            <a href="#features" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
               Features
             </a>
-            <a href="#pricing" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
+            <a href="#pricing" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
               Pricing
             </a>
-            <a href="#faq" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
+            <a href="#faq" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
               FAQ
             </a>
             <Link
               to="/auth"
-              className="text-gray-700 hover:text-gray-900 transition-colors font-medium"
+              className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix"
             >
               Login
             </Link>
