@@ -80,7 +80,7 @@ export default function Pricing() {
             Simple, Transparent{' '}
             <span className="text-netflix-red">Pricing</span>
           </h2>
-          <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
+          <p className="text-xl text-netflix-red max-w-2xl mx-auto mb-8 font-netflix">
             Choose the perfect plan for your needs
           </p>
 

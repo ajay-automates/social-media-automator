@@ -20,35 +20,16 @@ function FloatingFeature({ feature, index, position, isAvailable = true }) {
 
   const gradient = getGradient(index);
 
-  // Staggered zoom-in entrance animation
-  const entranceDelay = index * 0.1;
-  
-  // CSS animation for floating - always active
-  const floatDuration = 3 + (index % 3) * 0.5 + 0.3; // 3-5s range
-  const floatDelay = index * 0.15;
-
   return (
     <div
       key={feature.id}
       style={{
         position: 'absolute',
         ...position,
-        animation: `float-hero ${floatDuration}s ease-in-out infinite`,
-        animationDelay: `${floatDelay}s`,
-        transform: 'translateZ(0)', // GPU acceleration
       }}
       className={`w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br ${gradient.bg} shadow-xl cursor-pointer group flex items-center justify-center border-2 border-white/20`}
     >
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{
-          delay: entranceDelay,
-          duration: 0.5,
-          ease: "backOut",
-        }}
-        className="w-full h-full flex items-center justify-center"
-      >
+      <div className="w-full h-full flex items-center justify-center">
         {typeof feature.icon === 'function' ? (
           <feature.icon 
             className="text-3xl lg:text-4xl text-white drop-shadow-lg pointer-events-none" 
@@ -56,7 +37,7 @@ function FloatingFeature({ feature, index, position, isAvailable = true }) {
         ) : (
           <span className="text-3xl lg:text-4xl text-white drop-shadow-lg pointer-events-none">{feature.icon}</span>
         )}
-      </motion.div>
+      </div>
       {/* Tooltip on hover */}
       <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[60]">
         <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
@@ -136,7 +117,7 @@ export default function Features() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 1 }}
-            className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto"
+            className="text-lg md:text-xl text-netflix-red max-w-3xl mx-auto font-netflix"
           >
             <span className="text-green-600 font-semibold">12 features available now</span> •{' '}
             <span className="text-purple-600 font-semibold">6 coming soon</span> •{' '}

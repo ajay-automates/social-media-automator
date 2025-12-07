@@ -63,7 +63,7 @@ export default function Stats() {
             Proven{' '}
             <span className="text-netflix-red font-netflix">Results</span>
           </h2>
-          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+          <p className="text-xl text-netflix-red max-w-2xl mx-auto font-netflix">
             Real metrics from real users making an impact
           </p>
         </motion.div>
@@ -104,7 +104,7 @@ export default function Stats() {
                 </motion.div>
 
                 {/* Counter */}
-                <div className={`text-5xl font-bold mb-2 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                <div className={`text-5xl font-bold mb-2 text-netflix-red font-netflix`}>
                   <AnimatedCounter
                     end={stat.value}
                     suffix={stat.suffix}
@@ -113,7 +113,7 @@ export default function Stats() {
                 </div>
 
                 {/* Label */}
-                <div className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="text-lg font-semibold text-netflix-red mb-2 font-netflix">
                   {stat.label}
                 </div>
 
@@ -163,19 +163,14 @@ export default function Stats() {
               {platforms.working.map((platform, index) => {
                 const PlatformIcon = platform.Icon;
                 return (
-                  <motion.div
+                  <div
                     key={platform.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: index * 0.03, duration: 0.4 }}
-                    whileHover={{ scale: 1.1, y: -5 }}
-                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer border-2 border-green-400/50 motion-safe:transform will-change-transform`}
+                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} cursor-pointer border-2 border-green-400/50`}
                   >
                     <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
                     <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
                     <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">NOW</span>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
@@ -188,19 +183,14 @@ export default function Stats() {
               {platforms.pending.map((platform, index) => {
                 const PlatformIcon = platform.Icon;
                 return (
-                  <motion.div
+                  <div
                     key={platform.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: index * 0.03, duration: 0.4 }}
-                    whileHover={{ scale: 1.1, y: -5 }}
-                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer opacity-75 border-2 border-blue-400/30 motion-safe:transform will-change-transform`}
+                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} cursor-pointer opacity-75 border-2 border-blue-400/30`}
                   >
                     <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
                     <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
                     <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">SOON</span>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
@@ -213,19 +203,14 @@ export default function Stats() {
               {platforms.comingSoon.map((platform, index) => {
                 const PlatformIcon = platform.Icon;
                 return (
-                  <motion.div
+                  <div
                     key={platform.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: index * 0.03, duration: 0.4 }}
-                    whileHover={{ scale: 1.1, y: -5 }}
-                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} hover:shadow-2xl transition-all cursor-pointer opacity-50 border-2 border-purple-400/20 motion-safe:transform will-change-transform`}
+                    className={`relative flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${platform.color} cursor-pointer opacity-50 border-2 border-purple-400/20`}
                   >
                     <PlatformIcon className="text-3xl text-white drop-shadow-lg" />
                     <span className="text-xs font-semibold text-white text-center">{platform.name}</span>
                     <span className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">2025</span>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>

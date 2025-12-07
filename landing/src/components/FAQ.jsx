@@ -54,7 +54,7 @@ export default function FAQ() {
             Frequently Asked{' '}
             <span className="text-netflix-red">Questions</span>
           </h2>
-          <p className="text-xl text-gray-700">
+          <p className="text-xl text-netflix-red font-netflix">
             Everything you need to know about the platform
           </p>
         </motion.div>

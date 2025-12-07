@@ -87,10 +87,9 @@ export default function Hero() {
           animate="visible"
           className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-12 lg:gap-16 items-center"
         >
-          {/* LEFT SIDE: Floating Platform Icons (60%) */}
-          <motion.div
-            variants={itemVariants}
-            className="relative h-[500px] lg:h-[700px] hidden lg:block overflow-visible"
+          {/* LEFT SIDE: Static Platform Icons (60%) */}
+          <div
+            className="relative h-[500px] lg:h-[700px] overflow-visible"
           >
             {platformsToShow.map((platform, i) => {
               const PlatformIcon = platform.Icon;
@@ -102,20 +101,16 @@ export default function Hero() {
               }
               
               return (
-                <motion.div
+                <div
                   key={`${platform.name}-${i}`}
-                  custom={i}
-                  variants={iconVariants}
-                  animate={floatAnimation}
                   style={{
                     position: 'absolute',
                     ...position,
                   }}
-                  className={`w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br ${platform.color} shadow-xl hover:shadow-2xl transition-all cursor-pointer group flex items-center justify-center border-2 border-white/20`}
-                  whileHover={{ scale: 1.15, rotate: 5 }}
+                  className={`w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br ${platform.color} shadow-xl cursor-pointer group flex items-center justify-center border-2 border-white/20`}
                 >
                   <PlatformIcon 
-                    className="text-3xl lg:text-4xl text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
+                    className="text-3xl lg:text-4xl text-white drop-shadow-lg"
                   />
                   {/* Tooltip on hover */}
                   <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
@@ -123,12 +118,12 @@ export default function Hero() {
                       {platform.name}
                     </div>
                   </div>
-                </motion.div>
+                </div>
               );
             })}
             
             {/* Decorative elements */}
-          </motion.div>
+          </div>
 
           {/* RIGHT SIDE: Content (40%) */}
           <motion.div variants={itemVariants} className="space-y-8 text-center lg:text-left">
@@ -155,11 +150,11 @@ export default function Hero() {
             {/* Subheadline */}
             <motion.p
               variants={itemVariants}
-              className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-xl mx-auto lg:mx-0"
+              className="text-lg md:text-xl text-netflix-red leading-relaxed max-w-xl mx-auto lg:mx-0 font-netflix"
             >
-              Post to <strong className="text-gray-900">20+ platforms</strong> at once.{' '}
-              Generate <strong className="text-gray-900">AI captions & images</strong> with Claude & Stability AI.{' '}
-              Schedule weeks in advance. Save <strong className="text-gray-900">20+ hours</strong> per week.
+              Post to <strong className="text-netflix-red font-netflix">20+ platforms</strong> at once.{' '}
+              Generate <strong className="text-netflix-red font-netflix">AI captions & images</strong> with Claude & Stability AI.{' '}
+              Schedule weeks in advance. Save <strong className="text-netflix-red font-netflix">20+ hours</strong> per week.
             </motion.p>
 
             {/* CTA Section */}
@@ -217,29 +212,25 @@ export default function Hero() {
           </motion.div>
 
           {/* Mobile: Show platform icons grid */}
-          <motion.div
-            variants={itemVariants}
+          <div
             className="lg:hidden relative min-h-[400px] flex items-center justify-center py-8"
           >
             <div className="grid grid-cols-4 gap-3 w-full max-w-sm">
               {platformsToShow.map((platform, i) => {
                 const PlatformIcon = platform.Icon;
                 return (
-                  <motion.div
+                  <div
                     key={platform.name}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: i * 0.05, duration: 0.5 }}
                     className={`w-14 h-14 rounded-xl bg-gradient-to-br ${platform.color} shadow-lg flex items-center justify-center border-2 border-white/20`}
                   >
                     <PlatformIcon 
                       className="text-xl text-white drop-shadow-lg"
                     />
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
 

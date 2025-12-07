@@ -29,7 +29,7 @@ export default function Testimonials() {
             Trusted by{' '}
             <span className="text-netflix-red">Creators Worldwide</span>
           </h2>
-          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+          <p className="text-xl text-netflix-red max-w-2xl mx-auto font-netflix">
             Join hundreds of users saving 10+ hours per week
           </p>
         </motion.div>
