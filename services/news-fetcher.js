@@ -74,23 +74,40 @@ async function fetchLatestAINews() {
         console.log(`✅ Successfully extracted ${extractedCount} images from article pages`);
     }
 
-    // Sort by date (newest first), then shuffle to show variety on refresh
+    // Sort by date first (newest first)
     const sortedNews = uniqueNews.sort((a, b) => b.pubDate - a.pubDate);
     
-    // Shuffle recent articles (last 3 days) to show different articles on refresh
+    // Group by recency: last 24h, 24-72h, 3-7 days
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
     const threeDaysAgo = new Date();
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-    const veryRecent = sortedNews.filter(item => item.pubDate >= threeDaysAgo);
-    const older = sortedNews.filter(item => item.pubDate < threeDaysAgo);
     
-    // Shuffle very recent articles
-    for (let i = veryRecent.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [veryRecent[i], veryRecent[j]] = [veryRecent[j], veryRecent[i]];
-    }
+    const last24h = sortedNews.filter(item => item.pubDate >= oneDayAgo);
+    const last3Days = sortedNews.filter(item => item.pubDate >= threeDaysAgo && item.pubDate < oneDayAgo);
+    const last7Days = sortedNews.filter(item => item.pubDate < threeDaysAgo);
     
-    // Combine: shuffled recent + older articles
-    return [...veryRecent, ...older];
+    // Shuffle each group independently with timestamp-based seed
+    const timestamp = Date.now();
+    const shuffleGroup = (arr) => {
+        const shuffled = [...arr];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const seed = (timestamp + i) % 10000;
+            const random = ((seed * 9301 + 49297) % 233280) / 233280;
+            const j = Math.floor(random * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+    
+    const shuffled24h = shuffleGroup(last24h);
+    const shuffled3Days = shuffleGroup(last3Days);
+    const shuffled7Days = shuffleGroup(last7Days);
+    
+    console.log(`🎲 Shuffled: ${shuffled24h.length} (24h) + ${shuffled3Days.length} (3d) + ${shuffled7Days.length} (7d) = ${shuffled24h.length + shuffled3Days.length + shuffled7Days.length} total`);
+    
+    // Combine: recent shuffled + older shuffled (maintains recency priority but shows variety)
+    return [...shuffled24h, ...shuffled3Days, ...shuffled7Days];
 }
 
 /**
