@@ -57,7 +57,7 @@ export default function Pricing() {
   ];
 
   return (
-    <section id="pricing" className="relative py-32 bg-gradient-to-b from-gray-900 via-gray-950 to-gray-900">
+    <section id="pricing" className="relative py-32 bg-white">
       <div className="container mx-auto px-6">
         {/* Section Header */}
         <motion.div
@@ -72,21 +72,21 @@ export default function Pricing() {
             viewport={{ once: true }}
             className="inline-block mb-4"
           >
-            <span className="text-pink-400 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full glass">
+            <span className="text-pink-600 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50">
               💰 Pricing
             </span>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Simple, Transparent{' '}
             <span className="text-gradient">Pricing</span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
             Choose the perfect plan for your needs
           </p>
 
           {/* Toggle */}
           <div className="flex items-center justify-center gap-4">
-            <span className={`text-lg ${!isYearly ? 'text-white font-semibold' : 'text-gray-400'}`}>
+            <span className={`text-lg ${!isYearly ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}>
               Monthly
             </span>
             <motion.button
@@ -100,9 +100,9 @@ export default function Pricing() {
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
             </motion.button>
-            <span className={`text-lg ${isYearly ? 'text-white font-semibold' : 'text-gray-400'}`}>
+            <span className={`text-lg ${isYearly ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}>
               Yearly
-              <span className="ml-2 text-sm text-green-400">(Save 20%)</span>
+              <span className="ml-2 text-sm text-green-600">(Save 20%)</span>
             </span>
           </div>
         </motion.div>
@@ -117,7 +117,7 @@ export default function Pricing() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -10, scale: 1.02 }}
-              className={`relative glass rounded-2xl p-8 ${plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+              className={`relative bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl p-8 shadow-lg ${plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
                 }`}
             >
               {plan.popular && (
@@ -131,18 +131,18 @@ export default function Pricing() {
               )}
 
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <p className="text-gray-400 text-sm mb-4">{plan.description}</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
                 <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-5xl font-bold text-white">
+                  <span className="text-5xl font-bold text-gray-900">
                     ${isYearly ? plan.price.yearly : plan.price.monthly}
                   </span>
-                  <span className="text-gray-400">
+                  <span className="text-gray-600">
                     /{isYearly ? 'year' : 'month'}
                   </span>
                 </div>
                 {isYearly && plan.price.yearly > 0 && (
-                  <p className="text-sm text-green-400 mt-2">
+                  <p className="text-sm text-green-600 mt-2">
                     Save ${plan.price.monthly * 12 - plan.price.yearly}
                   </p>
                 )}
@@ -151,10 +151,10 @@ export default function Pricing() {
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <span className={`text-xl mt-0.5 ${feature.included ? 'text-green-400' : 'text-red-400'}`}>
+                    <span className={`text-xl mt-0.5 ${feature.included ? 'text-green-600' : 'text-red-600'}`}>
                       {feature.included ? '✓' : '✗'}
                     </span>
-                    <span className={`${feature.highlight ? 'font-semibold text-white' : 'text-gray-300'} ${!feature.included && 'text-gray-500'}`}>
+                    <span className={`${feature.highlight ? 'font-semibold text-gray-900' : 'text-gray-700'} ${!feature.included && 'text-gray-400'}`}>
                       {feature.text}
                     </span>
                   </li>
@@ -167,7 +167,7 @@ export default function Pricing() {
                 whileTap={{ scale: 0.95 }}
                 className={`block w-full text-center py-4 rounded-xl font-bold transition-all ${plan.popular
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-2xl hover:shadow-blue-500/50'
-                  : 'glass hover:bg-white/20 text-white'
+                  : 'bg-white/80 backdrop-blur-md border border-gray-200/50 hover:bg-white/90 text-gray-900'
                   }`}
               >
                 {plan.cta}
@@ -181,7 +181,7 @@ export default function Pricing() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center text-gray-400 mt-12"
+          className="text-center text-gray-600 mt-12"
         >
           ✓ No credit card required • ✓ 14-day free trial • ✓ Cancel anytime
         </motion.p>

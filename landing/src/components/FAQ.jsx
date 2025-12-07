@@ -32,7 +32,7 @@ export default function FAQ() {
   ];
 
   return (
-    <section className="relative py-32 bg-gray-950">
+    <section className="relative py-32 bg-white">
       <div className="container mx-auto px-6 max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -46,15 +46,15 @@ export default function FAQ() {
             viewport={{ once: true }}
             className="inline-block mb-4"
           >
-            <span className="text-cyan-400 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full glass">
+            <span className="text-cyan-600 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50">
               ❓ FAQ
             </span>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Frequently Asked{' '}
             <span className="text-gradient">Questions</span>
           </h2>
-          <p className="text-xl text-gray-400">
+          <p className="text-xl text-gray-700">
             Everything you need to know about the platform
           </p>
         </motion.div>
@@ -67,19 +67,19 @@ export default function FAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05 }}
-              className="glass rounded-xl overflow-hidden hover:bg-white/10 transition-colors"
+              className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-xl overflow-hidden hover:bg-white/90 transition-colors shadow-lg"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 className="w-full flex items-center justify-between p-6 text-left"
               >
-                <span className="text-lg font-semibold text-white pr-8">
+                <span className="text-lg font-semibold text-gray-900 pr-8">
                   {faq.question}
                 </span>
                 <motion.span
                   animate={{ rotate: openIndex === index ? 45 : 0 }}
                   transition={{ duration: 0.2 }}
-                  className="text-2xl text-blue-400 flex-shrink-0"
+                  className="text-2xl text-blue-600 flex-shrink-0"
                 >
                   +
                 </motion.span>
@@ -94,7 +94,7 @@ export default function FAQ() {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-6 text-gray-300 leading-relaxed">
+                    <div className="px-6 pb-6 text-gray-700 leading-relaxed">
                       {faq.answer}
                     </div>
                   </motion.div>
