@@ -79,7 +79,7 @@ export default function FAQ() {
                 <motion.span
                   animate={{ rotate: openIndex === index ? 45 : 0 }}
                   transition={{ duration: 0.2 }}
-                  className="text-2xl text-blue-600 flex-shrink-0"
+                  className="text-2xl text-netflix-red flex-shrink-0"
                 >
                   +
                 </motion.span>

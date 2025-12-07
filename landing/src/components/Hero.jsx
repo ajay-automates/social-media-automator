@@ -76,7 +76,6 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white pt-20">
       {/* Soft gradient background overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-100/30 via-purple-100/20 to-cyan-100/30" />
       
       {/* Subtle pattern overlay */}
       <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_1px_1px,rgb(0,0,0)_1px,transparent_0)] bg-[length:32px_32px]" />
@@ -144,7 +143,7 @@ export default function Hero() {
             {/* Main Headline with Emphasis */}
             <motion.h1
               variants={itemVariants}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900 font-netflix"
             >
               Finally, a place to{' '}
               <em className="not-italic text-netflix-red font-bold font-netflix">

@@ -124,7 +124,7 @@ export default function Pricing() {
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold"
+                  className="absolute -top-4 left-1/2 -translate-x-1/2 bg-netflix-red text-white px-4 py-1 rounded-full text-sm font-bold font-netflix"
                 >
                   MOST POPULAR
                 </motion.div>
