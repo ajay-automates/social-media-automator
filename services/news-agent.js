@@ -292,25 +292,30 @@ async function fetchTrendingNews(limit = 20, randomize = false) {
 
     // If randomize is true (for refresh), randomly select DIFFERENT articles each time
     if (randomize && aiNews.length > limit) {
-      // Use timestamp as seed for reproducible but different selection each refresh
+      // Use timestamp + random component for maximum variety
       const timestamp = Date.now();
-      const seed = timestamp % 100000; // Larger seed range for more variety
+      const randomComponent = Math.floor(Math.random() * 10000);
+      const seed = (timestamp + randomComponent) % 1000000;
       
-      // Shuffle the entire array
+      // Shuffle the entire array with multiple passes for better randomization
       const shuffled = [...aiNews];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const random = ((seed + i) * 9301 + 49297) % 233280;
-        const j = Math.floor((random / 233280) * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      for (let pass = 0; pass < 3; pass++) { // 3 shuffle passes
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const random = ((seed + i + pass * 1000) * 9301 + 49297) % 233280;
+          const j = Math.floor((random / 233280) * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
       }
       
       // Select a random starting point (ensures different articles each time)
       const maxStart = Math.max(0, shuffled.length - limit);
-      const startIndex = Math.floor((seed / 100000) * maxStart);
+      const startIndex = Math.floor((seed / 1000000) * maxStart);
       const selected = shuffled.slice(startIndex, startIndex + limit);
       
+      // Log first 3 titles for verification
+      const previewTitles = selected.slice(0, 3).map(a => a.title.substring(0, 40));
       console.log(`🎲 [RANDOM SELECTION] Selected ${selected.length} DIFFERENT articles from ${aiNews.length} total`);
-      console.log(`🎲 [RANDOM SELECTION] Seed: ${seed}, Start index: ${startIndex}, Articles: ${selected.map(a => a.title.substring(0, 30)).join(' | ')}`);
+      console.log(`🎲 [RANDOM SELECTION] Seed: ${seed}, Start: ${startIndex}, Preview: ${previewTitles.join(' | ')}`);
       
       return selected;
     }
