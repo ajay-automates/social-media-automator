@@ -128,34 +128,15 @@ export default function AINews() {
 
     const featuredArticle = news.length > 0 ? news[featuredIndex] : null;
     const remainingNews = news.length > 0 ? news.filter((_, idx) => idx !== featuredIndex).slice(0, 8) : [];
-
-    if (loading) {
-        return (
-            <section className="relative py-20 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-                <div className="container mx-auto px-4">
-                    <div className="animate-pulse">
-                        <div className="h-12 bg-white/10 rounded w-64 mb-8 mx-auto"></div>
-                        <div className="h-96 bg-white/5 rounded-2xl"></div>
-                    </div>
-                </div>
-            </section>
-        );
-    }
-
-    // Show section even if no news (for debugging)
-    if (news.length === 0 && !loading) {
-        return (
-            <section className="relative py-20 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
-                <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
-                        📰 Viral AI News
-                    </h2>
-                    <p className="text-gray-400">Loading latest AI news...</p>
-                    <p className="text-gray-500 text-sm mt-2">If this persists, check console for API errors</p>
-                </div>
-            </section>
-        );
-    }
+    
+    // Debug: Log component state
+    console.log('🔍 AINews Component State:', { 
+        loading, 
+        newsCount: news.length, 
+        featuredIndex, 
+        hasFeatured: !!featuredArticle,
+        API_BASE_URL 
+    });
 
     return (
         <section className="relative py-20 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 overflow-hidden">
@@ -179,8 +160,23 @@ export default function AINews() {
                     </p>
                 </motion.div>
 
+                {/* Loading State */}
+                {loading && (
+                    <div className="animate-pulse mb-12">
+                        <div className="h-96 bg-white/5 rounded-2xl"></div>
+                    </div>
+                )}
+
+                {/* Empty State */}
+                {!loading && news.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-gray-400 mb-2">Loading latest AI news...</p>
+                        <p className="text-gray-500 text-sm">Check browser console for API status</p>
+                    </div>
+                )}
+
                 {/* Featured Hero Section */}
-                {featuredArticle && (
+                {!loading && featuredArticle && (
                     <div className="relative mb-12" style={{ minHeight: '400px' }}>
                         <AnimatePresence initial={false} mode="wait">
                             <motion.div
