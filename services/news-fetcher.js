@@ -104,7 +104,8 @@ async function fetchLatestAINews() {
     const shuffled3Days = shuffleGroup(last3Days);
     const shuffled7Days = shuffleGroup(last7Days);
     
-    console.log(`🎲 Shuffled: ${shuffled24h.length} (24h) + ${shuffled3Days.length} (3d) + ${shuffled7Days.length} (7d) = ${shuffled24h.length + shuffled3Days.length + shuffled7Days.length} total`);
+    console.log(`🎲 [NEW SHUFFLE] Shuffled: ${shuffled24h.length} (24h) + ${shuffled3Days.length} (3d) + ${shuffled7Days.length} (7d) = ${shuffled24h.length + shuffled3Days.length + shuffled7Days.length} total`);
+    console.log(`🎲 [NEW SHUFFLE] First 3 articles: ${shuffled24h.slice(0, 3).map(a => a.title.substring(0, 40)).join(' | ')}`);
     
     // Combine: recent shuffled + older shuffled (maintains recency priority but shows variety)
     return [...shuffled24h, ...shuffled3Days, ...shuffled7Days];
