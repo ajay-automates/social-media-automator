@@ -117,7 +117,7 @@ export default function Pricing() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -10, scale: 1.02 }}
-              className={`relative bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl p-8 shadow-lg ${plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''
+              className={`relative bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl p-8 shadow-lg ${plan.popular ? 'ring-2 ring-netflix-red scale-105' : ''
                 }`}
             >
               {plan.popular && (
