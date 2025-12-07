@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../lib/api';
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import NewsCard from './NewsCard';
+import FeaturedAINews from './FeaturedAINews';
 import GeneratePostPreview from './GeneratePostPreview';
 import { celebrateSuccess } from '../../utils/animations';
 import { showSuccess, showError } from '../../components/ui/Toast';
@@ -21,6 +22,10 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0); // Force re-render on refresh
+    
+    // Featured Article State (Netflix-style hero)
+    const [featuredIndex, setFeaturedIndex] = useState(0);
+    const autoRotateIntervalRef = useRef(null);
 
     // Preview Modal State
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -142,6 +147,35 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         fetchNews();
     }, [initialNews, initialLoading]);
 
+    // Auto-rotate featured article every 8 seconds
+    useEffect(() => {
+        if (news.length === 0) return;
+
+        // Clear existing interval
+        if (autoRotateIntervalRef.current) {
+            clearInterval(autoRotateIntervalRef.current);
+        }
+
+        // Set up auto-rotation (only rotate through top 5 articles)
+        const maxFeatured = Math.min(5, news.length);
+        autoRotateIntervalRef.current = setInterval(() => {
+            setFeaturedIndex((prev) => (prev + 1) % maxFeatured);
+        }, 8000); // 8 seconds
+
+        return () => {
+            if (autoRotateIntervalRef.current) {
+                clearInterval(autoRotateIntervalRef.current);
+            }
+        };
+    }, [news]);
+
+    // Reset featured index when news changes
+    useEffect(() => {
+        if (news.length > 0) {
+            setFeaturedIndex(0);
+        }
+    }, [refreshKey, news.length]);
+
     const handleRefresh = async () => {
         try {
             setRefreshing(true);
@@ -174,8 +208,6 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         }
     };
 
-    // REAL DATA ONLY: news array directly
-    const displayNews = news;
     const isLoading = (initialLoading !== undefined ? initialLoading : loading) && !refreshing; // Don't show full skeleton on refresh, just button spinner
     const navigate = useNavigate();
 
@@ -279,6 +311,35 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         // TODO: Save to user's saved items
     };
 
+    // Featured article navigation
+    const handleFeaturedNext = () => {
+        const maxFeatured = Math.min(5, news.length);
+        setFeaturedIndex((prev) => (prev + 1) % maxFeatured);
+        // Reset auto-rotate timer
+        if (autoRotateIntervalRef.current) {
+            clearInterval(autoRotateIntervalRef.current);
+        }
+        autoRotateIntervalRef.current = setInterval(() => {
+            setFeaturedIndex((prev) => (prev + 1) % maxFeatured);
+        }, 8000);
+    };
+
+    const handleFeaturedPrev = () => {
+        const maxFeatured = Math.min(5, news.length);
+        setFeaturedIndex((prev) => (prev - 1 + maxFeatured) % maxFeatured);
+        // Reset auto-rotate timer
+        if (autoRotateIntervalRef.current) {
+            clearInterval(autoRotateIntervalRef.current);
+        }
+        autoRotateIntervalRef.current = setInterval(() => {
+            setFeaturedIndex((prev) => (prev + 1) % maxFeatured);
+        }, 8000);
+    };
+
+    // Get featured article
+    const featuredArticle = news.length > 0 ? news[featuredIndex] : null;
+    const remainingNews = news.length > 0 ? news.filter((_, idx) => idx !== featuredIndex) : [];
+
     if (isLoading) {
         return (
             <div className="mb-8 relative z-10">
@@ -292,7 +353,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
 
     // If no news, don't fallback to mock data (User Request: "Real content always") 
     // Just show nothing or a simplified empty state if strictly no data.
-    if (displayNews.length === 0) {
+    if (news.length === 0) {
         return null;
     }
 
@@ -327,28 +388,108 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                 </button>
             </div>
 
-            {/* Overlapping Cards Carousel */}
-            <OverlappingCardCarousel key={refreshKey} arrowColor="white">
-                {displayNews.map((article, index) => (
-                    <NewsCard
-                        key={article.id}
-                        headline={article.headline}
-                        summary={article.summary}
-                        image={article.image}
-                        source={article.source}
-                        timestamp={article.timestamp}
-                        sourceCount={article.sourceCount}
-                        url={article.url}
-                        isBreaking={article.isBreaking || false}
-                        isTrending={article.isTrending}
-                        isFeatured={article.isFeatured || index === 0}
-                        position={index === 0 ? 'left' : index === 1 ? 'center' : index === 2 ? 'right' : 'center'}
-                        onReadArticle={() => handleReadArticle(article)}
-                        onGeneratePost={() => handleGeneratePost(article)}
-                        onSave={() => handleSave(article)}
-                    />
-                ))}
-            </OverlappingCardCarousel>
+            {/* Featured Hero Section (Netflix-style) */}
+            {featuredArticle && (
+                <div className="relative mb-8">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={featuredIndex}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <FeaturedAINews
+                                article={featuredArticle}
+                                onReadArticle={() => handleReadArticle(featuredArticle)}
+                                onGeneratePost={() => handleGeneratePost(featuredArticle)}
+                                autoRotate={8000}
+                                showNavigation={news.length > 1}
+                            />
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Navigation Arrows (if more than 1 article) */}
+                    {news.length > 1 && (
+                        <>
+                            <button
+                                onClick={handleFeaturedPrev}
+                                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+                                aria-label="Previous featured article"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button
+                                onClick={handleFeaturedNext}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+                                aria-label="Next featured article"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </>
+                    )}
+
+                    {/* Dots Indicator */}
+                    {news.length > 1 && (
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                            {Array.from({ length: Math.min(5, news.length) }).map((_, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => {
+                                        setFeaturedIndex(idx);
+                                        // Reset auto-rotate timer
+                                        if (autoRotateIntervalRef.current) {
+                                            clearInterval(autoRotateIntervalRef.current);
+                                        }
+                                        const maxFeatured = Math.min(5, news.length);
+                                        autoRotateIntervalRef.current = setInterval(() => {
+                                            setFeaturedIndex((prev) => (prev + 1) % maxFeatured);
+                                        }, 8000);
+                                    }}
+                                    className={`w-2 h-2 rounded-full transition-all ${
+                                        idx === featuredIndex
+                                            ? 'bg-white w-6'
+                                            : 'bg-white/40 hover:bg-white/60'
+                                    }`}
+                                    aria-label={`Go to featured article ${idx + 1}`}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* More Trending AI News Section */}
+            {remainingNews.length > 0 && (
+                <div className="mt-8">
+                    <h3 className="text-xl font-bold text-white mb-4">More Trending AI News</h3>
+                    <OverlappingCardCarousel key={refreshKey} arrowColor="white">
+                        {remainingNews.map((article, index) => (
+                            <NewsCard
+                                key={article.id || index}
+                                headline={article.headline}
+                                summary={article.summary}
+                                image={article.image}
+                                source={article.source}
+                                timestamp={article.timestamp}
+                                sourceCount={article.sourceCount}
+                                url={article.url}
+                                isBreaking={article.isBreaking || false}
+                                isTrending={article.isTrending}
+                                isFeatured={false}
+                                position="center"
+                                onReadArticle={() => handleReadArticle(article)}
+                                onGeneratePost={() => handleGeneratePost(article)}
+                                onSave={() => handleSave(article)}
+                            />
+                        ))}
+                    </OverlappingCardCarousel>
+                </div>
+            )}
 
             {/* Generate Post Preview Modal */}
             <GeneratePostPreview
