@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
+import AINews from './components/AINews';
 import Testimonials from './components/Testimonials';
 import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
@@ -21,6 +22,7 @@ function HomePage() {
       <Header />
       <Hero />
       <Features />
+      <AINews />
       <Testimonials />
       <Pricing />
       <FAQ />
