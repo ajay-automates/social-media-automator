@@ -131,7 +131,7 @@ export default function Pricing() {
               )}
 
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                <h3 className="text-2xl font-bold text-netflix-red mb-2 font-netflix">{plan.name}</h3>
                 <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
                 <div className="flex items-baseline justify-center gap-2">
                   <span className="text-5xl font-bold text-gray-900">
