@@ -2789,6 +2789,22 @@ app.get('/api/trends/live', verifyAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/news/public
+ * Public endpoint for landing page - fetch trending AI news (no auth required)
+ */
+app.get('/api/news/public', async (req, res) => {
+  try {
+    const { limit = 12 } = req.query; // Default 12 for landing page
+    const { fetchTrendingNews } = require('./services/news-agent');
+    const news = await fetchTrendingNews(parseInt(limit), true); // Randomize for variety
+    res.json({ success: true, news, count: news.length });
+  } catch (error) {
+    console.error('❌ Error in /api/news/public:', error);
+    res.status(500).json({ success: false, error: error.message || 'Failed to fetch trending news' });
+  }
+});
+
+/**
  * GET /api/news/trending
  * Fetch trending AI news from updated RSS sources
  */
