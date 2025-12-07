@@ -25,9 +25,9 @@ export default function Testimonials() {
               💬 Testimonials
             </span>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-netflix-red mb-6 font-netflix">
             Trusted by{' '}
-            <span className="text-gradient">Creators Worldwide</span>
+            <span className="text-netflix-red">Creators Worldwide</span>
           </h2>
           <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Join hundreds of users saving 10+ hours per week

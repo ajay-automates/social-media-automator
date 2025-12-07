@@ -143,7 +143,7 @@ export default function Hero() {
             {/* Main Headline with Emphasis */}
             <motion.h1
               variants={itemVariants}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900 font-netflix"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-netflix-red font-netflix"
             >
               Finally, a place to{' '}
               <em className="not-italic text-netflix-red font-bold font-netflix">

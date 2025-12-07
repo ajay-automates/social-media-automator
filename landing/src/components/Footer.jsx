@@ -73,7 +73,7 @@ export default function Footer() {
 
           {/* Product */}
           <div>
-            <h4 className="font-bold text-gray-900 mb-4">Product</h4>
+            <h4 className="font-bold text-netflix-red mb-4 font-netflix">Product</h4>
             <ul className="space-y-3 text-gray-700 text-sm">
               <li>
                 <a href="#features" className="hover:text-white transition-colors">
@@ -100,7 +100,7 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-bold text-gray-900 mb-4">Legal</h4>
+            <h4 className="font-bold text-netflix-red mb-4 font-netflix">Legal</h4>
             <ul className="space-y-3 text-gray-700 text-sm">
               <li>
                 <Link to="/terms" className="hover:text-white transition-colors">
@@ -137,7 +137,7 @@ export default function Footer() {
 
           {/* Connect */}
           <div>
-            <h4 className="font-bold text-gray-900 mb-4">Connect</h4>
+            <h4 className="font-bold text-netflix-red mb-4 font-netflix">Connect</h4>
             <ul className="space-y-3 text-gray-700 text-sm">
               <li>
                 <a href="mailto:support@socialmediaautomator.com" className="hover:text-white transition-colors">

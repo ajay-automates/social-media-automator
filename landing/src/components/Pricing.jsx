@@ -76,9 +76,9 @@ export default function Pricing() {
               💰 Pricing
             </span>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-netflix-red mb-6 font-netflix">
             Simple, Transparent{' '}
-            <span className="text-gradient">Pricing</span>
+            <span className="text-netflix-red">Pricing</span>
           </h2>
           <p className="text-xl text-gray-700 max-w-2xl mx-auto mb-8">
             Choose the perfect plan for your needs

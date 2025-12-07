@@ -452,7 +452,7 @@ export default function AINews() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
-                        <h3 className="text-2xl font-bold text-gray-900 mb-6">More Trending AI News</h3>
+                        <h3 className="text-2xl font-bold text-netflix-red mb-6 font-netflix">More Trending AI News</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto pb-4">
                             {remainingNews.map((article) => (
                                 <motion.div
@@ -488,7 +488,7 @@ export default function AINews() {
 
                                     {/* Content */}
                                     <div className="p-5 bg-white">
-                                        <h4 className="text-gray-900 text-lg font-bold leading-tight mb-3 line-clamp-2">
+                                        <h4 className="text-netflix-red text-lg font-bold leading-tight mb-3 line-clamp-2 font-netflix">
                                             {article.headline}
                                         </h4>
                                         <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">

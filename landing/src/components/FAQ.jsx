@@ -50,9 +50,9 @@ export default function FAQ() {
               ❓ FAQ
             </span>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-netflix-red mb-6 font-netflix">
             Frequently Asked{' '}
-            <span className="text-gradient">Questions</span>
+            <span className="text-netflix-red">Questions</span>
           </h2>
           <p className="text-xl text-gray-700">
             Everything you need to know about the platform
