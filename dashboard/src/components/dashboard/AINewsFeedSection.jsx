@@ -390,14 +390,19 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
 
             {/* Featured Hero Section (Netflix-style) */}
             {featuredArticle && (
-                <div className="relative mb-8">
-                    <AnimatePresence mode="wait">
+                <div className="relative mb-8" style={{ minHeight: '400px' }}>
+                    <AnimatePresence initial={false} mode="wait">
                         <motion.div
-                            key={featuredIndex}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            transition={{ duration: 0.5 }}
+                            key={`featured-${featuredIndex}-${featuredArticle.headline?.substring(0, 20)}`}
+                            initial={{ opacity: 0, scale: 0.97 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.03 }}
+                            transition={{ 
+                                duration: 0.4, 
+                                ease: "easeOut",
+                                opacity: { duration: 0.2 }
+                            }}
+                            className="w-full"
                         >
                             <FeaturedAINews
                                 article={featuredArticle}

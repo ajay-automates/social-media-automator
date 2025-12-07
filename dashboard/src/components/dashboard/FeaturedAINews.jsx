@@ -77,18 +77,20 @@ export default function FeaturedAINews({
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
             className="relative w-full mb-8 group"
         >
             {/* Featured Hero Card */}
-            <div
+            <motion.div
                 className="relative w-full rounded-2xl overflow-hidden backdrop-blur-md border border-white/20 transition-all duration-300 hover:border-white/30 hover:shadow-2xl hover:shadow-purple-500/20"
                 style={{
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
                     minHeight: '350px'
                 }}
+                whileHover={{ scale: 1.01 }}
+                transition={{ duration: 0.3 }}
             >
                 {/* Background Image with Overlay */}
                 <div className="absolute inset-0">
@@ -177,7 +179,7 @@ export default function FeaturedAINews({
                         </div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </motion.div>
     );
 }
