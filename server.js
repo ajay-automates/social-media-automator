@@ -603,10 +603,10 @@ app.post('/api/news/refresh', verifyAuth, async (req, res) => {
     console.log('🔄 Force refreshing AI news for user:', req.user.id);
     clearNewsCache(); // Clear cache to ensure fresh data
 
-    // Fetch fresh news articles
-    const news = await fetchTrendingNews(20);
+    // Fetch fresh news articles with randomization for different articles each time
+    const news = await fetchTrendingNews(20, true); // true = randomize selection
     
-    console.log(`✅ Refreshed ${news.length} news articles`);
+    console.log(`✅ Refreshed ${news.length} news articles (randomized selection)`);
 
     // Return fresh data with timestamp to prevent caching
     res.json({

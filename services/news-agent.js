@@ -282,7 +282,7 @@ async function fetchNewsByCategory(bypassCache = false) {
 /**
  * Get trending news (Uses specialized AI news fetcher)
  */
-async function fetchTrendingNews(limit = 20) {
+async function fetchTrendingNews(limit = 20, randomize = false) {
   try {
     console.log('\n📰 Fetching trending AI news...');
 
@@ -290,6 +290,32 @@ async function fetchTrendingNews(limit = 20) {
     const { fetchLatestAINews } = require('./news-fetcher');
     const aiNews = await fetchLatestAINews();
 
+    // If randomize is true (for refresh), randomly select DIFFERENT articles each time
+    if (randomize && aiNews.length > limit) {
+      // Use timestamp as seed for reproducible but different selection each refresh
+      const timestamp = Date.now();
+      const seed = timestamp % 100000; // Larger seed range for more variety
+      
+      // Shuffle the entire array
+      const shuffled = [...aiNews];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const random = ((seed + i) * 9301 + 49297) % 233280;
+        const j = Math.floor((random / 233280) * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      
+      // Select a random starting point (ensures different articles each time)
+      const maxStart = Math.max(0, shuffled.length - limit);
+      const startIndex = Math.floor((seed / 100000) * maxStart);
+      const selected = shuffled.slice(startIndex, startIndex + limit);
+      
+      console.log(`🎲 [RANDOM SELECTION] Selected ${selected.length} DIFFERENT articles from ${aiNews.length} total`);
+      console.log(`🎲 [RANDOM SELECTION] Seed: ${seed}, Start index: ${startIndex}, Articles: ${selected.map(a => a.title.substring(0, 30)).join(' | ')}`);
+      
+      return selected;
+    }
+
+    // Default: return first N articles (for initial load)
     return aiNews.slice(0, limit);
 
   } catch (error) {

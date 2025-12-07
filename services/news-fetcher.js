@@ -45,16 +45,16 @@ async function fetchLatestAINews() {
         }
     }
 
-    // Filter for last 7 days (extended from 48 hours to get more variety)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    // Filter for last 30 days (extended to get MANY more articles for variety)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const recentNews = allNews.filter(item => item.pubDate >= sevenDaysAgo);
+    const recentNews = allNews.filter(item => item.pubDate >= thirtyDaysAgo);
 
     // Deduplicate by title (fuzzy match or exact)
     const uniqueNews = deduplicateNews(recentNews);
 
-    console.log(`✨ Found ${uniqueNews.length} unique news items from the last 7 days`);
+    console.log(`✨ Found ${uniqueNews.length} unique news items from the last 30 days`);
 
     // Extract images from URLs for articles without images
     const articlesNeedingImages = uniqueNews.filter(item => !item.image && item.url);
@@ -77,15 +77,18 @@ async function fetchLatestAINews() {
     // Sort by date first (newest first)
     const sortedNews = uniqueNews.sort((a, b) => b.pubDate - a.pubDate);
     
-    // Group by recency: last 24h, 24-72h, 3-7 days
+    // Group by recency: last 24h, 24-72h, 3-7 days, 7-30 days
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
     const threeDaysAgo = new Date();
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
     const last24h = sortedNews.filter(item => item.pubDate >= oneDayAgo);
     const last3Days = sortedNews.filter(item => item.pubDate >= threeDaysAgo && item.pubDate < oneDayAgo);
-    const last7Days = sortedNews.filter(item => item.pubDate < threeDaysAgo);
+    const last7Days = sortedNews.filter(item => item.pubDate >= sevenDaysAgo && item.pubDate < threeDaysAgo);
+    const last30Days = sortedNews.filter(item => item.pubDate < sevenDaysAgo);
     
     // Shuffle each group independently with timestamp-based seed
     const timestamp = Date.now();
@@ -103,12 +106,13 @@ async function fetchLatestAINews() {
     const shuffled24h = shuffleGroup(last24h);
     const shuffled3Days = shuffleGroup(last3Days);
     const shuffled7Days = shuffleGroup(last7Days);
+    const shuffled30Days = shuffleGroup(last30Days);
     
-    console.log(`🎲 [NEW SHUFFLE] Shuffled: ${shuffled24h.length} (24h) + ${shuffled3Days.length} (3d) + ${shuffled7Days.length} (7d) = ${shuffled24h.length + shuffled3Days.length + shuffled7Days.length} total`);
+    console.log(`🎲 [NEW SHUFFLE] Shuffled: ${shuffled24h.length} (24h) + ${shuffled3Days.length} (3d) + ${shuffled7Days.length} (7d) + ${shuffled30Days.length} (30d) = ${shuffled24h.length + shuffled3Days.length + shuffled7Days.length + shuffled30Days.length} total`);
     console.log(`🎲 [NEW SHUFFLE] First 3 articles: ${shuffled24h.slice(0, 3).map(a => a.title.substring(0, 40)).join(' | ')}`);
     
     // Combine: recent shuffled + older shuffled (maintains recency priority but shows variety)
-    return [...shuffled24h, ...shuffled3Days, ...shuffled7Days];
+    return [...shuffled24h, ...shuffled3Days, ...shuffled7Days, ...shuffled30Days];
 }
 
 /**
