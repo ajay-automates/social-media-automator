@@ -79,7 +79,7 @@ export default function Testimonials() {
           className="text-center"
         >
           <motion.a
-            href="/auth.html"
+            href="/auth"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="inline-flex items-center gap-2 bg-netflix-red hover:bg-netflix-red-dark text-white px-8 py-4 rounded font-bold text-lg hover:shadow-2xl hover:shadow-red-500/50 transition-all font-netflix"

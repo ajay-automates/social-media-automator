@@ -385,7 +385,7 @@ export default function AINews() {
                                                     Read Article
                                                 </a>
                                                 <Link
-                                                    to="/"
+                                                    to="/auth"
                                                     className="flex-1 px-6 py-3 rounded bg-netflix-red hover:bg-netflix-red-dark text-white text-sm font-medium transition-all shadow-lg hover:shadow-red-500/50 text-center font-netflix"
                                                 >
                                                     Try Free
