@@ -22,7 +22,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-gradient-to-br from-pink-50 via-purple-50 to-cyan-50 py-20">
+    <footer className="relative bg-white py-20">
       <div className="container mx-auto px-6">
         {/* Newsletter Section */}
         <motion.div
@@ -31,7 +31,7 @@ export default function Footer() {
           viewport={{ once: true }}
           className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-3xl p-12 mb-16 text-center shadow-lg"
         >
-          <h3 className="text-4xl font-bold text-gray-900 mb-4">
+            <h3 className="text-4xl font-bold text-gray-900 mb-4 font-netflix">
             Stay Updated
           </h3>
           <p className="text-gray-700 mb-8">
@@ -45,13 +45,13 @@ export default function Footer() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-6 py-4 rounded-xl bg-white/90 border border-gray-200/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="flex-1 px-6 py-4 rounded bg-white/90 border border-gray-200/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-netflix-red transition-all font-netflix"
             />
             <motion.button
               type="submit"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-blue-500/50 transition-all"
+              className="bg-netflix-red hover:bg-netflix-red-dark text-white px-8 py-4 rounded font-bold hover:shadow-2xl hover:shadow-red-500/50 transition-all font-netflix"
             >
               {subscribed ? '✓ Subscribed!' : 'Subscribe'}
             </motion.button>
@@ -193,7 +193,7 @@ export default function Footer() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: false }}
         whileHover={{ scale: 1.1, y: -5 }}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white shadow-2xl hover:shadow-blue-500/50 transition-all z-50"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-netflix-red hover:bg-netflix-red-dark rounded-full flex items-center justify-center text-white shadow-2xl hover:shadow-red-500/50 transition-all z-50 font-netflix"
       >
         ↑
       </motion.button>
