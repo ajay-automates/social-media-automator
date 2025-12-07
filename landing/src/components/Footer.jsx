@@ -64,7 +64,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="text-3xl">🚀</span>
-              <span className="text-xl font-bold text-gray-900">Social Media Automator</span>
+              <span className="text-xl font-bold text-netflix-red font-netflix">Social Media Automator</span>
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">
               Automate your social media posting across multiple platforms with AI-powered captions.

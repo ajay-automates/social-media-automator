@@ -110,7 +110,7 @@ export default function Features() {
         >
 
           <motion.h2
-            className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight"
+            className="text-5xl md:text-6xl lg:text-7xl font-black text-netflix-red mb-6 leading-tight font-netflix"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 1.2 }}

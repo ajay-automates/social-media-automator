@@ -59,9 +59,9 @@ export default function Stats() {
               📊 By The Numbers
             </span>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-netflix-red mb-6 font-netflix">
             Proven{' '}
-            <span className="text-gradient">Results</span>
+            <span className="text-netflix-red font-netflix">Results</span>
           </h2>
           <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Real metrics from real users making an impact
@@ -147,7 +147,7 @@ export default function Stats() {
           viewport={{ once: true }}
           className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-3xl p-8 md:p-12 shadow-lg"
         >
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-6">
+          <h3 className="text-2xl md:text-3xl font-bold text-netflix-red text-center mb-6 font-netflix">
             Integrated with 20+ Platforms
           </h3>
           <p className="text-gray-700 text-center mb-8">

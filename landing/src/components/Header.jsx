@@ -16,7 +16,7 @@ export default function Header() {
             <div className="w-10 h-10 rounded-lg bg-netflix-red flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               <span className="text-white font-bold text-lg font-netflix">S</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 font-netflix">Social Media Automator</span>
+            <span className="text-xl font-bold text-netflix-red font-netflix">Social Media Automator</span>
           </Link>
 
           {/* Navigation Links */}
