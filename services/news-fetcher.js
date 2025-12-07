@@ -45,16 +45,16 @@ async function fetchLatestAINews() {
         }
     }
 
-    // Filter for last 48 hours
-    const twoDaysAgo = new Date();
-    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    // Filter for last 7 days (extended from 48 hours to get more variety)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const recentNews = allNews.filter(item => item.pubDate >= twoDaysAgo);
+    const recentNews = allNews.filter(item => item.pubDate >= sevenDaysAgo);
 
     // Deduplicate by title (fuzzy match or exact)
     const uniqueNews = deduplicateNews(recentNews);
 
-    console.log(`✨ Found ${uniqueNews.length} unique news items from the last 48 hours`);
+    console.log(`✨ Found ${uniqueNews.length} unique news items from the last 7 days`);
 
     // Extract images from URLs for articles without images
     const articlesNeedingImages = uniqueNews.filter(item => !item.image && item.url);
@@ -74,8 +74,23 @@ async function fetchLatestAINews() {
         console.log(`✅ Successfully extracted ${extractedCount} images from article pages`);
     }
 
-    // Sort by date (newest first)
-    return uniqueNews.sort((a, b) => b.pubDate - a.pubDate);
+    // Sort by date (newest first), then shuffle to show variety on refresh
+    const sortedNews = uniqueNews.sort((a, b) => b.pubDate - a.pubDate);
+    
+    // Shuffle recent articles (last 3 days) to show different articles on refresh
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const veryRecent = sortedNews.filter(item => item.pubDate >= threeDaysAgo);
+    const older = sortedNews.filter(item => item.pubDate < threeDaysAgo);
+    
+    // Shuffle very recent articles
+    for (let i = veryRecent.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [veryRecent[i], veryRecent[j]] = [veryRecent[j], veryRecent[i]];
+    }
+    
+    // Combine: shuffled recent + older articles
+    return [...veryRecent, ...older];
 }
 
 /**
