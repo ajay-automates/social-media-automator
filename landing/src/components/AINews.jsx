@@ -287,10 +287,10 @@ export default function AINews() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
+                    <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
                         📰 Viral AI News
                     </h2>
-                    <p className="text-gray-400 text-lg">
+                    <p className="text-gray-600 text-lg">
                         Stay updated with the latest AI breakthroughs, trends, and insights
                     </p>
                 </motion.div>
