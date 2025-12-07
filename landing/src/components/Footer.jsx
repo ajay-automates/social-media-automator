@@ -31,7 +31,7 @@ export default function Footer() {
           viewport={{ once: true }}
           className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-3xl p-12 mb-16 text-center shadow-lg"
         >
-            <h3 className="text-4xl font-bold text-gray-900 mb-4 font-netflix">
+            <h3 className="text-4xl font-bold text-netflix-red mb-4 font-netflix">
             Stay Updated
           </h3>
           <p className="text-gray-700 mb-8">
