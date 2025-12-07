@@ -129,7 +129,7 @@ export default function Features() {
               Everything You Need
             </motion.span>
             <br />
-            <span className="text-gray-900">to <em className="not-italic bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent font-bold">Dominate</em> Social Media</span>
+            <span className="text-netflix-red font-netflix">to <em className="not-italic text-netflix-red font-bold font-netflix">Dominate</em> Social Media</span>
           </motion.h2>
 
           <motion.p
