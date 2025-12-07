@@ -129,7 +129,6 @@ export default function Hero() {
             })}
             
             {/* Decorative elements */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl" />
           </motion.div>
 
           {/* RIGHT SIDE: Content (40%) */}
@@ -139,7 +138,7 @@ export default function Hero() {
               variants={itemVariants}
               className="text-sm md:text-base text-gray-600 font-medium uppercase tracking-wider"
             >
-              Not a tool. Not a platform. A <em className="not-italic font-bold text-purple-600">solution</em>.
+              Not a tool. Not a platform. A <em className="not-italic font-bold text-netflix-red font-netflix">solution</em>.
             </motion.p>
 
             {/* Main Headline with Emphasis */}
@@ -148,7 +147,7 @@ export default function Hero() {
               className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900"
             >
               Finally, a place to{' '}
-              <em className="not-italic bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent font-bold">
+              <em className="not-italic text-netflix-red font-bold font-netflix">
                 automate
               </em>{' '}
               your social media
@@ -173,7 +172,7 @@ export default function Hero() {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
                   to="/auth"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-gray-900 text-white rounded-full font-semibold text-lg hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-netflix-red text-white rounded font-semibold text-lg hover:bg-netflix-red-dark transition-all shadow-lg hover:shadow-xl font-netflix"
                 >
                   Join 3,000+ creators
                   <motion.span

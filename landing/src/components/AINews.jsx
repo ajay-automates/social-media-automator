@@ -287,7 +287,7 @@ export default function AINews() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                    <h2 className="text-4xl md:text-5xl font-bold text-netflix-red mb-4 font-netflix">
                         📰 Viral AI News
                     </h2>
                     <p className="text-gray-600 text-lg">
@@ -352,7 +352,7 @@ export default function AINews() {
                                         {/* Content */}
                                         <div className="lg:w-[40%] flex flex-col justify-between flex-grow">
                                             <div className="flex items-start justify-between mb-4">
-                                                <span className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold shadow-lg">
+                                                <span className="px-3 py-1.5 rounded-lg bg-netflix-red text-white text-xs font-bold shadow-lg font-netflix">
                                                     TRENDING
                                                 </span>
                                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 backdrop-blur-sm border border-white/20">
@@ -386,7 +386,7 @@ export default function AINews() {
                                                 </a>
                                                 <Link
                                                     to="/"
-                                                    className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm font-medium transition-all shadow-lg hover:shadow-purple-500/50 text-center"
+                                                    className="flex-1 px-6 py-3 rounded bg-netflix-red hover:bg-netflix-red-dark text-white text-sm font-medium transition-all shadow-lg hover:shadow-red-500/50 text-center font-netflix"
                                                 >
                                                     Try Free
                                                 </Link>
@@ -462,7 +462,7 @@ export default function AINews() {
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.4 }}
                                     whileHover={{ scale: 1.05, y: -8 }}
-                                    className="bg-white rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:border-purple-300 hover:shadow-xl cursor-pointer flex-shrink-0 shadow-md"
+                                    className="bg-white rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:border-netflix-red hover:shadow-xl cursor-pointer flex-shrink-0 shadow-md"
                                     style={{
                                         minHeight: '400px'
                                     }}
@@ -480,7 +480,7 @@ export default function AINews() {
                                             transition={{ duration: 0.3 }}
                                         />
                                         <div className="absolute top-3 left-3">
-                                            <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg">
+                                            <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-netflix-red text-white shadow-lg font-netflix">
                                                 TRENDING
                                             </span>
                                         </div>
@@ -502,7 +502,7 @@ export default function AINews() {
                                             href={article.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="block w-full px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm font-medium transition-all text-center shadow-md hover:shadow-lg"
+                                            className="block w-full px-4 py-2 rounded bg-netflix-red hover:bg-netflix-red-dark text-white text-sm font-medium transition-all text-center shadow-md hover:shadow-lg font-netflix"
                                         >
                                             Read More
                                         </a>

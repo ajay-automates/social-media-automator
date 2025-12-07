@@ -39,7 +39,7 @@ export default function Stats() {
   ];
 
   return (
-    <section className="relative py-32 bg-gray-950">
+    <section className="relative py-32 bg-gradient-to-br from-pink-50 via-purple-50 to-cyan-50">
       <div className="container mx-auto px-6">
         {/* Section Header */}
         <motion.div
@@ -55,15 +55,15 @@ export default function Stats() {
             viewport={{ once: true }}
             className="inline-block mb-4"
           >
-            <span className="text-green-400 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full glass">
+            <span className="text-green-600 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50">
               📊 By The Numbers
             </span>
           </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             Proven{' '}
             <span className="text-gradient">Results</span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
             Real metrics from real users making an impact
           </p>
         </motion.div>
@@ -80,7 +80,7 @@ export default function Stats() {
               whileHover={{ y: -10, scale: 1.05 }}
               className="relative group"
             >
-              <div className="glass rounded-2xl p-8 text-center hover:bg-white/15 transition-all">
+              <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl p-8 text-center hover:bg-white/90 transition-all shadow-lg">
                 {/* Animated gradient background */}
                 <motion.div
                   className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity`}
@@ -113,12 +113,12 @@ export default function Stats() {
                 </div>
 
                 {/* Label */}
-                <div className="text-lg font-semibold text-white mb-2">
+                <div className="text-lg font-semibold text-gray-900 mb-2">
                   {stat.label}
                 </div>
 
                 {/* Description */}
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-600">
                   {stat.description}
                 </p>
 
@@ -145,20 +145,20 @@ export default function Stats() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass rounded-3xl p-8 md:p-12"
+          className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-3xl p-8 md:p-12 shadow-lg"
         >
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-6">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 text-center mb-6">
             Integrated with 20+ Platforms
           </h3>
-          <p className="text-gray-400 text-center mb-8">
-            <span className="text-green-400 font-semibold">✅ 10 Working Now</span> •
-            <span className="text-blue-400 font-semibold">⏳ 5 Pending Approval</span> •
-            <span className="text-purple-400 font-semibold">🚀 5 Coming Soon</span>
+          <p className="text-gray-700 text-center mb-8">
+            <span className="text-green-600 font-semibold">✅ 10 Working Now</span> •
+            <span className="text-blue-600 font-semibold">⏳ 5 Pending Approval</span> •
+            <span className="text-purple-600 font-semibold">🚀 5 Coming Soon</span>
           </p>
 
           {/* Working Now Platforms */}
           <div className="mb-8">
-            <h4 className="text-lg font-bold text-green-400 text-center mb-4">✅ Working Now - Instant Access</h4>
+            <h4 className="text-lg font-bold text-green-600 text-center mb-4">✅ Working Now - Instant Access</h4>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {platforms.working.map((platform, index) => {
                 const PlatformIcon = platform.Icon;
@@ -183,7 +183,7 @@ export default function Stats() {
 
           {/* Pending Approval Platforms */}
           <div className="mb-8">
-            <h4 className="text-lg font-bold text-blue-400 text-center mb-4">⏳ Pending Platform Approval</h4>
+            <h4 className="text-lg font-bold text-blue-600 text-center mb-4">⏳ Pending Platform Approval</h4>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {platforms.pending.map((platform, index) => {
                 const PlatformIcon = platform.Icon;
@@ -208,7 +208,7 @@ export default function Stats() {
 
           {/* Coming Soon Platforms */}
           <div>
-            <h4 className="text-lg font-bold text-purple-400 text-center mb-4">🚀 Coming Soon</h4>
+            <h4 className="text-lg font-bold text-purple-600 text-center mb-4">🚀 Coming Soon</h4>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
               {platforms.comingSoon.map((platform, index) => {
                 const PlatformIcon = platform.Icon;
@@ -234,7 +234,7 @@ export default function Stats() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="text-center mt-6 text-gray-500 text-sm"
+            className="text-center mt-6 text-gray-600 text-sm"
           >
             + More platforms added every month
           </motion.div>

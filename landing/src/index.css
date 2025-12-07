@@ -8,7 +8,8 @@
   }
 
   body {
-    @apply bg-gray-950 text-white antialiased;
+    @apply bg-white text-gray-900 antialiased;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
   
   /* Performance optimizations */
@@ -27,7 +28,7 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-red-500;
   }
 
   .glass {
@@ -40,6 +41,34 @@
 
   .glow-purple {
     box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+  }
+
+  /* Portrait-style floating animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  @keyframes float-hero {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 3s ease-in-out infinite;
+    animation-delay: 0.5s;
   }
   
   /* Performance: Reduce motion for accessibility and performance */
@@ -62,9 +91,9 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-blue-600 rounded-full;
+  @apply bg-red-600 rounded-full;
   }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-blue-500;
+  @apply bg-red-500;
 }

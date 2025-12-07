@@ -21,7 +21,7 @@ export default function Testimonials() {
             viewport={{ once: true }}
             className="inline-block mb-4"
           >
-            <span className="text-purple-600 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50">
+            <span className="text-netflix-red font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50 font-netflix">
               💬 Testimonials
             </span>
           </motion.div>
@@ -82,7 +82,7 @@ export default function Testimonials() {
             href="/auth.html"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all"
+            className="inline-flex items-center gap-2 bg-netflix-red hover:bg-netflix-red-dark text-white px-8 py-4 rounded font-bold text-lg hover:shadow-2xl hover:shadow-red-500/50 transition-all font-netflix"
           >
             Join These Happy Users
             <motion.span

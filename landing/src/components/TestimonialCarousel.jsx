@@ -7,8 +7,8 @@ export default function TestimonialCarousel({ testimonials }) {
   return (
     <div className="relative overflow-hidden py-8">
       {/* Gradient Overlays */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-950 to-transparent z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-950 to-transparent z-10" />
+      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-pink-50 to-transparent z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-cyan-50 to-transparent z-10" />
 
       {/* Scrolling Container */}
       <motion.div
@@ -27,7 +27,7 @@ export default function TestimonialCarousel({ testimonials }) {
         {duplicatedTestimonials.map((testimonial, index) => (
           <div
             key={`${testimonial.id}-${index}`}
-            className="flex-shrink-0 w-96 glass rounded-2xl p-6 hover:bg-white/15 transition-all group"
+            className="flex-shrink-0 w-96 bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl p-6 hover:bg-white/90 transition-all group shadow-lg"
           >
             {/* Rating Stars */}
             <div className="flex gap-1 mb-4">
@@ -38,7 +38,7 @@ export default function TestimonialCarousel({ testimonials }) {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="text-yellow-400 text-xl"
+                  className="text-yellow-600 text-xl"
                 >
                   ★
                 </motion.span>
@@ -46,7 +46,7 @@ export default function TestimonialCarousel({ testimonials }) {
             </div>
 
             {/* Quote */}
-            <p className="text-gray-300 mb-6 leading-relaxed">
+            <p className="text-gray-700 mb-6 leading-relaxed">
               "{testimonial.text}"
             </p>
 
@@ -60,9 +60,9 @@ export default function TestimonialCarousel({ testimonials }) {
                 whileHover={{ scale: 1.1 }}
               />
               <div>
-                <div className="font-semibold text-white">{testimonial.name}</div>
-                <div className="text-sm text-gray-400">{testimonial.title}</div>
-                <div className="text-xs text-blue-400">{testimonial.company}</div>
+                <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                <div className="text-sm text-gray-600">{testimonial.title}</div>
+                <div className="text-xs text-blue-600">{testimonial.company}</div>
               </div>
             </div>
 
@@ -71,7 +71,7 @@ export default function TestimonialCarousel({ testimonials }) {
               {Array.isArray(testimonial.platforms) && testimonial.platforms.map((platform, i) => (
                 <span
                   key={i}
-                  className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                  className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 border border-blue-200"
                 >
                   {platform}
                 </span>

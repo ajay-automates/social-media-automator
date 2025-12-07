@@ -6,18 +6,26 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'netflix': ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      },
       colors: {
+        netflix: {
+          red: '#E50914',
+          'red-dark': '#B20710',
+          'red-light': '#F40612',
+        },
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#fee2e2',
+          100: '#fecaca',
+          200: '#fca5a5',
+          300: '#f87171',
+          400: '#ef4444',
+          500: '#E50914',
+          600: '#B20710',
+          700: '#8B0000',
+          800: '#6B0000',
+          900: '#4B0000',
         },
       },
       animation: {

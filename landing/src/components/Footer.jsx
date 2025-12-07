@@ -22,19 +22,19 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-gradient-to-b from-gray-950 to-black py-20">
+    <footer className="relative bg-gradient-to-br from-pink-50 via-purple-50 to-cyan-50 py-20">
       <div className="container mx-auto px-6">
         {/* Newsletter Section */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass rounded-3xl p-12 mb-16 text-center"
+          className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-3xl p-12 mb-16 text-center shadow-lg"
         >
-          <h3 className="text-4xl font-bold text-white mb-4">
+          <h3 className="text-4xl font-bold text-gray-900 mb-4">
             Stay Updated
           </h3>
-          <p className="text-gray-400 mb-8">
+          <p className="text-gray-700 mb-8">
             Get the latest features, tips, and exclusive deals delivered to your inbox
           </p>
 
@@ -45,7 +45,7 @@ export default function Footer() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-6 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="flex-1 px-6 py-4 rounded-xl bg-white/90 border border-gray-200/50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
             <motion.button
               type="submit"
@@ -64,17 +64,17 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="text-3xl">🚀</span>
-              <span className="text-xl font-bold text-white">Social Media Automator</span>
+              <span className="text-xl font-bold text-gray-900">Social Media Automator</span>
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-gray-600 text-sm leading-relaxed">
               Automate your social media posting across multiple platforms with AI-powered captions.
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h4 className="font-bold text-white mb-4">Product</h4>
-            <ul className="space-y-3 text-gray-400 text-sm">
+            <h4 className="font-bold text-gray-900 mb-4">Product</h4>
+            <ul className="space-y-3 text-gray-700 text-sm">
               <li>
                 <a href="#features" className="hover:text-white transition-colors">
                   Features
@@ -100,8 +100,8 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-bold text-white mb-4">Legal</h4>
-            <ul className="space-y-3 text-gray-400 text-sm">
+            <h4 className="font-bold text-gray-900 mb-4">Legal</h4>
+            <ul className="space-y-3 text-gray-700 text-sm">
               <li>
                 <Link to="/terms" className="hover:text-white transition-colors">
                   Terms of Service
@@ -137,8 +137,8 @@ export default function Footer() {
 
           {/* Connect */}
           <div>
-            <h4 className="font-bold text-white mb-4">Connect</h4>
-            <ul className="space-y-3 text-gray-400 text-sm">
+            <h4 className="font-bold text-gray-900 mb-4">Connect</h4>
+            <ul className="space-y-3 text-gray-700 text-sm">
               <li>
                 <a href="mailto:support@socialmediaautomator.com" className="hover:text-white transition-colors">
                   Email Us
@@ -160,7 +160,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-gray-400 text-sm flex flex-wrap gap-4 items-center">
+          <div className="text-gray-600 text-sm flex flex-wrap gap-4 items-center">
             <span>© 2025 Social Media Automator. All rights reserved.</span>
             <span className="hidden md:inline">•</span>
             <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
@@ -177,7 +177,7 @@ export default function Footer() {
                 key={social}
                 href="#"
                 whileHover={{ scale: 1.2, y: -2 }}
-                className="w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/20 transition-colors"
+                className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50 flex items-center justify-center hover:bg-white/90 transition-colors shadow-lg"
               >
                 <span className="text-sm">{social[0]}</span>
               </motion.a>

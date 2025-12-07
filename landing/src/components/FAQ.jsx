@@ -46,7 +46,7 @@ export default function FAQ() {
             viewport={{ once: true }}
             className="inline-block mb-4"
           >
-            <span className="text-cyan-600 font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50">
+            <span className="text-netflix-red font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50 font-netflix">
               ❓ FAQ
             </span>
           </motion.div>

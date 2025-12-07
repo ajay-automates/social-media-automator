@@ -11,7 +11,7 @@ export default function TestimonialGrid({ testimonials }) {
           viewport={{ once: true }}
           transition={{ delay: index * 0.1, duration: 0.5 }}
           whileHover={{ y: -10, scale: 1.02 }}
-          className="glass rounded-2xl p-6 hover:bg-white/15 transition-all cursor-pointer group"
+          className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl p-6 hover:bg-white/90 transition-all cursor-pointer group shadow-lg"
         >
           {/* Rating Stars */}
           <div className="flex gap-1 mb-4">
@@ -22,7 +22,7 @@ export default function TestimonialGrid({ testimonials }) {
                 whileInView={{ opacity: 1, rotate: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 + i * 0.05 }}
-                className="text-yellow-400 text-lg"
+                className="text-yellow-600 text-lg"
               >
                 ★
               </motion.span>
@@ -30,12 +30,12 @@ export default function TestimonialGrid({ testimonials }) {
           </div>
 
           {/* Quote */}
-          <p className="text-gray-300 mb-6 leading-relaxed text-sm line-clamp-4">
+          <p className="text-gray-700 mb-6 leading-relaxed text-sm line-clamp-4">
             "{testimonial.text}"
           </p>
 
           {/* Author */}
-          <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+            <div className="flex items-center gap-3 pt-4 border-t border-gray-200">
             <motion.img
               src={testimonial.avatar}
               alt={testimonial.name}
@@ -45,8 +45,8 @@ export default function TestimonialGrid({ testimonials }) {
               transition={{ duration: 0.3 }}
             />
             <div>
-              <div className="font-semibold text-white text-sm">{testimonial.name}</div>
-              <div className="text-xs text-gray-400">{testimonial.title}</div>
+              <div className="font-semibold text-gray-900 text-sm">{testimonial.name}</div>
+              <div className="text-xs text-gray-600">{testimonial.title}</div>
             </div>
           </div>
         </motion.div>
