@@ -8,50 +8,59 @@ export default function Pricing() {
     {
       name: 'Free',
       price: { monthly: 0, yearly: 0 },
-      description: 'Great for getting started',
+      description: 'Forever free plan',
       features: [
         { text: '10 posts per month', included: true },
-        { text: '3 social accounts', included: true },
-        { text: '10 working platforms', included: true },
-        { text: 'Basic scheduling', included: true },
-        { text: 'No AI features', included: false },
+        { text: '1 social account', included: true },
+        { text: 'LinkedIn or Twitter only', included: true },
         { text: 'Community support', included: true },
+        { text: 'Basic scheduling', included: true },
+        { text: 'Post history', included: true },
+        { text: 'AI caption generation', included: false },
+        { text: 'Instagram support', included: false },
+        { text: 'CSV bulk upload', included: false },
+        { text: 'Priority support', included: false },
+        { text: 'API access', included: false },
       ],
-      cta: 'Get Started',
+      cta: 'Current Plan',
       popular: false,
     },
     {
       name: 'Pro',
-      price: { monthly: 19, yearly: 190 },
+      price: { monthly: 1000, yearly: 10000 },
       description: 'Perfect for professionals',
       features: [
         { text: 'Unlimited posts', included: true, highlight: true },
-        { text: '10 social accounts', included: true },
-        { text: 'All 20+ platforms (10 working now)', included: true },
-        { text: 'AI captions & images (100/mo)', included: true, highlight: true },
-        { text: 'Analytics dashboard', included: true },
+        { text: '3 social accounts', included: true },
+        { text: 'All platforms (LinkedIn, Twitter, Instagram)', included: true },
+        { text: '100 AI caption generations/month', included: true, highlight: true },
         { text: 'CSV bulk upload', included: true },
-        { text: 'Post templates', included: true },
         { text: 'Email support', included: true },
+        { text: 'Advanced scheduling', included: true },
+        { text: 'Full analytics', included: true },
+        { text: 'Post templates', included: true },
       ],
       cta: 'Start Free Trial',
       popular: true,
     },
     {
       name: 'Business',
-      price: { monthly: 99, yearly: 990 },
+      price: { monthly: 5000, yearly: 50000 },
       description: 'For teams and agencies',
       features: [
         { text: 'Unlimited everything', included: true, highlight: true },
-        { text: '50 social accounts', included: true },
-        { text: 'All 20+ platforms + priority access', included: true },
-        { text: 'Unlimited AI captions & images', included: true, highlight: true },
-        { text: 'Team collaboration (4 roles)', included: true, highlight: true },
-        { text: 'Approval workflows', included: true },
-        { text: 'Carousel creator', included: true },
+        { text: '10 social accounts', included: true },
+        { text: 'All platforms', included: true },
+        { text: 'Unlimited AI captions', included: true, highlight: true },
+        { text: 'CSV bulk upload', included: true },
         { text: 'Priority support', included: true },
+        { text: 'API access', included: true },
+        { text: 'White-label option', included: true },
+        { text: 'Remove branding', included: true },
+        { text: 'Custom integrations', included: true },
+        { text: 'Dedicated account manager', included: true },
       ],
-      cta: 'Get Started',
+      cta: 'Start Free Trial',
       popular: false,
     },
   ];
@@ -135,7 +144,7 @@ export default function Pricing() {
                 <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
                 <div className="flex items-baseline justify-center gap-2">
                   <span className="text-5xl font-bold text-netflix-red font-netflix">
-                    ${isYearly ? plan.price.yearly : plan.price.monthly}
+                    {plan.name === 'Free' ? '' : '₹'}{isYearly ? plan.price.yearly : plan.price.monthly}
                   </span>
                   <span className="text-gray-600">
                     /{isYearly ? 'year' : 'month'}
@@ -143,7 +152,7 @@ export default function Pricing() {
                 </div>
                 {isYearly && plan.price.yearly > 0 && (
                   <p className="text-sm text-green-600 mt-2">
-                    Save ${plan.price.monthly * 12 - plan.price.yearly}
+                    Save ₹{plan.price.monthly * 12 - plan.price.yearly}
                   </p>
                 )}
               </div>
