@@ -76,7 +76,7 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white pt-20">
       {/* Soft gradient background overlay */}
-      
+
       {/* Subtle pattern overlay */}
       <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_1px_1px,rgb(0,0,0)_1px,transparent_0)] bg-[length:32px_32px]" />
 
@@ -94,12 +94,12 @@ export default function Hero() {
             {platformsToShow.map((platform, i) => {
               const PlatformIcon = platform.Icon;
               const position = platformPositions[i] || platformPositions[i % platformPositions.length];
-              
+
               if (!PlatformIcon) {
                 console.warn(`Missing icon for platform: ${platform.name}`);
                 return null;
               }
-              
+
               return (
                 <div
                   key={`${platform.name}-${i}`}
@@ -109,7 +109,7 @@ export default function Hero() {
                   }}
                   className={`w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br ${platform.color} shadow-xl cursor-pointer group flex items-center justify-center border-2 border-white/20`}
                 >
-                  <PlatformIcon 
+                  <PlatformIcon
                     className="text-3xl lg:text-4xl text-white drop-shadow-lg"
                   />
                   {/* Tooltip on hover */}
@@ -121,7 +121,7 @@ export default function Hero() {
                 </div>
               );
             })}
-            
+
             {/* Decorative elements */}
           </div>
 
@@ -150,11 +150,11 @@ export default function Hero() {
             {/* Subheadline */}
             <motion.p
               variants={itemVariants}
-              className="text-lg md:text-xl text-netflix-red leading-relaxed max-w-xl mx-auto lg:mx-0 font-netflix"
+              className="text-lg md:text-xl text-black leading-relaxed max-w-xl mx-auto lg:mx-0 font-netflix"
             >
-              Post to <strong className="text-netflix-red font-netflix">20+ platforms</strong> at once.{' '}
-              Generate <strong className="text-netflix-red font-netflix">AI captions & images</strong> with Claude & Stability AI.{' '}
-              Schedule weeks in advance. Save <strong className="text-netflix-red font-netflix">20+ hours</strong> per week.
+              Post to <strong className="text-black font-netflix">20+ platforms</strong> at once.{' '}
+              Generate <strong className="text-black font-netflix">AI captions & images</strong> with Claude & Stability AI.{' '}
+              Schedule weeks in advance. Save <strong className="text-black font-netflix">20+ hours</strong> per week.
             </motion.p>
 
             {/* CTA Section */}
@@ -223,7 +223,7 @@ export default function Hero() {
                     key={platform.name}
                     className={`w-14 h-14 rounded-xl bg-gradient-to-br ${platform.color} shadow-lg flex items-center justify-center border-2 border-white/20`}
                   >
-                    <PlatformIcon 
+                    <PlatformIcon
                       className="text-xl text-white drop-shadow-lg"
                     />
                   </div>
