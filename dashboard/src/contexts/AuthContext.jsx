@@ -61,8 +61,10 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/auth.html';
   };
 
+  const isAdmin = user?.email === 'ajaykumarreddynelavetla@gmail.com';
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signOut, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

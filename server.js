@@ -197,7 +197,11 @@ const {
   getHashtagAnalytics
 } = require('./services/hashtag-tracker');
 
-// Helper function to get frontend URL
+
+
+const { getAllUsers, isAdmin } = require('./services/admin');
+
+
 function getFrontendUrl() {
   // If explicitly set, use it
   if (process.env.FRONTEND_URL) {
@@ -329,6 +333,25 @@ app.use(helmet({
 // Request logging middleware
 const requestLogger = require('./middleware/request-logger');
 app.use(requestLogger);
+
+// Get all users (Admin only) - MOVED TO TOP TO FIX 404
+app.get('/api/admin/users', verifyAuth, async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+
+    if (!isAdmin(userEmail)) {
+      console.warn(`⚠️ Unauthorized admin access attempt by: ${userEmail}`);
+      return res.status(403).json({ error: 'Access denied. Admin only.' });
+    }
+
+    const users = await getAllUsers();
+    res.json(users);
+
+  } catch (error) {
+    console.error('❌ Admin API Error:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
 
 // Rate limiting middleware (most specific first)
 const {
@@ -572,6 +595,8 @@ app.get(['/dashboard', '/dashboard/*'], (req, res) => {
 // API ROUTES
 // ============================================
 
+
+
 /**
  * GET /api/trends
  * Fetch trending topics/posts from aggregated sources
@@ -605,7 +630,7 @@ app.post('/api/news/refresh', verifyAuth, async (req, res) => {
 
     // Fetch fresh news articles with randomization for different articles each time
     const news = await fetchTrendingNews(20, true); // true = randomize selection
-    
+
     console.log(`✅ Refreshed ${news.length} news articles (randomized selection)`);
 
     // Return fresh data with timestamp to prevent caching

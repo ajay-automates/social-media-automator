@@ -31,10 +31,11 @@ const Approvals = lazy(() => import('./pages/Approvals'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentCancel = lazy(() => import('./pages/PaymentCancel'));
 const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
+const AdminUsers = lazy(() => import('./pages/AdminUsers'));
 
 function Navigation() {
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
@@ -79,6 +80,11 @@ function Navigation() {
     // Settings
     { path: '/settings', label: 'Settings', icon: '⚙️', category: 'Settings' },
   ];
+
+  // Admin Item (Only visible to admin)
+  if (isAdmin) {
+    userMenuItems.unshift({ path: '/admin/users', label: 'User Management', icon: '👑', category: 'Admin' });
+  }
 
   // All items for mobile menu
   const allNavItems = [...coreNavItems, ...quickActionItems, ...userMenuItems];
@@ -227,7 +233,7 @@ function Navigation() {
 
                     <div className="relative py-2">
                       {/* Group items by category */}
-                      {['Features', 'Content', 'Analytics', 'Automation', 'Settings'].map((category, catIdx) => {
+                      {['Admin', 'Features', 'Content', 'Analytics', 'Automation', 'Settings'].map((category, catIdx) => {
                         const categoryItems = userMenuItems.filter(item => item.category === category);
                         if (categoryItems.length === 0) return null;
 
@@ -342,6 +348,7 @@ function App() {
                 <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
                 <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
                 <Route path="/cancel" element={<ProtectedRoute><PaymentCancel /></ProtectedRoute>} />
+                <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
