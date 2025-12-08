@@ -9,25 +9,28 @@ const PLANS = {
     price: 0,
     annual: 0,
     limits: {
-      posts: 10,           // 10 posts per month
-      accounts: 1,         // 1 social media account
-      ai: 0,               // No AI captions
-      platforms: ['linkedin', 'twitter', 'youtube']  // Only LinkedIn and Twitter
+      posts: 10,
+      accounts: 5,
+      ai: 5,
+      images: 5,
+      videos: 0,
+      voice: 0,
+      team: 0,
+      platforms: ['linkedin', 'twitter', 'youtube']
     },
     features: [
       '10 posts per month',
-      '1 social account',
-      'LinkedIn or Twitter only',
-      'Community support',
-      'Basic scheduling',
-      'Post history'
+      '5 specific accounts',
+      '5 AI post generations',
+      '5 Images per month',
+      'Community support'
     ],
     features_excluded: [
-      'AI caption generation',
-      'Instagram support',
-      'CSV bulk upload',
-      'Priority support',
-      'API access'
+      'Videos',
+      'Voice generation',
+      'Team members',
+      'API access',
+      'White-label'
     ]
   },
 
@@ -36,21 +39,24 @@ const PLANS = {
     price: 1000,        // ₹1000/month
     annual: 10000,      // ₹10000/year (2 months free)
     limits: {
-      posts: Infinity,    // Unlimited posts
-      accounts: 3,        // 3 social media accounts
-      ai: 100,            // 100 AI generations per month
-      platforms: ['linkedin', 'twitter', 'instagram']  // All platforms
+      posts: 100,
+      accounts: 20,
+      ai: Infinity,
+      images: 50,
+      videos: 20,
+      voice: 10,
+      team: 1,
+      platforms: ['linkedin', 'twitter', 'instagram', 'youtube']
     },
     features: [
-      'Unlimited posts',
-      '3 social accounts',
-      'All platforms (LinkedIn, Twitter, Instagram)',
-      '100 AI caption generations/month',
-      'CSV bulk upload',
-      'Email support',
-      'Advanced scheduling',
-      'Full analytics',
-      'Post templates'
+      '100 posts per month',
+      'All 20+ accounts',
+      'Unlimited AI post gen',
+      '50 Images/month',
+      '20 Videos',
+      '10 Voice generations',
+      '1 Team member',
+      'Email support'
     ],
     razorpay_monthly_plan_id: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID,
     razorpay_annual_plan_id: process.env.RAZORPAY_PRO_ANNUAL_PLAN_ID
@@ -61,23 +67,25 @@ const PLANS = {
     price: 5000,        // ₹5000/month
     annual: 50000,     // ₹50000/year (2 months free)
     limits: {
-      posts: Infinity,    // Unlimited posts
-      accounts: 10,       // 10 social media accounts
-      ai: Infinity,       // Unlimited AI generations
-      platforms: ['linkedin', 'twitter', 'instagram']  // All platforms
+      posts: Infinity,
+      accounts: 50,
+      ai: Infinity,
+      images: Infinity,
+      videos: Infinity,
+      voice: Infinity,
+      team: 5,
+      platforms: ['linkedin', 'twitter', 'instagram', 'youtube']
     },
     features: [
-      'Unlimited everything',
-      '10 social accounts',
-      'All platforms',
-      'Unlimited AI captions',
-      'CSV bulk upload',
-      'Priority support',
-      'API access',
-      'White-label option',
-      'Remove branding',
-      'Custom integrations',
-      'Dedicated account manager'
+      'Unlimited posts',
+      'All 20+ accounts',
+      'Unlimited AI & Images',
+      'Unlimited Videos',
+      'Unlimited Voice gen',
+      '5 Team members',
+      'API Access',
+      'White-label options',
+      'Priority support'
     ],
     razorpay_monthly_plan_id: process.env.RAZORPAY_BUSINESS_MONTHLY_PLAN_ID,
     razorpay_annual_plan_id: process.env.RAZORPAY_BUSINESS_ANNUAL_PLAN_ID
@@ -249,7 +257,7 @@ function hasFeature(planName, feature) {
 // Validate plan IDs on module load
 function validatePlanIds() {
   const missing = [];
-  
+
   if (!PLANS.pro.razorpay_monthly_plan_id) {
     missing.push('RAZORPAY_PRO_MONTHLY_PLAN_ID');
   }
@@ -262,7 +270,7 @@ function validatePlanIds() {
   if (!PLANS.business.razorpay_annual_plan_id) {
     missing.push('RAZORPAY_BUSINESS_ANNUAL_PLAN_ID');
   }
-  
+
   if (missing.length > 0) {
     console.warn('⚠️  Missing Razorpay Plan IDs:', missing.join(', '));
     console.warn('⚠️  Some subscription features may not work correctly.');
