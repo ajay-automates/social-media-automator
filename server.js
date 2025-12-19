@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config(); // force restart
 const { validateEnv } = require('./utilities/env-validator');
 
 // Validate environment variables before starting

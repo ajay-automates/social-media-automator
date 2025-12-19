@@ -5,7 +5,7 @@
 
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const { supabase } = require('./database');
+const { supabase, supabaseAdmin } = require('./database');
 const { getPlan, checkLimitWithGrace, getRecommendedUpgrade } = require('../config/plans');
 
 let razorpay;
@@ -37,26 +37,26 @@ async function createSubscription(userId, planId, billingCycle = null) {
   try {
     // Create subscription
     if (!razorpay) throw new Error('Payment gateway not configured');
-    
+
     if (!planId) {
       throw new Error('Plan ID is required');
     }
-    
+
     // Determine total_count based on billing cycle
     // For monthly: 120 cycles = 10 years
     // For annual: 10 cycles = 10 years
     // Razorpay will use the plan's billing cycle, but we set total_count accordingly
     const totalCount = billingCycle === 'annual' ? 10 : 120;
-    
-    console.log('🔍 Creating Razorpay subscription:', { 
-      userId, 
-      planId, 
+
+    console.log('🔍 Creating Razorpay subscription:', {
+      userId,
+      planId,
       billingCycle,
       totalCount,
       planIdLength: planId?.length,
       planIdPrefix: planId?.substring(0, 10)
     });
-    
+
     // Verify plan exists in Razorpay before creating subscription
     try {
       const planDetails = await razorpay.plans.fetch(planId);
@@ -74,7 +74,7 @@ async function createSubscription(userId, planId, billingCycle = null) {
       });
       throw new Error(`Invalid plan ID: ${planError.description || planError.message}`);
     }
-    
+
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       customer_notify: 1,
@@ -106,12 +106,12 @@ async function createSubscription(userId, planId, billingCycle = null) {
       statusCode: error.statusCode,
       error: error.error
     });
-    
+
     // Log full error object for debugging
     if (error.error) {
       console.error('❌ Razorpay API Error:', JSON.stringify(error.error, null, 2));
     }
-    
+
     // Return more detailed error message
     const errorMessage = error.description || error.error?.description || error.message || 'Failed to create subscription';
     throw new Error(errorMessage);
@@ -298,7 +298,7 @@ async function getUsage(userId) {
     currentMonth.setDate(1);
     currentMonth.setHours(0, 0, 0, 0);
 
-    const { data: usage } = await supabase
+    const { data: usage } = await supabaseAdmin
       .from('usage')
       .select('*')
       .eq('user_id', userId)
@@ -322,7 +322,7 @@ async function incrementUsage(userId, resource, amount = 1) {
     currentMonth.setHours(0, 0, 0, 0);
     const monthStr = currentMonth.toISOString().split('T')[0];
 
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from('usage')
       .select('*')
       .eq('user_id', userId)
@@ -338,13 +338,13 @@ async function incrementUsage(userId, resource, amount = 1) {
     const column = columnMap[resource];
 
     if (existing) {
-      await supabase
+      await supabaseAdmin
         .from('usage')
         .update({ [column]: existing[column] + amount })
         .eq('user_id', userId)
         .eq('month', monthStr);
     } else {
-      await supabase
+      await supabaseAdmin
         .from('usage')
         .insert({
           user_id: userId,
@@ -359,7 +359,7 @@ async function incrementUsage(userId, resource, amount = 1) {
 
 async function checkUsage(userId, resource) {
   try {
-    const { data: sub } = await supabase
+    const { data: sub } = await supabaseAdmin
       .from('subscriptions')
       .select('plan')
       .eq('user_id', userId)
@@ -395,7 +395,7 @@ async function checkUsage(userId, resource) {
 
 async function getUserBillingInfo(userId) {
   try {
-    const { data: sub } = await supabase
+    const { data: sub } = await supabaseAdmin
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
@@ -405,7 +405,7 @@ async function getUserBillingInfo(userId) {
     const planDetails = getPlan(plan);
     const usage = await getUsage(userId);
 
-    const { data: accounts } = await supabase
+    const { data: accounts } = await supabaseAdmin
       .from('user_accounts')
       .select('id')
       .eq('user_id', userId)

@@ -1,12 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationBell from './components/NotificationBell';
 import RouteLoadingFallback from './components/ui/RouteLoadingFallback';
+import api from './lib/api';
 
 // Core routes - keep in main bundle for fast initial load
 import Dashboard from './pages/Dashboard';
@@ -38,6 +40,22 @@ function Navigation() {
   const { user, signOut, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [billingInfo, setBillingInfo] = useState(null);
+
+  useEffect(() => {
+    const fetchBilling = async () => {
+      try {
+        if (user) {
+          const { data } = await api.get('/billing/usage');
+          setBillingInfo(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch billing info', err);
+      }
+    };
+    fetchBilling();
+  }, [user]);
+
   const isActive = (path) => location.pathname === path || location.pathname === `${path}/`;
 
   // TIER 1: Core Navigation (Always visible - 3 items)
@@ -176,6 +194,30 @@ function Navigation() {
 
             </div>
           </div>
+
+          {/* Free Plan Usage Indicator */}
+          {billingInfo?.plan?.name === 'Free' && (
+            <Link to="/pricing" className="hidden lg:flex items-center gap-3 px-4 py-1.5 mr-4 bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700/50 rounded-full group hover:border-blue-500/30 transition-all">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider group-hover:text-blue-300 transition-colors">Free Plan</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="h-1.5 w-16 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${(billingInfo.usage.posts.used / billingInfo.plan.limits.posts) > 0.8 ? 'bg-red-500' : 'bg-blue-500'
+                        }`}
+                      style={{ width: `${Math.min((billingInfo.usage.posts.used / billingInfo.plan.limits.posts) * 100, 100)}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-xs text-white font-bold">
+                    {billingInfo.usage.posts.used}/{billingInfo.plan.limits.posts}
+                  </span>
+                </div>
+              </div>
+              <div className="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                ⚡
+              </div>
+            </Link>
+          )}
 
           {/* User Section */}
           <div className="flex items-center gap-4">

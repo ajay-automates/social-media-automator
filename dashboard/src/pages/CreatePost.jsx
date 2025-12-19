@@ -128,7 +128,11 @@ export default function CreatePost() {
   };
 
   const characterCounts = getCharacterCounts();
-  const hasExceededLimit = characterCounts.some(c => c.status === 'exceeded');
+
+  // Check if post limit reached
+  const hasPostLimitReached = billingInfo?.usage?.posts?.remaining === 0 && billingInfo?.plan?.limits?.posts !== Infinity;
+
+  const hasExceededLimit = characterCounts.some(c => c.status === 'exceeded') || hasPostLimitReached;
 
   useEffect(() => {
     loadBillingInfo();
@@ -2163,12 +2167,23 @@ export default function CreatePost() {
                     <ul className="text-sm text-red-200/70 mt-2 space-y-1 list-disc list-inside">
                       {!caption.trim() && <li>Enter a caption (required)</li>}
                       {platforms.length === 0 && <li>Select at least one platform</li>}
-                      {hasExceededLimit && (
+                      {characterCounts.some(c => c.status === 'exceeded') && (
                         <li>
                           {characterCounts
                             .filter(c => c.status === 'exceeded')
                             .map(c => `${c.platform}`)
                             .join(', ')} exceed character limits
+                        </li>
+                      )}
+                      {hasPostLimitReached && (
+                        <li>
+                          You've reached your {billingInfo?.plan?.name} plan limit of {billingInfo?.plan?.limits?.posts} posts.
+                          <button
+                            onClick={() => navigate('/pricing')}
+                            className="ml-2 text-blue-400 hover:text-blue-300 underline font-semibold cursor-pointer"
+                          >
+                            Upgrade to Pro to continue
+                          </button>
                         </li>
                       )}
                     </ul>

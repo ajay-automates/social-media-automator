@@ -30,18 +30,18 @@ export default function Header() {
             <a href="#faq" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
               FAQ
             </a>
-            <Link
-              to="/auth"
+            <a
+              href="/auth"
               className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix"
             >
               Login
-            </Link>
-            <Link
-              to="/auth"
+            </a>
+            <a
+              href="/auth"
               className="px-6 py-2 rounded bg-netflix-red text-white font-semibold hover:bg-netflix-red-dark hover:shadow-lg hover:scale-105 transition-all font-netflix"
             >
               Sign up
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
