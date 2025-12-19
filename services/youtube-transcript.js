@@ -16,36 +16,36 @@ async function extractTranscript(videoUrl) {
   try {
     // Dynamic import for ESM module
     const { Innertube } = await import('youtubei.js');
-    
+
     console.log('🎬 Initializing YouTube client...');
     const youtube = await Innertube.create();
-    
+
     // Extract video ID from URL
     const videoId = extractVideoId(videoUrl);
     if (!videoId) {
       throw new Error('Invalid YouTube URL');
     }
-    
+
     console.log(`📺 Fetching transcript for video: ${videoId}`);
-    
+
     // Get video info
     const info = await youtube.getInfo(videoId);
-    
+
     // Get transcript
     const transcriptData = await info.getTranscript();
-    
+
     if (!transcriptData || !transcriptData.transcript) {
       throw new Error('No transcript available for this video');
     }
-    
+
     // Combine all transcript segments into one text
     const transcript = transcriptData.transcript.content.body.initial_segments
       .map(segment => segment.snippet.text)
       .join(' ');
-    
+
     console.log(`✅ Transcript extracted: ${transcript.length} characters`);
     return transcript;
-    
+
   } catch (error) {
     console.error('❌ Transcript extraction error:', error);
     throw new Error(`Failed to extract transcript: ${error.message}`);
@@ -64,14 +64,14 @@ function extractVideoId(url) {
     /(?:youtube\.com\/embed\/)([^?]+)/,
     /(?:youtube\.com\/v\/)([^?]+)/
   ];
-  
+
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match && match[1]) {
       return match[1];
     }
   }
-  
+
   return null;
 }
 
@@ -82,7 +82,7 @@ function extractVideoId(url) {
  * @param {string} platform - Target platform (linkedin, twitter, etc.)
  * @returns {Promise<Array>} - Array of caption variations
  */
-async function generateCaptionFromTranscript(transcript, instructions = '', platform = 'linkedin') {
+async function generateCaptionFromTranscript(transcript, instructions = '', platform = 'linkedin', contentType = 'video transcript', sourceUrl = '') {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY not configured in environment variables');
@@ -92,9 +92,9 @@ async function generateCaptionFromTranscript(transcript, instructions = '', plat
     const anthropic = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY
     });
-    
-    console.log(`🤖 Generating captions for ${platform} using Claude...`);
-    
+
+    console.log(`🤖 Generating captions for ${platform} from ${contentType} using Claude...`);
+
     // Platform-specific guidelines
     const platformGuidelines = {
       linkedin: 'Professional tone, 1-3 paragraphs, use emojis sparingly, focus on insights and takeaways',
@@ -106,30 +106,48 @@ async function generateCaptionFromTranscript(transcript, instructions = '', plat
       telegram: 'Clear and informative, use formatting for readability',
       slack: 'Professional but casual, concise, action-oriented'
     };
-    
-    const guideline = platformGuidelines[platform] || platformGuidelines.linkedin;
-    
-    // Truncate transcript if too long (Claude has token limits)
-    const maxLength = 8000;
-    const truncatedTranscript = transcript.length > maxLength 
-      ? transcript.substring(0, maxLength) + '...' 
-      : transcript;
-    
-    const prompt = `You are a social media expert creating engaging captions from video transcripts.
 
-VIDEO TRANSCRIPT:
-${truncatedTranscript}
+    const guideline = platformGuidelines[platform] || platformGuidelines.linkedin;
+
+    // Truncate transcript if too long (Claude has token limits)
+    const maxLength = 15000; // Increased limit for Claude 3.5 Sonnet
+    const truncatedTranscript = transcript.length > maxLength
+      ? transcript.substring(0, maxLength) + '...'
+      : transcript;
+
+    let systemRole = 'You are a social media expert creating engaging captions from video transcripts.';
+    let contextInstruction = `VIDEO TRANSCRIPT:\n${truncatedTranscript}`;
+
+    // Customize prompt based on content type
+    if (contentType === 'web page' || contentType === 'website') {
+      systemRole = 'You are a professional social media manager for a business. Your goal is to create engaging, conversion-focused social media posts based on the business website content.';
+      contextInstruction = `WEBSITE CONTENT:\n${truncatedTranscript}\n\nSOURCE URL: ${sourceUrl}`;
+    }
+
+    const prompt = `${systemRole}
+
+${contextInstruction}
 
 TARGET PLATFORM: ${platform.toUpperCase()}
 PLATFORM GUIDELINES: ${guideline}
 
+${contentType === 'web page' || contentType === 'website' ? `
+SPECIFIC INSTRUCTIONS FOR BUSINESS/WEBSITE CONTENT:
+1. Analyze the business type and key value proposition from the content.
+2. Create a promotional post that encourages users to engage with the business.
+3. ALWAYS include a clear Call to Action (CTA) appropriate for the business (e.g., "Book a call", "Reserve your table", "Sign up now", "Learn more").
+4. ALWAYS include the link: ${sourceUrl} at the end of the post.
+5. Maintain a professional yet engaging tone suitable for the business brand.
+` : ''}
+
 ${instructions ? `USER INSTRUCTIONS: ${instructions}` : ''}
 
-Generate 3 different caption variations for this video content. Each caption should:
-1. Capture the key message from the transcript
+Generate 3 different caption variations for this content. Each caption should:
+1. Capture the key message or value proposition
 2. Be optimized for ${platform}
-3. Include relevant hashtags (where appropriate)
+3. Include relevant hashtags
 4. Be engaging and encourage interaction
+${contentType === 'web page' || contentType === 'website' ? '5. Include the URL and a CTA' : ''}
 
 Return the captions in this exact format:
 CAPTION 1:
@@ -152,15 +170,15 @@ CAPTION 3:
         }
       ]
     });
-    
+
     const responseText = message.content[0].text;
-    
+
     // Parse the response into separate captions
     const captions = parseCaptions(responseText);
-    
+
     console.log(`✅ Generated ${captions.length} caption variations`);
     return captions;
-    
+
   } catch (error) {
     console.error('❌ Caption generation error:', error);
     throw new Error(`Failed to generate captions: ${error.message}`);
@@ -175,7 +193,7 @@ CAPTION 3:
 function parseCaptions(response) {
   const captions = [];
   const captionRegex = /CAPTION \d+:\s*([\s\S]*?)(?=CAPTION \d+:|$)/gi;
-  
+
   let match;
   while ((match = captionRegex.exec(response)) !== null) {
     const caption = match[1].trim();
@@ -183,12 +201,12 @@ function parseCaptions(response) {
       captions.push(caption);
     }
   }
-  
+
   // Fallback: if parsing fails, return the whole response as one caption
   if (captions.length === 0) {
     captions.push(response.trim());
   }
-  
+
   return captions;
 }
 

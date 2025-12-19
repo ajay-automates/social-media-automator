@@ -2177,7 +2177,9 @@ app.post('/api/ai/youtube-caption', verifyAuth, async (req, res) => {
     const variations = await generateCaptionFromTranscript(
       content,
       instructions || '',
-      platform || 'linkedin'
+      platform || 'linkedin',
+      contentType,
+      videoUrl // Pass original URL as sourceUrl
     );
 
     // Increment AI usage count
