@@ -15,7 +15,10 @@ export default function NewsCard({
     position = 'center',
     onReadArticle,
     onGeneratePost,
-    onSave
+    onSave,
+    isSelected = false,
+    onToggleSelect,
+    isSelectionMode = false
 }) {
     const [isSaved, setIsSaved] = useState(false);
 
@@ -89,15 +92,28 @@ export default function NewsCard({
         return badges;
     };
 
+    const handleCardClick = () => {
+        if (isSelectionMode || isSelected) {
+            if (onToggleSelect) onToggleSelect();
+        } else if (url && url !== '#') {
+            window.open(url, '_blank');
+        }
+    };
+
     return (
         <div className="flex-shrink-0 w-[380px]">
             <motion.div
                 whileHover={{ y: -4 }}
-                className="rounded-xl backdrop-blur-md border border-white/10 overflow-hidden transition-all duration-300 hover:border-white/30 cursor-pointer"
+                // Use isSelected prop to conditionally add border
+                className={`rounded-xl backdrop-blur-md border overflow-hidden transition-all duration-300 cursor-pointer ${isSelected
+                        ? 'border-cyan-500 ring-2 ring-cyan-500/50 shadow-cyan-500/20 shadow-lg scale-[1.02]'
+                        : 'border-white/10 hover:border-white/30'
+                    }`}
                 style={{
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
                     minHeight: '480px'
                 }}
+                onClick={handleCardClick}
             >
                 {/* Image or Gradient Header */}
                 <div className={`relative h-[220px] w-full overflow-hidden ${displayMode === 'error' ? `bg-gradient-to-br ${getSourceGradient()}` : 'bg-gray-900'}`}>
@@ -127,6 +143,16 @@ export default function NewsCard({
                         </div>
                     )}
 
+                    {/* Selection Overlay Checkbox */}
+                    {(isSelectionMode || isSelected) && (
+                        <div className="absolute top-3 right-12 z-20">
+                            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-cyan-500 border-cyan-500' : 'bg-black/40 border-white/60'
+                                }`}>
+                                {isSelected && <span className="text-white font-bold">✓</span>}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Badges overlay */}
                     {getBadges().length > 0 && (
                         <div className="absolute top-3 left-3 flex gap-2">
@@ -141,7 +167,7 @@ export default function NewsCard({
                         </div>
                     )}
 
-                    {/* Save button overlay */}
+                    {/* Save button overlay (kept for individual interaction) */}
                     <button
                         onClick={(e) => {
                             e.stopPropagation();

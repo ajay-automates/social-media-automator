@@ -210,22 +210,28 @@ export default function Calendar() {
   // Schedule 10 AI Posts
   const handleScheduleAIPosts = async () => {
     try {
-      const confirmed = confirm('This will schedule 10 posts about today\'s AI news. Continue?');
-      if (!confirmed) return;
+      // Prompt for URL
+      const url = window.prompt(
+        'Enter a URL to generate posts for (e.g. your business website).\nLeave empty to generate AI News posts.',
+        ''
+      );
 
-      showSuccess('Generating 10 AI posts... This may take a minute.');
+      // If user clicked Cancel (result is null), do nothing
+      if (url === null) return;
 
-      const response = await api.post('/ai-tools/schedule-now');
+      showSuccess(url ? 'Generating 10 posts from URL...' : 'Generating 10 AI News posts...');
+
+      const response = await api.post('/ai-tools/schedule-now', { url });
 
       if (response.data.success) {
-        showSuccess(`Successfully scheduled ${response.data.scheduled || 10} AI posts!`);
+        showSuccess(`Successfully scheduled ${response.data.scheduled || 10} posts!`);
         loadScheduledPosts(); // Refresh calendar
       } else {
-        showError(response.data.error || 'Failed to schedule AI posts');
+        showError(response.data.error || 'Failed to schedule posts');
       }
     } catch (err) {
-      console.error('Error scheduling AI posts:', err);
-      showError(err.response?.data?.error || 'Failed to schedule AI posts');
+      console.error('Error scheduling posts:', err);
+      showError(err.response?.data?.error || 'Failed to schedule posts');
     }
   };
 

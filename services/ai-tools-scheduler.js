@@ -2,6 +2,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { createClient } = require('@supabase/supabase-js');
 const { schedulePost } = require('./scheduler');
 const { generatePostVariations } = require('./ai');
+const { scrapeWebContent } = require('./web-scraper-light'); // Import scraper
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
@@ -58,11 +59,13 @@ async function getDefaultUserId() {
 }
 
 /**
- * Generate and schedule 10 posts about AI tools for the day
- * @param {string} specificUserId - Optional user ID to schedule for (if not provided, uses default)
+ * Generate and schedule 10 posts about AI tools (or business topics from URL) for the day
+ * @param {string} specificUserId - Optional user ID to schedule for
+ * @param {string} sourceUrl - Optional URL to generate posts from
+ * @param {Array} articles - Optional list of specific articles to schedule
  */
-async function scheduleAIToolsPosts(specificUserId = null) {
-    console.log('🤖 Starting daily AI tools post generation...');
+async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null) {
+    console.log(`🤖 Starting post generation...${sourceUrl ? ` (Source: ${sourceUrl})` : ''}${articles ? ` (Articles: ${articles.length})` : ''}`);
 
     try {
         if (!process.env.ANTHROPIC_API_KEY) {
@@ -76,10 +79,30 @@ async function scheduleAIToolsPosts(specificUserId = null) {
         }
         console.log(`👤 Scheduling posts for user ID: ${userId}`);
 
-        // 1. Generate list of 10 unique AI tools/topics for today
-        const tools = await generateDailyAIToolsList();
+        // 1. Generate list of topics (10 items)
+        let tools = [];
 
-        console.log(`📋 Generated ${tools.length} AI tools to post about:`, tools.map(t => t.name).join(', '));
+        if (articles && Array.isArray(articles) && articles.length > 0) {
+            // Context: Specific articles provided (Bulk Schedule)
+            console.log(`📰 Using ${articles.length} provided articles...`);
+            tools = articles.map(article => ({
+                name: article.headline,
+                category: 'AI News',
+                hook: article.summary,
+                source_link: article.url || article.link
+            }));
+        } else if (sourceUrl) {
+            // Context: Business/Website URL provided
+            console.log(`🌐 Scraping content from: ${sourceUrl}`);
+            const content = await scrapeWebContent(sourceUrl);
+            console.log(`🧠 Analyzing content to extract business topics...`);
+            tools = await generateBusinessTopicsFromContent(content, sourceUrl);
+        } else {
+            // Context: Default AI News
+            tools = await generateDailyAIToolsList();
+        }
+
+        console.log(`📋 Generated ${tools.length} topics to post about:`, tools.map(t => t.name).join(', '));
 
         // 2. Calculate schedule times (spread throughout the day)
         const scheduleTimes = calculateScheduleTimes(tools.length);
@@ -96,7 +119,12 @@ async function scheduleAIToolsPosts(specificUserId = null) {
                 console.log(`✍️ Generating content for tool: ${tool.name} (${i + 1}/${tools.length})`);
 
                 // Generate post content
-                const postContent = await generateToolPostContent(tool);
+                let postContent;
+                if (sourceUrl && !articles) { // Only use business logic if scraping URL, not if using news articles with URLs
+                    postContent = await generateBusinessPostContent(tool, sourceUrl);
+                } else {
+                    postContent = await generateToolPostContent(tool);
+                }
 
                 // Create post object
                 const postData = {
@@ -106,9 +134,10 @@ async function scheduleAIToolsPosts(specificUserId = null) {
                     schedule_time: scheduledTime,
                     post_metadata: {
                         auto_generated: true,
-                        content_type: 'ai_tools',
+                        content_type: sourceUrl ? 'business_promo' : 'ai_tools',
                         tool_name: tool.name,
                         category: tool.category,
+                        source_url: sourceUrl || tool.source_link,
                         variations: postContent
                     }
                 };
@@ -296,6 +325,91 @@ function calculateScheduleTimes(count) {
     }
 
     return times;
+}
+
+/**
+ * Generate 10 business topics/hooks from scraped content
+ */
+async function generateBusinessTopicsFromContent(content, sourceUrl) {
+    const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const prompt = `You are an expert social media strategist.
+
+CONTEXT:
+We need to create 10 distinct, engaging social media posts to promote a business based on their website content.
+
+WEBSITE CONTENT:
+${content.substring(0, 15000)}
+
+TASK:
+Analyze the content and identify 10 UNIQUE angles, value propositions, features, or topics to write about. 
+Each item should focus on a different aspect to avoid repetition (e.g., one about detailed services, one about a specific problem solved, one about customer results, one about the brand story, etc.).
+
+Return ONLY a JSON array with this format:
+[
+  {
+    "name": "Topic Title (e.g., 'Save Time Feature', 'Consulting Services')",
+    "category": "Topic Category (e.g., Product Feature, Case Study, Thought Leadership)",
+    "hook": "The core angle/hook for this post (e.g., 'Stop wasting hours on X...')",
+    "source_link": "${sourceUrl}" 
+  }
+]`;
+
+    const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514', // or compatible model
+        max_tokens: 2500,
+        temperature: 0.7,
+        messages: [{ role: 'user', content: prompt }]
+    });
+
+    const text = message.content[0].text.trim();
+    const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+
+    try {
+        return JSON.parse(jsonText);
+    } catch (e) {
+        console.error('Error parsing business topics JSON:', e);
+        throw e; // Or fallback
+    }
+}
+
+/**
+ * Generate post content for a specific business topic
+ */
+async function generateBusinessPostContent(topic, sourceUrl) {
+    const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const prompt = `Create a high-converting social media post for this business topic:
+
+Topic: ${topic.name}
+Category: ${topic.category}
+Angle/Hook: ${topic.hook}
+Link to Include: ${sourceUrl}
+
+Create 2 versions:
+1. LinkedIn: Professional yet persuasive. Focus on value and problem/solution. Use bullet points if helpful. 150-200 words. MUST include the Call to Action and Link at the end.
+2. Twitter: Punchy, engaging, under 280 chars. 1-2 hashtags. MUST include the Link.
+
+Return ONLY valid JSON:
+{
+  "linkedin": "...",
+  "twitter": "..."
+}`;
+
+    const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        temperature: 0.7,
+        messages: [{ role: 'user', content: prompt }]
+    });
+
+    const text = message.content[0].text.trim();
+    const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+    return JSON.parse(jsonText);
 }
 
 module.exports = {

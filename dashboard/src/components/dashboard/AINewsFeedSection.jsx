@@ -22,7 +22,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0); // Force re-render on refresh
-    
+
     // Featured Article State (Netflix-style hero)
     const [featuredIndex, setFeaturedIndex] = useState(0);
     const autoRotateIntervalRef = useRef(null);
@@ -33,6 +33,9 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [generatedContent, setGeneratedContent] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [connectedPlatforms, setConnectedPlatforms] = useState([]);
+    // Selection State
+    const [selectedArticles, setSelectedArticles] = useState(new Set());
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
 
     // Fetch connected accounts
     useEffect(() => {
@@ -180,22 +183,24 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         try {
             setRefreshing(true);
             console.log('🔄 Refreshing AI news feed...');
-            
+
             // Clear old news immediately for visual feedback
             setNews([]);
-            
+            setSelectedArticles(new Set()); // Reset selection
+            setIsSelectionMode(false);
+
             const response = await api.post('/news/refresh');
             console.log('📰 Refresh response:', response.data);
-            
+
             if (response.data.success && response.data.news) {
                 const formattedNews = formatNewsData(response.data.news);
                 console.log('📊 Formatted news count:', formattedNews.length);
                 console.log('📰 First article:', formattedNews[0]?.headline);
-                
+
                 // Update news state and refresh key to force re-render
                 setNews(formattedNews);
                 setRefreshKey(prev => prev + 1); // Force carousel re-render
-                
+
                 showSuccess(`✅ Feed refreshed! Loaded ${formattedNews.length} articles`);
             } else {
                 showError('No news data received');
@@ -311,6 +316,60 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         // TODO: Save to user's saved items
     };
 
+    // Selection Handlers
+    const toggleSelection = (articleId) => {
+        const newSelection = new Set(selectedArticles);
+        if (newSelection.has(articleId)) {
+            newSelection.delete(articleId);
+        } else {
+            newSelection.add(articleId);
+        }
+        setSelectedArticles(newSelection);
+        setIsSelectionMode(newSelection.size > 0);
+    };
+
+    const handleSelectAll = () => {
+        if (selectedArticles.size === news.length) {
+            setSelectedArticles(new Set());
+            setIsSelectionMode(false);
+        } else {
+            // Include featured article + remaining news
+            const allIds = news.map(a => a.id);
+            setSelectedArticles(new Set(allIds));
+            setIsSelectionMode(true);
+        }
+    };
+
+    const handleBulkSchedule = async () => {
+        if (selectedArticles.size === 0) return;
+
+        if (!confirm(`Schedule posts for ${selectedArticles.size} selected articles?`)) return;
+
+        try {
+            setRefreshing(true); // Show loading
+            // Filter get full article objects
+            const articlesToSchedule = news.filter(a => selectedArticles.has(a.id));
+
+            const response = await api.post('/ai-tools/schedule-now', {
+                articles: articlesToSchedule
+            });
+
+            if (response.data.success) {
+                showSuccess(`Successfully scheduled ${response.data.scheduled} posts!`);
+                celebrateSuccess();
+                setSelectedArticles(new Set());
+                setIsSelectionMode(false);
+            } else {
+                showError(response.data.error || 'Failed to schedule posts');
+            }
+        } catch (error) {
+            console.error('Bulk schedule failed:', error);
+            showError('Failed to schedule posts');
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     // Featured article navigation
     const handleFeaturedNext = () => {
         const maxFeatured = Math.min(5, news.length);
@@ -375,30 +434,92 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         Latest updates from OpenAI, Anthropic, Google & AI ecosystem
                     </p>
                 </div>
-                {/* Refresh Button replacing 'View All News' */}
-                <button
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 hover:shadow-cyan-500/20 shadow-lg border border-gray-700 hover:border-cyan-500/30 transition-all text-sm font-medium text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed group"
-                >
-                    <span className={`text-lg transition-transform duration-700 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180'}`}>
-                        🔄
-                    </span>
-                    {refreshing ? 'Refreshing...' : 'Refresh Feed'}
-                </button>
+
+                <div className="flex gap-2">
+                    {/* Select All Button */}
+                    {news.length > 0 && (
+                        <button
+                            onClick={handleSelectAll}
+                            className={`px-4 py-2 rounded-lg border transition-all text-sm font-medium ${selectedArticles.size === news.length
+                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                                : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'
+                                }`}
+                        >
+                            {selectedArticles.size === news.length ? 'Deselect All' : 'Select All'}
+                        </button>
+                    )}
+
+                    {/* Refresh Button replacing 'View All News' */}
+                    <button
+                        onClick={handleRefresh}
+                        disabled={refreshing}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 hover:shadow-cyan-500/20 shadow-lg border border-gray-700 hover:border-cyan-500/30 transition-all text-sm font-medium text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                        <span className={`text-lg transition-transform duration-700 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180'}`}>
+                            🔄
+                        </span>
+                        {refreshing ? 'Refreshing...' : 'Refresh Feed'}
+                    </button>
+                </div>
             </div>
+
+            {/* Bulk Actions Bar */}
+            <AnimatePresence>
+                {selectedArticles.size > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-gray-900/90 backdrop-blur-xl border border-white/20 px-6 py-4 rounded-full shadow-2xl flex items-center gap-4"
+                    >
+                        <span className="text-white font-medium">{selectedArticles.size} articles selected</span>
+                        <button
+                            onClick={handleBulkSchedule}
+                            disabled={refreshing}
+                            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2 rounded-full font-bold hover:shadow-lg hover:shadow-cyan-500/20 transition-all disabled:opacity-50"
+                        >
+                            {refreshing ? 'Scheduling...' : `Schedule ${selectedArticles.size} AI Posts`}
+                        </button>
+                        <button
+                            onClick={() => {
+                                setSelectedArticles(new Set());
+                                setIsSelectionMode(false);
+                            }}
+                            className="text-gray-400 hover:text-white"
+                        >
+                            ✕
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
 
             {/* Featured Hero Section (Netflix-style) */}
             {featuredArticle && (
                 <div className="relative mb-8" style={{ minHeight: '400px' }}>
+                    {/* Overlay selection for featured article */}
+                    {isSelectionMode && (
+                        <div className="absolute top-4 right-4 z-30">
+                            <div
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSelection(featuredArticle.id);
+                                }}
+                                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${selectedArticles.has(featuredArticle.id) ? 'bg-cyan-500 border-cyan-500' : 'bg-black/40 border-white/60 hover:bg-black/60'
+                                    }`}>
+                                {selectedArticles.has(featuredArticle.id) && <span className="text-white font-bold text-xl">✓</span>}
+                            </div>
+                        </div>
+                    )}
+
                     <AnimatePresence initial={false} mode="wait">
                         <motion.div
                             key={`featured-${featuredIndex}-${featuredArticle.headline?.substring(0, 20)}`}
                             initial={{ opacity: 0, scale: 0.97 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 1.03 }}
-                            transition={{ 
-                                duration: 0.4, 
+                            transition={{
+                                duration: 0.4,
                                 ease: "easeOut",
                                 opacity: { duration: 0.2 }
                             }}
@@ -455,11 +576,10 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                                             setFeaturedIndex((prev) => (prev + 1) % maxFeatured);
                                         }, 8000);
                                     }}
-                                    className={`w-2 h-2 rounded-full transition-all ${
-                                        idx === featuredIndex
-                                            ? 'bg-white w-6'
-                                            : 'bg-white/40 hover:bg-white/60'
-                                    }`}
+                                    className={`w-2 h-2 rounded-full transition-all ${idx === featuredIndex
+                                        ? 'bg-white w-6'
+                                        : 'bg-white/40 hover:bg-white/60'
+                                        }`}
                                     aria-label={`Go to featured article ${idx + 1}`}
                                 />
                             ))}
@@ -490,6 +610,9 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                                 onReadArticle={() => handleReadArticle(article)}
                                 onGeneratePost={() => handleGeneratePost(article)}
                                 onSave={() => handleSave(article)}
+                                isSelected={selectedArticles.has(article.id)}
+                                onToggleSelect={() => toggleSelection(article.id)}
+                                isSelectionMode={isSelectionMode}
                             />
                         ))}
                     </OverlappingCardCarousel>
