@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../../lib/api';
+import api from '../../services/api'; // Changed path
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import NewsCard from './NewsCard';
 import FeaturedAINews from './FeaturedAINews';
 import GeneratePostPreview from './GeneratePostPreview';
-import { celebrateSuccess } from '../../utils/animations';
-import { showSuccess, showError } from '../../components/ui/Toast';
+import BulkScheduleModal from './BulkScheduleModal'; // Added import
+import { useToast } from '../../context/ToastContext'; // Changed import
 
 /**
  * AINewsFeedSection - Container for AI news with overlapping card layout
@@ -22,6 +22,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0); // Force re-render on refresh
+    const { showSuccess, showError, celebrateSuccess } = useToast(); // Initialized useToast
 
     // Featured Article State (Netflix-style hero)
     const [featuredIndex, setFeaturedIndex] = useState(0);
@@ -36,6 +37,8 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     // Selection State
     const [selectedArticles, setSelectedArticles] = useState(new Set());
     const [isSelectionMode, setIsSelectionMode] = useState(false);
+    // Bulk Modal State
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false); // Added state
 
     // Fetch connected accounts
     useEffect(() => {
@@ -340,18 +343,23 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         }
     };
 
-    const handleBulkSchedule = async () => {
+    // Initialize Bulk Schedule (Open Modal)
+    const handleBulkSchedule = () => {
         if (selectedArticles.size === 0) return;
+        setIsBulkModalOpen(true);
+    };
 
-        if (!confirm(`Schedule posts for ${selectedArticles.size} selected articles?`)) return;
-
+    // Confirm Bulk Schedule (API Call)
+    const handleConfirmBulkSchedule = async (platforms) => {
         try {
             setRefreshing(true); // Show loading
+            setIsBulkModalOpen(false); // Close modal immediately
             // Filter get full article objects
             const articlesToSchedule = news.filter(a => selectedArticles.has(a.id));
 
             const response = await api.post('/ai-tools/schedule-now', {
-                articles: articlesToSchedule
+                articles: articlesToSchedule,
+                platforms: platforms // Pass selected platforms
             });
 
             if (response.data.success) {
@@ -441,8 +449,8 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         <button
                             onClick={handleSelectAll}
                             className={`px-4 py-2 rounded-lg border transition-all text-sm font-medium ${selectedArticles.size === news.length
-                                ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
-                                : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'
+                                    ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
+                                    : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'
                                 }`}
                         >
                             {selectedArticles.size === news.length ? 'Deselect All' : 'Select All'}
@@ -474,7 +482,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                     >
                         <span className="text-white font-medium">{selectedArticles.size} articles selected</span>
                         <button
-                            onClick={handleBulkSchedule}
+                            onClick={handleBulkSchedule} // Calls the new handleBulkSchedule to open modal
                             disabled={refreshing}
                             className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2 rounded-full font-bold hover:shadow-lg hover:shadow-cyan-500/20 transition-all disabled:opacity-50"
                         >
@@ -577,8 +585,8 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                                         }, 8000);
                                     }}
                                     className={`w-2 h-2 rounded-full transition-all ${idx === featuredIndex
-                                        ? 'bg-white w-6'
-                                        : 'bg-white/40 hover:bg-white/60'
+                                            ? 'bg-white w-6'
+                                            : 'bg-white/40 hover:bg-white/60'
                                         }`}
                                     aria-label={`Go to featured article ${idx + 1}`}
                                 />
@@ -629,6 +637,15 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                 onRegenerate={handleRegenerate}
                 onPostNow={handlePostNow}
                 onSchedule={handleSchedule}
+                connectedPlatforms={connectedPlatforms}
+            />
+
+            {/* Bulk Schedule Modal */}
+            <BulkScheduleModal
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+                onConfirm={handleConfirmBulkSchedule}
+                selectedCount={selectedArticles.size}
                 connectedPlatforms={connectedPlatforms}
             />
         </motion.div>

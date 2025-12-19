@@ -1553,14 +1553,14 @@ app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
 app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { url, articles } = req.body;
-    console.log(`🤖 Manual AI posts scheduling triggered by user: ${userId}${url ? ` for URL: ${url}` : ''}${articles ? ` for ${articles.length} articles` : ''}`);
+    const { url, articles, platforms } = req.body;
+    console.log(`🤖 Manual AI posts scheduling triggered by user: ${userId}${url ? ` for URL: ${url}` : ''}${articles ? ` for ${articles.length} articles` : ''}${platforms ? ` on ${platforms}` : ''}`);
 
     // Import the scheduler function
     const { scheduleAIToolsPosts } = require('./services/ai-tools-scheduler');
 
     // Run the scheduler for this specific user
-    const result = await scheduleAIToolsPosts(userId, url, articles);
+    const result = await scheduleAIToolsPosts(userId, url, articles, platforms);
 
     res.json({
       success: true,

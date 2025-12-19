@@ -63,9 +63,10 @@ async function getDefaultUserId() {
  * @param {string} specificUserId - Optional user ID to schedule for
  * @param {string} sourceUrl - Optional URL to generate posts from
  * @param {Array} articles - Optional list of specific articles to schedule
+ * @param {Array} targetPlatforms - Optional list of platforms to schedule for (default: linkedin, twitter)
  */
-async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null) {
-    console.log(`🤖 Starting post generation...${sourceUrl ? ` (Source: ${sourceUrl})` : ''}${articles ? ` (Articles: ${articles.length})` : ''}`);
+async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null) {
+    console.log(`🤖 Starting post generation...${sourceUrl ? ` (Source: ${sourceUrl})` : ''}${articles ? ` (Articles: ${articles.length})` : ''}${targetPlatforms ? ` (Platforms: ${targetPlatforms.join(', ')})` : ''}`);
 
     try {
         if (!process.env.ANTHROPIC_API_KEY) {
@@ -111,6 +112,11 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         let scheduled = 0;
         let failed = 0;
 
+        // Determine platforms to use
+        const platformsToUse = targetPlatforms && targetPlatforms.length > 0
+            ? targetPlatforms
+            : ['linkedin', 'twitter'];
+
         for (let i = 0; i < tools.length; i++) {
             const tool = tools[i];
             const scheduledTime = scheduleTimes[i];
@@ -130,7 +136,7 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
                 const postData = {
                     user_id: userId,
                     text: postContent.linkedin, // Default to LinkedIn version for main text
-                    platforms: ['linkedin', 'twitter'], // Default platforms
+                    platforms: platformsToUse,
                     schedule_time: scheduledTime,
                     post_metadata: {
                         auto_generated: true,
