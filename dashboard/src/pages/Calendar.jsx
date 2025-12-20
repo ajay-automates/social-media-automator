@@ -9,6 +9,7 @@ import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { NoScheduledEmpty } from '../components/ui/EmptyState';
 import PlatformChip from '../components/ui/PlatformChip';
+import CalendarListView from '../components/calendar/CalendarListView';
 import {
   FaLinkedin,
   FaTwitter,
@@ -27,7 +28,8 @@ import {
   FaFilter,
   FaDownload,
   FaSearch,
-  FaTimes
+  FaTimes,
+  FaList
 } from 'react-icons/fa';
 import { SiMastodon, SiBluesky } from 'react-icons/si';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -405,17 +407,49 @@ export default function Calendar() {
         </div>
 
         <div className="flex justify-center gap-2">
-          {['month', 'week', 'day', 'agenda'].map(v => (
-            <motion.button
-              key={v}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onView(v)}
-              className={`ios-view-button ${currentView === v ? 'active' : ''}`}
-            >
-              {v.charAt(0).toUpperCase() + v.slice(1)}
-            </motion.button>
-          ))}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setView('list')} // Switch to custom List view
+            className={`ios-view-button ${view === 'list' ? 'active' : ''}`}
+          >
+            List View
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+                if(onView) onView('week');
+                else setView('week');
+            }}
+            className={`ios-view-button ${view === 'week' ? 'active' : ''}`}
+          >
+            7 Day View
+          </motion.button>
+
+           <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+                if(onView) onView('month');
+                else setView('month');
+            }}
+            className={`ios-view-button ${view === 'month' ? 'active' : ''}`}
+          >
+            Month View
+          </motion.button>
+           <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+                if(onView) onView('day');
+                else setView('day');
+            }}
+            className={`ios-view-button ${view === 'day' ? 'active' : ''}`}
+          >
+           Day View
+          </motion.button>
         </div>
       </div>
     );
@@ -673,74 +707,127 @@ export default function Calendar() {
               <NoScheduledEmpty onSchedule={() => window.location.href = '/create'} />
             </div>
           ) : (
-            <div className="relative" style={{ height: '700px', overflow: 'visible' }}>
-              <DnDCalendar
-                localizer={localizer}
-                events={filteredEvents}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: '100%' }}
-                onSelectEvent={handleSelectEvent}
-                onEventDrop={handleEventDrop}
-                eventPropGetter={eventStyleGetter}
-                view={view}
-                onView={setView}
-                date={currentDate}
-                onNavigate={setCurrentDate}
-                onDrillDown={handleDrillDown}
-                views={['month', 'week', 'day', 'agenda']}
-                className="calendar-ios"
-                resizable={false}
-                draggableAccessor={() => true}
-                components={{
-                  toolbar: CustomToolbar,
-                  event: ({ event }) => {
-                    const platforms = event.platforms || [];
+            <div className="relative" style={{ minHeight: '700px', overflow: 'visible' }}>
+              {view === 'list' ? (
+                // Custom List View
+                <div className="p-4">
+                     <div className="flex justify-center mb-5">
+                        <h2 className="ios-month-title mb-4">Scheduled Posts</h2>
+                     </div>
+                     
+                    {/* Re-use toolbar-like navigation for consistency? Or just simple buttons above */}
+                     <div className="flex justify-center gap-2 mb-6">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setView('list')}
+                            className={`ios-view-button active`}
+                        >
+                            List View
+                        </motion.button>
+                        <motion.button
+                             whileHover={{ scale: 1.02 }}
+                             whileTap={{ scale: 0.98 }}
+                             onClick={() => setView('week')}
+                             className={`ios-view-button`}
+                        >
+                            7 Day View
+                        </motion.button>
+                          <motion.button
+                             whileHover={{ scale: 1.02 }}
+                             whileTap={{ scale: 0.98 }}
+                             onClick={() => setView('month')}
+                             className={`ios-view-button`}
+                        >
+                            Month View
+                        </motion.button>
+                           <motion.button
+                             whileHover={{ scale: 1.02 }}
+                             whileTap={{ scale: 0.98 }}
+                             onClick={() => setView('day')}
+                             className={`ios-view-button`}
+                        >
+                            Day View
+                        </motion.button>
+                     </div>
 
-                    const handleMouseEnter = (e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setPreviewPosition({
-                        x: rect.left + rect.width / 2,
-                        y: rect.bottom + 10
-                      });
-                      setHoveredEvent(event);
-                    };
+                    <CalendarListView 
+                        events={filteredEvents}
+                        onSelectEvent={handleSelectEvent}
+                        onDeleteEvent={handleDeletePost}
+                        platformConfig={PLATFORM_CONFIG}
+                    />
+                </div>
+              ) : (
+                // Standard Calendar View
+                <DnDCalendar
+                    localizer={localizer}
+                    events={filteredEvents}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: '700px' }}
+                    onSelectEvent={handleSelectEvent}
+                    onEventDrop={handleEventDrop}
+                    eventPropGetter={eventStyleGetter}
+                    view={view}
+                    onView={setView}
+                    date={currentDate}
+                    onNavigate={setCurrentDate}
+                    onDrillDown={handleDrillDown}
+                    views={['month', 'week', 'day', 'agenda']}
+                    className="calendar-ios"
+                    resizable={false}
+                    draggableAccessor={() => true}
+                    components={{
+                    toolbar: CustomToolbar,
+                    event: ({ event }) => {
+                        const platforms = event.platforms || [];
 
-                    return (
-                      <div
-                        className="rbc-event-custom relative cursor-move"
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={(e) => {
-                          // Only clear if we're actually leaving the event
-                          const relatedTarget = e.relatedTarget;
-                          if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
-                            setHoveredEvent(null);
-                          }
-                        }}
-                        title="Drag to reschedule"
-                      >
-                        <div className="flex items-center gap-1.5 justify-center py-1">
-                          {platforms.slice(0, 3).map((platform, idx) => {
-                            const config = PLATFORM_CONFIG[platform];
-                            if (!config) return null;
-                            const PlatformIcon = config.Icon;
-                            return (
-                              <PlatformIcon
-                                key={idx}
-                                className="text-white drop-shadow-lg"
-                                style={{ fontSize: '1.4rem' }}
-                              />
-                            );
-                          })}
-                          {platforms.length > 3 && (
-                            <span className="text-white text-xs font-bold">+{platforms.length - 3}</span>
-                          )}
+                        const handleMouseEnter = (e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setPreviewPosition({
+                            x: rect.left + rect.width / 2,
+                            y: rect.bottom + 10
+                        });
+                        setHoveredEvent(event);
+                        };
+
+                        return (
+                        <div
+                            className="rbc-event-custom relative cursor-move"
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={(e) => {
+                            // Only clear if we're actually leaving the event
+                            const relatedTarget = e.relatedTarget;
+                            if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+                                setHoveredEvent(null);
+                            }
+                            }}
+                            title="Drag to reschedule"
+                        >
+                            <div className="flex items-center gap-1.5 justify-center py-1">
+                            {platforms.slice(0, 3).map((platform, idx) => {
+                                const config = PLATFORM_CONFIG[platform];
+                                if (!config) return null;
+                                const PlatformIcon = config.Icon;
+                                return (
+                                <PlatformIcon
+                                    key={idx}
+                                    className="text-white drop-shadow-lg"
+                                    style={{ fontSize: '1.4rem' }}
+                                />
+                                );
+                            })}
+                            {platforms.length > 3 && (
+                                <span className="text-white text-xs font-bold">+{platforms.length - 3}</span>
+                            )}
+                            </div>
                         </div>
-                      </div>
-                    );
-                  }
-                }}
-              />
+                        );
+                    }
+                    }}
+                />
+              )}
             </div>
           )}
         </div>

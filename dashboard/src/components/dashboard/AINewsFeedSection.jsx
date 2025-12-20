@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../../services/api'; // Changed path
+import api from '../../lib/api';
 import OverlappingCardCarousel from './OverlappingCardCarousel';
 import NewsCard from './NewsCard';
 import FeaturedAINews from './FeaturedAINews';
 import GeneratePostPreview from './GeneratePostPreview';
 import BulkScheduleModal from './BulkScheduleModal'; // Added import
-import { useToast } from '../../context/ToastContext'; // Changed import
+import { useToast } from '../../contexts/ToastContext';
 
 /**
  * AINewsFeedSection - Container for AI news with overlapping card layout
