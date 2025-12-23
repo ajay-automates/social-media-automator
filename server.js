@@ -7599,6 +7599,37 @@ app.get('/api/billing/usage', verifyAuth, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/billing/ai-spending
+ * Get AI API spending summary (daily/monthly)
+ */
+app.get('/api/billing/ai-spending', verifyAuth, async (req, res) => {
+  try {
+    const { getSpendingSummary } = require('./services/ai-wrapper');
+    const summary = await getSpendingSummary();
+
+    res.json({
+      success: true,
+      spending: {
+        today: summary.today,
+        month: summary.month,
+        limitDaily: summary.limitDaily,
+        limitMonthly: summary.limitMonthly,
+        remainingDaily: summary.remainingDaily,
+        remainingMonthly: summary.remainingMonthly,
+        percentageDaily: ((summary.today / summary.limitDaily) * 100).toFixed(1),
+        percentageMonthly: ((summary.month / summary.limitMonthly) * 100).toFixed(1)
+      }
+    });
+  } catch (error) {
+    console.error('Error getting AI spending:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // ============================================
 // MILESTONE TRACKING ROUTES
 // ============================================
