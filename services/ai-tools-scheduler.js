@@ -85,8 +85,15 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         console.log(`👤 Scheduling posts for user ID: ${userId}`);
 
         // Determine how many posts to generate based on mode
-        // Weekly: 7 posts (one per day), Daily: 10 posts (for today/tomorrow)
-        const postCount = scheduleMode === 'weekly' ? 7 : 10;
+        // Weekly: (platforms × 7 days) = one post per platform per day
+        // Daily: 5 posts total (all for today)
+        const platformsToUse = targetPlatforms && targetPlatforms.length > 0
+            ? targetPlatforms
+            : ['linkedin', 'twitter'];
+        
+        const postCount = scheduleMode === 'weekly' 
+            ? platformsToUse.length * 7  // One post per platform per day for 7 days
+            : 5;  // Daily: 5 posts total
         
         // 1. Generate list of topics
         let tools = [];
@@ -464,36 +471,37 @@ function calculateScheduleTimes(count, mode = 'default') {
             times.push(postTime);
         }
     } else if (mode === 'weekly') {
-        // 21 posts over 7 days (3 per day at 9am, 1pm, 6pm)
-        // Always start from tomorrow to ensure all posts are in the future
-        const postHours = [9, 13, 18]; // 9 AM, 1 PM, 6 PM
+        // Weekly mode: One post per platform per day for 7 days
+        // Count represents total posts (platforms × 7)
+        // We need to distribute them: Day 1 (all platforms), Day 2 (all platforms), etc.
+        // Default time: 10 AM each day (can be customized)
+        const defaultHour = 10; // 10 AM
         
         // Calculate tomorrow's date at midnight
         const tomorrow = new Date(now);
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(0, 0, 0, 0);
         
-        console.log(`📅 Weekly calendar: Starting from ${tomorrow.toLocaleDateString()}`);
+        console.log(`📅 Weekly calendar: Starting from ${tomorrow.toLocaleDateString()}, generating ${count} posts`);
         
-        // Generate 21 posts (3 per day for 7 days)
-        for (let day = 0; day < 7 && times.length < count; day++) {
-            for (let slot = 0; slot < 3 && times.length < count; slot++) {
-                // Create a new date for this specific day
+        // Generate times: one per platform per day
+        // Pattern: Day 1 (platform1, platform2, platform3), Day 2 (platform1, platform2, platform3), etc.
+        for (let day = 0; day < 7; day++) {
+            for (let platformIndex = 0; platformIndex < Math.ceil(count / 7) && times.length < count; platformIndex++) {
                 const postTime = new Date(tomorrow);
                 postTime.setDate(tomorrow.getDate() + day);
-                postTime.setHours(postHours[slot], 0, 0, 0);
+                postTime.setHours(defaultHour, 0, 0, 0);
                 postTime.setSeconds(0, 0);
                 postTime.setMilliseconds(0);
                 
-                // Add random jitter (±15 mins) to make it look natural
-                const jitter = Math.floor(Math.random() * 30) - 15;
+                // Add small jitter per platform (±30 mins) so posts aren't at exact same time
+                const jitter = Math.floor(Math.random() * 60) - 30;
                 postTime.setMinutes(postTime.getMinutes() + jitter);
                 
                 // Ensure time is in the future
                 if (postTime > now) {
                     times.push(postTime);
                 } else {
-                    // If somehow in the past (shouldn't happen), add 1 hour
                     postTime.setHours(postTime.getHours() + 1);
                     times.push(postTime);
                 }

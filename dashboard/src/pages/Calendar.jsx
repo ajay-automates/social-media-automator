@@ -356,13 +356,15 @@ export default function Calendar() {
 
       setIsGenerating(true);
       
-      // Weekly: 7 posts (one per day), Daily: 10 posts
-      const postCount = scheduleMode === 'weekly' ? 7 : 10;
+      // Weekly: (platforms × 7 days), Daily: 5 posts
+      const postCount = scheduleMode === 'weekly' 
+        ? platforms.length * 7  // One post per platform per day for 7 days
+        : 5;  // Daily: 5 posts total
       const modeLabel = scheduleMode === 'weekly' 
-        ? 'weekly calendar (21 posts, 3 per day)' 
+        ? `weekly calendar (${postCount} posts, ${platforms.length} per day for 7 days)` 
         : scheduleMode === 'today_hourly'
-          ? '10 posts today (1 hour apart)'
-          : '10 posts for tomorrow';
+          ? '5 posts today (1 hour apart)'
+          : '5 posts for today';
       
       const sourceLabel = sourceType === 'business' 
         ? 'from your business profile' 
