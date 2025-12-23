@@ -38,8 +38,9 @@ const PRICING = {
 const DEFAULT_MODEL = 'claude-3-5-haiku-20241022';
 
 // Global spending limits (can be overridden via environment variables)
-const DAILY_SPEND_LIMIT = parseFloat(process.env.AI_DAILY_SPEND_LIMIT || '0.50'); // $0.50 per day
-const MONTHLY_SPEND_LIMIT = parseFloat(process.env.AI_MONTHLY_SPEND_LIMIT || '5.00'); // $5.00 per month
+// Increased defaults to allow more usage - user can still override via env vars
+const DAILY_SPEND_LIMIT = parseFloat(process.env.AI_DAILY_SPEND_LIMIT || '1.00'); // $1.00 per day (increased from $0.50)
+const MONTHLY_SPEND_LIMIT = parseFloat(process.env.AI_MONTHLY_SPEND_LIMIT || '10.00'); // $10.00 per month (increased from $5.00)
 
 /**
  * Estimate cost for an API call

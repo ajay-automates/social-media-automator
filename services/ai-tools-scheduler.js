@@ -85,7 +85,8 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         console.log(`👤 Scheduling posts for user ID: ${userId}`);
 
         // Determine how many posts to generate based on mode
-        const postCount = scheduleMode === 'weekly' ? 7 : 7; // Reduced from 21/10 to 7 to save costs (one post per day)
+        // Weekly: 7 posts (one per day), Daily: 10 posts (for today/tomorrow)
+        const postCount = scheduleMode === 'weekly' ? 7 : 10;
         
         // 1. Generate list of topics
         let tools = [];

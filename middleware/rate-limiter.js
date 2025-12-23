@@ -54,10 +54,10 @@ const aiLimiter = rateLimit({
 // TIER 2: Auth Endpoints (Strict)
 // ============================================
 // Prevents brute force attacks on authentication
-// Limit: 10 requests per 15 minutes per IP (100 in development)
+// Limit: 50 requests per 15 minutes per IP (100 in development) - Increased from 10
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: process.env.NODE_ENV === 'production' ? 10 : 100,
+    max: process.env.NODE_ENV === 'production' ? 50 : 100,
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: false, // Count all requests
@@ -67,7 +67,7 @@ const authLimiter = rateLimit({
             message: 'Too many authentication attempts from this IP. Please try again in 15 minutes.',
             code: 'RATE_LIMIT_EXCEEDED',
             retryAfter: '15 minutes',
-            limit: 10,
+            limit: 50,
             window: '15 minutes'
         }
     },
@@ -80,11 +80,11 @@ const authLimiter = rateLimit({
         res.status(429).json({
             success: false,
             error: {
-                message: 'Too many authentication attempts from this IP. Please try again in 15 minutes.',
-                code: 'RATE_LIMIT_EXCEEDED',
-                retryAfter: '15 minutes',
-                limit: 10,
-                window: '15 minutes'
+            message: 'Too many authentication attempts from this IP. Please try again in 15 minutes.',
+            code: 'RATE_LIMIT_EXCEEDED',
+            retryAfter: '15 minutes',
+            limit: 50,
+            window: '15 minutes'
             }
         });
     }
