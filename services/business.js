@@ -266,11 +266,43 @@ IMPORTANT RULES:
 9. Only include fields where you found actual data (don't make up values)
 10. Return ONLY valid JSON, nothing else`;
 
+    // First, summarize the scraped content with Haiku (cheaper) to reduce token usage
+    let summarizedContent = scrapedContent;
+    if (scrapedContent.length > 5000) {
+      try {
+        const summaryPrompt = `Summarize this website content in 2000 characters or less, focusing on:
+- Business name and type
+- Main products/services
+- Key features and benefits
+- Target audience
+- Brand voice/tone
+- Contact information
+
+Content: ${scrapedContent.substring(0, 8000)}`;
+
+        const summaryMessage = await anthropic.messages.create({
+          model: 'claude-3-5-haiku-20241022', // Use Haiku for summarization (cheaper)
+          max_tokens: 1000,
+          temperature: 0.2,
+          messages: [{ role: 'user', content: summaryPrompt }]
+        });
+        
+        summarizedContent = summaryMessage.content[0].text.trim();
+        console.log(`✅ Summarized website content from ${scrapedContent.length} to ${summarizedContent.length} chars`);
+      } catch (summaryError) {
+        console.warn('⚠️ Failed to summarize content, using original:', summaryError.message);
+        // Continue with original content if summarization fails
+      }
+    }
+
+    // Update prompt to use summarized content
+    const optimizedPrompt = prompt.replace(scrapedContent, summarizedContent);
+
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4000,
+      model: 'claude-sonnet-4-20250514', // Keep Sonnet for structured extraction (more accurate)
+      max_tokens: 3000, // Reduced from 4000 - structured data is concise
       temperature: 0.3, // Lower temperature for more accurate extraction
-      messages: [{ role: 'user', content: prompt }]
+      messages: [{ role: 'user', content: optimizedPrompt }]
     });
 
     const text = message.content[0].text.trim();

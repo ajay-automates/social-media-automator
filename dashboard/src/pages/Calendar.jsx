@@ -356,7 +356,7 @@ export default function Calendar() {
 
       setIsGenerating(true);
       
-      const postCount = scheduleMode === 'weekly' ? 21 : 10;
+      const postCount = scheduleMode === 'weekly' ? 7 : 7; // Reduced to 7 posts (one per day) to optimize AI costs
       const modeLabel = scheduleMode === 'weekly' 
         ? 'weekly calendar (21 posts, 3 per day)' 
         : scheduleMode === 'today_hourly'

@@ -85,7 +85,7 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         console.log(`👤 Scheduling posts for user ID: ${userId}`);
 
         // Determine how many posts to generate based on mode
-        const postCount = scheduleMode === 'weekly' ? 21 : 10;
+        const postCount = scheduleMode === 'weekly' ? 7 : 7; // Reduced from 21/10 to 7 to save costs (one post per day)
         
         // 1. Generate list of topics
         let tools = [];
@@ -339,9 +339,9 @@ async function generateDailyAIToolsList(count = 10) {
   ]`;
 
     const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        temperature: 0.5, // Lower temperature for more factual selection
+        model: 'claude-3-5-haiku-20241022', // Use Haiku for topic selection (80% cheaper, still accurate)
+        max_tokens: 1000, // Reduced from 2000 - topics are short JSON arrays
+        temperature: 0.3, // Lower temperature for more factual selection
         messages: [{ role: 'user', content: prompt }]
     });
 
@@ -581,8 +581,8 @@ Return ONLY a JSON array with ${count} items in this format:
 ]`;
 
     const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514', // or compatible model
-        max_tokens: 2500,
+        model: 'claude-3-5-haiku-20241022', // Use Haiku for topic extraction (80% cheaper)
+        max_tokens: 1500, // Reduced from 2500 - topics are concise JSON
         temperature: 0.7,
         messages: [{ role: 'user', content: prompt }]
     });
@@ -687,9 +687,9 @@ Generate exactly ${count} topics. Make them diverse and engaging.`;
 
     try {
         const message = await anthropic.messages.create({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 4000,
-            temperature: 0.8,
+            model: 'claude-3-5-haiku-20241022', // Use Haiku for topic generation (80% cheaper)
+            max_tokens: 2000, // Reduced from 4000 - topics are concise JSON
+            temperature: 0.7, // Slightly lower for more consistent topics
             messages: [{ role: 'user', content: prompt }]
         });
 
