@@ -410,9 +410,12 @@ async function generateDailyAIToolsList(count = 10) {
     }
   ]`;
 
+    // Increase max_tokens based on count (more topics = more tokens needed)
+    const maxTokens = Math.max(1000, count * 150); // At least 150 tokens per topic
+    
     const message = await makeAICall({
         model: 'claude-3-5-haiku-20241022', // Use Haiku for topic selection (80% cheaper, still accurate)
-        max_tokens: 1000, // Reduced from 2000 - topics are short JSON arrays
+        max_tokens: Math.min(maxTokens, 4000), // Cap at 4000, but scale with count
         temperature: 0.3, // Lower temperature for more factual selection
         messages: [{ role: 'user', content: prompt }],
         taskType: 'topic_selection',
@@ -423,10 +426,58 @@ async function generateDailyAIToolsList(count = 10) {
     const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
 
     try {
-        const tools = JSON.parse(jsonText);
+        let tools = JSON.parse(jsonText);
+        
+        // Ensure we have an array
+        if (!Array.isArray(tools)) {
+            console.error('❌ AI returned non-array:', tools);
+            tools = [];
+        }
+
+        console.log(`📋 AI returned ${tools.length} topics (requested ${count})`);
+
+        // If we got fewer topics than requested, try to supplement from news items
+        if (tools.length < count && newsItems.length > tools.length) {
+            console.log(`⚠️ Only got ${tools.length} topics, supplementing from news items...`);
+            const usedNames = new Set(tools.map(t => t.name.toLowerCase()));
+            
+            for (const newsItem of newsItems) {
+                if (tools.length >= count) break;
+                if (usedNames.has(newsItem.title.toLowerCase())) continue;
+                
+                tools.push({
+                    name: newsItem.title,
+                    category: 'AI News',
+                    hook: newsItem.description || newsItem.title,
+                    source_link: newsItem.link || newsItem.url || ''
+                });
+                usedNames.add(newsItem.title.toLowerCase());
+            }
+            
+            console.log(`✅ After supplementing: ${tools.length} topics`);
+        }
+
+        // If still not enough, duplicate some topics with variations
+        if (tools.length < count && tools.length > 0) {
+            console.log(`⚠️ Still only have ${tools.length} topics, creating variations...`);
+            const originalCount = tools.length;
+            while (tools.length < count && tools.length < originalCount * 3) {
+                const sourceTool = tools[tools.length % originalCount];
+                tools.push({
+                    name: `${sourceTool.name} (Part ${Math.floor(tools.length / originalCount) + 1})`,
+                    category: sourceTool.category,
+                    hook: sourceTool.hook,
+                    source_link: sourceTool.source_link
+                });
+            }
+        }
+
+        // Ensure we have exactly the requested count (or as close as possible)
+        tools = tools.slice(0, count);
+        
+        console.log(`✅ Final topic count: ${tools.length} (requested: ${count})`);
 
         // Merge back links if Claude didn't include them but we have them
-        // (This is a best-effort matching)
         tools.forEach(tool => {
             if (!tool.source_link) {
                 const match = newsItems.find(n => n.title.includes(tool.name) || tool.name.includes(n.title));
@@ -438,8 +489,19 @@ async function generateDailyAIToolsList(count = 10) {
 
         return tools;
     } catch (e) {
-        console.error('Error parsing Claude response:', e);
-        throw e;
+        console.error('❌ Error parsing Claude response:', e);
+        console.error('Response text:', text.substring(0, 500));
+        
+        // Fallback: Use news items directly
+        console.log('🔄 Falling back to news items directly...');
+        const fallbackTools = newsItems.slice(0, count).map(item => ({
+            name: item.title,
+            category: 'AI News',
+            hook: item.description || item.title,
+            source_link: item.link || item.url || ''
+        }));
+        
+        return fallbackTools;
     }
 }
 
@@ -677,23 +739,51 @@ Return ONLY a JSON array with ${count} items in this format:
   }
 ]`;
 
-    const message = await makeAICall({
-        model: 'claude-3-5-haiku-20241022', // Use Haiku for topic extraction (80% cheaper)
-        max_tokens: 1500, // Reduced from 2500 - topics are concise JSON
-        temperature: 0.7,
-        messages: [{ role: 'user', content: prompt }],
-        taskType: 'topic_selection',
-        feature: 'business_topic_extraction'
-    });
+        // Increase max_tokens based on count
+        const maxTokens = Math.max(1500, count * 200);
+        
+        const message = await makeAICall({
+            model: 'claude-3-5-haiku-20241022', // Use Haiku for topic extraction (80% cheaper)
+            max_tokens: Math.min(maxTokens, 4000), // Scale with count, cap at 4000
+            temperature: 0.7,
+            messages: [{ role: 'user', content: prompt }],
+            taskType: 'topic_selection',
+            feature: 'business_topic_extraction'
+        });
 
     const text = message.content[0].text.trim();
     const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
 
     try {
-        return JSON.parse(jsonText);
+        let topics = JSON.parse(jsonText);
+        
+        if (!Array.isArray(topics)) {
+            console.error('❌ AI returned non-array:', topics);
+            topics = [];
+        }
+        
+        console.log(`📋 AI returned ${topics.length} topics (requested ${count})`);
+        
+        // Ensure we have the requested count
+        if (topics.length < count) {
+            console.warn(`⚠️ Only got ${topics.length} topics, expected ${count}`);
+            // Try to create variations or duplicate
+            while (topics.length < count && topics.length > 0) {
+                const sourceTopic = topics[topics.length % topics.length];
+                topics.push({
+                    name: `${sourceTopic.name} - Variation`,
+                    category: sourceTopic.category,
+                    hook: sourceTopic.hook,
+                    source_link: sourceTopic.source_link || sourceUrl
+                });
+            }
+        }
+        
+        return topics.slice(0, count);
     } catch (e) {
-        console.error('Error parsing business topics JSON:', e);
-        throw e; // Or fallback
+        console.error('❌ Error parsing business topics JSON:', e);
+        console.error('Response text:', text.substring(0, 500));
+        throw e;
     }
 }
 
@@ -783,9 +873,12 @@ Return ONLY a JSON array of objects with this exact structure:
 Generate exactly ${count} topics. Make them diverse and engaging.`;
 
     try {
+        // Increase max_tokens based on count
+        const maxTokens = Math.max(2000, count * 200);
+        
         const message = await makeAICall({
             model: 'claude-3-5-haiku-20241022', // Use Haiku for topic generation (80% cheaper)
-            max_tokens: 2000, // Reduced from 4000 - topics are concise JSON
+            max_tokens: Math.min(maxTokens, 4000), // Scale with count, cap at 4000
             temperature: 0.7, // Slightly lower for more consistent topics
             messages: [{ role: 'user', content: prompt }],
             taskType: 'topic_selection',
@@ -794,10 +887,41 @@ Generate exactly ${count} topics. Make them diverse and engaging.`;
 
         const text = message.content[0].text.trim();
         const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
-        const topics = JSON.parse(jsonText);
+        
+        let topics;
+        try {
+            topics = JSON.parse(jsonText);
+        } catch (e) {
+            console.error('❌ Error parsing business profile topics:', e);
+            topics = [];
+        }
+        
+        if (!Array.isArray(topics)) {
+            console.error('❌ AI returned non-array:', topics);
+            topics = [];
+        }
+        
+        console.log(`📋 AI returned ${topics.length} topics (requested ${count})`);
+        
+        // Ensure we have the requested count
+        if (topics.length < count) {
+            console.warn(`⚠️ Only got ${topics.length} topics, creating variations...`);
+            const originalCount = topics.length;
+            
+            // Create variations from existing topics
+            while (topics.length < count && topics.length < originalCount * 3) {
+                const sourceTopic = topics[topics.length % originalCount];
+                topics.push({
+                    name: `${sourceTopic.name} - Additional Angle`,
+                    category: sourceTopic.category,
+                    hook: sourceTopic.hook,
+                    source_link: sourceTopic.source_link || businessProfile.website_url || ''
+                });
+            }
+        }
         
         // Ensure we have exactly count topics
-        return Array.isArray(topics) ? topics.slice(0, count) : [];
+        return topics.slice(0, count);
     } catch (error) {
         console.error('❌ Error generating business profile topics:', error);
         // Fallback: generate generic topics based on business info
