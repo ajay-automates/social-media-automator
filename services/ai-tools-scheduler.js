@@ -190,11 +190,25 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         if (scheduleMode === 'weekly') {
             // Weekly mode: Generate one post per platform per day
             // Pattern: Day 1 (all platforms), Day 2 (all platforms), etc.
+            console.log(`\n📝 Starting Weekly Mode Post Generation:`);
+            console.log(`   Tools available: ${tools.length}`);
+            console.log(`   Schedule times available: ${scheduleTimes.length}`);
+            console.log(`   Platforms: ${platformsToUse.join(', ')} (${platformsToUse.length} platforms)`);
+            console.log(`   Expected posts: ${postCount} (${platformsToUse.length} platforms × 7 days)`);
+            const expectedIterations = Math.min(tools.length, scheduleTimes.length);
+            console.log(`   Will iterate: ${expectedIterations} times\n`);
+            
+            if (expectedIterations < postCount) {
+                console.warn(`   ⚠️ WARNING: Will only process ${expectedIterations} posts instead of ${postCount}`);
+                console.warn(`      Reason: ${tools.length < postCount ? `Only ${tools.length} topics generated` : `Only ${scheduleTimes.length} schedule times generated`}`);
+            }
+            
             let postIndex = 0;
             
             for (let day = 0; day < 7; day++) {
                 for (let platformIndex = 0; platformIndex < platformsToUse.length; platformIndex++) {
                     if (postIndex >= tools.length || postIndex >= scheduleTimes.length) {
+                        console.log(`   ⚠️ Stopping at day ${day + 1}, platform ${platformIndex + 1}: postIndex ${postIndex} >= tools.length ${tools.length} or scheduleTimes.length ${scheduleTimes.length}`);
                         break;
                     }
                     
