@@ -1567,13 +1567,44 @@ app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
     const { scheduleAIToolsPosts } = require('./services/ai-tools-scheduler');
 
     // Run the scheduler for this specific user with schedule mode
-    const result = await scheduleAIToolsPosts(userId, url, articles, platforms, scheduleMode || 'default');
+    console.log(`📊 Schedule request details:`, {
+      userId,
+      url: url || 'none',
+      articles: articles?.length || 0,
+      platforms: platforms || 'default',
+      scheduleMode: scheduleMode || 'default',
+      useBusinessProfile: req.body.useBusinessProfile || false
+    });
 
-    const expectedCount = scheduleMode === 'weekly' ? 21 : 10;
+    // Get business profile if requested
+    let businessProfile = null;
+    if (req.body.useBusinessProfile) {
+      const { getBusinessProfile } = require('./services/business');
+      businessProfile = await getBusinessProfile(userId);
+      if (businessProfile) {
+        console.log(`🏢 Using business profile: ${businessProfile.business_name}`);
+      }
+    }
+
+    const result = await scheduleAIToolsPosts(userId, url, articles, platforms, scheduleMode || 'default', businessProfile);
+
+    console.log(`📊 Scheduling result:`, {
+      success: result.success,
+      scheduled: result.scheduled,
+      failed: result.failed,
+      total: result.total,
+      error: result.error
+    });
+
     res.json({
-      success: true,
-      scheduled: result.scheduled || expectedCount,
-      message: `${result.scheduled || expectedCount} AI posts scheduled successfully!`
+      success: result.success !== false,
+      scheduled: result.scheduled || 0,
+      failed: result.failed || 0,
+      total: result.total || 0,
+      message: result.success !== false 
+        ? `Successfully scheduled ${result.scheduled || 0} posts (${result.failed || 0} failed)`
+        : result.error || 'Failed to schedule posts',
+      error: result.error
     });
   } catch (error) {
     console.error('❌ Error in /api/ai-tools/schedule-now:', error);

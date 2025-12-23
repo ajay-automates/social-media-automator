@@ -70,7 +70,16 @@ async function getDefaultUserId() {
  * @param {Object} businessProfile - Optional business profile to use for content generation
  */
 async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null, scheduleMode = 'default', businessProfile = null) {
-    console.log(`🤖 Starting post generation...${sourceUrl ? ` (Source: ${sourceUrl})` : ''}${articles ? ` (Articles: ${articles.length})` : ''}${targetPlatforms ? ` (Platforms: ${targetPlatforms.join(', ')})` : ''} [Mode: ${scheduleMode}]`);
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`🤖 STARTING POST GENERATION`);
+    console.log(`${'='.repeat(60)}`);
+    console.log(`📋 Parameters:`);
+    console.log(`   User ID: ${specificUserId || 'default'}`);
+    console.log(`   Source URL: ${sourceUrl || 'none'}`);
+    console.log(`   Articles: ${articles?.length || 0}`);
+    console.log(`   Platforms: ${targetPlatforms ? targetPlatforms.join(', ') : 'default'}`);
+    console.log(`   Schedule Mode: ${scheduleMode}`);
+    console.log(`   Business Profile: ${businessProfile ? businessProfile.business_name : 'none'}`);
 
     try {
         if (!process.env.ANTHROPIC_API_KEY) {
@@ -82,7 +91,7 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         if (!userId) {
             throw new Error('No user found to schedule posts for');
         }
-        console.log(`👤 Scheduling posts for user ID: ${userId}`);
+        console.log(`\n👤 Using user ID: ${userId}`);
 
         // Determine how many posts to generate based on mode
         // Weekly: (platforms × 7 days) = one post per platform per day
@@ -93,7 +102,15 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         
         const postCount = scheduleMode === 'weekly' 
             ? platformsToUse.length * 7  // One post per platform per day for 7 days
-            : 5;  // Daily: 5 posts total
+            : scheduleMode === 'today_hourly'
+                ? 5  // Daily: 5 posts total
+                : 5;  // Default: 5 posts total
+        
+        console.log(`\n📊 Post Count Calculation:`);
+        console.log(`   Schedule Mode: ${scheduleMode}`);
+        console.log(`   Platforms: ${platformsToUse.join(', ')} (${platformsToUse.length} platforms)`);
+        console.log(`   Calculated Post Count: ${postCount}`);
+        console.log(`   Expected: ${scheduleMode === 'weekly' ? `${platformsToUse.length} platforms × 7 days` : '5 posts for today'}`);
         
         // 1. Generate list of topics
         let tools = [];
@@ -122,17 +139,35 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
             tools = await generateDailyAIToolsList(postCount);
         }
 
-        console.log(`📋 Generated ${tools.length} topics to post about:`, tools.map(t => t.name).join(', '));
+        console.log(`\n📋 Topic Generation Results:`);
+        console.log(`   Requested: ${postCount} topics`);
+        console.log(`   Generated: ${tools.length} topics`);
+        if (tools.length > 0) {
+            console.log(`   Topics: ${tools.map((t, i) => `${i + 1}. ${t.name}`).join(', ')}`);
+        }
 
         // Validate we have enough topics
         if (tools.length < postCount) {
-            console.warn(`⚠️ WARNING: Only generated ${tools.length} topics but need ${postCount}. This may result in fewer posts.`);
+            console.warn(`\n⚠️ WARNING: Only generated ${tools.length} topics but need ${postCount}. This may result in fewer posts.`);
+        } else if (tools.length > postCount) {
+            console.log(`\n✅ Generated ${tools.length} topics (more than needed, will use first ${postCount})`);
+        } else {
+            console.log(`\n✅ Perfect! Generated exactly ${tools.length} topics as requested.`);
         }
 
         // 2. Calculate schedule times based on mode
-        console.log(`📅 Calculating schedule times for mode: ${scheduleMode}, count: ${tools.length} (requested: ${postCount})`);
+        console.log(`\n📅 Calculating Schedule Times:`);
+        console.log(`   Mode: ${scheduleMode}`);
+        console.log(`   Topic Count: ${tools.length}`);
+        console.log(`   Requested Count: ${postCount}`);
+        
         const scheduleTimes = calculateScheduleTimes(tools.length, scheduleMode);
-        console.log(`📅 Generated ${scheduleTimes.length} schedule times`);
+        console.log(`   Generated: ${scheduleTimes.length} schedule times`);
+        
+        if (scheduleTimes.length > 0) {
+            console.log(`   First: ${scheduleTimes[0].toLocaleString()}`);
+            console.log(`   Last: ${scheduleTimes[scheduleTimes.length - 1].toLocaleString()}`);
+        }
         
         // Log first few and last few times for verification
         if (scheduleTimes.length > 0) {
@@ -253,12 +288,24 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
             }
         } else {
             // Daily mode: Generate 5 posts, each goes to all selected platforms
-            for (let i = 0; i < tools.length && i < scheduleTimes.length; i++) {
+            console.log(`\n📝 Starting Daily Mode Post Generation:`);
+            console.log(`   Tools available: ${tools.length}`);
+            console.log(`   Schedule times available: ${scheduleTimes.length}`);
+            console.log(`   Platforms: ${platformsToUse.join(', ')}`);
+            console.log(`   Expected posts: ${postCount}`);
+            
+            const maxIterations = Math.min(tools.length, scheduleTimes.length, postCount);
+            console.log(`   Will iterate: ${maxIterations} times\n`);
+            
+            for (let i = 0; i < maxIterations; i++) {
                 const tool = tools[i];
                 const scheduledTime = scheduleTimes[i];
 
+                console.log(`\n[${i + 1}/${maxIterations}] Processing: ${tool.name}`);
+                console.log(`   Scheduled time: ${scheduledTime.toLocaleString()}`);
+
                 try {
-                    console.log(`✍️ Generating content for tool: ${tool.name} (${i + 1}/${tools.length})`);
+                    console.log(`   ✍️ Generating content...`);
 
                     // Generate post content
                     let postContent;
@@ -270,19 +317,23 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
                         postContent = await generateToolPostContent(tool);
                     }
 
+                    console.log(`   ✅ Content generated, keys: ${Object.keys(postContent).join(', ')}`);
+
                     // Get platform-specific content (use LinkedIn as default)
                     const text = postContent.linkedin || postContent.twitter || Object.values(postContent)[0];
 
                     if (!text || text.trim() === '') {
-                        console.warn(`⚠️ No content generated for ${tool.name}, skipping...`);
+                        console.warn(`   ⚠️ No content generated for ${tool.name}, skipping...`);
                         failed++;
                         continue;
                     }
 
+                    console.log(`   📝 Text length: ${text.trim().length} characters`);
+
                     // Generate image
                     let imageUrl = null;
                     try {
-                        console.log(`🎨 [${i + 1}/${tools.length}] Generating image for: ${tool.name}`);
+                        console.log(`   🎨 Generating image...`);
                         const imagePrompt = generateImagePrompt(tool, sourceUrl);
                         const imagePromise = generateImage(imagePrompt, 'digital-art');
                         const timeoutPromise = new Promise((_, reject) => 
@@ -302,9 +353,12 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
                             } else if (imageResult.imageUrl.startsWith('http')) {
                                 imageUrl = imageResult.imageUrl;
                             }
+                            console.log(`   ✅ Image generated: ${imageUrl ? 'Yes' : 'No'}`);
+                        } else {
+                            console.log(`   ⚠️ Image generation returned no image`);
                         }
                     } catch (imgError) {
-                        console.error(`❌ Image generation error:`, imgError.message);
+                        console.error(`   ❌ Image generation error:`, imgError.message);
                     }
 
                     const postData = {
@@ -325,31 +379,59 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
                         }
                     };
 
-                    console.log(`📅 Scheduling post for ${tool.name} at ${scheduledTime.toLocaleTimeString()}`);
+                    console.log(`   📅 Scheduling post...`);
+                    console.log(`      Platforms: ${platformsToUse.join(', ')}`);
+                    console.log(`      Has image: ${!!imageUrl}`);
 
                     const scheduleResult = await schedulePost(postData);
                     if (scheduleResult.success) {
                         scheduled++;
+                        console.log(`   ✅ Successfully scheduled! (Total: ${scheduled})`);
                     } else {
-                        console.error(`❌ Failed to schedule:`, scheduleResult.error);
+                        console.error(`   ❌ Failed to schedule:`, scheduleResult.error);
                         failed++;
                     }
 
                 } catch (error) {
-                    console.error(`❌ Error generating/scheduling post:`, error.message);
+                    console.error(`   ❌ Error generating/scheduling post:`, error.message);
+                    console.error(`   Stack:`, error.stack);
                     failed++;
                 }
             }
+            
+            console.log(`\n📊 Daily Mode Loop Complete:`);
+            console.log(`   Processed: ${maxIterations} posts`);
+            console.log(`   Scheduled: ${scheduled}`);
+            console.log(`   Failed: ${failed}`);
         }
 
-        console.log('✅ Daily AI tools scheduling completed!');
-        console.log(`📊 Results: ${scheduled} scheduled, ${failed} failed`);
+        console.log(`\n${'='.repeat(60)}`);
+        console.log(`✅ SCHEDULING COMPLETED`);
+        console.log(`${'='.repeat(60)}`);
+        console.log(`📊 Final Results:`);
+        console.log(`   Total Topics Generated: ${tools.length}`);
+        console.log(`   Posts Successfully Scheduled: ${scheduled}`);
+        console.log(`   Posts Failed: ${failed}`);
+        console.log(`   Expected: ${postCount}`);
+        console.log(`   Success Rate: ${tools.length > 0 ? ((scheduled / tools.length) * 100).toFixed(1) : 0}%`);
+        
+        if (scheduled < postCount) {
+            console.warn(`\n⚠️ WARNING: Only scheduled ${scheduled} posts but expected ${postCount}`);
+            console.warn(`   Possible reasons:`);
+            console.warn(`   - Not enough topics generated (got ${tools.length}, needed ${postCount})`);
+            console.warn(`   - Errors during content generation`);
+            console.warn(`   - Errors during scheduling`);
+        } else {
+            console.log(`\n✅ Success! Scheduled ${scheduled} posts as expected.`);
+        }
+        console.log(`${'='.repeat(60)}\n`);
 
         return {
             success: true,
             scheduled,
             failed,
-            total: tools.length
+            total: tools.length,
+            expected: postCount
         };
 
     } catch (error) {
