@@ -139,135 +139,201 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         let scheduled = 0;
         let failed = 0;
 
-        // Determine platforms to use
-        const platformsToUse = targetPlatforms && targetPlatforms.length > 0
-            ? targetPlatforms
-            : ['linkedin', 'twitter'];
+        // Determine platforms to use (already calculated above)
+        // platformsToUse is already defined in the postCount calculation section
 
-        for (let i = 0; i < tools.length; i++) {
-            const tool = tools[i];
-            const scheduledTime = scheduleTimes[i];
+        if (scheduleMode === 'weekly') {
+            // Weekly mode: Generate one post per platform per day
+            // Pattern: Day 1 (all platforms), Day 2 (all platforms), etc.
+            let postIndex = 0;
+            
+            for (let day = 0; day < 7; day++) {
+                for (let platformIndex = 0; platformIndex < platformsToUse.length; platformIndex++) {
+                    if (postIndex >= tools.length || postIndex >= scheduleTimes.length) {
+                        break;
+                    }
+                    
+                    const tool = tools[postIndex];
+                    const scheduledTime = scheduleTimes[postIndex];
+                    const platform = platformsToUse[platformIndex];
+                    
+                    try {
+                        console.log(`✍️ [Day ${day + 1}, ${platform}] Generating content for: ${tool.name} (${postIndex + 1}/${tools.length})`);
 
-            try {
-                console.log(`✍️ Generating content for tool: ${tool.name} (${i + 1}/${tools.length})`);
-
-                // Generate post content
-                let postContent;
-                if (businessProfile) {
-                    // Use business profile context
-                    postContent = await generateBusinessProfilePostContent(tool, businessProfile);
-                } else if (sourceUrl && !articles) { // Only use business logic if scraping URL, not if using news articles with URLs
-                    postContent = await generateBusinessPostContent(tool, sourceUrl);
-                } else {
-                    postContent = await generateToolPostContent(tool);
-                }
-
-                // 🎨 Generate image for the post
-                let imageUrl = null;
-                try {
-                    console.log(`🎨 [${i + 1}/${tools.length}] Generating image for: ${tool.name}`);
-                    const imagePrompt = generateImagePrompt(tool, sourceUrl);
-                    console.log(`📝 Image prompt: ${imagePrompt.substring(0, 100)}...`);
-                    
-                    // Add timeout to image generation (30 seconds max)
-                    const imagePromise = generateImage(imagePrompt, 'digital-art');
-                    const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Image generation timeout after 30s')), 30000)
-                    );
-                    
-                    const imageResult = await Promise.race([imagePromise, timeoutPromise]);
-                    
-                    console.log(`📊 Image generation completed:`, {
-                        success: imageResult?.success,
-                        hasImageUrl: !!imageResult?.imageUrl,
-                        provider: imageResult?.provider,
-                        imageUrlLength: imageResult?.imageUrl?.length || 0
-                    });
-                    
-                    if (imageResult && imageResult.success && imageResult.imageUrl) {
-                        // If it's a Pollinations URL, use directly; otherwise upload to Cloudinary
-                        if (imageResult.imageUrl.startsWith('https://image.pollinations.ai')) {
-                            imageUrl = imageResult.imageUrl;
-                            console.log(`✅ Image generated (Pollinations): ${imageUrl.substring(0, 100)}...`);
-                        } else if (imageResult.imageUrl.startsWith('data:')) {
-                            // Base64 image - upload to Cloudinary
-                            console.log(`📤 Uploading base64 image to Cloudinary (${Math.round(imageResult.imageUrl.length / 1024)}KB)...`);
-                            const uploadResult = await cloudinaryService.uploadImage(imageResult.imageUrl);
-                            if (uploadResult && uploadResult.url) {
-                                imageUrl = uploadResult.url;
-                                console.log(`✅ Image uploaded to Cloudinary: ${imageUrl}`);
-                            } else {
-                                console.warn(`⚠️ Cloudinary upload failed:`, uploadResult);
-                            }
-                        } else if (imageResult.imageUrl.startsWith('http')) {
-                            // Direct URL (from other providers)
-                            imageUrl = imageResult.imageUrl;
-                            console.log(`✅ Image generated (${imageResult.provider}): ${imageUrl.substring(0, 100)}...`);
+                        // Generate post content
+                        let postContent;
+                        if (businessProfile) {
+                            postContent = await generateBusinessProfilePostContent(tool, businessProfile);
+                        } else if (sourceUrl && !articles) {
+                            postContent = await generateBusinessPostContent(tool, sourceUrl);
                         } else {
-                            console.warn(`⚠️ Unexpected image URL format: ${imageResult.imageUrl.substring(0, 50)}`);
+                            postContent = await generateToolPostContent(tool);
                         }
+
+                        // Get platform-specific content
+                        const text = postContent[platform] || postContent.linkedin || postContent.twitter || Object.values(postContent)[0];
+
+                        if (!text || text.trim() === '') {
+                            console.warn(`⚠️ No content for ${tool.name} on ${platform}, skipping...`);
+                            failed++;
+                            postIndex++;
+                            continue;
+                        }
+
+                        // Generate image only once per tool (first platform), reuse for others
+                        let imageUrl = null;
+                        if (platformIndex === 0) {
+                            try {
+                                console.log(`🎨 [Day ${day + 1}] Generating image for: ${tool.name}`);
+                                const imagePrompt = generateImagePrompt(tool, sourceUrl);
+                                const imagePromise = generateImage(imagePrompt, 'digital-art');
+                                const timeoutPromise = new Promise((_, reject) => 
+                                    setTimeout(() => reject(new Error('Image generation timeout after 30s')), 30000)
+                                );
+                                
+                                const imageResult = await Promise.race([imagePromise, timeoutPromise]);
+                                
+                                if (imageResult && imageResult.success && imageResult.imageUrl) {
+                                    if (imageResult.imageUrl.startsWith('https://image.pollinations.ai')) {
+                                        imageUrl = imageResult.imageUrl;
+                                    } else if (imageResult.imageUrl.startsWith('data:')) {
+                                        const uploadResult = await cloudinaryService.uploadImage(imageResult.imageUrl);
+                                        if (uploadResult && uploadResult.url) {
+                                            imageUrl = uploadResult.url;
+                                        }
+                                    } else if (imageResult.imageUrl.startsWith('http')) {
+                                        imageUrl = imageResult.imageUrl;
+                                    }
+                                }
+                            } catch (imgError) {
+                                console.error(`❌ Image generation error:`, imgError.message);
+                            }
+                        }
+
+                        const postData = {
+                            user_id: userId,
+                            text: text.trim(),
+                            platforms: [platform], // Single platform per post in weekly mode
+                            schedule_time: scheduledTime.toISOString(),
+                            image_url: imageUrl,
+                            status: 'queued',
+                            post_metadata: {
+                                auto_generated: true,
+                                content_type: sourceUrl ? 'business_promo' : 'ai_tools',
+                                tool_name: tool.name,
+                                category: tool.category,
+                                source_url: sourceUrl || tool.source_link,
+                                variations: postContent,
+                                image_generated: !!imageUrl
+                            }
+                        };
+
+                        console.log(`📅 Scheduling ${platform} post for "${tool.name}" at ${scheduledTime.toLocaleString()}`);
+
+                        const scheduleResult = await schedulePost(postData);
+                        if (scheduleResult.success) {
+                            scheduled++;
+                        } else {
+                            console.error(`❌ Failed to schedule:`, scheduleResult.error);
+                            failed++;
+                        }
+
+                        postIndex++;
+                    } catch (error) {
+                        console.error(`❌ Error:`, error.message);
+                        failed++;
+                        postIndex++;
+                    }
+                }
+            }
+        } else {
+            // Daily mode: Generate 5 posts, each goes to all selected platforms
+            for (let i = 0; i < tools.length && i < scheduleTimes.length; i++) {
+                const tool = tools[i];
+                const scheduledTime = scheduleTimes[i];
+
+                try {
+                    console.log(`✍️ Generating content for tool: ${tool.name} (${i + 1}/${tools.length})`);
+
+                    // Generate post content
+                    let postContent;
+                    if (businessProfile) {
+                        postContent = await generateBusinessProfilePostContent(tool, businessProfile);
+                    } else if (sourceUrl && !articles) {
+                        postContent = await generateBusinessPostContent(tool, sourceUrl);
                     } else {
-                        console.warn(`⚠️ Image generation returned no image. Result:`, {
-                            success: imageResult?.success,
-                            error: imageResult?.error,
-                            hasImageUrl: !!imageResult?.imageUrl
-                        });
+                        postContent = await generateToolPostContent(tool);
                     }
-                } catch (imgError) {
-                    console.error(`❌ Image generation error for ${tool.name}:`, imgError.message);
-                    if (imgError.stack) {
-                        console.error(`❌ Error stack:`, imgError.stack);
+
+                    // Get platform-specific content (use LinkedIn as default)
+                    const text = postContent.linkedin || postContent.twitter || Object.values(postContent)[0];
+
+                    if (!text || text.trim() === '') {
+                        console.warn(`⚠️ No content generated for ${tool.name}, skipping...`);
+                        failed++;
+                        continue;
                     }
-                    // Continue without image - post will still be scheduled
-                }
-                
-                // Log final image status
-                if (imageUrl) {
-                    console.log(`✅ Post will include image: ${imageUrl.substring(0, 80)}...`);
-                } else {
-                    console.warn(`⚠️ Post will be created WITHOUT image`);
-                }
 
-                // Create post object
-                const postData = {
-                    user_id: userId,
-                    text: postContent.linkedin, // Default to LinkedIn version for main text
-                    platforms: platformsToUse,
-                    schedule_time: scheduledTime,
-                    image_url: imageUrl, // Include generated image
-                    post_metadata: {
-                        auto_generated: true,
-                        content_type: sourceUrl ? 'business_promo' : 'ai_tools',
-                        tool_name: tool.name,
-                        category: tool.category,
-                        source_url: sourceUrl || tool.source_link,
-                        variations: postContent,
-                        image_generated: !!imageUrl
+                    // Generate image
+                    let imageUrl = null;
+                    try {
+                        console.log(`🎨 [${i + 1}/${tools.length}] Generating image for: ${tool.name}`);
+                        const imagePrompt = generateImagePrompt(tool, sourceUrl);
+                        const imagePromise = generateImage(imagePrompt, 'digital-art');
+                        const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Image generation timeout after 30s')), 30000)
+                        );
+                        
+                        const imageResult = await Promise.race([imagePromise, timeoutPromise]);
+                        
+                        if (imageResult && imageResult.success && imageResult.imageUrl) {
+                            if (imageResult.imageUrl.startsWith('https://image.pollinations.ai')) {
+                                imageUrl = imageResult.imageUrl;
+                            } else if (imageResult.imageUrl.startsWith('data:')) {
+                                const uploadResult = await cloudinaryService.uploadImage(imageResult.imageUrl);
+                                if (uploadResult && uploadResult.url) {
+                                    imageUrl = uploadResult.url;
+                                }
+                            } else if (imageResult.imageUrl.startsWith('http')) {
+                                imageUrl = imageResult.imageUrl;
+                            }
+                        }
+                    } catch (imgError) {
+                        console.error(`❌ Image generation error:`, imgError.message);
                     }
-                };
 
-                console.log(`📅 Scheduling post for ${tool.name} at ${scheduledTime.toLocaleTimeString()}${imageUrl ? ' (with image)' : ' (NO IMAGE)'}`);
-                console.log(`📋 Post data:`, {
-                    hasText: !!postData.text,
-                    hasImageUrl: !!postData.image_url,
-                    imageUrl: postData.image_url ? postData.image_url.substring(0, 80) + '...' : 'null',
-                    platforms: postData.platforms,
-                    scheduleTime: postData.schedule_time
-                });
+                    const postData = {
+                        user_id: userId,
+                        text: text.trim(),
+                        platforms: platformsToUse, // All selected platforms for daily mode
+                        schedule_time: scheduledTime.toISOString(),
+                        image_url: imageUrl,
+                        status: 'queued',
+                        post_metadata: {
+                            auto_generated: true,
+                            content_type: sourceUrl ? 'business_promo' : 'ai_tools',
+                            tool_name: tool.name,
+                            category: tool.category,
+                            source_url: sourceUrl || tool.source_link,
+                            variations: postContent,
+                            image_generated: !!imageUrl
+                        }
+                    };
 
-                // Actually schedule the post
-                const scheduleResult = await schedulePost(postData);
-                if (scheduleResult.success) {
-                    console.log(`✅ Successfully scheduled post for ${tool.name}${imageUrl ? ' with image' : ' (no image)'}`);
-                    scheduled++;
-                } else {
-                    console.error(`❌ Failed to schedule post:`, scheduleResult.error);
+                    console.log(`📅 Scheduling post for ${tool.name} at ${scheduledTime.toLocaleTimeString()}`);
+
+                    const scheduleResult = await schedulePost(postData);
+                    if (scheduleResult.success) {
+                        scheduled++;
+                    } else {
+                        console.error(`❌ Failed to schedule:`, scheduleResult.error);
+                        failed++;
+                    }
+
+                } catch (error) {
+                    console.error(`❌ Error generating/scheduling post:`, error.message);
                     failed++;
                 }
-
-            } catch (error) {
-                console.error(`❌ Error generating/scheduling post for ${tool.name}:`, error.message);
-                failed++;
             }
         }
 
