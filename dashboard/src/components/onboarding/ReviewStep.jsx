@@ -38,10 +38,21 @@ export default function ReviewStep() {
   const [showAllPlatforms, setShowAllPlatforms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [posting, setPosting] = useState(false);
+  const [hasBusinessProfile, setHasBusinessProfile] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
+    checkBusinessProfile();
   }, []);
+
+  const checkBusinessProfile = async () => {
+    try {
+      const response = await api.get('/business/profile');
+      setHasBusinessProfile(response.data.success && response.data.hasProfile);
+    } catch (err) {
+      console.error('Error checking business profile:', err);
+    }
+  };
 
   const fetchAccounts = async () => {
     setLoading(true);
@@ -163,6 +174,31 @@ export default function ReviewStep() {
         <p className="text-gray-300 mb-6">
           Almost there! Review your post and hit the button to share it across all your platforms.
         </p>
+
+        {/* Business Profile Suggestion */}
+        {!hasBusinessProfile && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-2 border-blue-500/30 rounded-xl">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🏢</span>
+              <div className="flex-1">
+                <h4 className="text-white font-semibold mb-1">Set Up Your Business Profile</h4>
+                <p className="text-gray-300 text-sm mb-3">
+                  Generate personalized posts about your business automatically! Set up your business profile to unlock AI-powered content generation.
+                </p>
+                <a
+                  href="/business"
+                  className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = '/business';
+                  }}
+                >
+                  Set Up Business Profile →
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Post Preview */}
         <div className="glass border-2 border-white/20 rounded-2xl p-6 mb-6">

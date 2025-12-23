@@ -68,6 +68,12 @@ const {
   getAllCredentials
 } = require('./services/accounts');
 const {
+  getBusinessProfile,
+  upsertBusinessProfile,
+  deleteBusinessProfile,
+  hasBusinessProfile
+} = require('./services/business');
+const {
   uploadImage,
   uploadVideo
 } = require('./services/cloudinary');
@@ -4711,6 +4717,92 @@ app.get('/api/user/profile', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/business/profile
+ * Get user's business profile (protected)
+ */
+app.get('/api/business/profile', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const profile = await getBusinessProfile(userId);
+
+    if (!profile) {
+      return res.json({
+        success: true,
+        profile: null,
+        hasProfile: false
+      });
+    }
+
+    res.json({
+      success: true,
+      profile,
+      hasProfile: true
+    });
+  } catch (error) {
+    console.error('Error getting business profile:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get business profile'
+    });
+  }
+});
+
+/**
+ * POST /api/business/profile
+ * Create or update business profile (protected)
+ */
+app.post('/api/business/profile', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const profileData = req.body;
+
+    // Validate required field
+    if (!profileData.business_name || profileData.business_name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Business name is required'
+      });
+    }
+
+    const profile = await upsertBusinessProfile(userId, profileData);
+
+    res.json({
+      success: true,
+      profile,
+      message: 'Business profile saved successfully'
+    });
+  } catch (error) {
+    console.error('Error saving business profile:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to save business profile'
+    });
+  }
+});
+
+/**
+ * DELETE /api/business/profile
+ * Delete business profile (soft delete) (protected)
+ */
+app.delete('/api/business/profile', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await deleteBusinessProfile(userId);
+
+    res.json({
+      success: true,
+      message: 'Business profile deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting business profile:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to delete business profile'
     });
   }
 });

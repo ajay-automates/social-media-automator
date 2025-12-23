@@ -14,7 +14,16 @@ const CATEGORIES = [
   { id: 'announcement', name: 'Announcements', icon: '📢' },
   { id: 'personal', name: 'Personal', icon: '👤' },
   { id: 'seasonal', name: 'Seasonal', icon: '🎄' },
-  { id: 'general', name: 'General', icon: '✨' }
+  { id: 'general', name: 'General', icon: '✨' },
+  // Business-specific categories
+  { id: 'product_launch', name: 'Product Launch', icon: '🚀' },
+  { id: 'feature_announcement', name: 'Feature Announcement', icon: '✨' },
+  { id: 'company_milestone', name: 'Company Milestone', icon: '🎉' },
+  { id: 'team_spotlight', name: 'Team Spotlight', icon: '👥' },
+  { id: 'customer_testimonial', name: 'Customer Testimonial', icon: '💬' },
+  { id: 'industry_insight', name: 'Industry Insight', icon: '💡' },
+  { id: 'behind_scenes', name: 'Behind the Scenes', icon: '🎬' },
+  { id: 'event_promotion', name: 'Event Promotion', icon: '📅' }
 ];
 
 const AVAILABLE_PLATFORMS = ['linkedin', 'twitter', 'instagram', 'facebook', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'youtube'];

@@ -331,18 +331,24 @@ export default function Calendar() {
 
   // State for generating posts
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasBusinessProfile, setHasBusinessProfile] = useState(false);
+
+  useEffect(() => {
+    checkBusinessProfile();
+  }, []);
+
+  const checkBusinessProfile = async () => {
+    try {
+      const response = await api.get('/business/profile');
+      setHasBusinessProfile(response.data.success && response.data.hasProfile);
+    } catch (err) {
+      console.error('Error checking business profile:', err);
+    }
+  };
 
   // Schedule AI Posts with mode selection and platform selection
-  const handleGeneratePosts = async (scheduleMode = 'default', platforms = ['linkedin', 'twitter']) => {
+  const handleGeneratePosts = async (scheduleMode = 'default', platforms = ['linkedin', 'twitter'], sourceType = 'ai_news', customUrl = null) => {
     try {
-      // Ask for optional URL
-      const url = window.prompt(
-        'Enter a URL to generate posts from (e.g. your business website).\nLeave empty to generate AI News posts with images.',
-        ''
-      );
-
-      if (url === null) return; // User cancelled
-
       if (!platforms || platforms.length === 0) {
         showError('Please select at least one platform');
         return;
@@ -357,13 +363,22 @@ export default function Calendar() {
           ? '10 posts today (1 hour apart)'
           : '10 posts for tomorrow';
       
-      showSuccess(`🎨 Generating ${modeLabel} for ${platforms.length} platform(s) with AI images...`);
+      const sourceLabel = sourceType === 'business' 
+        ? 'from your business profile' 
+        : sourceType === 'custom_url'
+          ? `from ${customUrl}`
+          : 'AI News posts';
+      
+      showSuccess(`🎨 Generating ${modeLabel} ${sourceLabel} for ${platforms.length} platform(s) with AI images...`);
 
-      const response = await api.post('/ai-tools/schedule-now', { 
-        url: url || undefined,
+      const requestBody = {
         scheduleMode,
-        platforms: platforms // Pass selected platforms
-      });
+        platforms,
+        useBusinessProfile: sourceType === 'business',
+        url: sourceType === 'custom_url' ? customUrl : undefined
+      };
+
+      const response = await api.post('/ai-tools/schedule-now', requestBody);
 
       if (response.data.success) {
         showSuccess(`✅ Successfully scheduled ${response.data.scheduled || postCount} posts for ${platforms.length} platform(s) with images!`);
@@ -709,6 +724,7 @@ export default function Calendar() {
         onGenerateClick={handleGeneratePosts}
         onImproveClick={() => showSuccess('Improve feature coming soon!')}
         isGenerating={isGenerating}
+        hasBusinessProfile={hasBusinessProfile}
         // Selection props
         selectionMode={selectionMode}
         selectedCount={selectedPostIds.size}

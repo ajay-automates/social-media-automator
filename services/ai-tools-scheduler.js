@@ -67,8 +67,9 @@ async function getDefaultUserId() {
  * @param {Array} articles - Optional list of specific articles to schedule
  * @param {Array} targetPlatforms - Optional list of platforms to schedule for (default: linkedin, twitter)
  * @param {string} scheduleMode - Scheduling mode: 'default' (10 tomorrow), 'today_hourly' (10 today), 'weekly' (21 posts over 7 days)
+ * @param {Object} businessProfile - Optional business profile to use for content generation
  */
-async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null, scheduleMode = 'default') {
+async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null, scheduleMode = 'default', businessProfile = null) {
     console.log(`🤖 Starting post generation...${sourceUrl ? ` (Source: ${sourceUrl})` : ''}${articles ? ` (Articles: ${articles.length})` : ''}${targetPlatforms ? ` (Platforms: ${targetPlatforms.join(', ')})` : ''} [Mode: ${scheduleMode}]`);
 
     try {
@@ -98,6 +99,10 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
                 hook: article.summary,
                 source_link: article.url || article.link
             }));
+        } else if (businessProfile) {
+            // Context: Business Profile provided
+            console.log(`🏢 Generating posts from business profile: ${businessProfile.business_name}`);
+            tools = await generateBusinessProfileTopics(businessProfile, postCount);
         } else if (sourceUrl) {
             // Context: Business/Website URL provided
             console.log(`🌐 Scraping content from: ${sourceUrl}`);
@@ -140,7 +145,10 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
 
                 // Generate post content
                 let postContent;
-                if (sourceUrl && !articles) { // Only use business logic if scraping URL, not if using news articles with URLs
+                if (businessProfile) {
+                    // Use business profile context
+                    postContent = await generateBusinessProfilePostContent(tool, businessProfile);
+                } else if (sourceUrl && !articles) { // Only use business logic if scraping URL, not if using news articles with URLs
                     postContent = await generateBusinessPostContent(tool, sourceUrl);
                 } else {
                     postContent = await generateToolPostContent(tool);
@@ -625,6 +633,217 @@ Return ONLY valid JSON:
     const text = message.content[0].text.trim();
     const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
     return JSON.parse(jsonText);
+}
+
+/**
+ * Generate topics from business profile
+ * @param {Object} businessProfile - Business profile object
+ * @param {number} count - Number of topics to generate
+ */
+async function generateBusinessProfileTopics(businessProfile, count = 10) {
+    const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const contentThemes = businessProfile.content_themes || [];
+    const products = businessProfile.key_products_services || [];
+    const features = businessProfile.key_features_benefits || [];
+    const industry = businessProfile.industry || 'general';
+    
+    const prompt = `You are a social media content strategist for ${businessProfile.business_name}.
+
+BUSINESS INFORMATION:
+- Business Name: ${businessProfile.business_name}
+- Industry: ${industry}
+- Tagline: ${businessProfile.tagline || 'N/A'}
+- Description: ${businessProfile.description || 'N/A'}
+- Value Proposition: ${businessProfile.value_proposition || 'N/A'}
+- Target Audience: ${businessProfile.target_audience || 'N/A'}
+- Products/Services: ${products.join(', ') || 'N/A'}
+- Key Features/Benefits: ${features.join(', ') || 'N/A'}
+- Content Themes: ${contentThemes.join(', ') || 'general business'}
+- Brand Voice: ${businessProfile.brand_voice || 'professional'}
+- Website: ${businessProfile.website_url || 'N/A'}
+
+TASK: Generate ${count} diverse social media post topics about this business. Each topic should:
+1. Be relevant to the business and its industry
+2. Align with the content themes: ${contentThemes.join(', ') || 'general business'}
+3. Match the brand voice: ${businessProfile.brand_voice || 'professional'}
+4. Be engaging and valuable to the target audience: ${businessProfile.target_audience || 'general audience'}
+5. Cover different aspects: product updates, tips, behind-the-scenes, customer stories, industry insights, etc.
+
+Return ONLY a JSON array of objects with this exact structure:
+[
+  {
+    "name": "Topic title (max 60 chars)",
+    "category": "One of: ${contentThemes.join(', ') || 'product_updates, tips, industry_news'}",
+    "hook": "Brief description/angle for the post (1-2 sentences)",
+    "source_link": "${businessProfile.website_url || ''}"
+  },
+  ...
+]
+
+Generate exactly ${count} topics. Make them diverse and engaging.`;
+
+    try {
+        const message = await anthropic.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4000,
+            temperature: 0.8,
+            messages: [{ role: 'user', content: prompt }]
+        });
+
+        const text = message.content[0].text.trim();
+        const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+        const topics = JSON.parse(jsonText);
+        
+        // Ensure we have exactly count topics
+        return Array.isArray(topics) ? topics.slice(0, count) : [];
+    } catch (error) {
+        console.error('❌ Error generating business profile topics:', error);
+        // Fallback: generate generic topics based on business info
+        return generateFallbackBusinessTopics(businessProfile, count);
+    }
+}
+
+/**
+ * Generate fallback business topics if AI fails
+ */
+function generateFallbackBusinessTopics(businessProfile, count) {
+    const topics = [];
+    const products = businessProfile.key_products_services || [];
+    const features = businessProfile.key_features_benefits || [];
+    
+    // Generate topics based on available info
+    if (products.length > 0) {
+        products.forEach((product, idx) => {
+            if (topics.length < count) {
+                topics.push({
+                    name: `Introducing ${product}`,
+                    category: 'product_updates',
+                    hook: `Learn more about ${product} and how it can help you.`,
+                    source_link: businessProfile.website_url || ''
+                });
+            }
+        });
+    }
+    
+    if (features.length > 0) {
+        features.forEach((feature, idx) => {
+            if (topics.length < count) {
+                topics.push({
+                    name: `Why ${feature} Matters`,
+                    category: 'tips',
+                    hook: `Discover how ${feature} can benefit your business.`,
+                    source_link: businessProfile.website_url || ''
+                });
+            }
+        });
+    }
+    
+    // Fill remaining with generic topics
+    const genericTopics = [
+        { name: `Welcome to ${businessProfile.business_name}`, category: 'behind_scenes', hook: `Learn more about what we do.` },
+        { name: `Industry Insights from ${businessProfile.business_name}`, category: 'industry_news', hook: `Stay updated with the latest trends.` },
+        { name: `Tips from ${businessProfile.business_name}`, category: 'tips', hook: `Expert advice to help you succeed.` }
+    ];
+    
+    genericTopics.forEach(topic => {
+        if (topics.length < count) {
+            topic.source_link = businessProfile.website_url || '';
+            topics.push(topic);
+        }
+    });
+    
+    return topics.slice(0, count);
+}
+
+/**
+ * Generate post content from business profile topic
+ * @param {Object} topic - Topic object
+ * @param {Object} businessProfile - Business profile object
+ */
+async function generateBusinessProfilePostContent(topic, businessProfile) {
+    const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY
+    });
+
+    const platforms = ['linkedin', 'twitter', 'instagram', 'facebook'];
+    const brandVoice = businessProfile.brand_voice || 'professional';
+    const toneDesc = businessProfile.tone_description || '';
+    const tagline = businessProfile.tagline || '';
+    const valueProp = businessProfile.value_proposition || '';
+    const website = businessProfile.website_url || '';
+    const ctaText = businessProfile.cta_text || 'Learn more';
+    const autoCTA = businessProfile.auto_include_cta !== false;
+    const preferredHashtags = businessProfile.preferred_hashtags || [];
+    const avoidWords = businessProfile.avoid_words || [];
+
+    const prompt = `You are a social media content creator for ${businessProfile.business_name}.
+
+BUSINESS CONTEXT:
+- Business Name: ${businessProfile.business_name}
+- Tagline: ${tagline}
+- Value Proposition: ${valueProp}
+- Industry: ${businessProfile.industry || 'general'}
+- Target Audience: ${businessProfile.target_audience || 'general'}
+- Brand Voice: ${brandVoice}
+- Tone Description: ${toneDesc}
+- Website: ${website}
+- Products/Services: ${(businessProfile.key_products_services || []).join(', ')}
+- Key Features: ${(businessProfile.key_features_benefits || []).join(', ')}
+
+POST TOPIC:
+- Title: ${topic.name}
+- Category: ${topic.category}
+- Hook/Angle: ${topic.hook}
+
+CONTENT REQUIREMENTS:
+1. Create engaging social media posts for: ${platforms.join(', ')}
+2. Match the brand voice: ${brandVoice}${toneDesc ? ` (${toneDesc})` : ''}
+3. ${autoCTA ? `Include a call-to-action: "${ctaText}"` : 'No CTA needed'}
+4. ${website ? `Include website link naturally: ${website}` : ''}
+5. ${preferredHashtags.length > 0 ? `Use these hashtags when appropriate: ${preferredHashtags.join(', ')}` : 'Use relevant hashtags'}
+6. ${avoidWords.length > 0 ? `NEVER use these words: ${avoidWords.join(', ')}` : ''}
+7. Make it authentic and valuable to the target audience
+8. Reference the business naturally (don't over-promote)
+
+PLATFORM-SPECIFIC GUIDELINES:
+- LinkedIn: Professional, 150-300 words, industry insights, value-driven
+- Twitter/X: Concise, engaging, under 280 chars, can be more casual
+- Instagram: Visual-friendly, 100-200 words, emojis appropriate, storytelling
+- Facebook: Conversational, 100-250 words, community-focused
+
+Return ONLY valid JSON (no markdown, no code blocks):
+{
+  "linkedin": "LinkedIn post text...",
+  "twitter": "Twitter post text...",
+  "instagram": "Instagram post text...",
+  "facebook": "Facebook post text..."
+}`;
+
+    try {
+        const message = await anthropic.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 2000,
+            temperature: 0.8,
+            messages: [{ role: 'user', content: prompt }]
+        });
+
+        const text = message.content[0].text.trim();
+        const jsonText = text.replace(/```json\n?|\n?```/g, '').trim();
+        return JSON.parse(jsonText);
+    } catch (error) {
+        console.error('❌ Error generating business profile post content:', error);
+        // Fallback: simple post
+        const basePost = `${topic.name}\n\n${topic.hook}${website ? `\n\n${website}` : ''}${autoCTA ? `\n\n${ctaText}` : ''}`;
+        return {
+            linkedin: basePost,
+            twitter: basePost.substring(0, 280),
+            instagram: basePost,
+            facebook: basePost
+        };
+    }
 }
 
 module.exports = {

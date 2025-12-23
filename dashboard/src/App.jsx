@@ -34,6 +34,7 @@ const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentCancel = lazy(() => import('./pages/PaymentCancel'));
 const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
+const Business = lazy(() => import('./pages/Business'));
 
 function Navigation() {
   const location = useLocation();
@@ -97,6 +98,7 @@ function Navigation() {
 
     // Settings
     { path: '/settings', label: 'Settings', icon: '⚙️', category: 'Settings' },
+    { path: '/business', label: 'Business Profile', icon: '🏢', category: 'Settings' },
   ];
 
   // Admin Item (Only visible to admin)
@@ -391,6 +393,7 @@ function App() {
                 <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
                 <Route path="/cancel" element={<ProtectedRoute><PaymentCancel /></ProtectedRoute>} />
                 <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+                <Route path="/business" element={<ProtectedRoute><Business /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>

@@ -52,6 +52,7 @@ export default function BottomActionBar({
   onGenerateClick,
   onImproveClick,
   isGenerating = false,
+  hasBusinessProfile = false,
   // Selection props
   selectionMode = false,
   selectedCount = 0,
@@ -65,12 +66,33 @@ export default function BottomActionBar({
   const [showGenerateMenu, setShowGenerateMenu] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState(['linkedin', 'twitter']);
   const [showPlatformSelection, setShowPlatformSelection] = useState(false);
+  const [showSourceSelection, setShowSourceSelection] = useState(false);
   const [selectedMode, setSelectedMode] = useState(null);
+  const [selectedSource, setSelectedSource] = useState(null);
+  const [customUrl, setCustomUrl] = useState('');
 
   const handleGenerateOption = (mode) => {
     setSelectedMode(mode);
-    setShowPlatformSelection(true);
+    setShowSourceSelection(true);
     setShowGenerateMenu(false);
+  };
+
+  const handleSourceSelect = (sourceType) => {
+    if (sourceType === 'custom_url') {
+      const url = window.prompt(
+        'Enter a URL to generate posts from (e.g. your business website):',
+        ''
+      );
+      if (url === null || !url.trim()) {
+        return; // User cancelled or empty
+      }
+      setCustomUrl(url.trim());
+      setSelectedSource('custom_url');
+    } else {
+      setSelectedSource(sourceType);
+    }
+    setShowSourceSelection(false);
+    setShowPlatformSelection(true);
   };
 
   const handlePlatformToggle = (platformId) => {
@@ -89,13 +111,18 @@ export default function BottomActionBar({
     setSelectedPlatforms([]);
   };
 
-  const handleConfirmGenerate = (mode) => {
+  const handleConfirmGenerate = () => {
     if (selectedPlatforms.length === 0) {
       alert('Please select at least one platform');
       return;
     }
     setShowPlatformSelection(false);
-    onGenerateClick?.(mode, selectedPlatforms);
+    setShowSourceSelection(false);
+    onGenerateClick?.(selectedMode, selectedPlatforms, selectedSource || 'ai_news', customUrl || null);
+    // Reset state
+    setSelectedMode(null);
+    setSelectedSource(null);
+    setCustomUrl('');
   };
 
   // Selection mode UI
@@ -434,6 +461,226 @@ export default function BottomActionBar({
           )}
         </AnimatePresence>
 
+        {/* Source Selection Modal */}
+        <AnimatePresence>
+          {showSourceSelection && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0, 0, 0, 0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000,
+                padding: '24px'
+              }}
+              onClick={() => {
+                setShowSourceSelection(false);
+                setSelectedMode(null);
+              }}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                onClick={e => e.stopPropagation()}
+                style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  maxWidth: '500px',
+                  width: '100%',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '20px'
+                }}>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+                    Select Content Source
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowSourceSelection(false);
+                      setSelectedMode(null);
+                    }}
+                    style={{
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      fontSize: '20px',
+                      color: '#6b7280',
+                      padding: '4px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <p style={{ margin: '0 0 20px', fontSize: '14px', color: '#6b7280' }}>
+                  Choose where to generate posts from:
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {/* Business Profile Option */}
+                  {hasBusinessProfile && (
+                    <button
+                      onClick={() => handleSourceSelect('business')}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '16px',
+                        border: '2px solid #3b82f6',
+                        borderRadius: '12px',
+                        background: '#eff6ff',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        width: '100%'
+                      }}
+                    >
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '10px',
+                        background: '#3b82f6',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '20px'
+                      }}>
+                        🏢
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', fontSize: '14px', color: '#1f2937', marginBottom: '4px' }}>
+                          My Business Profile
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                          Generate posts about your business using your profile
+                        </div>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* AI News Option */}
+                  <button
+                    onClick={() => handleSourceSelect('ai_news')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      background: 'white',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      width: '100%',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#6366f1';
+                      e.currentTarget.style.background = '#f9fafb';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                      e.currentTarget.style.background = 'white';
+                    }}
+                  >
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      background: '#6366f1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px'
+                    }}>
+                      📰
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '600', fontSize: '14px', color: '#1f2937', marginBottom: '4px' }}>
+                        AI News & Trends
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                        Generate posts about trending AI tools and news
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Custom URL Option */}
+                  <button
+                    onClick={() => handleSourceSelect('custom_url')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      background: 'white',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      width: '100%',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#10b981';
+                      e.currentTarget.style.background = '#f9fafb';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                      e.currentTarget.style.background = 'white';
+                    }}
+                  >
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      background: '#10b981',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '20px'
+                    }}>
+                      🔗
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '600', fontSize: '14px', color: '#1f2937', marginBottom: '4px' }}>
+                        Custom URL
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                        Generate posts from a website URL
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+                {!hasBusinessProfile && (
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '12px',
+                    background: '#fef3c7',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    color: '#92400e'
+                  }}>
+                    💡 <strong>Tip:</strong> Set up your Business Profile to generate personalized posts about your company. <a href="/business" style={{ color: '#3b82f6', textDecoration: 'underline' }}>Set it up now</a>
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Platform Selection Modal */}
         <AnimatePresence>
           {showPlatformSelection && (
@@ -614,7 +861,7 @@ export default function BottomActionBar({
                     Cancel
                   </button>
                   <button
-                    onClick={() => handleConfirmGenerate(selectedMode)}
+                    onClick={handleConfirmGenerate}
                     disabled={selectedPlatforms.length === 0}
                     style={{
                       padding: '10px 20px',
