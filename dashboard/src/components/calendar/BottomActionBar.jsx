@@ -357,7 +357,7 @@ export default function BottomActionBar({
                 </p>
               </div>
 
-              {/* Option 1: 10 Posts Today */}
+              {/* Option 1: 5 Posts Today */}
               <button
                 onClick={() => handleGenerateOption('today_hourly')}
                 style={{
@@ -394,14 +394,14 @@ export default function BottomActionBar({
                     color: '#1f2937',
                     marginBottom: '2px'
                   }}>
-                    10 Posts Today
+                    5 Posts Today
                   </div>
                   <div style={{ 
                     fontSize: '12px', 
                     color: '#6b7280',
                     lineHeight: '1.4'
                   }}>
-                    Posts scheduled 1 hour apart starting now
+                    Posts scheduled throughout today for selected platforms
                   </div>
                 </div>
               </button>
@@ -453,7 +453,7 @@ export default function BottomActionBar({
                     color: '#6b7280',
                     lineHeight: '1.4'
                   }}>
-                    21 posts (3 per day) for the next 7 days
+                    One post per platform per day for the next 7 days
                   </div>
                 </div>
               </button>
