@@ -64,17 +64,15 @@ async function generateCaption(topic, niche, platform = 'linkedin') {
 
     console.log(`\n🤖 Generating ${platform} caption for "${topic}" in ${niche} niche using Claude...`);
 
-    // Initialize Anthropic client
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Use AI wrapper with cost tracking
+    const { makeAICall } = require('./ai-wrapper');
 
     // Generate 3 variations
     const variations = [];
     
     for (let i = 0; i < 3; i++) {
-      const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+      const message = await makeAICall({
+        model: 'claude-3-5-haiku-20241022', // Use cheapest model
         max_tokens: 1024,
         temperature: 0.9, // Higher temperature for more creative variations
         messages: [
@@ -82,7 +80,9 @@ async function generateCaption(topic, niche, platform = 'linkedin') {
             role: 'user',
             content: `${prompt}\n\nGenerate variation ${i + 1} of 3. Make each variation unique in style and approach. Return ONLY the caption text, no additional commentary.`
           }
-        ]
+        ],
+        taskType: 'creative',
+        feature: 'caption_generation'
       });
 
       if (message && message.content && message.content.length > 0) {

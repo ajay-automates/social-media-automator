@@ -1,10 +1,10 @@
-const Anthropic = require('@anthropic-ai/sdk');
 const { createClient } = require('@supabase/supabase-js');
 const { schedulePost } = require('./scheduler');
 const { generatePostVariations } = require('./ai');
 const { scrapeWebContent } = require('./web-scraper-light'); // Import scraper
 const { generateImage } = require('./ai-image'); // Import image generation
 const cloudinaryService = require('./cloudinary'); // Import cloudinary for upload
+const { makeAICall } = require('./ai-wrapper'); // Use AI wrapper with cost tracking
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
@@ -294,9 +294,7 @@ const { fetchLatestAINews } = require('./news-fetcher');
  * @param {number} count - Number of topics to generate (default 10)
  */
 async function generateDailyAIToolsList(count = 10) {
-    const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Using AI wrapper with cost tracking
 
     // 1. Fetch real-time news
     const newsItems = await fetchLatestAINews();
@@ -338,11 +336,13 @@ async function generateDailyAIToolsList(count = 10) {
     }
   ]`;
 
-    const message = await anthropic.messages.create({
+    const message = await makeAICall({
         model: 'claude-3-5-haiku-20241022', // Use Haiku for topic selection (80% cheaper, still accurate)
         max_tokens: 1000, // Reduced from 2000 - topics are short JSON arrays
         temperature: 0.3, // Lower temperature for more factual selection
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: prompt }],
+        taskType: 'topic_selection',
+        feature: 'calendar_topic_selection'
     });
 
     const text = message.content[0].text.trim();
@@ -373,9 +373,7 @@ async function generateDailyAIToolsList(count = 10) {
  * Generate specific post content for a tool
  */
 async function generateToolPostContent(tool) {
-    const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Using AI wrapper with cost tracking
 
     const prompt = `Create an engaging social media post about this AI tool/news:
   
@@ -554,9 +552,7 @@ function calculateScheduleTimes(count, mode = 'default') {
  * @param {number} count - Number of topics to generate (default 10)
  */
 async function generateBusinessTopicsFromContent(content, sourceUrl, count = 10) {
-    const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Using AI wrapper with cost tracking
 
     const prompt = `You are an expert social media strategist.
 
@@ -580,11 +576,13 @@ Return ONLY a JSON array with ${count} items in this format:
   }
 ]`;
 
-    const message = await anthropic.messages.create({
+    const message = await makeAICall({
         model: 'claude-3-5-haiku-20241022', // Use Haiku for topic extraction (80% cheaper)
         max_tokens: 1500, // Reduced from 2500 - topics are concise JSON
         temperature: 0.7,
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: prompt }],
+        taskType: 'topic_selection',
+        feature: 'business_topic_extraction'
     });
 
     const text = message.content[0].text.trim();
@@ -602,9 +600,7 @@ Return ONLY a JSON array with ${count} items in this format:
  * Generate post content for a specific business topic
  */
 async function generateBusinessPostContent(topic, sourceUrl) {
-    const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Using AI wrapper with cost tracking
 
     const prompt = `Create a high-converting social media post for this business topic:
 
@@ -641,9 +637,7 @@ Return ONLY valid JSON:
  * @param {number} count - Number of topics to generate
  */
 async function generateBusinessProfileTopics(businessProfile, count = 10) {
-    const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Using AI wrapper with cost tracking
 
     const contentThemes = businessProfile.content_themes || [];
     const products = businessProfile.key_products_services || [];
@@ -686,11 +680,13 @@ Return ONLY a JSON array of objects with this exact structure:
 Generate exactly ${count} topics. Make them diverse and engaging.`;
 
     try {
-        const message = await anthropic.messages.create({
+        const message = await makeAICall({
             model: 'claude-3-5-haiku-20241022', // Use Haiku for topic generation (80% cheaper)
             max_tokens: 2000, // Reduced from 4000 - topics are concise JSON
             temperature: 0.7, // Slightly lower for more consistent topics
-            messages: [{ role: 'user', content: prompt }]
+            messages: [{ role: 'user', content: prompt }],
+            taskType: 'topic_selection',
+            feature: 'business_profile_topics'
         });
 
         const text = message.content[0].text.trim();
@@ -764,9 +760,7 @@ function generateFallbackBusinessTopics(businessProfile, count) {
  * @param {Object} businessProfile - Business profile object
  */
 async function generateBusinessProfilePostContent(topic, businessProfile) {
-    const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    // Using AI wrapper with cost tracking
 
     const platforms = ['linkedin', 'twitter', 'instagram', 'facebook'];
     const brandVoice = businessProfile.brand_voice || 'professional';
@@ -823,11 +817,13 @@ Return ONLY valid JSON (no markdown, no code blocks):
 }`;
 
     try {
-        const message = await anthropic.messages.create({
-            model: 'claude-sonnet-4-20250514',
+        const message = await makeAICall({
+            model: 'claude-3-5-haiku-20241022', // Use cheapest model
             max_tokens: 2000,
             temperature: 0.8,
-            messages: [{ role: 'user', content: prompt }]
+            messages: [{ role: 'user', content: prompt }],
+            taskType: 'simple',
+            feature: 'business_profile_post_content'
         });
 
         const text = message.content[0].text.trim();

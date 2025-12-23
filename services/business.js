@@ -1,8 +1,8 @@
 const { createClient } = require('@supabase/supabase-js');
-const Anthropic = require('@anthropic-ai/sdk');
 const { scrapeWebContent } = require('./web-scraper-light');
 const cheerio = require('cheerio');
 const axios = require('axios');
+const { makeAICall } = require('./ai-wrapper'); // Use AI wrapper with cost tracking
 
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -13,9 +13,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-});
+// Using AI wrapper instead of direct Anthropic client
 
 /**
  * Get business profile for a user
@@ -280,11 +278,13 @@ IMPORTANT RULES:
 
 Content: ${scrapedContent.substring(0, 8000)}`;
 
-        const summaryMessage = await anthropic.messages.create({
+        const summaryMessage = await makeAICall({
           model: 'claude-3-5-haiku-20241022', // Use Haiku for summarization (cheaper)
           max_tokens: 1000,
           temperature: 0.2,
-          messages: [{ role: 'user', content: summaryPrompt }]
+          messages: [{ role: 'user', content: summaryPrompt }],
+          taskType: 'summarization',
+          feature: 'business_auto_fill_summary'
         });
         
         summarizedContent = summaryMessage.content[0].text.trim();
@@ -298,11 +298,13 @@ Content: ${scrapedContent.substring(0, 8000)}`;
     // Update prompt to use summarized content
     const optimizedPrompt = prompt.replace(scrapedContent, summarizedContent);
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514', // Keep Sonnet for structured extraction (more accurate)
+    const message = await makeAICall({
+      model: 'claude-3-5-haiku-20241022', // Use cheapest model (Haiku is good enough for extraction)
       max_tokens: 3000, // Reduced from 4000 - structured data is concise
       temperature: 0.3, // Lower temperature for more accurate extraction
-      messages: [{ role: 'user', content: optimizedPrompt }]
+      messages: [{ role: 'user', content: optimizedPrompt }],
+      taskType: 'simple',
+      feature: 'business_auto_fill_extraction'
     });
 
     const text = message.content[0].text.trim();
