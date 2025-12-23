@@ -124,8 +124,13 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
 
         console.log(`📋 Generated ${tools.length} topics to post about:`, tools.map(t => t.name).join(', '));
 
+        // Validate we have enough topics
+        if (tools.length < postCount) {
+            console.warn(`⚠️ WARNING: Only generated ${tools.length} topics but need ${postCount}. This may result in fewer posts.`);
+        }
+
         // 2. Calculate schedule times based on mode
-        console.log(`📅 Calculating schedule times for mode: ${scheduleMode}, count: ${tools.length}`);
+        console.log(`📅 Calculating schedule times for mode: ${scheduleMode}, count: ${tools.length} (requested: ${postCount})`);
         const scheduleTimes = calculateScheduleTimes(tools.length, scheduleMode);
         console.log(`📅 Generated ${scheduleTimes.length} schedule times`);
         
