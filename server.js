@@ -71,7 +71,8 @@ const {
   getBusinessProfile,
   upsertBusinessProfile,
   deleteBusinessProfile,
-  hasBusinessProfile
+  hasBusinessProfile,
+  extractBusinessDataFromWebsite
 } = require('./services/business');
 const {
   uploadImage,
@@ -4803,6 +4804,55 @@ app.delete('/api/business/profile', verifyAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to delete business profile'
+    });
+  }
+});
+
+/**
+ * POST /api/business/autofill
+ * Extract business data from website URL (protected)
+ */
+app.post('/api/business/autofill', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { websiteUrl } = req.body;
+
+    if (!websiteUrl || !websiteUrl.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Website URL is required'
+      });
+    }
+
+    // Check AI usage limits
+    const usageCheck = await checkUsage(userId, 'ai');
+    if (!usageCheck.allowed) {
+      return res.status(402).json({
+        success: false,
+        error: usageCheck.message,
+        limitReached: true,
+        upgradePlan: usageCheck.upgradePlan
+      });
+    }
+
+    console.log(`🔍 Auto-filling business profile from: ${websiteUrl} for user ${userId}`);
+
+    const result = await extractBusinessDataFromWebsite(websiteUrl);
+
+    // Increment AI usage
+    await incrementUsage(userId, 'ai');
+
+    res.json({
+      success: true,
+      data: result.data,
+      extractedFields: result.extractedFields,
+      message: `Successfully extracted ${result.extractedFields.length} fields from website`
+    });
+  } catch (error) {
+    console.error('Error auto-filling business profile:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to extract business data from website'
     });
   }
 });

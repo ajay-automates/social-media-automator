@@ -38,6 +38,9 @@ const CONTENT_THEMES = [
 export default function Business() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillUrl, setAutofillUrl] = useState('');
+  const [autofilledFields, setAutofilledFields] = useState([]);
   const [activeSection, setActiveSection] = useState('basic');
   
   const [formData, setFormData] = useState({
@@ -152,6 +155,91 @@ export default function Business() {
       showError(err.response?.data?.error || 'Failed to save business profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAutofill = async () => {
+    if (!autofillUrl.trim()) {
+      showError('Please enter a website URL');
+      return;
+    }
+
+    setAutofilling(true);
+    try {
+      const response = await api.post('/business/autofill', {
+        websiteUrl: autofillUrl.trim()
+      });
+
+      if (response.data.success && response.data.data) {
+        const extractedData = response.data.data;
+        const extractedFields = response.data.extractedFields || [];
+
+        // Helper function to merge field (only if existing is empty)
+        const mergeField = (existing, extracted, defaultValue = '') => {
+          if (existing && existing !== defaultValue && existing !== '') {
+            return existing;
+          }
+          return extracted || defaultValue;
+        };
+
+        // Helper function to merge arrays (only if existing is empty)
+        const mergeArray = (existing, extracted) => {
+          if (existing && Array.isArray(existing) && existing.length > 0) {
+            return existing;
+          }
+          return (extracted && Array.isArray(extracted) && extracted.length > 0) ? extracted : [];
+        };
+
+        // Merge extracted data with existing form data (don't overwrite existing non-empty fields)
+        const mergedData = {
+          ...formData,
+          // Only update fields that were extracted and are currently empty
+          business_name: mergeField(formData.business_name, extractedData.business_name),
+          business_type: mergeField(formData.business_type, extractedData.business_type, 'company'),
+          industry: mergeField(formData.industry, extractedData.industry),
+          description: mergeField(formData.description, extractedData.description),
+          website_url: mergeField(formData.website_url, extractedData.website_url),
+          email: mergeField(formData.email, extractedData.email),
+          phone: mergeField(formData.phone, extractedData.phone),
+          linkedin_url: mergeField(formData.linkedin_url, extractedData.linkedin_url),
+          twitter_handle: mergeField(formData.twitter_handle, extractedData.twitter_handle),
+          instagram_handle: mergeField(formData.instagram_handle, extractedData.instagram_handle),
+          facebook_url: mergeField(formData.facebook_url, extractedData.facebook_url),
+          youtube_url: mergeField(formData.youtube_url, extractedData.youtube_url),
+          tiktok_handle: mergeField(formData.tiktok_handle, extractedData.tiktok_handle),
+          tagline: mergeField(formData.tagline, extractedData.tagline),
+          value_proposition: mergeField(formData.value_proposition, extractedData.value_proposition),
+          target_audience: mergeField(formData.target_audience, extractedData.target_audience),
+          key_products_services: mergeArray(formData.key_products_services, extractedData.key_products_services),
+          key_features_benefits: mergeArray(formData.key_features_benefits, extractedData.key_features_benefits),
+          content_themes: mergeArray(formData.content_themes, extractedData.content_themes),
+          brand_voice: mergeField(formData.brand_voice, extractedData.brand_voice, 'professional'),
+          tone_description: mergeField(formData.tone_description, extractedData.tone_description),
+          logo_url: mergeField(formData.logo_url, extractedData.logo_url)
+        };
+
+        // Track which fields were actually filled (not already had values)
+        const newlyFilled = [];
+        Object.keys(extractedData).forEach(key => {
+          if (extractedData[key] && (!formData[key] || (Array.isArray(formData[key]) && formData[key].length === 0))) {
+            newlyFilled.push(key);
+          }
+        });
+
+        setFormData(mergedData);
+        setAutofilledFields(newlyFilled);
+        setAutofillUrl('');
+        showSuccess(`✅ Auto-filled ${newlyFilled.length} fields from website! Review and update any missing information.`);
+        
+        // Clear autofilled indicator after 5 seconds
+        setTimeout(() => setAutofilledFields([]), 5000);
+      }
+    } catch (err) {
+      console.error('Error auto-filling business profile:', err);
+      const errorMsg = err.response?.data?.error || 'Failed to extract data from website';
+      showError(errorMsg);
+    } finally {
+      setAutofilling(false);
     }
   };
 
@@ -297,17 +385,72 @@ export default function Business() {
         {/* Basic Information */}
         {activeSection === 'basic' && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Basic Information</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Basic Information</h2>
+            </div>
+
+            {/* Auto-fill from Website */}
+            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-2 border-blue-500/30 rounded-xl p-5 mb-6">
+              <div className="flex items-start gap-3 mb-4">
+                <span className="text-2xl">✨</span>
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold mb-1">Auto-fill from Website</h3>
+                  <p className="text-gray-300 text-sm mb-4">
+                    Enter your company website URL and we'll automatically extract business information using AI
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="url"
+                      value={autofillUrl}
+                      onChange={(e) => setAutofillUrl(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAutofill()}
+                      placeholder="https://yourcompany.com"
+                      className="flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                      disabled={autofilling}
+                    />
+                    <button
+                      onClick={handleAutofill}
+                      disabled={autofilling || !autofillUrl.trim()}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {autofilling ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                          <span>Analyzing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>🔍</span>
+                          <span>Auto-fill</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {formData.website_url && (
+                    <p className="text-xs text-gray-400 mt-2">
+                      Current website: {formData.website_url}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
             
             <div>
               <label className="block text-sm font-semibold text-gray-200 mb-2">
                 Business Name <span className="text-red-400">*</span>
+                {autofilledFields.includes('business_name') && (
+                  <span className="ml-2 text-xs text-green-400">✨ Auto-filled</span>
+                )}
               </label>
               <input
                 type="text"
                 value={formData.business_name}
                 onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                className={`w-full bg-gray-800/60 backdrop-blur-lg border-2 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all ${
+                  autofilledFields.includes('business_name') 
+                    ? 'border-green-500/50 bg-green-500/10' 
+                    : 'border-gray-600/50'
+                }`}
                 placeholder="Your Company Name"
               />
             </div>
