@@ -594,28 +594,52 @@ function calculateScheduleTimes(count, mode = 'default') {
             });
         }
     } else {
-        // Default: spread throughout tomorrow (8 AM to 8 PM)
+        // Default (daily mode): spread throughout TODAY (8 AM to 8 PM)
+        // Start from next hour if current time is before 8 AM, otherwise start from now
         const startHour = 8;
         const endHour = 20;
         const totalMinutes = (endHour - startHour) * 60;
         const interval = count > 1 ? totalMinutes / (count - 1) : totalMinutes;
         
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setSeconds(0);
-        tomorrow.setMilliseconds(0);
+        const today = new Date(now);
+        today.setSeconds(0);
+        today.setMilliseconds(0);
+        
+        // If it's already past 8 AM today, start from next hour
+        // Otherwise start from 8 AM today
+        const currentHour = today.getHours();
+        const startTime = currentHour >= startHour 
+            ? new Date(today.getTime() + 60 * 60 * 1000) // Next hour
+            : new Date(today);
+        
+        if (currentHour < startHour) {
+            startTime.setHours(startHour, 0, 0, 0);
+        } else {
+            startTime.setMinutes(0, 0, 0);
+        }
         
         for (let i = 0; i < count; i++) {
             const minutesToAdd = Math.floor(i * interval);
-            const postTime = new Date(tomorrow);
-            postTime.setHours(startHour, 0, 0, 0);
+            const postTime = new Date(startTime);
             postTime.setMinutes(postTime.getMinutes() + minutesToAdd);
+            
+            // Ensure we don't go past endHour
+            if (postTime.getHours() >= endHour) {
+                postTime.setHours(endHour - 1, 59, 0, 0);
+            }
             
             // Add random jitter (±15 mins)
             const jitter = Math.floor(Math.random() * 30) - 15;
             postTime.setMinutes(postTime.getMinutes() + jitter);
             
-            times.push(postTime);
+            // Ensure time is in the future
+            if (postTime > now) {
+                times.push(postTime);
+            } else {
+                // If in the past, add 1 hour
+                postTime.setHours(postTime.getHours() + 1);
+                times.push(postTime);
+            }
         }
     }
     
