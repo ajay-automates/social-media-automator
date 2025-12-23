@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { format, startOfWeek, addDays, isSameDay, isToday } from 'date-fns';
+import { format, addDays, isSameDay, isToday } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaLinkedin,
@@ -287,10 +287,10 @@ export default function BlazeWeekView({
   selectedPostIds = new Set(),
   onToggleSelection
 }) {
-  // Calculate week days
+  // Calculate week days - start from today (currentDate)
   const weekDays = useMemo(() => {
-    const start = startOfWeek(currentDate, { weekStartsOn: 0 }); // Sunday
-    return Array.from({ length: 7 }, (_, i) => addDays(start, i));
+    // Start from today instead of start of week
+    return Array.from({ length: 7 }, (_, i) => addDays(currentDate, i));
   }, [currentDate]);
   
   return (

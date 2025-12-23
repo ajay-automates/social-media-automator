@@ -1,148 +1,121 @@
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { 
-    FaEdit, 
-    FaTrash, 
-    FaExternalLinkAlt, 
-    FaImage,
-    FaCheckCircle,
-    FaClock,
-    FaExclamationCircle 
-} from 'react-icons/fa';
-import PlatformChip from '../ui/PlatformChip'; // Assuming this exists or using the one from Calendar.jsx logic
-// Check Calendar.jsx imports to see where PlatformChip is or likely just inline the logic if it's simple
-// Using the platform config from Calendar.jsx would be better if exported, but I'll redefine or pass as props.
-// For now, I'll assume passing config or redefining for independence.
+import { FaImage, FaLink } from 'react-icons/fa';
 
-const StatusBadge = ({ status }) => {
-    const config = {
-        queued: { color: 'text-yellow-400', bg: 'bg-yellow-400/10', icon: FaClock, label: 'Queued' },
-        scheduled: { color: 'text-blue-400', bg: 'bg-blue-400/10', icon: FaClock, label: 'Scheduled' },
-        posted: { color: 'text-green-400', bg: 'bg-green-400/10', icon: FaCheckCircle, label: 'Posted' },
-        failed: { color: 'text-red-400', bg: 'bg-red-400/10', icon: FaExclamationCircle, label: 'Failed' }
-    };
-
-    const style = config[status] || config.queued;
-    const Icon = style.icon;
-
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${style.color} ${style.bg}`}>
-            <Icon className="text-[10px]" />
-            {style.label}
-        </span>
-    );
-};
-
-export default function CalendarListView({ events, onSelectEvent, onDeleteEvent, platformConfig }) {
+export default function CalendarListView({ events, onSelectEvent, platformConfig }) {
     if (!events || events.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-16 h-16 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-4">
+            <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-lg">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                     <span className="text-2xl">📝</span>
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-1">No Posts Scheduled</h3>
-                <p className="text-[#98989d] text-sm">Switch to calendar view to schedule posts.</p>
+                <h3 className="text-gray-900 font-semibold text-lg mb-1">No Posts Scheduled</h3>
+                <p className="text-gray-500 text-sm">Create your first post to get started.</p>
             </div>
         );
     }
 
-    // Sort events by date (ascending)
+    // Sort events by date/time (ascending) - matching reference image
     const sortedEvents = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
 
     return (
-        <div className="space-y-4">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             {/* Header Row */}
-            <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-[#2c2c2e]/50 border-y border-[#38383a] text-xs font-semibold uppercase tracking-wider text-[#98989d]">
-                <div className="col-span-4">Post Details</div>
-                <div className="col-span-2">Platforms</div>
-                <div className="col-span-3">Date & Time</div>
-                <div className="col-span-2">Status</div>
-                <div className="col-span-1 text-right">Actions</div>
+            <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold uppercase tracking-wider text-gray-600">
+                <div className="col-span-2">Preview</div>
+                <div className="col-span-5">Name</div>
+                <div className="col-span-3 flex items-center gap-1">
+                    Post Date & Time
+                    <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                </div>
+                <div className="col-span-2">Post Status</div>
             </div>
 
             {/* Event Rows */}
-            <div className="space-y-1">
-                {sortedEvents.map((event) => (
-                    <motion.div
-                        key={event.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="group grid grid-cols-12 gap-4 px-4 py-4 items-center bg-[#1c1c1e] hover:bg-[#2c2c2e] border border-transparent hover:border-[#38383a] rounded-xl transition-all cursor-pointer"
-                        onClick={() => onSelectEvent(event)}
-                    >
-                        {/* Post Details (Preview + Caption) */}
-                        <div className="col-span-4 flex items-center gap-4 overflow-hidden">
-                            {/* Preview Image/Icon */}
-                            <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-[#2c2c2e] border border-[#38383a] flex items-center justify-center overflow-hidden">
-                                {event.image_url ? (
-                                    <img src={event.image_url} alt="Post preview" className="w-full h-full object-cover" />
-                                ) : (
-                                    <FaImage className="text-[#98989d] text-lg" />
-                                )}
+            <div className="divide-y divide-gray-100">
+                {sortedEvents.map((event) => {
+                    const platforms = event.platforms || [];
+                    const title = event.text?.split('\n')[0] || event.text || 'Untitled Post';
+                    const description = event.text?.split('\n').slice(1).join(' ') || event.text?.substring(0, 150) || '';
+                    
+                    return (
+                        <motion.div
+                            key={event.id}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors cursor-pointer group"
+                            onClick={() => onSelectEvent(event)}
+                        >
+                            {/* Preview */}
+                            <div className="col-span-2">
+                                <div className="w-16 h-16 rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden">
+                                    {event.image_url ? (
+                                        <img 
+                                            src={event.image_url} 
+                                            alt="Post preview" 
+                                            className="w-full h-full object-cover" 
+                                        />
+                                    ) : (
+                                        <FaImage className="text-gray-400 text-xl" />
+                                    )}
+                                </div>
                             </div>
-                            
-                            {/* Caption Text */}
-                            <div className="min-w-0">
-                                <p className="text-sm font-medium text-white truncate pr-4" title={event.text}>
-                                    {event.text || "No caption"}
+
+                            {/* Name - Platform icons + "Post" + Title + Description */}
+                            <div className="col-span-5 min-w-0">
+                                <div className="flex items-center gap-2 mb-2">
+                                    {/* Platform Icons */}
+                                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                                        {platforms.map((platform, idx) => {
+                                            const config = platformConfig?.[platform];
+                                            if (!config) return null;
+                                            const Icon = config.Icon;
+                                            return (
+                                                <div 
+                                                    key={idx}
+                                                    className="w-5 h-5 flex items-center justify-center"
+                                                    title={config.name}
+                                                >
+                                                    <Icon style={{ color: config.color, fontSize: '16px' }} />
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <span className="text-gray-500 text-sm font-medium">Post</span>
+                                </div>
+                                <h4 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                                    {title}
+                                </h4>
+                                <p className="text-sm text-gray-600 line-clamp-2">
+                                    {description}
                                 </p>
-                                <p className="text-xs text-[#98989d] truncate mt-0.5">
-                                    {event.characters || event.text?.length || 0} chars
-                                </p>
                             </div>
-                        </div>
 
-                        {/* Platforms */}
-                        <div className="col-span-2 flex items-center">
-                            <div className="flex -space-x-2">
-                                {event.platforms?.map((platform, idx) => {
-                                    const config = platformConfig?.[platform];
-                                    if (!config) return null;
-                                    const Icon = config.Icon;
-                                    return (
-                                        <div 
-                                            key={idx}
-                                            className="w-8 h-8 rounded-full bg-[#1c1c1e] border-2 border-[#1c1c1e] flex items-center justify-center"
-                                            title={platform}
-                                            style={{ backgroundColor: config.bgColor }}
-                                        >
-                                            <Icon style={{ color: config.color, fontSize: '14px' }} />
-                                        </div>
-                                    );
-                                })}
+                            {/* Post Date & Time */}
+                            <div className="col-span-3">
+                                <div className="text-sm font-medium text-gray-900">
+                                    {format(new Date(event.start), 'EEE, MMM d h:mma')}
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Date & Time */}
-                        <div className="col-span-3 text-sm text-[#e5e5e7]">
-                            <div className="font-medium">
-                                {format(new Date(event.start), 'EEE, MMM d, yyyy')}
+                            {/* Post Status - "Connect" button matching reference */}
+                            <div className="col-span-2">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onSelectEvent(event);
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                                >
+                                    <FaLink className="text-xs" />
+                                    Connect
+                                </button>
                             </div>
-                            <div className="text-[#98989d] text-xs mt-0.5">
-                                {format(new Date(event.start), 'h:mm a')}
-                            </div>
-                        </div>
-
-                        {/* Status */}
-                        <div className="col-span-2">
-                            <StatusBadge status={event.status || 'queued'} />
-                        </div>
-
-                        {/* Actions */}
-                        <div className="col-span-1 flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onSelectEvent(event);
-                                }}
-                                className="p-2 text-[#98989d] hover:text-white hover:bg-[#3a3a3c] rounded-lg transition-colors"
-                                title="Edit"
-                            >
-                                <FaEdit />
-                            </button>
-                        </div>
-                    </motion.div>
-                ))}
+                        </motion.div>
+                    );
+                })}
             </div>
         </div>
     );

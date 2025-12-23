@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, addWeeks, subWeeks, startOfWeek, addDays } from 'date-fns';
+import { format, addWeeks, subWeeks, addDays } from 'date-fns';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { NoScheduledEmpty } from '../components/ui/EmptyState';
 import BlazeWeekView from '../components/calendar/BlazeWeekView';
+import CalendarListView from '../components/calendar/CalendarListView';
 import PostPreviewModal from '../components/calendar/PostPreviewModal';
 import BottomActionBar from '../components/calendar/BottomActionBar';
 import {
@@ -173,10 +174,10 @@ export default function Calendar() {
     setCurrentDate(new Date());
   };
 
-  // Get week range for display
+  // Get week range for display - start from today
   const getWeekRange = () => {
-    const start = startOfWeek(currentDate, { weekStartsOn: 0 });
-    const end = addDays(start, 6);
+    const start = currentDate; // Start from today
+    const end = addDays(start, 6); // 7 days total (today + 6 more days)
     return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
   };
 
@@ -417,30 +418,34 @@ export default function Calendar() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {/* Calendar Title */}
-          <h1 className="blaze-title">Calendar</h1>
+          <h1 className="blaze-title">Scheduled Posts</h1>
 
-          {/* Navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button className="blaze-nav-btn" onClick={() => navigateWeek(-1)}>
-              <FaChevronLeft style={{ fontSize: '12px' }} />
-            </button>
-            <button className="blaze-today-btn" onClick={goToToday}>
-              Today
-            </button>
-            <button className="blaze-nav-btn" onClick={() => navigateWeek(1)}>
-              <FaChevronRight style={{ fontSize: '12px' }} />
-            </button>
-          </div>
+          {/* Navigation - Only show for week view */}
+          {viewType === 'week' && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button className="blaze-nav-btn" onClick={() => navigateWeek(-1)}>
+                  <FaChevronLeft style={{ fontSize: '12px' }} />
+                </button>
+                <button className="blaze-today-btn" onClick={goToToday}>
+                  Today
+                </button>
+                <button className="blaze-nav-btn" onClick={() => navigateWeek(1)}>
+                  <FaChevronRight style={{ fontSize: '12px' }} />
+                </button>
+              </div>
 
-          {/* Week Range Display */}
-          <span style={{ 
-            fontSize: '14px', 
-            fontWeight: '500', 
-            color: '#374151',
-            minWidth: '180px'
-          }}>
-            {getWeekRange()}
-          </span>
+              {/* Week Range Display */}
+              <span style={{ 
+                fontSize: '14px', 
+                fontWeight: '500', 
+                color: '#374151',
+                minWidth: '180px'
+              }}>
+                {getWeekRange()}
+              </span>
+            </>
+          )}
         </div>
 
         <div className="blaze-header-right">
@@ -450,7 +455,7 @@ export default function Calendar() {
               className="blaze-dropdown-btn"
               onClick={() => setShowViewDropdown(!showViewDropdown)}
             >
-              Week View
+              {viewType === 'week' ? 'Week View' : viewType === 'list' ? 'List View' : 'Day View'}
               <FaChevronDown />
             </button>
             
@@ -468,7 +473,7 @@ export default function Calendar() {
                 zIndex: 50,
                 minWidth: '120px'
               }}>
-                {['Week', 'Month', 'Day'].map(v => (
+                {['Week', 'List'].map(v => (
                   <button
                     key={v}
                     onClick={() => {
@@ -662,6 +667,14 @@ export default function Calendar() {
         ) : events.length === 0 ? (
           <div style={{ padding: '48px' }}>
             <NoScheduledEmpty onSchedule={() => window.location.href = '/create'} />
+          </div>
+        ) : viewType === 'list' ? (
+          <div style={{ padding: '24px' }}>
+            <CalendarListView
+              events={filteredEvents}
+              onSelectEvent={handleSelectEvent}
+              platformConfig={PLATFORM_CONFIG}
+            />
           </div>
         ) : (
           <BlazeWeekView
