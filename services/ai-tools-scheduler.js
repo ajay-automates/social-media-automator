@@ -156,12 +156,17 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         }
 
         // 2. Calculate schedule times based on mode
+        // IMPORTANT: Use postCount (expected) not tools.length (actual) to ensure we generate enough times
+        // Even if fewer topics were generated, we still want the right number of schedule times
+        const expectedScheduleCount = Math.max(tools.length, postCount);
+        
         console.log(`\n📅 Calculating Schedule Times:`);
         console.log(`   Mode: ${scheduleMode}`);
         console.log(`   Topic Count: ${tools.length}`);
         console.log(`   Requested Count: ${postCount}`);
+        console.log(`   Schedule Times to Generate: ${expectedScheduleCount} (using max of topics vs requested)`);
         
-        const scheduleTimes = calculateScheduleTimes(tools.length, scheduleMode);
+        const scheduleTimes = calculateScheduleTimes(expectedScheduleCount, scheduleMode);
         console.log(`   Generated: ${scheduleTimes.length} schedule times`);
         
         if (scheduleTimes.length > 0) {
