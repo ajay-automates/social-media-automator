@@ -1553,19 +1553,20 @@ app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
 app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { url, articles, platforms } = req.body;
-    console.log(`🤖 Manual AI posts scheduling triggered by user: ${userId}${url ? ` for URL: ${url}` : ''}${articles ? ` for ${articles.length} articles` : ''}${platforms ? ` on ${platforms}` : ''}`);
+    const { url, articles, platforms, scheduleMode } = req.body;
+    console.log(`🤖 Manual AI posts scheduling triggered by user: ${userId}${url ? ` for URL: ${url}` : ''}${articles ? ` for ${articles.length} articles` : ''}${platforms ? ` on ${platforms}` : ''} [Mode: ${scheduleMode || 'default'}]`);
 
     // Import the scheduler function
     const { scheduleAIToolsPosts } = require('./services/ai-tools-scheduler');
 
-    // Run the scheduler for this specific user
-    const result = await scheduleAIToolsPosts(userId, url, articles, platforms);
+    // Run the scheduler for this specific user with schedule mode
+    const result = await scheduleAIToolsPosts(userId, url, articles, platforms, scheduleMode || 'default');
 
+    const expectedCount = scheduleMode === 'weekly' ? 21 : 10;
     res.json({
       success: true,
-      scheduled: result.scheduled || 10,
-      message: 'AI posts scheduled successfully!'
+      scheduled: result.scheduled || expectedCount,
+      message: `${result.scheduled || expectedCount} AI posts scheduled successfully!`
     });
   } catch (error) {
     console.error('❌ Error in /api/ai-tools/schedule-now:', error);

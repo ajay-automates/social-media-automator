@@ -7,7 +7,7 @@ import NewsCard from './NewsCard';
 import FeaturedAINews from './FeaturedAINews';
 import GeneratePostPreview from './GeneratePostPreview';
 import BulkScheduleModal from './BulkScheduleModal'; // Added import
-import { useToast } from '../../contexts/ToastContext';
+import { showSuccess, showError } from '../ui/Toast';
 
 /**
  * AINewsFeedSection - Container for AI news with overlapping card layout
@@ -22,7 +22,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const [refreshKey, setRefreshKey] = useState(0); // Force re-render on refresh
-    const { showSuccess, showError, celebrateSuccess } = useToast(); // Initialized useToast
+    // Toast functions imported from Toast component
 
     // Featured Article State (Netflix-style hero)
     const [featuredIndex, setFeaturedIndex] = useState(0);
@@ -280,7 +280,6 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
 
             if (response.data.success) {
                 showSuccess('Posted successfully! 🚀');
-                celebrateSuccess();
                 setIsPreviewOpen(false);
             }
         } catch (error) {
@@ -364,7 +363,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
 
             if (response.data.success) {
                 showSuccess(`Successfully scheduled ${response.data.scheduled} posts!`);
-                celebrateSuccess();
+                // Success already shown via showSuccess
                 setSelectedArticles(new Set());
                 setIsSelectionMode(false);
             } else {

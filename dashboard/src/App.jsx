@@ -263,7 +263,7 @@ function Navigation() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-64 glass border-2 border-white/20 rounded-2xl shadow-2xl z-50 max-h-[80vh] overflow-y-auto"
+                    className="absolute right-0 mt-2 w-64 glass border-2 border-white/20 rounded-2xl shadow-2xl z-50 max-h-[80vh] overflow-y-auto custom-scrollbar"
                     style={{
                       background: 'linear-gradient(135deg, rgba(30, 30, 50, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%)',
                       backdropFilter: 'blur(20px)',

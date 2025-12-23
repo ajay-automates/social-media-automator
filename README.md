@@ -56,11 +56,14 @@ npm run dev             # Start on http://localhost:5001
 ## ✨ Features
 
 - 🤖 **AI Content Suite** - Caption generation, hashtags, best time to post
-- 📅 **Smart Scheduling** - Visual calendar, bulk upload, auto-posting
+- 📅 **Blaze AI-Style Calendar** - 7-day week view, post preview with platform switching, multi-select & bulk actions
+- 🎨 **AI Image Generation** - Automatic image generation for every post (Pollinations.ai + fallbacks)
+- 🌐 **Multi-Platform Scheduling** - Select platforms when generating posts (all 16 platforms supported)
+- 📅 **Smart Scheduling Modes** - 10 posts today (hourly) or weekly calendar (21 posts over 7 days)
 - 👥 **Team Collaboration** - Roles, approvals, invitations
 - 📊 **Analytics** - Real-time dashboard, heatmaps, reports
 - 🔌 **Chrome Extension** - One-click posting from any webpage
-- 🎨 **Modern UI** - Glassmorphism design, dark mode, responsive
+- 🎨 **Modern UI** - Light theme calendar, glassmorphism design, responsive
 
 [All Features →](docs/features/)
 
@@ -114,8 +117,17 @@ MIT License
 
 ---
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** ✅ Production Ready
-**Updated:** November 13, 2025
+**Updated:** December 2024
+
+### Latest Updates (v1.1.0)
+- 🎨 **Blaze AI Calendar Redesign** - Complete UI overhaul with light theme
+- 🖼️ **AI Image Generation** - Every post includes AI-generated images
+- 🌐 **Multi-Platform Selection** - Choose platforms when generating posts
+- 📅 **Weekly Calendar Mode** - 21 posts distributed across 7 days
+- ✅ **Bulk Selection** - Select and delete multiple posts at once
+
+[View Changelog →](CHANGELOG_CALENDAR_REDESIGN.md)
 
 📖 [View All Documentation](DOCS_INDEX.md)
