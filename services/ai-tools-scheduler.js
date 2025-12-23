@@ -392,11 +392,13 @@ async function generateToolPostContent(tool) {
     "twitter": "..."
   }`;
 
-    const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+    const message = await makeAICall({
+        model: 'claude-3-5-haiku-20241022', // Use cheapest model
         max_tokens: 1000,
         temperature: 0.7,
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: prompt }],
+        taskType: 'simple',
+        feature: 'calendar_post_content'
     });
 
     const text = message.content[0].text.trim();
@@ -619,11 +621,13 @@ Return ONLY valid JSON:
   "twitter": "..."
 }`;
 
-    const message = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+    const message = await makeAICall({
+        model: 'claude-3-5-haiku-20241022', // Use cheapest model
         max_tokens: 1000,
         temperature: 0.7,
-        messages: [{ role: 'user', content: prompt }]
+        messages: [{ role: 'user', content: prompt }],
+        taskType: 'simple',
+        feature: 'calendar_post_content'
     });
 
     const text = message.content[0].text.trim();
