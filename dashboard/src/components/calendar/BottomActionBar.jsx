@@ -55,6 +55,8 @@ export default function BottomActionBar({
   onImproveClick,
   isGenerating = false,
   hasBusinessProfile = false,
+  events = [],
+  checkCurrentWeekHasPosts,
   // Selection props
   selectionMode = false,
   selectedCount = 0,
@@ -293,6 +295,8 @@ export default function BottomActionBar({
         <FillWeekButton 
           onFillWeek={onFillWeek}
           isGenerating={isGenerating}
+          events={events}
+          checkCurrentWeekHasPosts={checkCurrentWeekHasPosts}
         />
       )}
 

@@ -1588,7 +1588,8 @@ app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
       }
     }
 
-    const result = await scheduleAIToolsPosts(userId, url, articles, platforms, scheduleMode || 'default', businessProfile, preset, distribution);
+    const weekOffset = req.body.weekOffset || 0; // 0 = current week, 1 = next week
+    const result = await scheduleAIToolsPosts(userId, url, articles, platforms, scheduleMode || 'default', businessProfile, preset, distribution, weekOffset);
 
     console.log(`📊 Scheduling result:`, {
       success: result.success,

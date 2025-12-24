@@ -71,8 +71,9 @@ async function getDefaultUserId() {
  * @param {Object} businessProfile - Optional business profile to use for content generation
  * @param {string} preset - Optional preset name ('balanced_mix', 'linkedin_focus', 'daily_all', 'custom')
  * @param {Object} distribution - Optional distribution object mapping platform to post count
+ * @param {number} weekOffset - Week offset: 0 = current week, 1 = next week (days 8-14)
  */
-async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null, scheduleMode = 'default', businessProfile = null, preset = null, distribution = null) {
+async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null, scheduleMode = 'default', businessProfile = null, preset = null, distribution = null, weekOffset = 0) {
     console.log(`\n${'='.repeat(60)}`);
     console.log(`🤖 STARTING POST GENERATION`);
     console.log(`${'='.repeat(60)}`);
@@ -171,8 +172,8 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         
         // Use smart scheduling if preset is provided, otherwise use default
         const scheduleTimes = preset === 'balanced_mix' && platformsToUse.length > 0
-            ? generateSmartScheduleTimes(expectedScheduleCount, scheduleMode, platformsToUse)
-            : calculateScheduleTimes(expectedScheduleCount, scheduleMode);
+            ? generateSmartScheduleTimes(expectedScheduleCount, scheduleMode, platformsToUse, weekOffset)
+            : calculateScheduleTimes(expectedScheduleCount, scheduleMode, weekOffset);
         console.log(`   Generated: ${scheduleTimes.length} schedule times`);
         
         if (scheduleTimes.length > 0) {
@@ -689,8 +690,9 @@ function generateImagePrompt(tool, sourceUrl) {
  * Calculate posting times based on schedule mode
  * @param {number} count - Number of posts
  * @param {string} mode - 'default' (tomorrow), 'today_hourly' (today 1hr gaps), 'weekly' (3/day for 7 days)
+ * @param {number} weekOffset - Week offset: 0 = current week, 1 = next week (days 8-14)
  */
-function calculateScheduleTimes(count, mode = 'default') {
+function calculateScheduleTimes(count, mode = 'default', weekOffset = 0) {
     const times = [];
     const now = new Date();
     
@@ -717,19 +719,22 @@ function calculateScheduleTimes(count, mode = 'default') {
         // Default time: 10 AM each day (can be customized)
         const defaultHour = 10; // 10 AM
         
-        // Calculate tomorrow's date at midnight
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
+        // Calculate start date based on weekOffset
+        // weekOffset 0 = current week (tomorrow + 0 days = tomorrow)
+        // weekOffset 1 = next week (tomorrow + 7 days = next week)
+        const startDate = new Date(now);
+        startDate.setDate(startDate.getDate() + 1 + (weekOffset * 7)); // Tomorrow + weekOffset weeks
+        startDate.setHours(0, 0, 0, 0);
         
-        console.log(`📅 Weekly calendar: Starting from ${tomorrow.toLocaleDateString()}, generating ${count} posts`);
+        const weekLabel = weekOffset === 0 ? 'this week' : 'next week';
+        console.log(`📅 Weekly calendar (${weekLabel}): Starting from ${startDate.toLocaleDateString()}, generating ${count} posts`);
         
         // Generate times: one per platform per day
         // Pattern: Day 1 (platform1, platform2, platform3), Day 2 (platform1, platform2, platform3), etc.
         for (let day = 0; day < 7; day++) {
             for (let platformIndex = 0; platformIndex < Math.ceil(count / 7) && times.length < count; platformIndex++) {
-                const postTime = new Date(tomorrow);
-                postTime.setDate(tomorrow.getDate() + day);
+                const postTime = new Date(startDate);
+                postTime.setDate(startDate.getDate() + day);
                 postTime.setHours(defaultHour, 0, 0, 0);
                 postTime.setSeconds(0, 0);
                 postTime.setMilliseconds(0);

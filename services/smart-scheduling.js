@@ -171,22 +171,25 @@ function getOptimalPostTime(platform, date) {
  * @param {number} count - Number of posts
  * @param {string} mode - Schedule mode ('weekly', 'daily', etc.)
  * @param {string[]} platforms - Array of platform names
+ * @param {number} weekOffset - Week offset: 0 = current week, 1 = next week (days 8-14)
  * @returns {Date[]} Array of scheduled dates
  */
-function generateSmartScheduleTimes(count, mode, platforms = []) {
+function generateSmartScheduleTimes(count, mode, platforms = [], weekOffset = 0) {
   const times = [];
   const now = new Date();
   
   if (mode === 'weekly') {
     // Weekly mode: One post per platform per day for 7 days
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    // weekOffset 0 = current week (tomorrow + 0 days = tomorrow)
+    // weekOffset 1 = next week (tomorrow + 7 days = next week)
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() + 1 + (weekOffset * 7)); // Tomorrow + weekOffset weeks
+    startDate.setHours(0, 0, 0, 0);
     
     for (let day = 0; day < 7; day++) {
       for (let platformIndex = 0; platformIndex < platforms.length && times.length < count; platformIndex++) {
-        const postDate = new Date(tomorrow);
-        postDate.setDate(tomorrow.getDate() + day);
+        const postDate = new Date(startDate);
+        postDate.setDate(startDate.getDate() + day);
         
         // Use smart scheduling for this platform and day
         const platform = platforms[platformIndex];

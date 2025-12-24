@@ -444,8 +444,23 @@ export default function Calendar() {
     return distribution;
   };
 
+  // Check if current week (next 7 days) already has posts scheduled
+  const checkCurrentWeekHasPosts = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const nextWeek = addDays(today, 7);
+    
+    const postsInCurrentWeek = events.filter(event => {
+      const eventDate = new Date(event.start);
+      return eventDate >= today && eventDate < nextWeek;
+    });
+    
+    // Consider week "filled" if there are at least 5 posts (threshold)
+    return postsInCurrentWeek.length >= 5;
+  };
+
   // Fill My Week - Balanced mix across all connected platforms
-  const handleFillWeek = async (connectedPlatforms) => {
+  const handleFillWeek = async (connectedPlatforms, weekOffset = 0) => {
     try {
       if (!connectedPlatforms || connectedPlatforms.length === 0) {
         showError('No platforms connected. Please connect platforms first.');
@@ -458,20 +473,25 @@ export default function Calendar() {
       const balancedMix = calculateBalancedMix(connectedPlatforms);
       const totalPosts = Object.values(balancedMix).reduce((sum, count) => sum + count, 0);
       
-      showSuccess(`🎨 Generating ${totalPosts} posts across ${connectedPlatforms.length} platform(s) for the next 7 days with balanced distribution...`);
+      const weekLabel = weekOffset === 0 ? 'this week' : 'next week';
+      showSuccess(`🎨 Generating ${totalPosts} posts across ${connectedPlatforms.length} platform(s) for ${weekLabel} with balanced distribution...`);
 
       const requestBody = {
         scheduleMode: 'weekly',
         platforms: connectedPlatforms,
         useBusinessProfile: false, // Can be made configurable later
         preset: 'balanced_mix',
-        distribution: balancedMix
+        distribution: balancedMix,
+        weekOffset: weekOffset // 0 = current week, 1 = next week
       };
 
       const response = await api.post('/ai-tools/schedule-now', requestBody);
 
       if (response.data.success) {
-        showSuccess(`✅ Successfully scheduled ${response.data.scheduled || totalPosts} posts! Your week is ready! 🎉`);
+        const successMessage = weekOffset === 0 
+          ? `✅ Successfully scheduled ${response.data.scheduled || totalPosts} posts! Your week is ready! 🎉`
+          : `✅ Successfully scheduled ${response.data.scheduled || totalPosts} posts for next week! 🎉`;
+        showSuccess(successMessage);
         loadScheduledPosts();
       } else {
         showError(response.data.error || 'Failed to schedule posts');
@@ -919,6 +939,8 @@ export default function Calendar() {
         onImproveClick={() => showSuccess('Improve feature coming soon!')}
         isGenerating={isGenerating}
         hasBusinessProfile={hasBusinessProfile}
+        events={events}
+        checkCurrentWeekHasPosts={checkCurrentWeekHasPosts}
         // Selection props
         selectionMode={selectionMode}
         selectedCount={selectedPostIds.size}
