@@ -5,6 +5,7 @@ const { scrapeWebContent } = require('./web-scraper-light'); // Import scraper
 const { generateImage } = require('./ai-image'); // Import image generation
 const cloudinaryService = require('./cloudinary'); // Import cloudinary for upload
 const { makeAICall } = require('./ai-wrapper'); // Use AI wrapper with cost tracking
+const { generateSmartScheduleTimes } = require('./smart-scheduling'); // Smart scheduling
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
@@ -68,8 +69,10 @@ async function getDefaultUserId() {
  * @param {Array} targetPlatforms - Optional list of platforms to schedule for (default: linkedin, twitter)
  * @param {string} scheduleMode - Scheduling mode: 'default' (10 tomorrow), 'today_hourly' (10 today), 'weekly' (21 posts over 7 days)
  * @param {Object} businessProfile - Optional business profile to use for content generation
+ * @param {string} preset - Optional preset name ('balanced_mix', 'linkedin_focus', 'daily_all', 'custom')
+ * @param {Object} distribution - Optional distribution object mapping platform to post count
  */
-async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null, scheduleMode = 'default', businessProfile = null) {
+async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, articles = null, targetPlatforms = null, scheduleMode = 'default', businessProfile = null, preset = null, distribution = null) {
     console.log(`\n${'='.repeat(60)}`);
     console.log(`🤖 STARTING POST GENERATION`);
     console.log(`${'='.repeat(60)}`);
@@ -166,7 +169,10 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
         console.log(`   Requested Count: ${postCount}`);
         console.log(`   Schedule Times to Generate: ${expectedScheduleCount} (using max of topics vs requested)`);
         
-        const scheduleTimes = calculateScheduleTimes(expectedScheduleCount, scheduleMode);
+        // Use smart scheduling if preset is provided, otherwise use default
+        const scheduleTimes = preset === 'balanced_mix' && platformsToUse.length > 0
+            ? generateSmartScheduleTimes(expectedScheduleCount, scheduleMode, platformsToUse)
+            : calculateScheduleTimes(expectedScheduleCount, scheduleMode);
         console.log(`   Generated: ${scheduleTimes.length} schedule times`);
         
         if (scheduleTimes.length > 0) {

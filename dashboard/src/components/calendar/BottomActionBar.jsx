@@ -26,6 +26,7 @@ import {
   FaTumblr
 } from 'react-icons/fa';
 import { SiMastodon, SiBluesky } from 'react-icons/si';
+import FillWeekButton from './FillWeekButton';
 
 // Platform configuration
 const PLATFORM_CONFIG = {
@@ -50,6 +51,7 @@ const PLATFORM_CONFIG = {
 export default function BottomActionBar({ 
   onCreateClick, 
   onGenerateClick,
+  onFillWeek,
   onImproveClick,
   isGenerating = false,
   hasBusinessProfile = false,
@@ -286,7 +288,15 @@ export default function BottomActionBar({
         Create
       </motion.button>
 
-      {/* Generate Posts Dropdown */}
+      {/* Fill My Week Button - Primary CTA */}
+      {onFillWeek && (
+        <FillWeekButton 
+          onFillWeek={onFillWeek}
+          isGenerating={isGenerating}
+        />
+      )}
+
+      {/* Generate Posts Dropdown - Secondary */}
       <div style={{ position: 'relative' }}>
         <motion.button
           whileHover={{ scale: 1.02 }}

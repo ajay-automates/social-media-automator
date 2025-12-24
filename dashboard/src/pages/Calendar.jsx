@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, addWeeks, subWeeks, addDays } from 'date-fns';
+import { format, addWeeks, subWeeks, addDays, isSameDay } from 'date-fns';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { NoScheduledEmpty } from '../components/ui/EmptyState';
@@ -8,6 +8,10 @@ import BlazeWeekView from '../components/calendar/BlazeWeekView';
 import CalendarListView from '../components/calendar/CalendarListView';
 import PostPreviewModal from '../components/calendar/PostPreviewModal';
 import BottomActionBar from '../components/calendar/BottomActionBar';
+import FillWeekButton from '../components/calendar/FillWeekButton';
+import EmptySlotIndicator from '../components/calendar/EmptySlotIndicator';
+import PlatformDistributionChart from '../components/calendar/PlatformDistributionChart';
+import AutoFillModal from '../components/calendar/AutoFillModal';
 import {
   FaLinkedin,
   FaTwitter,
@@ -332,10 +336,73 @@ export default function Calendar() {
   // State for generating posts
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasBusinessProfile, setHasBusinessProfile] = useState(false);
+  
+  // Empty slots state
+  const [emptySlots, setEmptySlots] = useState([]);
+  const [connectedPlatforms, setConnectedPlatforms] = useState([]);
+  
+  // Auto-fill modal state
+  const [showAutoFillModal, setShowAutoFillModal] = useState(false);
 
   useEffect(() => {
     checkBusinessProfile();
+    fetchConnectedPlatforms();
   }, []);
+
+  useEffect(() => {
+    const seen = localStorage.getItem('calendar_autofill_seen');
+    
+    // Check if calendar is empty and user hasn't seen auto-fill
+    if (!seen && events.length === 0 && !loading && connectedPlatforms.length > 0) {
+      setTimeout(() => {
+        setShowAutoFillModal(true);
+      }, 1000); // Show after 1 second
+    }
+  }, [events.length, loading, connectedPlatforms.length]);
+
+  useEffect(() => {
+    if (events.length > 0) {
+      detectEmptySlots();
+    }
+  }, [events]);
+
+  const fetchConnectedPlatforms = async () => {
+    try {
+      const response = await api.get('/accounts');
+      const accounts = response.data?.accounts || response.data || [];
+      const platforms = [...new Set(accounts.map(acc => acc.platform).filter(Boolean))];
+      setConnectedPlatforms(platforms);
+    } catch (error) {
+      console.error('Error fetching platforms:', error);
+      setConnectedPlatforms([]);
+    }
+  };
+
+  // Detect empty slots in the next 7 days
+  const detectEmptySlots = () => {
+    const slots = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Check next 7 days
+    for (let day = 0; day < 7; day++) {
+      const checkDate = addDays(today, day);
+      const dayPosts = events.filter(e => 
+        isSameDay(new Date(e.start), checkDate)
+      );
+      
+      if (dayPosts.length === 0) {
+        slots.push({
+          date: checkDate,
+          dayName: format(checkDate, 'EEEE'),
+          isEmpty: true
+        });
+      }
+    }
+    
+    setEmptySlots(slots);
+    return slots;
+  };
 
   const checkBusinessProfile = async () => {
     try {
@@ -344,6 +411,103 @@ export default function Calendar() {
     } catch (err) {
       console.error('Error checking business profile:', err);
     }
+  };
+
+  // Calculate balanced mix distribution
+  const calculateBalancedMix = (platforms) => {
+    const distribution = {};
+    
+    // Priority-based distribution (posts per week)
+    const priority = {
+      linkedin: 3,      // 3 posts/week (Mon/Wed/Fri)
+      twitter: 7,      // Daily posts
+      instagram: 3,    // 3 posts/week (Tue/Thu/Sat)
+      facebook: 2,     // 2 posts/week
+      tiktok: 3,       // 3 posts/week
+      youtube: 2,      // 2 posts/week
+      reddit: 2,       // 2 posts/week
+      telegram: 7,     // Daily posts
+      discord: 3,      // 3 posts/week
+      slack: 2,        // 2 posts/week
+      pinterest: 2,    // 2 posts/week
+      medium: 2,       // 2 posts/week
+      mastodon: 3,     // 3 posts/week
+      bluesky: 3,      // 3 posts/week
+      whatsapp: 2,     // 2 posts/week
+      tumblr: 2        // 2 posts/week
+    };
+
+    platforms.forEach(platform => {
+      distribution[platform] = priority[platform] || 2; // Default: 2 posts/week
+    });
+
+    return distribution;
+  };
+
+  // Fill My Week - Balanced mix across all connected platforms
+  const handleFillWeek = async (connectedPlatforms) => {
+    try {
+      if (!connectedPlatforms || connectedPlatforms.length === 0) {
+        showError('No platforms connected. Please connect platforms first.');
+        return;
+      }
+
+      setIsGenerating(true);
+      
+      // Balanced Mix Preset: 2-3 posts per platform over 7 days
+      const balancedMix = calculateBalancedMix(connectedPlatforms);
+      const totalPosts = Object.values(balancedMix).reduce((sum, count) => sum + count, 0);
+      
+      showSuccess(`🎨 Generating ${totalPosts} posts across ${connectedPlatforms.length} platform(s) for the next 7 days with balanced distribution...`);
+
+      const requestBody = {
+        scheduleMode: 'weekly',
+        platforms: connectedPlatforms,
+        useBusinessProfile: false, // Can be made configurable later
+        preset: 'balanced_mix',
+        distribution: balancedMix
+      };
+
+      const response = await api.post('/ai-tools/schedule-now', requestBody);
+
+      if (response.data.success) {
+        showSuccess(`✅ Successfully scheduled ${response.data.scheduled || totalPosts} posts! Your week is ready! 🎉`);
+        loadScheduledPosts();
+      } else {
+        showError(response.data.error || 'Failed to schedule posts');
+      }
+    } catch (err) {
+      console.error('Error filling week:', err);
+      showError(err.response?.data?.error || 'Failed to fill week');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Fill empty slots only
+  const handleFillEmptySlots = async (slots) => {
+    if (!slots || slots.length === 0) return;
+    
+    if (connectedPlatforms.length === 0) {
+      showError('No platforms connected. Please connect platforms first.');
+      return;
+    }
+
+    // Use balanced mix but only for empty days
+    await handleFillWeek(connectedPlatforms);
+  };
+
+  // Handle auto-fill modal accept
+  const handleAutoFillAccept = async () => {
+    localStorage.setItem('calendar_autofill_seen', 'true');
+    setShowAutoFillModal(false);
+    await handleFillWeek(connectedPlatforms);
+  };
+
+  // Handle auto-fill modal close
+  const handleAutoFillClose = () => {
+    localStorage.setItem('calendar_autofill_seen', 'true');
+    setShowAutoFillModal(false);
   };
 
   // Schedule AI Posts with mode selection and platform selection
@@ -646,6 +810,16 @@ export default function Calendar() {
 
       {/* Calendar Content */}
       <div style={{ paddingBottom: '100px' }}>
+        {/* Platform Distribution Chart - Show when there are posts */}
+        {!loading && events.length > 0 && viewType === 'week' && (
+          <div style={{ padding: '0 24px 16px 24px' }}>
+            <PlatformDistributionChart 
+              events={events}
+              platformConfig={PLATFORM_CONFIG}
+            />
+          </div>
+        )}
+        
         {loading ? (
           <div className="blaze-loading" style={{ minHeight: '600px' }}>
             <div className="blaze-spinner"></div>
@@ -721,10 +895,27 @@ export default function Calendar() {
         totalEvents={filteredEvents.length}
       />
 
+      {/* Auto-Fill Modal */}
+      <AutoFillModal
+        isOpen={showAutoFillModal}
+        onClose={handleAutoFillClose}
+        onAccept={handleAutoFillAccept}
+        connectedPlatforms={connectedPlatforms}
+      />
+
+      {/* Empty Slot Indicator */}
+      {emptySlots.length > 0 && (
+        <EmptySlotIndicator 
+          emptySlots={emptySlots}
+          onFillSlot={handleFillEmptySlots}
+        />
+      )}
+
       {/* Bottom Action Bar */}
       <BottomActionBar
         onCreateClick={() => window.location.href = '/create'}
         onGenerateClick={handleGeneratePosts}
+        onFillWeek={handleFillWeek}
         onImproveClick={() => showSuccess('Improve feature coming soon!')}
         isGenerating={isGenerating}
         hasBusinessProfile={hasBusinessProfile}

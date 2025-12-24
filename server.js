@@ -1560,8 +1560,8 @@ app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
 app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { url, articles, platforms, scheduleMode } = req.body;
-    console.log(`🤖 Manual AI posts scheduling triggered by user: ${userId}${url ? ` for URL: ${url}` : ''}${articles ? ` for ${articles.length} articles` : ''}${platforms ? ` on ${platforms}` : ''} [Mode: ${scheduleMode || 'default'}]`);
+    const { url, articles, platforms, scheduleMode, preset, distribution } = req.body;
+    console.log(`🤖 Manual AI posts scheduling triggered by user: ${userId}${url ? ` for URL: ${url}` : ''}${articles ? ` for ${articles.length} articles` : ''}${platforms ? ` on ${platforms}` : ''} [Mode: ${scheduleMode || 'default'}]${preset ? ` [Preset: ${preset}]` : ''}`);
 
     // Import the scheduler function
     const { scheduleAIToolsPosts } = require('./services/ai-tools-scheduler');
@@ -1573,6 +1573,8 @@ app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
       articles: articles?.length || 0,
       platforms: platforms || 'default',
       scheduleMode: scheduleMode || 'default',
+      preset: preset || 'none',
+      distribution: distribution || 'none',
       useBusinessProfile: req.body.useBusinessProfile || false
     });
 
@@ -1586,7 +1588,7 @@ app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
       }
     }
 
-    const result = await scheduleAIToolsPosts(userId, url, articles, platforms, scheduleMode || 'default', businessProfile);
+    const result = await scheduleAIToolsPosts(userId, url, articles, platforms, scheduleMode || 'default', businessProfile, preset, distribution);
 
     console.log(`📊 Scheduling result:`, {
       success: result.success,
