@@ -8781,7 +8781,3 @@ app.listen(PORT, async () => {
   console.log(`   POST /api/ai/image/generate - Generate AI images`);
   console.log('\n' + '='.repeat(50) + '\n');
 });
-// Force redeploy - Fix auth.html redirect priority
-/ /   C a c h e   c l e a r e d :   2 0 2 6 - 0 1 - 0 4   0 1 : 2 7 : 1 4 
- 
- 
