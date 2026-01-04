@@ -430,7 +430,11 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 }
               } catch (err) {
                 console.error(`    ❌ Reddit error:`, err.message);
-                results.reddit.push({ error: err.message, platform: 'reddit' });
+                results.reddit.push({ 
+                  success: false,
+                  error: err.message, 
+                  platform: 'reddit' 
+                });
               }
             }
           } else {
