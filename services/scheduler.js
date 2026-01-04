@@ -987,6 +987,14 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 });
               }
             }
+          } else {
+            console.log(`⚠️  No Bluesky credentials found`);
+            results.bluesky = results.bluesky || [];
+            results.bluesky.push({
+              success: false,
+              error: 'No Bluesky account connected. Please connect your Bluesky account in Settings.',
+              platform: 'bluesky'
+            });
           }
         }
 
