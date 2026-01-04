@@ -63,7 +63,7 @@ async function getDuePosts() {
   try {
     const now = new Date().toISOString();
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .select('*')
       .eq('status', 'queued')
@@ -218,7 +218,7 @@ async function getPlatformStats(userId = null) {
       return cached;
     }
 
-    let query = supabase
+    let query = supabaseAdmin
       .from('posts')
       .select('platforms, status, results, user_id')
       .in('status', ['posted', 'failed', 'partial']);
@@ -313,22 +313,22 @@ async function getAnalyticsOverview(userId) {
       { data: platformPosts }
     ] = await Promise.all([
       // Total posts
-      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabaseAdmin.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
 
       // Posts this month
-      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', startOfMonth.toISOString()),
+      supabaseAdmin.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', startOfMonth.toISOString()),
 
       // Posts today
-      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', startOfDay.toISOString()),
+      supabaseAdmin.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', startOfDay.toISOString()),
 
       // Scheduled count
-      supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'queued'),
+      supabaseAdmin.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'queued'),
 
       // Completed posts (for success rate)
-      supabase.from('posts').select('status').eq('user_id', userId).in('status', ['posted', 'failed', 'partial']),
+      supabaseAdmin.from('posts').select('status').eq('user_id', userId).in('status', ['posted', 'failed', 'partial']),
 
       // Active platforms
-      supabase.from('posts').select('platforms').eq('user_id', userId)
+      supabaseAdmin.from('posts').select('platforms').eq('user_id', userId)
     ]);
 
     // Calculate success rate
@@ -381,7 +381,7 @@ async function getTimelineData(userId, days = 30) {
     startDate.setHours(0, 0, 0, 0);
 
     // Get all posts in date range
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('posts')
       .select('created_at, status, results')
       .eq('user_id', userId)
