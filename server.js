@@ -1668,13 +1668,15 @@ app.get('/api/posts/scheduled', verifyAuth, async (req, res) => {
     const scheduledPosts = (data || []).map(post => ({
       id: post.id,
       title: post.text ? post.text.substring(0, 50) + (post.text.length > 50 ? '...' : '') : 'Scheduled Post',
-      start: new Date(post.schedule_time),
-      end: new Date(post.schedule_time),
+      start: post.schedule_time, // Keep as ISO string for JSON serialization
+      end: post.schedule_time,   // Keep as ISO string for JSON serialization
       text: post.text,
-      platforms: post.platforms,
+      platforms: post.platforms || [],
       image_url: post.image_url,
-      status: post.status
+      status: post.status || 'queued'
     }));
+
+    console.log(`📅 Returning ${scheduledPosts.length} scheduled posts for user ${userId}`);
 
     res.json({
       success: true,

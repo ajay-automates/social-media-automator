@@ -97,20 +97,45 @@ export default function Calendar() {
   const loadScheduledPosts = async () => {
     try {
       setLoading(true);
+      console.log('📅 Loading scheduled posts...');
       const response = await api.get('/posts/scheduled');
+      console.log('📅 API Response:', response.data);
 
-      if (response.data.success) {
-        const formattedEvents = response.data.posts.map(post => ({
-          ...post,
-          start: new Date(post.start),
-          end: new Date(post.end)
-        }));
+      if (response.data && response.data.success) {
+        const posts = response.data.posts || [];
+        console.log(`📅 Found ${posts.length} scheduled posts`);
+        
+        const formattedEvents = posts.map(post => {
+          // Ensure dates are properly parsed
+          const startDate = post.start ? new Date(post.start) : new Date();
+          const endDate = post.end ? new Date(post.end) : startDate;
+          
+          return {
+            ...post,
+            start: startDate,
+            end: endDate
+          };
+        });
 
+        console.log('📅 Formatted events:', formattedEvents.length);
         setEvents(formattedEvents);
+      } else {
+        console.warn('📅 API returned non-success response:', response.data);
+        setEvents([]);
       }
     } catch (err) {
-      console.error('Error loading scheduled posts:', err);
-      showError('Failed to load scheduled posts');
+      console.error('❌ Error loading scheduled posts:', err);
+      console.error('❌ Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        statusText: err.response?.statusText
+      });
+      
+      // Show more detailed error message
+      const errorMsg = err.response?.data?.error || err.message || 'Failed to load scheduled posts';
+      showError(errorMsg);
+      setEvents([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

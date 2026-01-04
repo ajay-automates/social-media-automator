@@ -128,13 +128,24 @@ export default function ConnectAccounts() {
 
   const loadAccounts = async () => {
     try {
+      console.log('👤 Loading connected accounts...');
       const response = await api.get('/accounts');
+      console.log('👤 API Response:', response.data);
+      
       const accountsData = response.data?.accounts || response.data || [];
       // Ensure accountsData is always an array
-      setAccounts(Array.isArray(accountsData) ? accountsData : []);
+      const accountsArray = Array.isArray(accountsData) ? accountsData : [];
+      console.log(`👤 Found ${accountsArray.length} connected accounts`);
+      setAccounts(accountsArray);
     } catch (err) {
-      console.error('Error loading accounts:', err);
-      // Silently handle error - just set empty array
+      console.error('❌ Error loading accounts:', err);
+      console.error('❌ Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        statusText: err.response?.statusText
+      });
+      // Set empty array on error
       setAccounts([]);
     } finally {
       setLoading(false);
