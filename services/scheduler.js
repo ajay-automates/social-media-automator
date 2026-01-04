@@ -162,8 +162,9 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
         }
 
         if (platform === 'linkedin') {
-          if (credentials.linkedin && Array.isArray(credentials.linkedin)) {
+          if (credentials.linkedin && Array.isArray(credentials.linkedin) && credentials.linkedin.length > 0) {
             results.linkedin = [];
+            console.log(`    🔗 LinkedIn: Found ${credentials.linkedin.length} account(s)`);
             for (const account of credentials.linkedin) {
               try {
                 const result = await postToLinkedIn(platformText, image_url, account);
@@ -179,9 +180,37 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 }
               } catch (err) {
                 console.error('    ❌ LinkedIn error:', err.message);
-                results.linkedin.push({ success: false, error: err.message, platform: 'linkedin' });
+                console.error('    ❌ LinkedIn error details:', {
+                  message: err.message,
+                  response: err.response?.data,
+                  status: err.response?.status,
+                  hasAccessToken: !!account.access_token,
+                  hasUrn: !!account.urn
+                });
+                
+                let errorMessage = err.message;
+                if (err.response?.status === 401 || err.response?.status === 403) {
+                  errorMessage = 'LinkedIn access token is invalid or expired. Please reconnect your LinkedIn account in Settings.';
+                } else if (err.response?.status === 400) {
+                  errorMessage = `LinkedIn error: ${err.response?.data?.message || err.message}`;
+                }
+                
+                results.linkedin.push({ 
+                  success: false, 
+                  error: errorMessage, 
+                  platform: 'linkedin',
+                  requiresReconnect: err.response?.status === 401 || err.response?.status === 403
+                });
               }
             }
+          } else {
+            console.log(`⚠️  No LinkedIn credentials found`);
+            results.linkedin = results.linkedin || [];
+            results.linkedin.push({
+              success: false,
+              error: 'No LinkedIn account connected. Please connect your LinkedIn account in Settings.',
+              platform: 'linkedin'
+            });
           }
         }
         else if (platform === 'twitter') {
@@ -278,6 +307,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             }
           } else {
             console.log(`⚠️  No Twitter credentials found`);
+            results.twitter = results.twitter || [];
+            results.twitter.push({
+              success: false,
+              error: 'No Twitter account connected. Please connect your Twitter account in Settings.',
+              platform: 'twitter'
+            });
           }
         }
         else if (platform === 'telegram') {
@@ -324,6 +359,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
           } else {
             console.log(`⚠️  No Telegram credentials found or invalid format`);
             console.log(`⚠️  Credentials structure:`, JSON.stringify(credentials.telegram, null, 2));
+            results.telegram = results.telegram || [];
+            results.telegram.push({
+              success: false,
+              error: 'No Telegram bot connected. Please connect your Telegram bot in Settings.',
+              platform: 'telegram'
+            });
           }
         }
         else if (platform === 'slack') {
@@ -641,6 +682,14 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 });
               }
             }
+          } else {
+            console.log(`⚠️  No Dev.to credentials found`);
+            results.devto = results.devto || [];
+            results.devto.push({
+              success: false,
+              error: 'No Dev.to account connected. Please connect your Dev.to account in Settings.',
+              platform: 'devto'
+            });
           }
         }
         else if (platform === 'pinterest') {
@@ -736,8 +785,9 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
         }
         else if (platform === 'devto') {
           // Dev.to - publish articles
-          if (credentials.devto && Array.isArray(credentials.devto)) {
+          if (credentials.devto && Array.isArray(credentials.devto) && credentials.devto.length > 0) {
             results.devto = [];
+            console.log(`    📝 Dev.to: Found ${credentials.devto.length} account(s)`);
             for (const account of credentials.devto) {
               try {
                 const { postToDevTo, extractTitle, formatDevToContent, extractHashtags } = require('./devto');
@@ -761,7 +811,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   null,           // description
                   account         // credentials
                 );
-
+                
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'devto';
+                }
+                
                 results.devto.push(result);
 
                 if (result.success) {
@@ -771,11 +826,29 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 }
               } catch (err) {
                 console.error(`    ❌ Dev.to error:`, err.message);
+                console.error(`    ❌ Dev.to error details:`, {
+                  message: err.message,
+                  response: err.response?.data,
+                  status: err.response?.status,
+                  account: account.username || 'Dev.to',
+                  hasApiKey: !!account.apiKey
+                });
+                
+                let errorMessage = err.message;
+                if (err.response?.status === 401 || err.response?.status === 403) {
+                  errorMessage = 'Dev.to API key is invalid or expired. Please reconnect your Dev.to account in Settings.';
+                } else if (err.response?.status === 400) {
+                  errorMessage = `Dev.to error: ${err.response?.data?.error || err.message}`;
+                } else if (!account.apiKey) {
+                  errorMessage = 'Dev.to API key is missing. Please reconnect your Dev.to account in Settings.';
+                }
+                
                 results.devto.push({
                   success: false,
-                  error: err.message,
+                  error: errorMessage,
                   platform: 'devto',
-                  account: account.username || 'Dev.to'
+                  account: account.username || 'Dev.to',
+                  requiresReconnect: err.response?.status === 401 || err.response?.status === 403 || !account.apiKey
                 });
               }
             }
@@ -857,8 +930,9 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
         }
         else if (platform === 'bluesky') {
           // Bluesky - AT Protocol social network
-          if (credentials.bluesky && Array.isArray(credentials.bluesky)) {
+          if (credentials.bluesky && Array.isArray(credentials.bluesky) && credentials.bluesky.length > 0) {
             results.bluesky = [];
+            console.log(`    🦋 Bluesky: Found ${credentials.bluesky.length} account(s)`);
             for (const account of credentials.bluesky) {
               try {
                 const { postToBluesky, formatBlueskyText } = require('./bluesky');
@@ -871,7 +945,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   image_url,
                   account
                 );
-
+                
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'bluesky';
+                }
+                
                 results.bluesky.push(result);
 
                 if (result.success) {
@@ -881,11 +960,30 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 }
               } catch (err) {
                 console.error(`    ❌ Bluesky error:`, err.message);
+                console.error(`    ❌ Bluesky error details:`, {
+                  message: err.message,
+                  response: err.response?.data,
+                  status: err.response?.status,
+                  account: account.handle || 'Bluesky',
+                  hasAccessJwt: !!account.accessJwt,
+                  hasDid: !!account.did
+                });
+                
+                let errorMessage = err.message;
+                if (err.response?.status === 401 || err.response?.status === 403) {
+                  errorMessage = 'Bluesky access token is invalid or expired. Please reconnect your Bluesky account in Settings.';
+                } else if (err.response?.status === 400) {
+                  errorMessage = `Bluesky error: ${err.response?.data?.message || err.message}`;
+                } else if (!account.accessJwt || !account.did) {
+                  errorMessage = 'Bluesky credentials are missing. Please reconnect your Bluesky account in Settings.';
+                }
+                
                 results.bluesky.push({
                   success: false,
-                  error: err.message,
+                  error: errorMessage,
                   platform: 'bluesky',
-                  account: account.handle || 'Bluesky'
+                  account: account.handle || 'Bluesky',
+                  requiresReconnect: err.response?.status === 401 || err.response?.status === 403 || !account.accessJwt || !account.did
                 });
               }
             }

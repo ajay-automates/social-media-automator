@@ -68,7 +68,8 @@ async function postToDevTo(title, body, published = true, tags = [], coverImageU
       postId: article.id,
       url: article.url,
       published: article.published,
-      account: username || 'Dev.to'
+      account: username || 'Dev.to',
+      platform: 'devto'
     };
 
   } catch (error) {
@@ -87,7 +88,8 @@ async function postToDevTo(title, body, published = true, tags = [], coverImageU
     return {
       success: false,
       error: errorMessage,
-      account: credentials.username || 'Dev.to'
+      account: credentials.username || 'Dev.to',
+      platform: 'devto'
     };
   }
 }

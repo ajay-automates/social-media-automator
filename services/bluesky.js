@@ -132,7 +132,8 @@ async function postToBluesky(text, imageUrl = null, credentials) {
       uri,
       cid,
       url: postUrl,
-      account: handle
+      account: handle,
+      platform: 'bluesky'
     };
 
   } catch (error) {
@@ -148,7 +149,8 @@ async function postToBluesky(text, imageUrl = null, credentials) {
     return {
       success: false,
       error: errorMessage,
-      account: credentials.handle
+      account: credentials.handle,
+      platform: 'bluesky'
     };
   }
 }
