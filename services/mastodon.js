@@ -85,7 +85,8 @@ async function postToMastodon(status, mediaUrl = null, visibility = 'public', cr
       success: true,
       postId: post.id,
       url: post.url,
-      account: credentials.username || instanceUrl
+      account: credentials.username || instanceUrl,
+      platform: 'mastodon'
     };
 
   } catch (error) {
@@ -101,7 +102,8 @@ async function postToMastodon(status, mediaUrl = null, visibility = 'public', cr
     return {
       success: false,
       error: errorMessage,
-      account: credentials.username || credentials.instanceUrl
+      account: credentials.username || credentials.instanceUrl,
+      platform: 'mastodon'
     };
   }
 }

@@ -225,7 +225,8 @@ async function postToTumblr(blogIdentifier, type, postData, credentials) {
       success: true,
       postId,
       url: postUrl,
-      account: blogId
+      account: blogId,
+      platform: 'tumblr'
     };
 
   } catch (error) {
@@ -243,7 +244,8 @@ async function postToTumblr(blogIdentifier, type, postData, credentials) {
     return {
       success: false,
       error: errorMessage,
-      account: credentials.blogName || 'Tumblr'
+      account: credentials.blogName || 'Tumblr',
+      platform: 'tumblr'
     };
   }
 }
