@@ -528,68 +528,97 @@ export default function Analytics() {
                     // Helper function to get post URL from results
                     // Handles both single results and array results (multi-account)
                     const getPostUrl = (platform) => {
-                      if (!post.results || !post.results[platform]) {
-                        return null;
-                      }
+                      try {
+                        if (!post.results) {
+                          console.log(`[Analytics] No results for post ${post.id}`);
+                          return null;
+                        }
 
-                      const platformResults = post.results[platform];
-                      // Handle array results (multiple accounts per platform)
-                      const resultsArray = Array.isArray(platformResults) ? platformResults : [platformResults];
+                        // Handle case-insensitive platform matching
+                        const platformKey = Object.keys(post.results).find(
+                          key => key.toLowerCase() === platform.toLowerCase()
+                        );
 
-                      // Find first successful result
-                      const successfulResult = resultsArray.find(r => r && r.success === true);
-                      if (!successfulResult) {
-                        return null;
-                      }
+                        if (!platformKey) {
+                          console.log(`[Analytics] Platform ${platform} not found in results. Available:`, Object.keys(post.results));
+                          return null;
+                        }
 
-                      const platformLower = platform.toLowerCase();
-                      if (platformLower === "slack" || platformLower === "discord") {
-                        return "webhook";
-                      }
+                        const platformResults = post.results[platformKey];
+                        
+                        // Handle array results (multiple accounts per platform)
+                        const resultsArray = Array.isArray(platformResults) ? platformResults : [platformResults];
 
-                      // First try: Direct URL from result
-                      if (successfulResult.url) {
-                        return successfulResult.url;
-                      }
+                        // Find first successful result
+                        const successfulResult = resultsArray.find(r => r && typeof r === 'object' && r.success === true);
+                        if (!successfulResult) {
+                          console.log(`[Analytics] No successful result for ${platform}. Results:`, resultsArray);
+                          return null;
+                        }
 
-                      // Second try: Construct from postId
-                      if (successfulResult.postId) {
                         const platformLower = platform.toLowerCase();
-                        if (platformLower === 'linkedin') {
-                          return `https://www.linkedin.com/feed/update/urn:li:ugcPost:${successfulResult.postId}`;
-                        } else if (platformLower === 'twitter' || platformLower === 'x') {
-                          return `https://twitter.com/i/web/status/${successfulResult.postId}`;
-                        } else if (platformLower === 'telegram') {
-                          if (successfulResult.chatId && successfulResult.messageId) {
-                            const chatIdForUrl = successfulResult.chatId.toString().replace(/^-/, '');
-                            return `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
-                          } else if (successfulResult.url) {
-                            return successfulResult.url;
+                        if (platformLower === "slack" || platformLower === "discord") {
+                          return "webhook";
+                        }
+
+                        // First try: Direct URL from result
+                        if (successfulResult.url) {
+                          console.log(`[Analytics] Found URL for ${platform}:`, successfulResult.url);
+                          return successfulResult.url;
+                        }
+
+                        // Second try: Construct from postId
+                        if (successfulResult.postId) {
+                          if (platformLower === 'linkedin') {
+                            return `https://www.linkedin.com/feed/update/urn:li:ugcPost:${successfulResult.postId}`;
+                          } else if (platformLower === 'twitter' || platformLower === 'x') {
+                            return `https://twitter.com/i/web/status/${successfulResult.postId}`;
+                          } else if (platformLower === 'telegram') {
+                            if (successfulResult.chatId && successfulResult.messageId) {
+                              const chatIdForUrl = successfulResult.chatId.toString().replace(/^-/, '');
+                              return `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
+                            }
+                          } else if (platformLower === 'instagram') {
+                            return `https://www.instagram.com/p/${successfulResult.postId}/`;
+                          } else if (platformLower === 'youtube') {
+                            return `https://www.youtube.com/shorts/${successfulResult.postId}`;
+                          } else if (platformLower === 'devto') {
+                            // Dev.to URLs are in format: https://dev.to/username/title-slug
+                            // If we have postId, we can't construct URL without username, so return null
+                            // But if URL was returned, it should be in successfulResult.url above
+                            return null;
+                          } else if (platformLower === 'bluesky') {
+                            // Bluesky URLs need handle and postId
+                            if (successfulResult.account && successfulResult.postId) {
+                              return `https://bsky.app/profile/${successfulResult.account}/post/${successfulResult.postId}`;
+                            } else if (successfulResult.uri) {
+                              // Extract handle and postId from URI
+                              const uriParts = successfulResult.uri.split('/');
+                              const handle = uriParts[uriParts.length - 3];
+                              const postId = uriParts[uriParts.length - 1];
+                              return `https://bsky.app/profile/${handle}/post/${postId}`;
+                            }
                           }
-                        } else if (platformLower === 'instagram') {
-                          if (successfulResult.id) {
+                        }
+
+                        // Third try: Construct from id (for backward compatibility)
+                        if (successfulResult.id) {
+                          if (platformLower === 'linkedin' && successfulResult.id.includes(':')) {
+                            const postId = successfulResult.id.split(':').pop();
+                            return `https://www.linkedin.com/feed/update/urn:li:ugcPost:${postId}`;
+                          } else if (platformLower === 'twitter' || platformLower === 'x') {
+                            return `https://twitter.com/i/web/status/${successfulResult.id}`;
+                          } else if (platformLower === 'instagram') {
                             return `https://www.instagram.com/p/${successfulResult.id}/`;
                           }
-                        } else if (platformLower === 'youtube') {
-                          if (successfulResult.videoId || successfulResult.postId || successfulResult.id) {
-                            const videoId = successfulResult.videoId || successfulResult.postId || successfulResult.id;
-                            return `https://www.youtube.com/shorts/${videoId}`;
-                          }
                         }
-                      }
 
-                      // Third try: Construct from id (for backward compatibility)
-                      if (successfulResult.id) {
-                        const platformLower = platform.toLowerCase();
-                        if (platformLower === 'linkedin' && successfulResult.id.includes(':')) {
-                          const postId = successfulResult.id.split(':').pop();
-                          return `https://www.linkedin.com/feed/update/urn:li:ugcPost:${postId}`;
-                        } else if (platformLower === 'twitter' || platformLower === 'x') {
-                          return `https://twitter.com/i/web/status/${successfulResult.id}`;
-                        }
+                        console.log(`[Analytics] Could not construct URL for ${platform}. Result:`, successfulResult);
+                        return null;
+                      } catch (error) {
+                        console.error(`[Analytics] Error getting URL for ${platform}:`, error);
+                        return null;
                       }
-
-                      return null;
                     };
 
                     return (
