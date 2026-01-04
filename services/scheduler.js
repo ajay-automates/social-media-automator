@@ -187,17 +187,18 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   hasAccessToken: !!account.access_token,
                   hasUrn: !!account.urn
                 });
-                
-                let errorMessage = err.message;
+
                 if (err.response?.status === 401 || err.response?.status === 403) {
                   errorMessage = 'LinkedIn access token is invalid or expired. Please reconnect your LinkedIn account in Settings.';
+                } else if (err.response?.status === 429 || (err.response?.data?.message && err.response.data.message.includes('throttle'))) {
+                  errorMessage = 'Daily LinkedIn posting limit reached (Rate Limited). Please try again tomorrow.';
                 } else if (err.response?.status === 400) {
                   errorMessage = `LinkedIn error: ${err.response?.data?.message || err.message}`;
                 }
-                
-                results.linkedin.push({ 
-                  success: false, 
-                  error: errorMessage, 
+
+                results.linkedin.push({
+                  success: false,
+                  error: errorMessage,
                   platform: 'linkedin',
                   requiresReconnect: err.response?.status === 401 || err.response?.status === 403
                 });
@@ -225,7 +226,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   console.log('    🔄 Twitter token expired, refreshing...');
                   const { refreshTwitterToken } = require('./twitter-auth');
                   const refreshResult = await refreshTwitterToken(user_id, account.platform_user_id);
-                  
+
                   if (refreshResult.success) {
                     // Update account with new token
                     account.accessToken = refreshResult.accessToken;
@@ -234,8 +235,8 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   } else {
                     console.error('    ❌ Failed to refresh Twitter token:', refreshResult.error);
                     results.twitter = results.twitter || [];
-                    results.twitter.push({ 
-                      success: false, 
+                    results.twitter.push({
+                      success: false,
                       error: 'Token expired and refresh failed. Please reconnect your Twitter account.',
                       platform: 'twitter'
                     });
@@ -250,18 +251,18 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   result.platform = 'twitter';
                 }
                 results.twitter.push(result);
-                
+
                 // Check if error is due to token expiration (401, token expired, unauthorized)
                 if (!result.success && (
-                  result.error?.toLowerCase().includes('token') || 
-                  result.error?.toLowerCase().includes('expired') || 
+                  result.error?.toLowerCase().includes('token') ||
+                  result.error?.toLowerCase().includes('expired') ||
                   result.error?.toLowerCase().includes('unauthorized') ||
                   result.error?.includes('401')
                 )) {
                   console.log('    🔄 Twitter returned token error, attempting refresh...');
                   const { refreshTwitterToken } = require('./twitter-auth');
                   const refreshResult = await refreshTwitterToken(user_id, account.platform_user_id);
-                  
+
                   if (refreshResult.success) {
                     account.accessToken = refreshResult.accessToken;
                     account.bearerToken = refreshResult.accessToken;
@@ -293,13 +294,13 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 }
               } catch (err) {
                 console.error(`    ❌ Twitter error:`, err.message);
-                const errorMessage = err.response?.status === 401 
+                const errorMessage = err.response?.status === 401
                   ? 'Token expired. Please reconnect your Twitter account in Settings.'
                   : err.message;
                 results.twitter = results.twitter || [];
-                results.twitter.push({ 
-                  success: false, 
-                  error: errorMessage, 
+                results.twitter.push({
+                  success: false,
+                  error: errorMessage,
                   platform: 'twitter',
                   requiresReconnect: err.response?.status === 401
                 });
@@ -337,7 +338,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   response: err.response?.data,
                   status: err.response?.status
                 });
-                
+
                 // Check for common Telegram errors
                 let errorMessage = err.message;
                 if (err.response?.status === 401 || err.message?.toLowerCase().includes('unauthorized')) {
@@ -347,10 +348,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 } else if (err.response?.status === 403) {
                   errorMessage = 'Telegram bot does not have permission to send messages to this chat. Please check bot permissions.';
                 }
-                
-                results.telegram.push({ 
+
+                results.telegram.push({
                   success: false,
-                  error: errorMessage, 
+                  error: errorMessage,
                   platform: 'telegram',
                   requiresReconnect: err.response?.status === 401
                 });
@@ -383,10 +384,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 console.log(`    ✅ Posted to Slack - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
                 console.error(`    ❌ Slack error:`, err.message);
-                results.slack.push({ 
+                results.slack.push({
                   success: false,
-                  error: err.message, 
-                  platform: 'slack' 
+                  error: err.message,
+                  platform: 'slack'
                 });
               }
             }
@@ -410,10 +411,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 console.log(`    ✅ Posted to Discord - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
                 console.error(`    ❌ Discord error:`, err.message);
-                results.discord.push({ 
+                results.discord.push({
                   success: false,
-                  error: err.message, 
-                  platform: 'discord' 
+                  error: err.message,
+                  platform: 'discord'
                 });
               }
             }
@@ -471,10 +472,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 }
               } catch (err) {
                 console.error(`    ❌ Reddit error:`, err.message);
-                results.reddit.push({ 
+                results.reddit.push({
                   success: false,
-                  error: err.message, 
-                  platform: 'reddit' 
+                  error: err.message,
+                  platform: 'reddit'
                 });
               }
             }
@@ -811,12 +812,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   null,           // description
                   account         // credentials
                 );
-                
+
                 // Ensure platform property is set
                 if (!result.platform) {
                   result.platform = 'devto';
                 }
-                
+
                 results.devto.push(result);
 
                 if (result.success) {
@@ -833,7 +834,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   account: account.username || 'Dev.to',
                   hasApiKey: !!account.apiKey
                 });
-                
+
                 let errorMessage = err.message;
                 if (err.response?.status === 401 || err.response?.status === 403) {
                   errorMessage = 'Dev.to API key is invalid or expired. Please reconnect your Dev.to account in Settings.';
@@ -842,7 +843,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 } else if (!account.apiKey) {
                   errorMessage = 'Dev.to API key is missing. Please reconnect your Dev.to account in Settings.';
                 }
-                
+
                 results.devto.push({
                   success: false,
                   error: errorMessage,
@@ -945,12 +946,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   image_url,
                   account
                 );
-                
+
                 // Ensure platform property is set
                 if (!result.platform) {
                   result.platform = 'bluesky';
                 }
-                
+
                 results.bluesky.push(result);
 
                 if (result.success) {
@@ -968,7 +969,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   hasAccessJwt: !!account.accessJwt,
                   hasDid: !!account.did
                 });
-                
+
                 let errorMessage = err.message;
                 if (err.response?.status === 401 || err.response?.status === 403) {
                   errorMessage = 'Bluesky access token is invalid or expired. Please reconnect your Bluesky account in Settings.';
@@ -977,7 +978,7 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 } else if (!account.accessJwt || !account.did) {
                   errorMessage = 'Bluesky credentials are missing. Please reconnect your Bluesky account in Settings.';
                 }
-                
+
                 results.bluesky.push({
                   success: false,
                   error: errorMessage,
@@ -1170,7 +1171,7 @@ async function getQueue(userId) {
 
 async function deleteFromQueue(postId, userId) {
   try {
-    const { error, count } = await supabase      .from('posts')      .delete({ count: 'exact' })
+    const { error, count } = await supabase.from('posts').delete({ count: 'exact' })
       .eq('id', postId)
       .eq('user_id', userId);
 
