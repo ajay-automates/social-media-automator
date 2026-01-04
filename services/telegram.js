@@ -77,10 +77,25 @@ async function sendTextMessage(botToken, chatId, text) {
     throw new Error(response.data.description);
   } catch (error) {
     console.error('❌ Telegram text error:', error.response?.data || error.message);
+    
+    let errorMessage = error.response?.data?.description || error.message;
+    
+    // Provide clearer error messages
+    if (error.response?.status === 401) {
+      errorMessage = 'Telegram bot token is invalid or expired. Please reconnect your Telegram bot in Settings.';
+    } else if (error.response?.status === 400) {
+      errorMessage = `Telegram error: ${error.response?.data?.description || 'Invalid request. Check bot token and chat ID.'}`;
+    } else if (error.response?.status === 403) {
+      errorMessage = 'Telegram bot does not have permission to send messages. Please check bot permissions and chat ID.';
+    } else if (error.response?.status === 404) {
+      errorMessage = 'Telegram chat not found. Please verify the chat ID is correct.';
+    }
+    
     return {
       success: false,
-      error: error.response?.data?.description || error.message,
-      platform: 'telegram'
+      error: errorMessage,
+      platform: 'telegram',
+      requiresReconnect: error.response?.status === 401
     };
   }
 }
@@ -125,10 +140,22 @@ async function sendPhoto(botToken, chatId, photoUrl, caption = '') {
     throw new Error(response.data.description);
   } catch (error) {
     console.error('❌ Telegram photo error:', error.response?.data || error.message);
+    
+    let errorMessage = error.response?.data?.description || error.message;
+    
+    if (error.response?.status === 401) {
+      errorMessage = 'Telegram bot token is invalid or expired. Please reconnect your Telegram bot in Settings.';
+    } else if (error.response?.status === 400) {
+      errorMessage = `Telegram error: ${error.response?.data?.description || 'Invalid request. Check bot token and chat ID.'}`;
+    } else if (error.response?.status === 403) {
+      errorMessage = 'Telegram bot does not have permission to send photos. Please check bot permissions.';
+    }
+    
     return {
       success: false,
-      error: error.response?.data?.description || error.message,
-      platform: 'telegram'
+      error: errorMessage,
+      platform: 'telegram',
+      requiresReconnect: error.response?.status === 401
     };
   }
 }
@@ -263,10 +290,26 @@ async function sendToTelegram(botToken, chatId, text, mediaUrl = null) {
     }
   } catch (error) {
     console.error('❌ Telegram send error:', error);
+    console.error('❌ Telegram error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
+    let errorMessage = error.message;
+    if (error.response?.status === 401) {
+      errorMessage = 'Telegram bot token is invalid or expired. Please reconnect your Telegram bot in Settings.';
+    } else if (error.response?.status === 400) {
+      errorMessage = `Telegram error: ${error.response?.data?.description || 'Invalid request'}`;
+    } else if (error.response?.status === 403) {
+      errorMessage = 'Telegram bot does not have permission. Please check bot permissions.';
+    }
+    
     return {
       success: false,
-      error: error.message,
-      platform: 'telegram'
+      error: errorMessage,
+      platform: 'telegram',
+      requiresReconnect: error.response?.status === 401
     };
   }
 }

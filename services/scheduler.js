@@ -167,6 +167,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.linkedin) {
               try {
                 const result = await postToLinkedIn(platformText, image_url, account);
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'linkedin';
+                }
                 results.linkedin.push(result);
                 if (result.success) {
                   console.log('    ✅ Posted to LinkedIn');
@@ -293,7 +297,28 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 console.log(`    ✅ Posted to Telegram - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
                 console.error(`    ❌ Telegram error:`, err.message);
-                results.telegram.push({ error: err.message, platform: 'telegram' });
+                console.error(`    ❌ Telegram error details:`, {
+                  message: err.message,
+                  response: err.response?.data,
+                  status: err.response?.status
+                });
+                
+                // Check for common Telegram errors
+                let errorMessage = err.message;
+                if (err.response?.status === 401 || err.message?.toLowerCase().includes('unauthorized')) {
+                  errorMessage = 'Telegram bot token is invalid or expired. Please reconnect your Telegram bot in Settings.';
+                } else if (err.response?.status === 400) {
+                  errorMessage = `Telegram error: ${err.response?.data?.description || err.message}`;
+                } else if (err.response?.status === 403) {
+                  errorMessage = 'Telegram bot does not have permission to send messages to this chat. Please check bot permissions.';
+                }
+                
+                results.telegram.push({ 
+                  success: false,
+                  error: errorMessage, 
+                  platform: 'telegram',
+                  requiresReconnect: err.response?.status === 401
+                });
               }
             }
           } else {
@@ -309,11 +334,19 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               try {
                 console.log(`    💬 Posting to Slack - Webhook: ${account.webhookUrl ? 'exists' : 'missing'}`);
                 const result = await sendToSlack(account.webhookUrl, platformText, image_url);
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'slack';
+                }
                 results.slack.push(result);
                 console.log(`    ✅ Posted to Slack - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
                 console.error(`    ❌ Slack error:`, err.message);
-                results.slack.push({ error: err.message, platform: 'slack' });
+                results.slack.push({ 
+                  success: false,
+                  error: err.message, 
+                  platform: 'slack' 
+                });
               }
             }
           } else {
@@ -328,11 +361,19 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               try {
                 console.log(`    🎮 Posting to Discord - Webhook: ${account.webhookUrl ? 'exists' : 'missing'}`);
                 const result = await sendToDiscord(account.webhookUrl, platformText, image_url);
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'discord';
+                }
                 results.discord.push(result);
                 console.log(`    ✅ Posted to Discord - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
                 console.error(`    ❌ Discord error:`, err.message);
-                results.discord.push({ error: err.message, platform: 'discord' });
+                results.discord.push({ 
+                  success: false,
+                  error: err.message, 
+                  platform: 'discord' 
+                });
               }
             }
           } else {
@@ -403,6 +444,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               try {
                 // Credentials structure: { accessToken, igUserId }
                 const result = await postToInstagram(platformText, image_url, account.accessToken, account.igUserId);
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'instagram';
+                }
                 results.instagram = results.instagram || [];
                 results.instagram.push(result);
                 if (result.success) {
@@ -432,6 +477,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   pageId: account.pageId,
                   accessToken: account.accessToken
                 });
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'facebook';
+                }
                 results.facebook = results.facebook || [];
                 results.facebook.push(result);
                 if (result.success) {
@@ -613,7 +662,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                   link: post_metadata?.pinterestLink || null,
                   title: post_metadata?.pinterestTitle || null
                 });
-
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'pinterest';
+                }
                 results.pinterest.push(result);
 
                 if (result.success) {
