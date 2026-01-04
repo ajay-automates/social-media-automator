@@ -212,6 +212,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
 
                 const result = await postToTwitter(platformText, account, image_url);
                 results.twitter = results.twitter || [];
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'twitter';
+                }
                 results.twitter.push(result);
                 
                 // Check if error is due to token expiration (401, token expired, unauthorized)
@@ -281,6 +285,10 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
                 // Note: getUserCredentialsForPosting returns { botToken, chatId }
                 console.log(`    📱 Posting to Telegram - Bot token: ${account.botToken ? 'exists' : 'missing'}, Chat ID: ${account.chatId}`);
                 const result = await sendToTelegram(account.botToken, account.chatId, platformText, image_url);
+                // Ensure platform property is set
+                if (!result.platform) {
+                  result.platform = 'telegram';
+                }
                 results.telegram.push(result);
                 console.log(`    ✅ Posted to Telegram - Result:`, JSON.stringify(result, null, 2));
               } catch (err) {
@@ -830,10 +838,12 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
 
       } catch (error) {
         console.error(`❌ Platform ${platform} error:`, error);
-        results[platform] = {
+        // Ensure platform name is set, fallback to platform variable if result doesn't have it
+        const platformName = platform || 'unknown';
+        results[platformName] = {
           success: false,
           error: error.message,
-          platform: platform
+          platform: platformName
         };
       }
     }
