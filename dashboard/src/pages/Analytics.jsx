@@ -40,6 +40,7 @@ export default function Analytics() {
   const [patterns, setPatterns] = useState([]);
   const [insightsStats, setInsightsStats] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadAnalytics();
@@ -70,11 +71,12 @@ export default function Analytics() {
 
   const loadAnalytics = async () => {
     try {
+      setError(null);
       // Fetch all analytics data in parallel
       const [overviewResponse, timelineResponse, platformsResponse] = await Promise.all([
-        api.get('/analytics/overview').catch(() => ({ data: null })),
-        api.get('/analytics/timeline').catch(() => ({ data: null })),
-        api.get('/analytics/platforms').catch(() => ({ data: null }))
+        api.get('/analytics/overview'),
+        api.get('/analytics/timeline'),
+        api.get('/analytics/platforms')
       ]);
 
 
@@ -132,7 +134,10 @@ export default function Analytics() {
       setAnalytics(analyticsData);
     } catch (err) {
       console.error('Error loading analytics:', err);
-      setAnalytics(null);
+      // Don't clear analytics if it's just a background refresh failure
+      if (!analytics) {
+        setError(err.response?.data?.error || err.message || 'Failed to load analytics data');
+      }
     } finally {
       setLoading(false);
     }
@@ -244,6 +249,24 @@ export default function Analytics() {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-4xl font-bold text-white mb-8">Analytics</h1>
         <AnalyticsSkeleton />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-4xl font-bold text-white mb-8">Analytics</h1>
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-center">
+          <p className="text-red-400 text-lg mb-2">Failed to load analytics data</p>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={() => { setLoading(true); loadAnalytics(); }}
+            className="px-4 py-2 bg-red-600/20 text-red-300 border border-red-500/30 rounded hover:bg-red-600/30 transition shadow-lg"
+          >
+            Try Again
+          </button>
+        </div>
       </div>
     );
   }
@@ -545,7 +568,7 @@ export default function Analytics() {
                         }
 
                         const platformResults = post.results[platformKey];
-                        
+
                         // Handle array results (multiple accounts per platform)
                         const resultsArray = Array.isArray(platformResults) ? platformResults : [platformResults];
 
