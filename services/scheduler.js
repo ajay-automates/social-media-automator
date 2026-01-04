@@ -71,11 +71,11 @@ function startScheduler() {
 
 async function processDueQueue() {
   try {
-    // Get all posts that are due
+    // Get all posts that are due (including partial failures for retry)
     const { data: duePostsData, error: dueError } = await supabase
       .from('posts')
       .select('*')
-      .eq('status', 'queued')
+      .in('status', ['queued', 'partial']) // Also retry partial failures
       .lte('schedule_time', new Date().toISOString())
       .limit(10);
 
@@ -187,14 +187,85 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             for (const account of credentials.twitter) {
               console.log(`🐦 Posting to Twitter with account:`, JSON.stringify(account, null, 2));
               try {
+                // Check if token is expired and refresh if needed
+                if (account.token_expires_at && new Date(account.token_expires_at) <= new Date()) {
+                  console.log('    🔄 Twitter token expired, refreshing...');
+                  const { refreshTwitterToken } = require('./twitter-auth');
+                  const refreshResult = await refreshTwitterToken(user_id, account.platform_user_id);
+                  
+                  if (refreshResult.success) {
+                    // Update account with new token
+                    account.accessToken = refreshResult.accessToken;
+                    account.bearerToken = refreshResult.accessToken;
+                    console.log('    ✅ Twitter token refreshed');
+                  } else {
+                    console.error('    ❌ Failed to refresh Twitter token:', refreshResult.error);
+                    results.twitter = results.twitter || [];
+                    results.twitter.push({ 
+                      success: false, 
+                      error: 'Token expired and refresh failed. Please reconnect your Twitter account.',
+                      platform: 'twitter'
+                    });
+                    continue;
+                  }
+                }
+
                 const result = await postToTwitter(platformText, account, image_url);
                 results.twitter = results.twitter || [];
                 results.twitter.push(result);
-                console.log(`    ✅ Posted to Twitter - Result:`, JSON.stringify(result, null, 2));
+                
+                // Check if error is due to token expiration (401, token expired, unauthorized)
+                if (!result.success && (
+                  result.error?.toLowerCase().includes('token') || 
+                  result.error?.toLowerCase().includes('expired') || 
+                  result.error?.toLowerCase().includes('unauthorized') ||
+                  result.error?.includes('401')
+                )) {
+                  console.log('    🔄 Twitter returned token error, attempting refresh...');
+                  const { refreshTwitterToken } = require('./twitter-auth');
+                  const refreshResult = await refreshTwitterToken(user_id, account.platform_user_id);
+                  
+                  if (refreshResult.success) {
+                    account.accessToken = refreshResult.accessToken;
+                    account.bearerToken = refreshResult.accessToken;
+                    // Retry posting
+                    const retryResult = await postToTwitter(platformText, account, image_url);
+                    if (retryResult.success) {
+                      results.twitter[results.twitter.length - 1] = retryResult;
+                      console.log(`    ✅ Posted to Twitter after token refresh`);
+                    } else {
+                      results.twitter[results.twitter.length - 1] = {
+                        ...retryResult,
+                        error: `Token refreshed but post still failed: ${retryResult.error}`
+                      };
+                      console.error(`    ❌ Twitter post failed after refresh:`, retryResult.error);
+                    }
+                  } else {
+                    results.twitter[results.twitter.length - 1] = {
+                      success: false,
+                      error: `Token expired. Please reconnect your Twitter account in Settings.`,
+                      platform: 'twitter',
+                      requiresReconnect: true
+                    };
+                    console.error('    ❌ Failed to refresh Twitter token:', refreshResult.error);
+                  }
+                } else if (result.success) {
+                  console.log(`    ✅ Posted to Twitter successfully`);
+                } else {
+                  console.log(`    ❌ Twitter error:`, result.error);
+                }
               } catch (err) {
                 console.error(`    ❌ Twitter error:`, err.message);
+                const errorMessage = err.response?.status === 401 
+                  ? 'Token expired. Please reconnect your Twitter account in Settings.'
+                  : err.message;
                 results.twitter = results.twitter || [];
-                results.twitter.push({ error: err.message });
+                results.twitter.push({ 
+                  success: false, 
+                  error: errorMessage, 
+                  platform: 'twitter',
+                  requiresReconnect: err.response?.status === 401
+                });
               }
             }
           } else {
@@ -776,7 +847,26 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
       return r.success === false || r.error;
     });
 
-    const status = hasErrors ? 'failed' : 'posted';
+    // Check if ANY platform succeeded
+    const hasSuccess = Object.values(results).some(r => {
+      if (Array.isArray(r)) {
+        return r.some(item => item.success === true);
+      }
+      return r.success === true;
+    });
+
+    // Determine status:
+    // - 'posted' if all platforms succeeded
+    // - 'partial' if some platforms succeeded and some failed (keep in queue for retry)
+    // - 'failed' only if ALL platforms failed
+    let status;
+    if (!hasErrors) {
+      status = 'posted';
+    } else if (hasSuccess) {
+      status = 'partial'; // Some succeeded, some failed - keep for retry
+    } else {
+      status = 'failed'; // All failed
+    }
 
     // Only update post status if this is a scheduled post (has id)
     if (id) {
@@ -788,10 +878,15 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
         cache.invalidateUserCacheByCategory(user_id, ['analytics', 'platform_stats']);
       }
 
-      // Trigger webhooks for post success/failure
+      // Trigger webhooks for post success/failure/partial
       try {
         const { triggerWebhooks } = require('./webhooks');
-        const eventType = hasErrors ? 'post.failed' : 'post.success';
+        let eventType = 'post.success';
+        if (status === 'failed') {
+          eventType = 'post.failed';
+        } else if (status === 'partial') {
+          eventType = 'post.partial';
+        }
 
         await triggerWebhooks(user_id, eventType, {
           post_id: id,

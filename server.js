@@ -1650,12 +1650,13 @@ app.get('/api/posts/scheduled', verifyAuth, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Get all posts that are queued (scheduled for future)
+    // Get all posts that are queued, failed, or partial (scheduled for future)
+    // Include failed/partial posts so users can see and retry them
     const { data, error } = await supabaseAdmin
       .from('posts')
       .select('id, text, platforms, schedule_time, image_url, created_at, status')
       .eq('user_id', userId)
-      .eq('status', 'queued')
+      .in('status', ['queued', 'failed', 'partial']) // Show queued, failed, and partial posts
       .gte('schedule_time', new Date().toISOString()) // Future posts only
       .order('schedule_time', { ascending: true });
 
