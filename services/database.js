@@ -49,6 +49,12 @@ async function addPost(postData) {
     if (error) throw error;
 
     console.log(`✅ Added to database queue (ID: ${data.id}, User: ${postData.userId || 'N/A'})`);
+
+    // Invalidate cache for this user so analytics are updated immediately
+    if (postData.userId) {
+      cache.invalidateUserCache(postData.userId);
+    }
+
     return data;
   } catch (error) {
     console.error('❌ Database error (addPost):', error.message);
@@ -139,6 +145,10 @@ async function updatePostStatus(postId, status, results = null) {
       throw error;
     }
 
+    if (data && data.user_id) {
+      cache.invalidateUserCache(data.user_id);
+    }
+
     return data;
   } catch (error) {
     console.error(`❌ Database error (updatePostStatus):`, error.message);
@@ -151,12 +161,21 @@ async function updatePostStatus(postId, status, results = null) {
  */
 async function deletePost(postId) {
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('posts')
       .delete()
-      .eq('id', postId);
+      .eq('id', postId)
+      .select();
 
     if (error) throw error;
+
+    if (data && data.length > 0) {
+      const deletedPost = data[0];
+      if (deletedPost.user_id) {
+        cache.invalidateUserCache(deletedPost.user_id);
+      }
+    }
+
     console.log(`🗑️ Deleted post ${postId} from queue`);
     return true;
   } catch (error) {
