@@ -387,6 +387,18 @@ if (process.env.NODE_ENV === 'production') {
   const fs = require('fs');
 
   if (fsSync.existsSync(dashboardPath)) {
+    // Verify critical build files exist
+    const assetsPath = path.join(dashboardPath, 'assets');
+    if (fsSync.existsSync(assetsPath)) {
+      const assets = fsSync.readdirSync(assetsPath);
+      const analyticsFile = assets.find(f => f.startsWith('Analytics-') && f.endsWith('.js'));
+      if (!analyticsFile) {
+        console.warn('⚠️  WARNING: Analytics.js chunk not found in build! Dashboard may need rebuilding.');
+      } else {
+        console.log(`✅ Analytics chunk found: ${analyticsFile}`);
+      }
+    }
+    
     // Serve ALL static files from dashboard/dist with correct MIME types
     app.use(express.static(dashboardPath, {
       index: false, // Don't auto-serve index.html
@@ -400,6 +412,8 @@ if (process.env.NODE_ENV === 'production') {
       }
     }));
     console.log('✅ Production: Static files configured with MIME types from', dashboardPath);
+  } else {
+    console.error('❌ ERROR: dashboard/dist folder not found! Run: npm run build');
   }
 } else {
   // Development: Serve static files for landing page and auth
@@ -8768,5 +8782,6 @@ app.listen(PORT, async () => {
   console.log('\n' + '='.repeat(50) + '\n');
 });
 // Force redeploy - Fix auth.html redirect priority
-/ /   C a c h e   c l e a r e d :   2 0 2 6 - 0 1 - 0 4   0 1 : 2 7 : 1 4  
+/ /   C a c h e   c l e a r e d :   2 0 2 6 - 0 1 - 0 4   0 1 : 2 7 : 1 4 
+ 
  
