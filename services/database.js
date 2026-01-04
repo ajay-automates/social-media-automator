@@ -323,6 +323,8 @@ async function getAnalyticsOverview(userId) {
     startOfDay.setHours(0, 0, 0, 0);
 
     // Run all independent queries in parallel
+    console.log(`📊 Fetching analytics for user: ${userId}`);
+
     const [
       totalPostsResult,
       postsThisMonthResult,
@@ -362,6 +364,15 @@ async function getAnalyticsOverview(userId) {
     const scheduledCount = scheduledCountResult.count;
     const completedPosts = completedPostsResult.data;
     const platformPosts = platformPostsResult.data;
+
+    console.log(`📊 Analytics Debug for ${userId}:`, {
+      totalPosts,
+      postsThisMonth,
+      postsToday,
+      scheduledCount,
+      completedPostsCount: completedPosts?.length,
+      platformPostsCount: platformPosts?.length
+    });
 
     // Calculate success rate
     const successfulPosts = completedPosts ? completedPosts.filter(p => p.status === 'posted').length : 0;
