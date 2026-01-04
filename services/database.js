@@ -324,12 +324,12 @@ async function getAnalyticsOverview(userId) {
 
     // Run all independent queries in parallel
     const [
-      { count: totalPosts },
-      { count: postsThisMonth },
-      { count: postsToday },
-      { count: scheduledCount },
-      { data: completedPosts },
-      { data: platformPosts }
+      totalPostsResult,
+      postsThisMonthResult,
+      postsTodayResult,
+      scheduledCountResult,
+      completedPostsResult,
+      platformPostsResult
     ] = await Promise.all([
       // Total posts
       supabaseAdmin.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
@@ -349,6 +349,19 @@ async function getAnalyticsOverview(userId) {
       // Active platforms
       supabaseAdmin.from('posts').select('platforms').eq('user_id', userId)
     ]);
+
+    // Check for errors in any of the queries
+    if (totalPostsResult.error || postsThisMonthResult.error || postsTodayResult.error || scheduledCountResult.error || completedPostsResult.error || platformPostsResult.error) {
+      const errorMsg = totalPostsResult.error?.message || postsThisMonthResult.error?.message || 'Unknown database error';
+      throw new Error(`Analytics query failed: ${errorMsg}`);
+    }
+
+    const totalPosts = totalPostsResult.count;
+    const postsThisMonth = postsThisMonthResult.count;
+    const postsToday = postsTodayResult.count;
+    const scheduledCount = scheduledCountResult.count;
+    const completedPosts = completedPostsResult.data;
+    const platformPosts = platformPostsResult.data;
 
     // Calculate success rate
     const successfulPosts = completedPosts ? completedPosts.filter(p => p.status === 'posted').length : 0;
