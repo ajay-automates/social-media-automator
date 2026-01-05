@@ -188,7 +188,7 @@ async function postToTumblr(blogIdentifier, type, postData, credentials) {
 
     // Prepare form data (OAuth 1.0a works better with form-encoded data)
     const bodyParams = { type, ...postData };
-    
+
     const requestData = {
       url: `${TUMBLR_API_BASE}/blog/${blogId}/post`,
       method: 'POST',
@@ -231,7 +231,7 @@ async function postToTumblr(blogIdentifier, type, postData, credentials) {
 
   } catch (error) {
     console.error('❌ Error posting to Tumblr:', error.response?.data || error.message);
-    
+
     let errorMessage = 'Failed to post to Tumblr';
     if (error.response?.data?.meta?.msg) {
       errorMessage = error.response.data.meta.msg;
@@ -239,6 +239,10 @@ async function postToTumblr(blogIdentifier, type, postData, credentials) {
       errorMessage = error.response.data.errors[0] || errorMessage;
     } else if (error.message) {
       errorMessage = error.message;
+    }
+
+    if (errorMessage.includes('Limit Exceeded') || error.response?.status === 429) {
+      errorMessage = 'Tumblr Daily Posting Limit Reached (250 posts/day). Please try again tomorrow.';
     }
 
     return {
@@ -295,12 +299,12 @@ async function createPhotoPost(caption, imageUrl, tags = [], credentials) {
  */
 function extractTags(text) {
   if (!text) return [];
-  
+
   const hashtagRegex = /#(\w+)/g;
   const matches = text.match(hashtagRegex);
-  
+
   if (!matches) return [];
-  
+
   // Remove # symbol
   return matches.map(tag => tag.substring(1));
 }
@@ -313,7 +317,7 @@ function extractTags(text) {
  */
 function formatTumblrPost(text, imageUrl = null) {
   const tags = extractTags(text);
-  
+
   if (imageUrl) {
     // Photo post with caption
     return {
@@ -331,7 +335,7 @@ function formatTumblrPost(text, imageUrl = null) {
     const lines = text.split('\n');
     const title = lines[0].trim() || 'Untitled Post';
     const body = lines.length > 1 ? lines.slice(1).join('\n').trim() : text;
-    
+
     return {
       type: 'text',
       data: {
