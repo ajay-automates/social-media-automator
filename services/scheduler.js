@@ -91,7 +91,37 @@ async function processDueQueue() {
     console.log(`📋 Processing ${duePostsData.length} due posts...`);
 
     for (const post of duePostsData) {
-      await postNow(post);
+      console.log(`Processing post ${post.id}...`);
+
+      // 1. Mark as processing/posting to prevent double-pickup
+      await supabase.from('posts').update({ status: 'processing' }).eq('id', post.id);
+
+      // 2. Execute posting
+      const results = await postNow(post);
+
+      // 3. Determine final status
+      let finalStatus = 'posted';
+      let failureCount = 0;
+      let successCount = 0;
+
+      // Check results for all platforms
+      if (results && typeof results === 'object') {
+        Object.values(results).forEach(platformResults => {
+          if (Array.isArray(platformResults)) {
+            platformResults.forEach(res => {
+              if (res.success) successCount++;
+              else failureCount++;
+            });
+          }
+        });
+      }
+
+      if (successCount === 0 && failureCount > 0) finalStatus = 'failed';
+      else if (failureCount > 0) finalStatus = 'partial';
+
+      // 4. Update database with final results
+      await updatePostStatus(post.id, finalStatus, results);
+      console.log(`✅ Post ${post.id} completed. Status: ${finalStatus}`);
     }
   } catch (error) {
     console.error('❌ Error in processDueQueue:', error);
