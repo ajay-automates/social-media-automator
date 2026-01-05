@@ -136,7 +136,17 @@ export default function Analytics() {
       console.error('Error loading analytics:', err);
       // Don't clear analytics if it's just a background refresh failure
       if (!analytics) {
-        setError(err.response?.data?.error || err.message || 'Failed to load analytics data');
+        let errorMsg = 'Failed to load analytics data';
+        if (err.response?.data?.error) {
+          if (typeof err.response.data.error === 'object') {
+            errorMsg = err.response.data.error.message || JSON.stringify(err.response.data.error);
+          } else {
+            errorMsg = err.response.data.error;
+          }
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+        setError(errorMsg);
       }
     } finally {
       setLoading(false);
@@ -205,9 +215,21 @@ export default function Analytics() {
         showSuccess('Analysis complete! New insights generated.');
         await loadInsights();
       }
-    } catch (error) {
-      console.error('Error analyzing:', error);
-      showError(error.response?.data?.error || 'Failed to analyze');
+    } catch (err) {
+      console.error('Error analyzing:', err);
+
+      let errorMsg = 'Failed to analyze';
+      if (err.response?.data?.error) {
+        if (typeof err.response.data.error === 'object') {
+          errorMsg = err.response.data.error.message || JSON.stringify(err.response.data.error);
+        } else {
+          errorMsg = err.response.data.error;
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+
+      showError(errorMsg);
     } finally {
       setAnalyzing(false);
     }
