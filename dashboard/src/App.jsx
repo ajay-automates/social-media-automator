@@ -197,28 +197,49 @@ function Navigation() {
             </div>
           </div>
 
-          {/* Free Plan Usage Indicator */}
-          {billingInfo?.plan?.name === 'Free' && (
-            <Link to="/pricing" className="hidden lg:flex items-center gap-3 px-4 py-1.5 mr-4 bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700/50 rounded-full group hover:border-blue-500/30 transition-all">
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider group-hover:text-blue-300 transition-colors">Free Plan</span>
-                <div className="flex items-center gap-1.5">
-                  <div className="h-1.5 w-16 bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${(billingInfo.usage.posts.used / billingInfo.plan.limits.posts) > 0.8 ? 'bg-red-500' : 'bg-blue-500'
-                        }`}
-                      style={{ width: `${Math.min((billingInfo.usage.posts.used / billingInfo.plan.limits.posts) * 100, 100)}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-xs text-white font-bold">
-                    {billingInfo.usage.posts.used}/{billingInfo.plan.limits.posts}
+          {/* Plan Badge - Shows for all users */}
+          {billingInfo?.plan?.name && (
+            <div className="hidden lg:flex items-center gap-2 mr-4">
+              {/* Plan Badge */}
+              <div className={`px-4 py-2 rounded-full border-2 ${billingInfo.plan.name === 'free'
+                  ? 'bg-gradient-to-r from-gray-800 to-gray-900 border-gray-600/50'
+                  : billingInfo.plan.name === 'pro'
+                    ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/50'
+                    : 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/50'
+                }`}>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-bold uppercase tracking-wider ${billingInfo.plan.name === 'free'
+                      ? 'text-gray-400'
+                      : billingInfo.plan.name === 'pro'
+                        ? 'text-blue-300'
+                        : 'text-purple-300'
+                    }`}>
+                    {billingInfo.plan.name === 'free' ? '🆓 Free' : billingInfo.plan.name === 'pro' ? '⭐ Pro' : '💎 Business'}
                   </span>
+                  {billingInfo.plan.name === 'free' && billingInfo.usage?.posts && (
+                    <>
+                      <div className="h-4 w-px bg-gray-600"></div>
+                      <span className={`text-xs font-semibold ${(billingInfo.usage.posts.used / billingInfo.plan.limits.posts) > 0.8
+                          ? 'text-red-400'
+                          : 'text-gray-300'
+                        }`}>
+                        {billingInfo.usage.posts.used}/{billingInfo.plan.limits.posts}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
-              <div className="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                ⚡
-              </div>
-            </Link>
+
+              {/* Upgrade Button - Only for Free users */}
+              {billingInfo.plan.name === 'free' && (
+                <Link
+                  to="/pricing"
+                  className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold hover:shadow-lg hover:shadow-blue-500/50 transition-all hover:scale-105"
+                >
+                  ⚡ Upgrade
+                </Link>
+              )}
+            </div>
           )}
 
           {/* User Section */}
