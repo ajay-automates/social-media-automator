@@ -8,7 +8,6 @@ import BlazeWeekView from '../components/calendar/BlazeWeekView';
 import CalendarListView from '../components/calendar/CalendarListView';
 import PostPreviewModal from '../components/calendar/PostPreviewModal';
 import BottomActionBar from '../components/calendar/BottomActionBar';
-import FillWeekButton from '../components/calendar/FillWeekButton';
 import EmptySlotIndicator from '../components/calendar/EmptySlotIndicator';
 import PlatformDistributionChart from '../components/calendar/PlatformDistributionChart';
 import AutoFillModal from '../components/calendar/AutoFillModal';
@@ -960,7 +959,6 @@ export default function Calendar() {
       <BottomActionBar
         onCreateClick={() => window.location.href = '/create'}
         onGenerateClick={handleGeneratePosts}
-        onFillWeek={handleFillWeek}
         onImproveClick={() => showSuccess('Improve feature coming soon!')}
         isGenerating={isGenerating}
         hasBusinessProfile={hasBusinessProfile}

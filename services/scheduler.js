@@ -1224,6 +1224,12 @@ async function schedulePost(postData) {
       throw error;
     }
 
+    // Invalidate cache to ensure dashboard stats update immediately
+    if (user_id && data && data[0]) {
+      const cache = require('./cache');
+      cache.invalidateUserCacheByCategory(user_id, ['analytics', 'platform_stats', 'post_history']);
+    }
+
     return { success: true, post: data[0] };
   } catch (error) {
     console.error('Error scheduling post:', error);

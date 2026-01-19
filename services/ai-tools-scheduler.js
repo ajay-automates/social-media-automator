@@ -431,6 +431,13 @@ async function scheduleAIToolsPosts(specificUserId = null, sourceUrl = null, art
             console.log(`   Failed: ${failed}`);
         }
 
+        // Invalidate cache after scheduling posts to ensure dashboard stats update
+        if (userId && scheduled > 0) {
+            const cache = require('./cache');
+            cache.invalidateUserCacheByCategory(userId, ['analytics', 'platform_stats', 'post_history']);
+            console.log(`🗑️  Invalidated cache for user ${userId} to refresh dashboard stats`);
+        }
+
         console.log(`\n${'='.repeat(60)}`);
         console.log(`✅ SCHEDULING COMPLETED`);
         console.log(`${'='.repeat(60)}`);
