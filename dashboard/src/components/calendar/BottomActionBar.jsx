@@ -361,7 +361,7 @@ export default function BottomActionBar({
                 </p>
               </div>
 
-              {/* Option 1: 5 Posts Today */}
+              {/* Option: 5 Posts Today */}
               <button
                 onClick={() => handleGenerateOption('today_hourly')}
                 style={{
@@ -406,58 +406,6 @@ export default function BottomActionBar({
                     lineHeight: '1.4'
                   }}>
                     Posts scheduled throughout today for selected platforms
-                  </div>
-                </div>
-              </button>
-
-              {/* Divider */}
-              <div style={{ height: '1px', background: '#f3f4f6' }} />
-
-              {/* Option 2: Weekly Calendar */}
-              <button
-                onClick={() => handleGenerateOption('weekly')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  width: '100%',
-                  padding: '14px 16px',
-                  border: 'none',
-                  background: 'white',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'background 0.15s ease'
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#f9fafb'}
-                onMouseLeave={(e) => e.target.style.background = 'white'}
-              >
-                <div style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  background: '#6366f1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <FaCalendarWeek style={{ color: 'white', fontSize: '16px' }} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ 
-                    fontWeight: '600', 
-                    fontSize: '14px', 
-                    color: '#1f2937',
-                    marginBottom: '2px'
-                  }}>
-                    Weekly Calendar
-                  </div>
-                  <div style={{ 
-                    fontSize: '12px', 
-                    color: '#6b7280',
-                    lineHeight: '1.4'
-                  }}>
-                    One post per platform per day for the next 7 days
                   </div>
                 </div>
               </button>

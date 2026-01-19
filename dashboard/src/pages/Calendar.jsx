@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format, addWeeks, subWeeks, addDays, isSameDay } from 'date-fns';
+import { format, addWeeks, subWeeks, addDays } from 'date-fns';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { NoScheduledEmpty } from '../components/ui/EmptyState';
@@ -8,7 +8,6 @@ import BlazeWeekView from '../components/calendar/BlazeWeekView';
 import CalendarListView from '../components/calendar/CalendarListView';
 import PostPreviewModal from '../components/calendar/PostPreviewModal';
 import BottomActionBar from '../components/calendar/BottomActionBar';
-import EmptySlotIndicator from '../components/calendar/EmptySlotIndicator';
 import PlatformDistributionChart from '../components/calendar/PlatformDistributionChart';
 import AutoFillModal from '../components/calendar/AutoFillModal';
 import {
@@ -361,8 +360,6 @@ export default function Calendar() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasBusinessProfile, setHasBusinessProfile] = useState(false);
   
-  // Empty slots state
-  const [emptySlots, setEmptySlots] = useState([]);
   const [connectedPlatforms, setConnectedPlatforms] = useState([]);
   
   // Auto-fill modal state
@@ -384,11 +381,6 @@ export default function Calendar() {
     }
   }, [events.length, loading, connectedPlatforms.length]);
 
-  useEffect(() => {
-    if (events.length > 0) {
-      detectEmptySlots();
-    }
-  }, [events]);
 
   const fetchConnectedPlatforms = async () => {
     try {
@@ -402,31 +394,6 @@ export default function Calendar() {
     }
   };
 
-  // Detect empty slots in the next 7 days
-  const detectEmptySlots = () => {
-    const slots = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Check next 7 days
-    for (let day = 0; day < 7; day++) {
-      const checkDate = addDays(today, day);
-      const dayPosts = events.filter(e => 
-        isSameDay(new Date(e.start), checkDate)
-      );
-      
-      if (dayPosts.length === 0) {
-        slots.push({
-          date: checkDate,
-          dayName: format(checkDate, 'EEEE'),
-          isEmpty: true
-        });
-      }
-    }
-    
-    setEmptySlots(slots);
-    return slots;
-  };
 
   const checkBusinessProfile = async () => {
     try {
@@ -528,18 +495,6 @@ export default function Calendar() {
     }
   };
 
-  // Fill empty slots only
-  const handleFillEmptySlots = async (slots) => {
-    if (!slots || slots.length === 0) return;
-    
-    if (connectedPlatforms.length === 0) {
-      showError('No platforms connected. Please connect platforms first.');
-      return;
-    }
-
-    // Use balanced mix but only for empty days
-    await handleFillWeek(connectedPlatforms);
-  };
 
   // Handle auto-fill modal accept
   const handleAutoFillAccept = async () => {
@@ -569,7 +524,7 @@ export default function Calendar() {
         ? platforms.length * 7  // One post per platform per day for 7 days
         : 5;  // Daily: 5 posts total
       const modeLabel = scheduleMode === 'weekly' 
-        ? `weekly calendar (${postCount} posts, ${platforms.length} per day for 7 days)` 
+        ? `5 posts today (${postCount} posts)` 
         : scheduleMode === 'today_hourly'
           ? '5 posts today (1 hour apart)'
           : '5 posts for today';
@@ -947,13 +902,6 @@ export default function Calendar() {
         connectedPlatforms={connectedPlatforms}
       />
 
-      {/* Empty Slot Indicator */}
-      {emptySlots.length > 0 && (
-        <EmptySlotIndicator 
-          emptySlots={emptySlots}
-          onFillSlot={handleFillEmptySlots}
-        />
-      )}
 
       {/* Bottom Action Bar */}
       <BottomActionBar
