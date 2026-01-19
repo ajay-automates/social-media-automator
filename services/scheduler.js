@@ -440,14 +440,16 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               }
             }
           } else {
-            console.log(`⚠️  No Telegram credentials found or invalid format`);
-            console.log(`⚠️  Credentials structure:`, JSON.stringify(credentials.telegram, null, 2));
-            results.telegram = results.telegram || [];
-            results.telegram.push({
-              success: false,
-              error: 'No Telegram bot connected. Please connect your Telegram bot in Settings.',
-              platform: 'telegram'
-            });
+            // Silently skip if no credentials (expected when account not connected)
+            // Only add error if this platform was requested but has no results yet
+            if (!results.telegram || results.telegram.length === 0) {
+              results.telegram = results.telegram || [];
+              results.telegram.push({
+                success: false,
+                error: 'No Telegram bot connected. Please connect your Telegram bot in Settings.',
+                platform: 'telegram'
+              });
+            }
           }
         }
         else if (platform === 'slack') {
@@ -766,13 +768,16 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               }
             }
           } else {
-            console.log(`⚠️  No Dev.to credentials found`);
-            results.devto = results.devto || [];
-            results.devto.push({
-              success: false,
-              error: 'No Dev.to account connected. Please connect your Dev.to account in Settings.',
-              platform: 'devto'
-            });
+            // Silently skip if no credentials (expected when account not connected)
+            // Only add error if this platform was requested but has no results yet
+            if (!results.devto || results.devto.length === 0) {
+              results.devto = results.devto || [];
+              results.devto.push({
+                success: false,
+                error: 'No Dev.to account connected. Please connect your Dev.to account in Settings.',
+                platform: 'devto'
+              });
+            }
           }
         }
         else if (platform === 'pinterest') {
@@ -1071,13 +1076,16 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
               }
             }
           } else {
-            console.log(`⚠️  No Bluesky credentials found`);
-            results.bluesky = results.bluesky || [];
-            results.bluesky.push({
-              success: false,
-              error: 'No Bluesky account connected. Please connect your Bluesky account in Settings.',
-              platform: 'bluesky'
-            });
+            // Silently skip if no credentials (expected when account not connected)
+            // Only add error if this platform was requested but has no results yet
+            if (!results.bluesky || results.bluesky.length === 0) {
+              results.bluesky = results.bluesky || [];
+              results.bluesky.push({
+                success: false,
+                error: 'No Bluesky account connected. Please connect your Bluesky account in Settings.',
+                platform: 'bluesky'
+              });
+            }
           }
         }
 

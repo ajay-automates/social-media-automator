@@ -10,15 +10,33 @@ async function refreshTwitterToken(userId, platformUserId) {
   try {
     console.log('🔄 Refreshing Twitter OAuth 2.0 token...');
     
-    const { data: account, error } = await supabaseAdmin
+    // Build query - filter by user and platform
+    let query = supabaseAdmin
       .from('user_accounts')
-      .select('refresh_token, platform_user_id')
+      .select('id, refresh_token, platform_user_id')
       .eq('user_id', userId)
-      .eq('platform', 'twitter')
-      .single();
+      .eq('platform', 'twitter');
     
-    if (error || !account) {
+    // If platform_user_id is provided, filter by it (for multi-account support)
+    if (platformUserId) {
+      query = query.eq('platform_user_id', platformUserId);
+    }
+    
+    const { data: accounts, error } = await query;
+    
+    if (error) {
+      throw new Error(`Database error: ${error.message}`);
+    }
+    
+    if (!accounts || accounts.length === 0) {
       throw new Error('Twitter account not found');
+    }
+    
+    // If multiple accounts found and no platform_user_id specified, use the first one
+    const account = accounts[0];
+    
+    if (accounts.length > 1 && !platformUserId) {
+      console.log(`⚠️  Multiple Twitter accounts found (${accounts.length}), using first one`);
     }
     
     let oauth2RefreshToken = account.refresh_token;
@@ -74,7 +92,8 @@ async function refreshTwitterToken(userId, platformUserId) {
       newRefreshToken = `${newRefreshToken}:${oauth1Credentials.accessToken}:${oauth1Credentials.accessSecret}`;
     }
     
-    const { error: updateError } = await supabaseAdmin
+    // Update the specific account that was refreshed (use account ID for precision)
+    const updateQuery = supabaseAdmin
       .from('user_accounts')
       .update({
         access_token: access_token,
@@ -83,8 +102,9 @@ async function refreshTwitterToken(userId, platformUserId) {
           ? new Date(Date.now() + expires_in * 1000).toISOString()
           : null
       })
-      .eq('user_id', userId)
-      .eq('platform', 'twitter');
+      .eq('id', account.id); // Use account ID to update only the specific account
+    
+    const { error: updateError } = await updateQuery;
     
     if (updateError) {
       throw updateError;
