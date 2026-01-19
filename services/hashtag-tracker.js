@@ -48,17 +48,30 @@ async function trackHashtagsFromPost(userId, postId, text, platforms, success = 
     for (const platform of platformArray) {
       for (const hashtag of hashtags) {
         try {
-          // Record post-hashtag relationship
-          await supabase
+          // Check if post-hashtag relationship already exists
+          const { data: existingPostHashtag } = await supabase
             .from('post_hashtags')
-            .insert({
-              post_id: postId,
-              user_id: userId,
-              hashtag,
-              platform
-            })
-            .onConflict(['post_id', 'hashtag', 'platform'])
-            .ignoreDuplicates();
+            .select('id')
+            .eq('post_id', postId)
+            .eq('hashtag', hashtag)
+            .eq('platform', platform)
+            .single();
+
+          // Only insert if it doesn't exist (avoid duplicates)
+          if (!existingPostHashtag) {
+            const { error: insertError } = await supabase
+              .from('post_hashtags')
+              .insert({
+                post_id: postId,
+                user_id: userId,
+                hashtag,
+                platform
+              });
+
+            if (insertError && insertError.code !== '23505') { // Ignore unique constraint violations
+              throw insertError;
+            }
+          }
 
           // Update or create hashtag performance record
           const { data: existing, error: fetchError } = await supabase
@@ -105,7 +118,10 @@ async function trackHashtagsFromPost(userId, postId, text, platforms, success = 
           }
 
         } catch (error) {
-          console.error(`Error tracking hashtag ${hashtag}:`, error.message);
+          // Log error but don't throw - hashtag tracking is non-critical
+          if (error.code !== '23505') { // Don't log unique constraint violations (expected)
+            console.error(`Error tracking hashtag ${hashtag}:`, error.message);
+          }
         }
       }
     }
