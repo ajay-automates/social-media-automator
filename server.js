@@ -248,7 +248,19 @@ let supabase = null;
 if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
   supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
+    process.env.SUPABASE_ANON_KEY,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      },
+      global: {
+        headers: {
+          'x-client-info': 'social-media-automator'
+        }
+      }
+    }
   );
   console.log('✅ Supabase Auth configured');
 } else {
@@ -261,12 +273,38 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+// Circuit breaker for auth failures
+let authFailureCount = 0;
+let lastAuthFailureTime = 0;
+const AUTH_FAILURE_THRESHOLD = 5;
+const AUTH_FAILURE_WINDOW = 60000; // 1 minute
+let circuitBreakerOpen = false;
+let circuitBreakerOpenUntil = 0;
+
 // Auth middleware
 async function verifyAuth(req, res, next) {
   // Skip auth check if Supabase not configured (development mode)
   if (!supabase) {
     req.user = { id: 'dev-user', email: 'dev@example.com' };
     return next();
+  }
+
+  // Check circuit breaker
+  const now = Date.now();
+  if (circuitBreakerOpen && now < circuitBreakerOpenUntil) {
+    console.warn('⚠️  Circuit breaker open - auth service unavailable');
+    return res.status(503).json({
+      success: false,
+      error: 'Authentication service temporarily unavailable',
+      retryAfter: Math.ceil((circuitBreakerOpenUntil - now) / 1000),
+      isNetworkError: true
+    });
+  }
+
+  // Reset circuit breaker if window expired
+  if (now - lastAuthFailureTime > AUTH_FAILURE_WINDOW) {
+    authFailureCount = 0;
+    circuitBreakerOpen = false;
   }
 
   try {
@@ -281,8 +319,47 @@ async function verifyAuth(req, res, next) {
 
     const token = authHeader.substring(7);
 
-    // Verify token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Verify token with Supabase with timeout handling
+    let user, error;
+    try {
+      const result = await Promise.race([
+        supabase.auth.getUser(token),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('AUTH_TIMEOUT')), 8000)
+        )
+      ]);
+      user = result.data?.user;
+      error = result.error;
+      
+      // Reset failure count on success
+      authFailureCount = 0;
+      circuitBreakerOpen = false;
+    } catch (timeoutError) {
+      // Network timeout or connection error
+      if (timeoutError.message === 'AUTH_TIMEOUT' || 
+          timeoutError.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+          timeoutError.cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
+        console.error('⚠️  Supabase connection timeout - returning 503');
+        
+        // Track failures for circuit breaker
+        authFailureCount++;
+        lastAuthFailureTime = now;
+        
+        if (authFailureCount >= AUTH_FAILURE_THRESHOLD) {
+          circuitBreakerOpen = true;
+          circuitBreakerOpenUntil = now + 30000; // Open for 30 seconds
+          console.error(`🔴 Circuit breaker opened after ${authFailureCount} failures`);
+        }
+        
+        return res.status(503).json({
+          success: false,
+          error: 'Authentication service temporarily unavailable',
+          retryAfter: circuitBreakerOpen ? 30 : 5,
+          isNetworkError: true
+        });
+      }
+      throw timeoutError;
+    }
 
     if (error || !user) {
       return res.status(401).json({
@@ -301,6 +378,32 @@ async function verifyAuth(req, res, next) {
 
     next();
   } catch (error) {
+    // Check if it's a network/connection error
+    if (error.code === 'UND_ERR_CONNECT_TIMEOUT' || 
+        error.cause?.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+        error.message?.includes('timeout') ||
+        error.message?.includes('ECONNREFUSED') ||
+        error.message?.includes('ENOTFOUND')) {
+      console.error('⚠️  Network error during auth verification:', error.message);
+      
+      // Track failures for circuit breaker
+      authFailureCount++;
+      lastAuthFailureTime = now;
+      
+      if (authFailureCount >= AUTH_FAILURE_THRESHOLD) {
+        circuitBreakerOpen = true;
+        circuitBreakerOpenUntil = now + 30000; // Open for 30 seconds
+        console.error(`🔴 Circuit breaker opened after ${authFailureCount} failures`);
+      }
+      
+      return res.status(503).json({
+        success: false,
+        error: 'Authentication service temporarily unavailable',
+        retryAfter: circuitBreakerOpen ? 30 : 5,
+        isNetworkError: true
+      });
+    }
+    
     console.error('Auth verification error:', error);
     res.status(401).json({
       success: false,

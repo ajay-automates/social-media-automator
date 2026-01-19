@@ -23,11 +23,26 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Handle 401 errors
+// Handle 401 and 503 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle service unavailable (network/timeout errors)
+    if (error.response?.status === 503 || error.response?.data?.isNetworkError) {
+      console.error('⚠️  Service temporarily unavailable:', error.response?.data?.error);
+      // Don't redirect on network errors - just log and let components handle it
+      // This prevents refresh loops
+      return Promise.reject(error);
+    }
+    
+    // Handle authentication errors (only redirect on actual auth failures, not network errors)
     if (error.response?.status === 401) {
+      // Check if it's a network error masquerading as 401
+      if (error.response?.data?.isNetworkError) {
+        console.error('⚠️  Network error during auth check');
+        return Promise.reject(error);
+      }
+      
       console.error('❌ Auth failed - 401 error');
       console.error('❌ Error details:', error.response?.data);
       // Only redirect if we're not already on auth page
