@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
-    FaLinkedin, FaTwitter, FaInstagram, FaFacebook, FaTiktok, FaYoutube,
-    FaReddit, FaDiscord, FaSlack, FaTelegram, FaWhatsapp, FaPinterest,
+    FaLinkedin, FaTwitter, FaTiktok, FaYoutube,
+    FaReddit, FaDiscord, FaSlack, FaTelegram, FaPinterest,
     FaMedium, FaTumblr
 } from 'react-icons/fa';
 import { SiMastodon, SiBluesky } from 'react-icons/si';
@@ -18,12 +18,8 @@ const PLATFORM_CONFIG = {
     tumblr: { Icon: FaTumblr, color: '#36465D' },
     mastodon: { Icon: SiMastodon, color: '#6364FF' },
     bluesky: { Icon: SiBluesky, color: '#1185FE' },
-    // others if needed
-    instagram: { Icon: FaInstagram, color: '#E1306C' },
-    facebook: { Icon: FaFacebook, color: '#1877F2' },
     youtube: { Icon: FaYoutube, color: '#FF0000' },
     tiktok: { Icon: FaTiktok, color: '#FE2C55' },
-    whatsapp: { Icon: FaWhatsapp, color: '#25D366' },
     pinterest: { Icon: FaPinterest, color: '#E60023' }
 };
 

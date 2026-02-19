@@ -354,7 +354,7 @@ async function sendWelcomeEmail(userEmail, options = {}) {
               <div style="background: rgba(255,255,255,0.5); backdrop-filter: blur(10px); border-radius: 12px; padding: 24px;">
                 <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 18px; font-weight: 600;">🎯 Quick Start Guide</h2>
                 <div style="color: #4b5563; font-size: 14px; line-height: 1.8;">
-                  <p style="margin: 0 0 12px 0;"><strong>1. Connect Your Accounts</strong><br>Link your LinkedIn, Twitter, Instagram, Facebook, and other social media accounts.</p>
+                  <p style="margin: 0 0 12px 0;"><strong>1. Connect Your Accounts</strong><br>Link your LinkedIn, Twitter, and other social media accounts.</p>
                   <p style="margin: 0 0 12px 0;"><strong>2. Create Your First Post</strong><br>Use our intuitive editor to craft engaging content.</p>
                   <p style="margin: 0 0 12px 0;"><strong>3. Schedule & Publish</strong><br>Schedule posts for optimal times or publish instantly across all platforms.</p>
                   <p style="margin: 0;"><strong>4. Track Analytics</strong><br>Monitor performance and get insights to improve your content strategy.</p>
@@ -425,7 +425,7 @@ Hi ${userName},
 Welcome! We're excited to have you on board. Here's how to get started:
 
 1. CONNECT YOUR ACCOUNTS
-   Link your LinkedIn, Twitter, Instagram, Facebook, and other social media accounts.
+   Link your LinkedIn, Twitter, and other social media accounts.
 
 2. CREATE YOUR FIRST POST
    Use our intuitive editor to craft engaging content.

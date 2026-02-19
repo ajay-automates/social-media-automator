@@ -317,8 +317,6 @@ Writing Style Guidelines:
     const platformGuide = {
       linkedin: 'Professional LinkedIn post (thought leadership)',
       twitter: 'Twitter/X post (punchy, under 280 chars)',
-      instagram: 'Instagram caption (engaging, visual)',
-      facebook: 'Facebook post (conversational)',
       reddit: 'Reddit post (detailed, helpful)'
     };
 

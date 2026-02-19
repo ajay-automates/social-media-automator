@@ -15,7 +15,7 @@ export default function FAQ() {
     },
     {
       question: 'Which platforms do you support?',
-      answer: 'We support LinkedIn, Twitter/X, Instagram, Facebook, YouTube, TikTok, Telegram, and more. New platforms are added regularly based on user requests.',
+      answer: 'We support LinkedIn, Twitter/X, YouTube, TikTok, Reddit, Telegram, Discord, Slack, and more. New platforms are added regularly based on user requests.',
     },
     {
       question: 'How does the AI caption generation work?',

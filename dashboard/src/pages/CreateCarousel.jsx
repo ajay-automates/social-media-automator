@@ -369,12 +369,6 @@ export default function CreateCarousel() {
                   >
                     LinkedIn
                   </button>
-                  <button
-                    onClick={() => toast.info('Instagram coming soon!')}
-                    className="flex-1 px-4 py-3 rounded-lg font-semibold bg-gray-700 text-gray-400 cursor-not-allowed"
-                  >
-                    Instagram (Soon)
-                  </button>
                 </div>
               </motion.div>
 

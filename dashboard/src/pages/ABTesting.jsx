@@ -28,7 +28,7 @@ export default function ABTesting() {
     ]
   });
 
-  const allPlatforms = ['linkedin', 'twitter', 'instagram', 'facebook', 'reddit', 'telegram', 'tiktok', 'youtube', 'discord', 'slack'];
+  const allPlatforms = ['linkedin', 'twitter', 'reddit', 'telegram', 'tiktok', 'youtube', 'discord', 'slack'];
 
   useEffect(() => {
     loadData();

@@ -698,7 +698,7 @@ export default function ContentAgent() {
                     Platforms
                   </label>
                   <div className="flex flex-wrap gap-3">
-                    {['linkedin', 'twitter', 'instagram', 'facebook', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
+                    {['linkedin', 'twitter', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
                       <PlatformChip
                         key={platform}
                         platform={platform}
@@ -1410,7 +1410,7 @@ export default function ContentAgent() {
                   <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
                     <label className="block text-sm font-medium text-gray-300">Post to Platforms</label>
                     <div className="flex flex-wrap gap-3">
-                      {['linkedin', 'twitter', 'facebook', 'instagram', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
+                      {['linkedin', 'twitter', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
                         <PlatformChip
                           key={platform}
                           platform={platform}
@@ -1587,8 +1587,6 @@ export default function ContentAgent() {
                         >
                           {platform === 'linkedin' && '💼'}
                           {platform === 'twitter' && '𝕏'}
-                          {platform === 'facebook' && '👍'}
-                          {platform === 'instagram' && '📷'}
                           {platform === 'tiktok' && '🎵'}
                           {platform}
                         </span>

@@ -70,7 +70,7 @@ function getAllAccounts() {
 /**
  * Get credentials for specific account and platform
  * @param {number} accountId - Account ID (1-5)
- * @param {string} platform - Platform name ('linkedin', 'twitter', 'instagram')
+ * @param {string} platform - Platform name ('linkedin', 'twitter')
  * @returns {Object} Credentials object for the platform
  */
 function getAccountCredentials(accountId, platform) {
@@ -89,12 +89,8 @@ function getAccountCredentials(accountId, platform) {
       accessToken: process.env[`TWITTER_ACCESS_TOKEN${suffix}`],
       accessSecret: process.env[`TWITTER_ACCESS_SECRET${suffix}`]
     },
-    instagram: {
-      accessToken: process.env[`INSTAGRAM_ACCESS_TOKEN${suffix}`],
-      igUserId: process.env[`INSTAGRAM_USER_ID${suffix}`]
-    }
   };
-  
+
   return credentials[platform];
 }
 
@@ -106,8 +102,7 @@ function getAccountCredentials(accountId, platform) {
 function getAllCredentials(accountId) {
   return {
     linkedin: getAccountCredentials(accountId, 'linkedin'),
-    twitter: getAccountCredentials(accountId, 'twitter'),
-    instagram: getAccountCredentials(accountId, 'instagram')
+    twitter: getAccountCredentials(accountId, 'twitter')
   };
 }
 
@@ -124,10 +119,8 @@ function hasCredentials(accountId, platform) {
     return !!(creds.accessToken);
   } else if (platform === 'twitter') {
     return !!(creds.apiKey && creds.apiSecret && creds.accessToken && creds.accessSecret);
-  } else if (platform === 'instagram') {
-    return !!(creds.accessToken && creds.igUserId);
   }
-  
+
   return false;
 }
 
@@ -143,8 +136,7 @@ function getAccountStatus(accountId) {
     ...account,
     platforms: {
       linkedin: hasCredentials(accountId, 'linkedin'),
-      twitter: hasCredentials(accountId, 'twitter'),
-      instagram: hasCredentials(accountId, 'instagram')
+      twitter: hasCredentials(accountId, 'twitter')
     }
   };
 }

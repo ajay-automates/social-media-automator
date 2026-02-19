@@ -197,9 +197,6 @@ function CaptionCard({ mode, caption, colorClass, onUse }) {
           {caption.length <= 3000 && (
             <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded">✓ LinkedIn</span>
           )}
-          {caption.length <= 2200 && (
-            <span className="px-2 py-1 bg-pink-500/20 text-pink-300 rounded">✓ Instagram</span>
-          )}
         </div>
       </div>
     </motion.div>

@@ -58,8 +58,6 @@ export default function Business() {
     // Social Links
     linkedin_url: '',
     twitter_handle: '',
-    instagram_handle: '',
-    facebook_url: '',
     youtube_url: '',
     tiktok_handle: '',
     
@@ -113,8 +111,6 @@ export default function Business() {
           phone: profile.phone || '',
           linkedin_url: profile.linkedin_url || '',
           twitter_handle: profile.twitter_handle || '',
-          instagram_handle: profile.instagram_handle || '',
-          facebook_url: profile.facebook_url || '',
           youtube_url: profile.youtube_url || '',
           tiktok_handle: profile.tiktok_handle || '',
           tagline: profile.tagline || '',
@@ -203,8 +199,6 @@ export default function Business() {
           phone: mergeField(formData.phone, extractedData.phone),
           linkedin_url: mergeField(formData.linkedin_url, extractedData.linkedin_url),
           twitter_handle: mergeField(formData.twitter_handle, extractedData.twitter_handle),
-          instagram_handle: mergeField(formData.instagram_handle, extractedData.instagram_handle),
-          facebook_url: mergeField(formData.facebook_url, extractedData.facebook_url),
           youtube_url: mergeField(formData.youtube_url, extractedData.youtube_url),
           tiktok_handle: mergeField(formData.tiktok_handle, extractedData.tiktok_handle),
           tagline: mergeField(formData.tagline, extractedData.tagline),
@@ -563,28 +557,6 @@ export default function Business() {
                     onChange={(e) => setFormData({ ...formData, twitter_handle: e.target.value.replace('@', '') })}
                     className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
                     placeholder="@yourhandle"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Instagram Handle</label>
-                  <input
-                    type="text"
-                    value={formData.instagram_handle}
-                    onChange={(e) => setFormData({ ...formData, instagram_handle: e.target.value.replace('@', '') })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
-                    placeholder="@yourhandle"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Facebook URL</label>
-                  <input
-                    type="url"
-                    value={formData.facebook_url}
-                    onChange={(e) => setFormData({ ...formData, facebook_url: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
-                    placeholder="https://facebook.com/yourpage"
                   />
                 </div>
 

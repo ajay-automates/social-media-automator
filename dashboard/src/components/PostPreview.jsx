@@ -88,50 +88,6 @@ export default function PostPreview({ caption, image, video, platforms }) {
                 </div>
             )}
 
-            {platforms.includes('instagram') && (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden max-w-[400px] mx-auto">
-                    {/* Header */}
-                    <div className="p-3 flex items-center justify-between border-b border-gray-100">
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                            <div className="h-3 w-20 bg-gray-200 rounded"></div>
-                        </div>
-                        <div className="text-gray-400">•••</div>
-                    </div>
-
-                    {/* Media */}
-                    <div className="bg-gray-100 aspect-square flex items-center justify-center overflow-hidden">
-                        {hasMedia ? (
-                            isVideo ? (
-                                <div className="text-gray-400 flex flex-col items-center">
-                                    <span className="text-4xl">▶️</span>
-                                </div>
-                            ) : (
-                                <img src={mediaUrl} alt="Insta media" className="w-full h-full object-cover" />
-                            )
-                        ) : (
-                            <span className="text-gray-400 text-sm">Image/Video Required</span>
-                        )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="p-3">
-                        <div className="flex justify-between mb-3 text-2xl">
-                            <div className="flex gap-4">
-                                <span>♡</span>
-                                <span>💬</span>
-                                <span>➢</span>
-                            </div>
-                            <span>🔖</span>
-                        </div>
-                        <div className="h-3 w-24 bg-gray-100 rounded mb-2"></div>
-                        <p className="text-sm text-gray-800">
-                            <span className="font-semibold mr-2">username</span>
-                            {caption ? (caption.length > 100 ? caption.substring(0, 100) + '...' : caption) : <span className="text-gray-300 italic">Caption...</span>}
-                        </p>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

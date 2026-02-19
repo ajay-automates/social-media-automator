@@ -1,6 +1,6 @@
 const { parse } = require('csv-parse/sync');
 
-const VALID_PLATFORMS = ['linkedin', 'twitter', 'instagram', 'facebook', 'tiktok', 'youtube', 'reddit', 'discord', 'slack', 'telegram'];
+const VALID_PLATFORMS = ['linkedin', 'twitter', 'tiktok', 'youtube', 'reddit', 'discord', 'slack', 'telegram'];
 
 /**
  * Parse and validate CSV file for bulk post scheduling
@@ -74,17 +74,10 @@ function parseCSV(csvContent) {
         }
       }
 
-      // Instagram requires image
-      if (platforms.includes('instagram') && !imageUrl) {
-        errors.push('Instagram requires an image URL');
-      }
-
       // Platform-specific character limits
       const PLATFORM_LIMITS = {
         twitter: 280,
         linkedin: 3000,
-        instagram: 2200,
-        facebook: 63206,
         tiktok: 2200,
         youtube: 5000,
         reddit: 40000
@@ -168,7 +161,7 @@ function generateTemplate() {
   const headers = 'schedule_datetime,caption,platforms,image_url,reddit_title,reddit_subreddit';
   const example1 = '2025-11-10 14:30,"Excited to share our new product launch! 🚀 #ProductLaunch #Innovation","linkedin,twitter","https://example.com/image.jpg","",""';
   const example2 = '2025-11-11 09:00,"Check out this amazing guide on social media marketing","reddit","","The Ultimate Social Media Marketing Guide","marketing"';
-  const example3 = '2025-11-12 16:00,"Beautiful sunset photo 🌅 #nature #photography","instagram","https://example.com/sunset.jpg","",""';
+  const example3 = '2025-11-12 16:00,"Check out our latest blog post on social media tips","linkedin,twitter","","",""';
   
   return [headers, example1, example2, example3].join('\n');
 }

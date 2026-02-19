@@ -8,8 +8,6 @@ import { AnalyticsSkeleton } from '../components/ui/LoadingStates';
 import {
   FaLinkedin,
   FaTwitter,
-  FaInstagram,
-  FaFacebook,
   FaTiktok,
   FaYoutube,
   FaReddit,
@@ -555,8 +553,6 @@ export default function Analytics() {
                       linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'LinkedIn' },
                       twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border-sky-400/30', name: 'Twitter' },
                       telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border-cyan-400/30', name: 'Telegram' },
-                      instagram: { Icon: FaInstagram, color: 'bg-pink-500/20 text-pink-400 border-pink-400/30', name: 'Instagram' },
-                      facebook: { Icon: FaFacebook, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Facebook' },
                       youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border-red-400/30', name: 'YouTube' },
                       reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
                       discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
@@ -623,8 +619,6 @@ export default function Analytics() {
                               const chatIdForUrl = successfulResult.chatId.toString().replace(/^-/, '');
                               return `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
                             }
-                          } else if (platformLower === 'instagram') {
-                            return `https://www.instagram.com/p/${successfulResult.postId}/`;
                           } else if (platformLower === 'youtube') {
                             return `https://www.youtube.com/shorts/${successfulResult.postId}`;
                           } else if (platformLower === 'devto') {
@@ -653,8 +647,6 @@ export default function Analytics() {
                             return `https://www.linkedin.com/feed/update/urn:li:ugcPost:${postId}`;
                           } else if (platformLower === 'twitter' || platformLower === 'x') {
                             return `https://twitter.com/i/web/status/${successfulResult.id}`;
-                          } else if (platformLower === 'instagram') {
-                            return `https://www.instagram.com/p/${successfulResult.id}/`;
                           }
                         }
 

@@ -132,9 +132,9 @@ async function createTemplate(userId, templateData) {
     }
 
     // Validate platforms
-    const validPlatforms = ['linkedin', 'twitter', 'facebook', 'instagram', 'telegram'];
+    const validPlatforms = ['linkedin', 'twitter', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'tumblr', 'mastodon', 'bluesky', 'medium', 'youtube', 'pinterest'];
     const invalidPlatforms = platforms.filter(p => !validPlatforms.includes(p));
-    
+
     if (invalidPlatforms.length > 0) {
       throw new Error(`Invalid platform(s): ${invalidPlatforms.join(', ')}. Valid platforms are: ${validPlatforms.join(', ')}`);
     }

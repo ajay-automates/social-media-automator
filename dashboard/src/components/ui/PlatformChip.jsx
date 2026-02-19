@@ -1,17 +1,14 @@
 import { motion } from 'framer-motion';
-import { 
-  FaLinkedin, 
-  FaTwitter, 
-  FaInstagram, 
-  FaFacebook, 
-  FaTiktok, 
-  FaYoutube, 
-  FaReddit, 
-  FaDiscord, 
-  FaSlack, 
+import {
+  FaLinkedin,
+  FaTwitter,
+  FaTiktok,
+  FaYoutube,
+  FaReddit,
+  FaDiscord,
+  FaSlack,
   FaTelegram,
   FaPinterest,
-  FaWhatsapp,
   FaMedium,
   FaTumblr
 } from 'react-icons/fa';
@@ -20,15 +17,12 @@ import { SiMastodon, SiBluesky } from 'react-icons/si';
 const platformConfig = {
   linkedin: { Icon: FaLinkedin, gradient: 'from-blue-500 to-blue-600', name: 'LinkedIn' },
   twitter: { Icon: FaTwitter, gradient: 'from-sky-400 to-sky-600', name: 'Twitter/X' },
-  instagram: { Icon: FaInstagram, gradient: 'from-pink-500 to-purple-500', name: 'Instagram' },
-  facebook: { Icon: FaFacebook, gradient: 'from-blue-600 to-blue-700', name: 'Facebook' },
   tiktok: { Icon: FaTiktok, gradient: 'from-black to-cyan-500', name: 'TikTok' },
   youtube: { Icon: FaYoutube, gradient: 'from-red-600 to-red-700', name: 'YouTube' },
   reddit: { Icon: FaReddit, gradient: 'from-orange-500 to-orange-600', name: 'Reddit' },
   discord: { Icon: FaDiscord, gradient: 'from-indigo-500 to-indigo-600', name: 'Discord' },
   slack: { Icon: FaSlack, gradient: 'from-purple-500 to-pink-500', name: 'Slack' },
   telegram: { Icon: FaTelegram, gradient: 'from-cyan-400 to-cyan-500', name: 'Telegram' },
-  whatsapp: { Icon: FaWhatsapp, gradient: 'from-green-500 to-green-600', name: 'WhatsApp' },
   pinterest: { Icon: FaPinterest, gradient: 'from-red-500 to-red-600', name: 'Pinterest' },
   medium: { Icon: FaMedium, gradient: 'from-gray-700 to-gray-800', name: 'Medium' },
   devto: { Icon: FaMedium, gradient: 'from-gray-900 to-black', name: 'Dev.to' },

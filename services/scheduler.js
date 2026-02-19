@@ -5,8 +5,6 @@ const { sendToTelegram } = require('./telegram');
 const { sendToSlack } = require('./slack');
 const { sendToDiscord } = require('./discord');
 const { postToReddit } = require('./reddit');
-const { postToInstagram } = require('./instagram');
-const { postToFacebookPage } = require('./facebook');
 const { postToYouTube } = require('./youtube');
 const { getUserCredentialsForPosting, refreshRedditToken } = require('./oauth');
 const { updatePostStatus } = require('./database');
@@ -565,69 +563,6 @@ async function postNow(text, imageUrl, platforms, providedCredentials, post_meta
             }
           } else {
             console.log(`⚠️  No Reddit credentials found`);
-          }
-        }
-        else if (platform === 'instagram') {
-          // ✅ FIXED: Use database credentials instead of process.env
-          if (credentials.instagram && Array.isArray(credentials.instagram)) {
-            for (const account of credentials.instagram) {
-              try {
-                // Credentials structure: { accessToken, igUserId }
-                const result = await postToInstagram(platformText, image_url, account.accessToken, account.igUserId);
-                // Ensure platform property is set
-                if (!result.platform) {
-                  result.platform = 'instagram';
-                }
-                results.instagram = results.instagram || [];
-                results.instagram.push(result);
-                if (result.success) {
-                  console.log(`    ✅ Posted to Instagram`);
-                } else {
-                  console.log(`    ❌ Instagram error: ${result.error}`);
-                }
-              } catch (err) {
-                console.error(`    ❌ Instagram error:`, err.message);
-                results.instagram = results.instagram || [];
-                results.instagram.push({
-                  success: false,
-                  error: err.message,
-                  platform: 'instagram'
-                });
-              }
-            }
-          }
-        }
-        else if (platform === 'facebook') {
-          // ✅ FIXED: Use database credentials instead of process.env
-          if (credentials.facebook && Array.isArray(credentials.facebook)) {
-            for (const account of credentials.facebook) {
-              try {
-                // Credentials structure: { accessToken, pageId }
-                const result = await postToFacebookPage(text, image_url, {
-                  pageId: account.pageId,
-                  accessToken: account.accessToken
-                });
-                // Ensure platform property is set
-                if (!result.platform) {
-                  result.platform = 'facebook';
-                }
-                results.facebook = results.facebook || [];
-                results.facebook.push(result);
-                if (result.success) {
-                  console.log(`    ✅ Posted to Facebook`);
-                } else {
-                  console.log(`    ❌ Facebook error: ${result.error}`);
-                }
-              } catch (err) {
-                console.error(`    ❌ Facebook error:`, err.message);
-                results.facebook = results.facebook || [];
-                results.facebook.push({
-                  success: false,
-                  error: err.message,
-                  platform: 'facebook'
-                });
-              }
-            }
           }
         }
         else if (platform === 'youtube') {

@@ -1,15 +1,13 @@
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { 
-  FaLinkedin, 
-  FaTwitter, 
-  FaInstagram, 
-  FaFacebook, 
-  FaTiktok, 
-  FaYoutube, 
-  FaReddit, 
-  FaDiscord, 
-  FaSlack, 
+import {
+  FaLinkedin,
+  FaTwitter,
+  FaTiktok,
+  FaYoutube,
+  FaReddit,
+  FaDiscord,
+  FaSlack,
   FaTelegram,
   FaPinterest
 } from 'react-icons/fa';
@@ -39,9 +37,7 @@ const PlatformIcon = ({ platform }) => {
   const icons = {
     twitter: FaTwitter,
     linkedin: FaLinkedin,
-    instagram: FaInstagram,
     telegram: FaTelegram,
-    facebook: FaFacebook,
     pinterest: FaPinterest,
     youtube: FaYoutube,
     reddit: FaReddit,

@@ -298,7 +298,7 @@ function getPlatformOptions() {
     { value: 'universal', label: '📱 Universal', description: 'Works on all platforms (1200x630)' },
     { value: 'linkedin', label: '💼 LinkedIn', description: 'Optimized for LinkedIn (1200x627)' },
     { value: 'twitter', label: '🐦 Twitter', description: 'Optimized for Twitter (1200x675)' },
-    { value: 'instagram', label: '📷 Instagram', description: 'Square format (1080x1080)' }
+    { value: 'square', label: '⬜ Square', description: 'Square format (1080x1080)' }
   ];
 }
 

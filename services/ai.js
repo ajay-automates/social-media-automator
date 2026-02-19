@@ -24,22 +24,13 @@ Requirements:
 - Can use 1-2 emojis if appropriate
 - Make it shareable`,
 
-  instagram: (topic, niche) => `Write an Instagram caption about "${topic}" for the ${niche} niche.
-
-Requirements:
-- Trendy and engaging tone
-- Multiple paragraphs with line breaks
-- Use emojis throughout (3-5 emojis)
-- Include 10-15 relevant hashtags at the end
-- Call-to-action (like, comment, share)
-- Relatable and conversational`
 };
 
 /**
  * Generate AI caption using Claude (Anthropic) API
  * @param {string} topic - The topic/subject of the post
  * @param {string} niche - The business niche (Restaurant Tools, E-commerce, etc)
- * @param {string} platform - Target platform (linkedin, twitter, instagram)
+ * @param {string} platform - Target platform (linkedin, twitter)
  * @returns {Promise<Array<string>>} - Array of 3 caption variations
  */
 async function generateCaption(topic, niche, platform = 'linkedin') {
@@ -55,7 +46,7 @@ async function generateCaption(topic, niche, platform = 'linkedin') {
 
     // Normalize platform
     platform = platform.toLowerCase();
-    if (!['linkedin', 'twitter', 'instagram'].includes(platform)) {
+    if (!['linkedin', 'twitter'].includes(platform)) {
       platform = 'linkedin';
     }
 
@@ -140,10 +131,10 @@ async function generateMultiPlatformCaptions(topic, niche, platforms = ['linkedi
 /**
  * Generate AI hashtags for a post
  * @param {string} caption - The caption/content of the post
- * @param {string} platform - Target platform (linkedin, twitter, instagram, etc.)
+ * @param {string} platform - Target platform (linkedin, twitter, etc.)
  * @returns {Promise<Array<string>>} - Array of relevant hashtags
  */
-async function generateHashtags(caption, platform = 'instagram') {
+async function generateHashtags(caption, platform = 'linkedin') {
   try {
     // Validate inputs
     if (!caption || caption.trim() === '') {
@@ -159,11 +150,10 @@ async function generateHashtags(caption, platform = 'instagram') {
     
     // Platform-specific hashtag counts
     const hashtagCounts = {
-      'instagram': '15-20',
       'linkedin': '3-5',
       'twitter': '2-4',
       'tiktok': '5-8',
-      'default': '10-15'
+      'default': '5-10'
     };
     
     const count = hashtagCounts[platform] || hashtagCounts['default'];
@@ -187,7 +177,6 @@ Requirements:
 - Make them trending and ${platform}-appropriate
 - Focus on relevance to the content
 ${platform === 'linkedin' ? '- Use professional, industry-related hashtags' : ''}
-${platform === 'instagram' ? '- Mix broad reach and specific niche hashtags' : ''}
 ${platform === 'twitter' ? '- Keep them concise and trending' : ''}`;
 
     const message = await anthropic.messages.create({
@@ -311,8 +300,8 @@ Make recommendations practical and actionable for the upcoming week.`;
  * Generate platform-specific post variations
  * Takes a base caption and creates optimized versions for each platform
  * @param {string} baseCaption - The original caption
- * @param {Array<string>} platforms - Array of platforms (e.g., ['linkedin', 'twitter', 'instagram'])
- * @returns {Promise<Object>} - Object with platform-specific variations { linkedin: "...", twitter: "...", instagram: "..." }
+ * @param {Array<string>} platforms - Array of platforms (e.g., ['linkedin', 'twitter'])
+ * @returns {Promise<Object>} - Object with platform-specific variations { linkedin: "...", twitter: "..." }
  */
 async function generatePostVariations(baseCaption, platforms) {
   try {
@@ -352,26 +341,6 @@ TWITTER VERSION:
 - 1-2 emojis maximum
 - 2-3 hashtags
 - Make it shareable and quotable`,
-
-      instagram: `
-INSTAGRAM VERSION:
-- Story-driven, emotional, relatable tone
-- 3-5 short paragraphs with emojis throughout
-- Use emojis to break up text (5-10 emojis total)
-- Personal and conversational (like talking to a friend)
-- Include call-to-action (e.g., "Double tap if you agree!", "Tag a friend!")
-- 8-12 trending hashtags at the end
-- Make it visually appealing with line breaks`,
-
-      facebook: `
-FACEBOOK VERSION:
-- Friendly, community-focused tone
-- 2-3 paragraphs, conversational
-- 100-300 words
-- Encourage comments and discussion
-- 2-3 emojis
-- 2-4 hashtags
-- Ask questions to drive engagement`,
 
       reddit: `
 REDDIT VERSION:
@@ -436,7 +405,7 @@ IMPORTANT RULES:
 1. Each version should be UNIQUE and optimized for that specific platform
 2. Maintain the core message but adapt tone, length, and style dramatically
 3. Include appropriate hashtags for each platform
-4. Use emojis according to platform norms (none for LinkedIn/Reddit, lots for Instagram/TikTok)
+4. Use emojis according to platform norms (none for LinkedIn/Reddit, lots for TikTok/YouTube)
 5. Ensure Twitter version is under 280 characters total
 6. Make each version feel native to that platform
 7. Return ONLY valid JSON, nothing else`;
@@ -493,7 +462,7 @@ IMPORTANT RULES:
 /**
  * Generate content ideas for a given topic and platform
  * @param {string} topic - The topic to generate ideas about
- * @param {string} platform - Target platform (linkedin, twitter, instagram, etc.)
+ * @param {string} platform - Target platform (linkedin, twitter, etc.)
  * @param {number} count - Number of ideas to generate (default 20)
  * @returns {Promise<Array>} - Array of content idea objects
  */
@@ -526,18 +495,6 @@ async function generateContentIdeas(topic, platform = 'linkedin', count = 20) {
         types: 'Thread starters, hot takes, quick tips, polls, quote tweets, controversial statements',
         tone: 'Casual, punchy, conversational, witty',
         examples: 'Unpopular opinion: [hot take], Here\'s why [controversial statement], Thread: 10 things about [topic]'
-      },
-      instagram: {
-        focus: 'Visual storytelling, behind-the-scenes, inspirational content, personal journeys',
-        types: 'Carousel post ideas, reel concepts, before/after stories, day-in-the-life, transformation stories',
-        tone: 'Personal, relatable, emotional, inspiring',
-        examples: 'Behind the scenes of [process], Before/after: [transformation], Story time: When I [experience]'
-      },
-      facebook: {
-        focus: 'Community engagement, events, questions, local content, group discussions',
-        types: 'Community questions, event announcements, polls, local stories, user stories',
-        tone: 'Friendly, community-focused, conversational',
-        examples: 'Question for the community: [question], Share your [experience], Poll: [options]'
       },
       reddit: {
         focus: 'Detailed guides, AMAs, authentic discussions, problem-solving, niche expertise',

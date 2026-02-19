@@ -69,8 +69,6 @@ async function upsertBusinessProfile(userId, profileData) {
       phone: profileData.phone || null,
       linkedin_url: profileData.linkedin_url || null,
       twitter_handle: profileData.twitter_handle || null,
-      instagram_handle: profileData.instagram_handle || null,
-      facebook_url: profileData.facebook_url || null,
       youtube_url: profileData.youtube_url || null,
       tiktok_handle: profileData.tiktok_handle || null,
       other_social_links: profileData.other_social_links || null,
@@ -200,8 +198,6 @@ async function extractBusinessDataFromWebsite(websiteUrl) {
         phone: $('a[href^="tel:"]').first().attr('href')?.replace('tel:', '') || '',
         linkedin: $('a[href*="linkedin.com"]').first().attr('href') || '',
         twitter: $('a[href*="twitter.com"], a[href*="x.com"]').first().attr('href') || '',
-        instagram: $('a[href*="instagram.com"]').first().attr('href') || '',
-        facebook: $('a[href*="facebook.com"]').first().attr('href') || '',
         youtube: $('a[href*="youtube.com"]').first().attr('href') || ''
       };
 
@@ -244,8 +240,6 @@ Return ONLY valid JSON (no markdown, no code blocks) with this structure:
   "phone": "phone number if found",
   "linkedin_url": "LinkedIn URL if found",
   "twitter_handle": "Twitter handle (without @) if found",
-  "instagram_handle": "Instagram handle (without @) if found",
-  "facebook_url": "Facebook URL if found",
   "youtube_url": "YouTube URL if found",
   "logo_url": "Logo image URL if found",
   "brand_voice": "professional|casual|friendly|technical|inspirational|humorous (infer from content tone)",
@@ -321,8 +315,6 @@ Content: ${scrapedContent.substring(0, 8000)}`;
       logo_url: extractedData.logo_url || metaData.logo || null,
       linkedin_url: extractedData.linkedin_url || metaData.linkedin || null,
       twitter_handle: extractedData.twitter_handle || (metaData.twitter ? metaData.twitter.replace(/^https?:\/\/(www\.)?(twitter\.com|x\.com)\//, '').replace(/^@/, '') : null),
-      instagram_handle: extractedData.instagram_handle || (metaData.instagram ? metaData.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/^@/, '') : null),
-      facebook_url: extractedData.facebook_url || metaData.facebook || null,
       youtube_url: extractedData.youtube_url || metaData.youtube || null
     };
 
@@ -330,10 +322,6 @@ Content: ${scrapedContent.substring(0, 8000)}`;
     if (result.twitter_handle && result.twitter_handle.includes('twitter.com')) {
       result.twitter_handle = result.twitter_handle.replace(/^https?:\/\/(www\.)?(twitter\.com|x\.com)\//, '').replace(/^@/, '');
     }
-    if (result.instagram_handle && result.instagram_handle.includes('instagram.com')) {
-      result.instagram_handle = result.instagram_handle.replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/^@/, '');
-    }
-
     console.log(`✅ Successfully extracted business data from ${url}`);
     return {
       success: true,

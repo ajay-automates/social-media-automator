@@ -87,10 +87,6 @@ const {
   refreshRedditToken,
   initiateTwitterOAuth,
   handleTwitterCallback,
-  initiateInstagramOAuth,
-  handleInstagramCallback,
-  initiateFacebookOAuth,
-  handleFacebookCallback,
   initiatePinterestOAuth,
   handlePinterestCallback,
   initiateMediumOAuth,
@@ -1025,48 +1021,9 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
           });
         }
       }
-      if (platform === 'instagram' && credentials.instagram.length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'Instagram account not connected. Please connect your Instagram account first.'
-        });
-      }
     }
 
-    // Instagram requires an image
-    if (requestedPlatforms.includes('instagram') && !imageUrl) {
-      return res.status(400).json({
-        success: false,
-        error: 'Instagram requires an image. Please upload or generate an image first.'
-      });
-    }
-
-    // If base64 image for Instagram, upload to Cloudinary first
-    let finalImageUrl = imageUrl;
-    if (requestedPlatforms.includes('instagram') && imageUrl && imageUrl.startsWith('data:image')) {
-      try {
-        const { uploadBase64Image } = require('./services/cloudinary');
-        const uploadResult = await uploadBase64Image(
-          imageUrl.replace(/^data:image\/\w+;base64,/, ''),
-          userId
-        );
-        if (uploadResult.success) {
-          finalImageUrl = uploadResult.url;
-          console.log('✅ Uploaded base64 image to Cloudinary for Instagram');
-        } else {
-          return res.status(400).json({
-            success: false,
-            error: 'Failed to upload image for Instagram'
-          });
-        }
-      } catch (uploadError) {
-        console.error('Error uploading image:', uploadError);
-        return res.status(400).json({
-          success: false,
-          error: 'Failed to process image for Instagram'
-        });
-      }
-    }
+    const finalImageUrl = imageUrl;
 
     // Use platform-specific variations if provided, otherwise use single text for all
     const platformResults = await postNow(
@@ -1354,13 +1311,13 @@ app.post('/api/post/bulk-csv', verifyAuth, async (req, res) => {
 
         // Parse platforms (comma-separated string to array)
         const platformsRaw = post.platforms.toString().split(',').map(p => p.trim());
-        const validPlatforms = ['linkedin', 'twitter', 'instagram'];
+        const validPlatforms = ['linkedin', 'twitter'];
         const platforms = platformsRaw.filter(p => validPlatforms.includes(p));
 
         if (platforms.length === 0) {
           failed.push({
             row: rowNum,
-            error: 'No valid platforms specified (must be linkedin, twitter, or instagram)'
+            error: 'No valid platforms specified (must be linkedin or twitter)'
           });
           continue;
         }
@@ -2518,7 +2475,7 @@ app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
     // Generate hashtags
     const hashtags = await generateHashtags(
       caption,
-      platform || 'instagram'
+      platform || 'linkedin'
     );
 
     // Increment AI usage count
@@ -2528,7 +2485,7 @@ app.post('/api/ai/hashtags', verifyAuth, async (req, res) => {
       success: true,
       hashtags,
       count: hashtags.length,
-      platform: platform || 'instagram'
+      platform: platform || 'linkedin'
     });
 
   } catch (error) {
@@ -6303,23 +6260,19 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
     }
 
     // Validate platforms support carousels
-    const supportedPlatforms = ['linkedin', 'instagram'];
+    const supportedPlatforms = ['linkedin'];
     const unsupported = platforms.filter(p => !supportedPlatforms.includes(p));
     if (unsupported.length > 0) {
       return res.status(400).json({
         success: false,
-        error: `Carousel not supported on: ${unsupported.join(', ')}. Only LinkedIn and Instagram support carousels.`
+        error: `Carousel not supported on: ${unsupported.join(', ')}. Only LinkedIn supports carousels.`
       });
     }
 
     console.log(`📸 Posting ${imageUrls.length}-slide carousel to ${platforms.join(', ')}...`);
-    console.log('User ID:', userId);
-    console.log('Platforms:', platforms);
 
-    // Get user credentials (use same method as regular posting)
+    // Get user credentials
     const credentials = await getUserCredentialsForPosting(userId);
-
-    console.log('Credentials fetched:', Object.keys(credentials));
 
     // Check if LinkedIn account exists
     if (platforms.includes('linkedin')) {
@@ -6331,29 +6284,15 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
       }
     }
 
-    // Check if Instagram account exists
-    if (platforms.includes('instagram')) {
-      if (!credentials.instagram || credentials.instagram.length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'No Instagram account connected. Please connect your Instagram account in Connect Accounts.'
-        });
-      }
-    }
-
     const results = [];
 
     // Post to each platform
     for (const platform of platforms) {
       try {
-        let result;
-
         if (platform === 'linkedin' && credentials.linkedin) {
-          // Post to all LinkedIn accounts
           for (const linkedinAccount of credentials.linkedin) {
             try {
-              result = await postLinkedInCarousel(imageUrls, captions, linkedinAccount);
-
+              const result = await postLinkedInCarousel(imageUrls, captions, linkedinAccount);
               results.push({
                 platform: 'linkedin',
                 success: result.success,
@@ -6361,7 +6300,6 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
                 url: result.url,
                 error: result.error
               });
-
               if (result.success) {
                 console.log(`✅ Carousel posted to LinkedIn`);
               } else {
@@ -6369,29 +6307,13 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
               }
             } catch (err) {
               console.error(`Failed to post carousel to LinkedIn:`, err);
-              results.push({
-                platform: 'linkedin',
-                success: false,
-                error: err.message
-              });
+              results.push({ platform: 'linkedin', success: false, error: err.message });
             }
           }
-        } else if (platform === 'instagram') {
-          // Instagram carousel will be implemented in Phase 2
-          results.push({
-            platform: 'instagram',
-            success: false,
-            error: 'Instagram carousel coming soon! Use LinkedIn for now.'
-          });
         }
-
       } catch (error) {
         console.error(`Failed to post carousel to ${platform}:`, error);
-        results.push({
-          platform: platform,
-          success: false,
-          error: error.message
-        });
+        results.push({ platform: platform, success: false, error: error.message });
       }
     }
 
@@ -6460,176 +6382,6 @@ app.post('/api/carousel/post', verifyAuth, async (req, res) => {
 // =====================================================
 // END CAROUSEL POSTS ENDPOINTS
 // =====================================================
-
-/**
- * POST /api/auth/instagram/url
- * Generate Instagram OAuth URL (authenticated endpoint)
- */
-app.post('/api/auth/instagram/url', verifyAuth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { initiateInstagramOAuth } = require('./services/oauth');
-
-    console.log('📱 Instagram OAuth URL generation (Facebook Login):');
-    console.log('  - User ID:', userId);
-
-    // Use the fixed Instagram OAuth function (uses Facebook Login)
-    const authUrl = initiateInstagramOAuth(userId);
-
-    console.log('  - OAuth URL:', authUrl);
-
-    res.json({
-      success: true,
-      authUrl: authUrl.toString()
-    });
-
-  } catch (error) {
-    console.error('Error generating Instagram OAuth URL:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * GET /auth/instagram/callback
- * Handle Instagram OAuth callback
- */
-app.get('/auth/instagram/callback', async (req, res) => {
-  try {
-    const { code, state, error } = req.query;
-
-    console.log('📱 Instagram callback received:');
-    console.log('  - Code:', code ? 'exists' : 'missing');
-    console.log('  - State:', state ? 'exists' : 'missing');
-    console.log('  - Error:', error || 'none');
-
-    if (error) {
-      console.error('  ❌ OAuth error:', error);
-      return res.redirect('/dashboard?error=instagram_denied');
-    }
-
-    if (!code || !state) {
-      console.error('  ❌ Missing code or state');
-      return res.redirect('/dashboard?error=instagram_invalid_callback');
-    }
-
-    // Handle Instagram callback (state decoding happens inside the function)
-    try {
-      const { handleInstagramCallback } = require('./services/oauth');
-      const result = await handleInstagramCallback(code, state);
-
-      console.log('  ✅ Instagram account connected successfully');
-      console.log('  - Account:', result.account);
-
-      return res.redirect('/connect-accounts?instagram=connected');
-
-    } catch (callbackError) {
-      console.error('  ❌ Instagram callback error:', callbackError.message);
-      return res.redirect(`/dashboard?error=instagram_failed&message=${encodeURIComponent(callbackError.message)}`);
-    }
-
-  } catch (error) {
-    console.error('Error handling Instagram callback:', error);
-    return res.redirect('/dashboard?error=instagram_failed');
-  }
-});
-
-/**
- * POST /api/auth/facebook/url
- * Generate Facebook OAuth URL
- */
-app.post('/api/auth/facebook/url', verifyAuth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { initiateFacebookOAuth } = require('./services/oauth');
-
-    console.log('📘 Facebook OAuth URL request from user:', userId);
-
-    const oauthUrl = initiateFacebookOAuth(userId);
-
-    console.log('  - OAuth URL:', oauthUrl);
-
-    res.json({
-      success: true,
-      oauthUrl
-    });
-
-  } catch (error) {
-    console.error('Error generating Facebook OAuth URL:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * GET /auth/facebook/callback
- * Handle Facebook OAuth callback
- */
-app.get('/auth/facebook/callback', async (req, res) => {
-  try {
-    const { code, state, error, error_code, error_message, error_reason } = req.query;
-
-    console.log('📘 Facebook OAuth callback received');
-    console.log('  - Code:', code ? code.substring(0, 20) + '...' : 'missing');
-    console.log('  - State:', state ? state.substring(0, 20) + '...' : 'missing');
-    console.log('  - Error:', error || 'none');
-    console.log('  - Error Code:', error_code || 'none');
-    console.log('  - Error Message:', error_message || 'none');
-    console.log('  - Error Reason:', error_reason || 'none');
-    console.log('  - Full Query:', JSON.stringify(req.query, null, 2));
-
-    if (error) {
-      console.log('  ❌ Facebook denied access:', error);
-      console.log('  ❌ Error details:', { error_code, error_message, error_reason });
-      return res.redirect(`/connect-accounts?error=facebook_denied&message=${encodeURIComponent(error_message || error)}`);
-    }
-
-    if (!code || !state) {
-      console.log('  ❌ Missing code or state');
-      console.log('  ❌ Query params:', req.query);
-      return res.redirect('/connect-accounts?error=facebook_failed&message=Missing+authorization+code');
-    }
-
-    const { handleFacebookCallback } = require('./services/oauth');
-
-    console.log('📘 Starting Facebook callback handler...');
-
-    try {
-      const result = await handleFacebookCallback(code, state);
-
-      console.log('📘 Callback result:', JSON.stringify(result, null, 2));
-
-      if (result.success && result.accounts && result.accounts.length > 0) {
-        console.log('  ✅ Facebook connected successfully:', result.accounts.length, 'Pages');
-        return res.redirect('/connect-accounts?facebook=connected');
-      } else {
-        console.log('  ⚠️  No Pages saved');
-        return res.redirect('/connect-accounts?error=facebook_no_pages&message=No+Facebook+Pages+found.+Please+create+a+Facebook+Page+first.');
-      }
-
-    } catch (callbackError) {
-      console.error('  ❌ Facebook callback error:', callbackError.message);
-      console.error('  ❌ Full error:', callbackError);
-
-      // Extract detailed error message
-      let errorMsg = callbackError.message;
-      if (callbackError.response?.data?.error) {
-        errorMsg = callbackError.response.data.error.message || errorMsg;
-      }
-
-      return res.redirect(`/connect-accounts?error=facebook_failed&message=${encodeURIComponent(errorMsg)}`);
-    }
-
-  } catch (error) {
-    console.error('Error handling Facebook callback:', error);
-    console.error('Full error:', error);
-    return res.redirect(`/connect-accounts?error=facebook_failed&message=${encodeURIComponent(error.message || 'Unknown error')}`);
-  }
-});
 
 /**
  * POST /api/auth/twitter/oauth1
@@ -8844,7 +8596,6 @@ app.post('/api/admin/cache/clear-categories', verifyAuth, async (req, res) => {
 // ============================================
 // START SERVER
 // ============================================
-// Deployment timestamp: 2025-01-27 - Instagram/Facebook scheduler fix
 
 // Error handling middleware (must be last)
 const { errorHandler, notFoundHandler } = require('./middleware/error-handler');

@@ -46,7 +46,7 @@ const PLANS = {
       videos: 20,
       voice: 10,
       team: 1,
-      platforms: ['linkedin', 'twitter', 'instagram', 'youtube']
+      platforms: ['linkedin', 'twitter', 'youtube']
     },
     features: [
       '100 posts per month',
@@ -74,7 +74,7 @@ const PLANS = {
       videos: Infinity,
       voice: Infinity,
       team: 5,
-      platforms: ['linkedin', 'twitter', 'instagram', 'youtube']
+      platforms: ['linkedin', 'twitter', 'youtube']
     },
     features: [
       'Unlimited posts',
@@ -243,7 +243,7 @@ function hasFeature(planName, feature) {
   const featureMap = {
     'ai_captions': plan.limits.ai > 0,
     'bulk_upload': planName !== 'free',
-    'all_platforms': plan.limits.platforms.includes('instagram'),
+    'all_platforms': plan.limits.platforms.includes('youtube'),
     'api_access': planName === 'business',
     'priority_support': planName === 'business',
     'white_label': planName === 'business',

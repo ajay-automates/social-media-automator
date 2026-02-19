@@ -6,8 +6,6 @@ import { showSuccess, showError } from '../components/ui/Toast';
 import {
   FaLinkedin,
   FaTwitter,
-  FaInstagram,
-  FaFacebook,
   FaTiktok,
   FaYoutube,
   FaPinterest,
@@ -15,15 +13,11 @@ import {
   FaDiscord,
   FaSlack,
   FaTelegram,
-  FaWhatsapp,
-  FaSnapchat,
   FaMedium,
-  FaTwitch,
   FaTumblr,
-  FaVk,
   FaQuora
 } from 'react-icons/fa';
-import { SiThreads, SiBluesky, SiMastodon } from 'react-icons/si';
+import { SiBluesky, SiMastodon } from 'react-icons/si';
 
 export default function ConnectAccounts() {
   const navigate = useNavigate();
@@ -73,7 +67,7 @@ export default function ConnectAccounts() {
     // Check if we're returning from OAuth during onboarding
     const wasOnboarding = localStorage.getItem('sma_oauth_onboarding');
 
-    if (wasOnboarding && (connected || success || params.get('instagram') === 'connected' || params.get('facebook') === 'connected')) {
+    if (wasOnboarding && (connected || success)) {
       // OAuth completed during onboarding - resume tutorial at step 2
       localStorage.setItem('sma_resume_onboarding_step', '2');
       localStorage.removeItem('sma_oauth_onboarding');
@@ -84,16 +78,6 @@ export default function ConnectAccounts() {
     // Handle successful connections (normal flow)
     if (connected && success) {
       showSuccess(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
-      loadAccounts();
-      trackFirstAccountMilestone();
-      window.history.replaceState({}, '', '/connect-accounts');
-    } else if (params.get('instagram') === 'connected') {
-      showSuccess('Instagram connected successfully!');
-      loadAccounts();
-      trackFirstAccountMilestone();
-      window.history.replaceState({}, '', '/connect-accounts');
-    } else if (params.get('facebook') === 'connected') {
-      showSuccess('Facebook connected successfully!');
       loadAccounts();
       trackFirstAccountMilestone();
       window.history.replaceState({}, '', '/connect-accounts');
@@ -184,34 +168,6 @@ export default function ConnectAccounts() {
       console.error('🐦 Error response:', err.response?.data);
       const errorMsg = err.response?.data?.error || err.message || 'Failed to connect Twitter';
       showError(errorMsg);
-    }
-  };
-
-  const connectInstagram = async () => {
-    try {
-      const response = await api.post('/auth/instagram/url');
-      if (response.data.authUrl) {
-        window.location.href = response.data.authUrl;
-      } else {
-        showError('Failed to generate Instagram auth URL');
-      }
-    } catch (err) {
-      console.error('Error connecting Instagram:', err);
-      showError(err.response?.data?.error || 'Failed to connect Instagram');
-    }
-  };
-
-  const connectFacebook = async () => {
-    try {
-      const response = await api.post('/auth/facebook/url');
-      if (response.data.authUrl) {
-        window.location.href = response.data.authUrl;
-      } else {
-        showError('Failed to generate Facebook auth URL');
-      }
-    } catch (err) {
-      console.error('Error connecting Facebook:', err);
-      showError(err.response?.data?.error || 'Failed to connect Facebook');
     }
   };
 
@@ -584,8 +540,6 @@ export default function ConnectAccounts() {
                 slack: 'from-purple-600/20 via-purple-500/10 to-transparent',
                 discord: 'from-indigo-600/20 via-indigo-500/10 to-transparent',
                 reddit: 'from-orange-600/20 via-orange-500/10 to-transparent',
-                instagram: 'from-pink-600/20 via-pink-500/10 to-transparent',
-                facebook: 'from-blue-700/20 via-blue-600/10 to-transparent',
                 youtube: 'from-red-600/20 via-red-500/10 to-transparent',
                 tiktok: 'from-gray-700/20 via-gray-600/10 to-transparent'
               };
@@ -611,8 +565,6 @@ export default function ConnectAccounts() {
                           {account?.platform === 'slack' && <FaSlack className="text-5xl text-purple-500" />}
                           {account?.platform === 'discord' && <FaDiscord className="text-5xl text-indigo-500" />}
                           {account?.platform === 'reddit' && <FaReddit className="text-5xl text-orange-500" />}
-                          {account?.platform === 'instagram' && <FaInstagram className="text-5xl text-pink-500" />}
-                          {account?.platform === 'facebook' && <FaFacebook className="text-5xl text-blue-600" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-5xl text-red-500" />}
                           {account?.platform === 'pinterest' && <FaPinterest className="text-5xl text-red-600" />}
                           {account?.platform === 'tiktok' && <FaTiktok className="text-5xl text-gray-300" />}
@@ -629,8 +581,6 @@ export default function ConnectAccounts() {
                           {account?.platform === 'slack' && <FaSlack className="text-purple-400" />}
                           {account?.platform === 'discord' && <FaDiscord className="text-indigo-400" />}
                           {account?.platform === 'reddit' && <FaReddit className="text-orange-400" />}
-                          {account?.platform === 'instagram' && <FaInstagram className="text-pink-400" />}
-                          {account?.platform === 'facebook' && <FaFacebook className="text-blue-500" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-red-400" />}
                           {account?.platform === 'pinterest' && <FaPinterest className="text-red-500" />}
                           {account?.platform === 'tiktok' && <FaTiktok className="text-gray-300" />}
@@ -773,24 +723,6 @@ export default function ConnectAccounts() {
                 </button>
               )}
 
-              {/* Instagram - Working */}
-              {!isPlatformConnected('instagram') && (
-                <button onClick={() => handleComingSoon('Instagram')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-pink-500 to-pink-600 border-2 border-pink-400/50 rounded-xl hover:border-pink-300 hover:shadow-2xl hover:shadow-pink-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <FaInstagram className="relative text-4xl text-white drop-shadow-lg" />
-                  <span className="relative font-semibold text-sm text-white">Instagram</span>
-                </button>
-              )}
-
-              {/* Facebook - Working */}
-              {!isPlatformConnected('facebook') && (
-                <button onClick={() => handleComingSoon('Facebook')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-500/50 rounded-xl hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-600/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <FaFacebook className="relative text-4xl text-white drop-shadow-lg" />
-                  <span className="relative font-semibold text-sm text-white">Facebook</span>
-                </button>
-              )}
-
               {/* Telegram - Working */}
               {!isPlatformConnected('telegram') && (
                 <button onClick={connectTelegram} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-cyan-500 to-cyan-600 border-2 border-cyan-400/50 rounded-xl hover:border-cyan-300 hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-200">
@@ -896,55 +828,6 @@ export default function ConnectAccounts() {
 
 
 
-          {/* Section 3: Coming Soon (5 Platforms) */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <h3 className="text-xl font-bold text-white">Coming Soon</h3>
-              <span className="bg-purple-500/20 text-purple-400 text-xs font-bold px-3 py-1 rounded-full border border-purple-400/30">
-                🚀 2025
-              </span>
-            </div>
-            <p className="text-sm text-gray-400 mb-4">Future platforms we're working on.</p>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 opacity-60">
-
-              {/* Coming Soon Platforms - Only 5 future platforms */}
-              <button onClick={() => handleComingSoon('WhatsApp')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-green-500 to-green-600 border-2 border-green-400/50 rounded-xl hover:border-green-300 hover:shadow-xl transition-all duration-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <FaWhatsapp className="relative text-4xl text-white drop-shadow-lg" />
-                <span className="relative font-semibold text-sm text-white">WhatsApp</span>
-                <span className="relative text-xs text-white/80">2025</span>
-              </button>
-
-              <button onClick={() => handleComingSoon('Snapchat')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-yellow-400 to-yellow-500 border-2 border-yellow-300/50 rounded-xl hover:border-yellow-200 hover:shadow-xl transition-all duration-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <FaSnapchat className="relative text-4xl text-white drop-shadow-lg" />
-                <span className="relative font-semibold text-sm text-white">Snapchat</span>
-                <span className="relative text-xs text-white/80">2025</span>
-              </button>
-
-              <button onClick={() => handleComingSoon('Twitch')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-600 to-purple-700 border-2 border-purple-500/50 rounded-xl hover:border-purple-400 hover:shadow-xl transition-all duration-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <FaTwitch className="relative text-4xl text-white drop-shadow-lg" />
-                <span className="relative font-semibold text-sm text-white">Twitch</span>
-                <span className="relative text-xs text-white/80">2025</span>
-              </button>
-
-              <button onClick={() => handleComingSoon('Threads')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-900 to-black border-2 border-gray-800/50 rounded-xl hover:border-gray-700 hover:shadow-xl transition-all duration-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <SiThreads className="relative text-4xl text-white drop-shadow-lg" />
-                <span className="relative font-semibold text-sm text-white">Threads</span>
-                <span className="relative text-xs text-white/80">2025</span>
-              </button>
-
-              <button onClick={() => handleComingSoon('Quora')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-600 to-red-700 border-2 border-red-500/50 rounded-xl hover:border-red-400 hover:shadow-xl transition-all duration-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <FaQuora className="relative text-4xl text-white drop-shadow-lg" />
-                <span className="relative font-semibold text-sm text-white">Quora</span>
-                <span className="relative text-xs text-white/80">2025</span>
-              </button>
-            </div>
-          </div>
 
         </div>
       </div>

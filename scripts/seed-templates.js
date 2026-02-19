@@ -1,6 +1,6 @@
 /**
  * Seed Templates Script
- * Creates 15 professional social media templates
+ * Creates professional social media templates
  */
 
 require('dotenv').config();
@@ -16,7 +16,7 @@ const templates = [
     name: "Welcome New Followers",
     description: "Warm welcome message for new community members",
     text: "Welcome to our community! 🎉 We're thrilled to have you here. Follow along for {{topic}} tips, insights, and exclusive content. What brought you here today? 👇",
-    platforms: ['linkedin', 'twitter', 'instagram'],
+    platforms: ['linkedin', 'twitter'],
     category: 'engagement',
     tags: ['welcome', 'community', 'engagement']
   },
@@ -24,7 +24,7 @@ const templates = [
     name: "Product Launch Announcement",
     description: "Exciting product launch with key features",
     text: "🚀 BIG NEWS! We're launching {{product_name}} today!\n\n{{description}}\n\n✨ Key benefits:\n• Feature 1\n• Feature 2\n• Feature 3\n\nLearn more: {{link}}",
-    platforms: ['linkedin', 'twitter', 'instagram', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'promotional',
     tags: ['launch', 'product', 'announcement']
   },
@@ -32,7 +32,7 @@ const templates = [
     name: "Monday Motivation",
     description: "Inspirational quote to start the week",
     text: "☀️ Monday Motivation\n\n'{{quote}}' - {{author}}\n\nWhat are your goals for this week? Share below! 💪",
-    platforms: ['linkedin', 'twitter', 'instagram'],
+    platforms: ['linkedin', 'twitter'],
     category: 'engagement',
     tags: ['motivation', 'monday', 'inspiration']
   },
@@ -48,7 +48,7 @@ const templates = [
     name: "Behind the Scenes",
     description: "Share exclusive BTS content with followers",
     text: "🎬 Behind the scenes at {{company}}!\n\n{{description}}\n\nWant to see more BTS content? Let us know! 👇",
-    platforms: ['instagram', 'facebook', 'tiktok'],
+    platforms: ['tiktok', 'youtube'],
     category: 'personal',
     tags: ['bts', 'behind-the-scenes', 'company-culture']
   },
@@ -56,7 +56,7 @@ const templates = [
     name: "Customer Testimonial",
     description: "Showcase positive customer feedback",
     text: "⭐ TESTIMONIAL ALERT\n\n\"{{testimonial}}\" - {{customer_name}}, {{customer_title}}\n\nWant results like this? {{call_to_action}}",
-    platforms: ['linkedin', 'twitter', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'promotional',
     tags: ['testimonial', 'social-proof', 'customer-success']
   },
@@ -80,7 +80,7 @@ const templates = [
     name: "Weekend Vibes",
     description: "Fun weekend engagement post",
     text: "🎉 Weekend Vibes!\n\nWhat are your plans this weekend?\nA) Relax 😌\nB) Work on side projects 💼\nC) Adventure time! 🌄\nD) Other (comment!) 👇",
-    platforms: ['instagram', 'facebook', 'twitter'],
+    platforms: ['twitter', 'telegram'],
     category: 'engagement',
     tags: ['weekend', 'fun', 'poll']
   },
@@ -88,7 +88,7 @@ const templates = [
     name: "Flash Sale",
     description: "Urgent promotional offer announcement",
     text: "⚡ FLASH SALE ALERT ⚡\n\n{{discount}}% OFF {{product_name}}\n⏰ Ends: {{end_date}}\n\nDon't miss out! Use code: {{coupon_code}}\n{{link}}",
-    platforms: ['twitter', 'instagram', 'facebook', 'telegram'],
+    platforms: ['twitter', 'telegram'],
     category: 'promotional',
     tags: ['sale', 'discount', 'urgent']
   },
@@ -96,7 +96,7 @@ const templates = [
     name: "Team Spotlight",
     description: "Highlight team members and company culture",
     text: "👏 Team Spotlight: {{employee_name}}\n\nRole: {{role}}\nFavorite thing about work: {{favorite_thing}}\n\nWe're lucky to have {{employee_name}} on our team! 💙",
-    platforms: ['linkedin', 'instagram'],
+    platforms: ['linkedin'],
     category: 'personal',
     tags: ['team', 'culture', 'spotlight']
   },
@@ -104,7 +104,7 @@ const templates = [
     name: "Milestone Celebration",
     description: "Celebrate company achievements",
     text: "🎊 MILESTONE ACHIEVED!\n\nWe just hit {{milestone}}! 🚀\n\nThank you to everyone who made this possible. This is just the beginning!\n\n{{gratitude_message}}",
-    platforms: ['linkedin', 'twitter', 'instagram', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'announcement',
     tags: ['milestone', 'celebration', 'achievement']
   },
@@ -120,7 +120,7 @@ const templates = [
     name: "Holiday Greeting",
     description: "Seasonal holiday wishes",
     text: "🎄 Happy {{holiday}}!\n\n{{custom_message}}\n\nFrom our team to yours, wishing you {{wishes}}! ✨",
-    platforms: ['linkedin', 'twitter', 'instagram', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'seasonal',
     tags: ['holiday', 'greeting', 'seasonal']
   },
@@ -128,7 +128,7 @@ const templates = [
     name: "Webinar/Event Invitation",
     description: "Invite audience to upcoming events",
     text: "📅 EVENT ALERT!\n\n{{event_name}}\n📆 {{date}} at {{time}}\n\n{{description}}\n\nRegister now: {{registration_link}}\nLimited spots available! 🎟️",
-    platforms: ['linkedin', 'twitter', 'facebook', 'slack'],
+    platforms: ['linkedin', 'twitter', 'slack'],
     category: 'announcement',
     tags: ['event', 'webinar', 'invitation']
   },
@@ -136,7 +136,7 @@ const templates = [
     name: "Blog/Article Promotion",
     description: "Share and promote blog posts or articles",
     text: "📖 NEW ARTICLE!\n\n{{article_title}}\n\n{{excerpt}}\n\nRead the full post: {{link}}\n\n#{{topic}} #{{industry}}",
-    platforms: ['linkedin', 'twitter', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'promotional',
     tags: ['blog', 'article', 'content-marketing']
   },
@@ -152,7 +152,7 @@ const templates = [
     name: "Before & After Showcase",
     description: "Show transformation or improvement",
     text: "🔄 BEFORE & AFTER\n\nBefore: {{before_description}}\nAfter: {{after_description}}\n\nResults: {{transformation_results}}\n\nReady to transform? {{cta}}\n{{link}}",
-    platforms: ['instagram', 'tiktok', 'facebook', 'pinterest'],
+    platforms: ['tiktok', 'youtube'],
     category: 'promotional',
     tags: ['before-after', 'transformation', 'results']
   },
@@ -160,7 +160,7 @@ const templates = [
     name: "User-Generated Content Request",
     description: "Encourage followers to create content",
     text: "📸 WE WANT YOUR CONTENT!\n\nTag us in {{content_type}} featuring {{your_product}}!\n\nUse #{{hashtag}} for a chance to be featured\n\nLet's see your {{thing}}! 👇\n{{cta}}",
-    platforms: ['instagram', 'twitter', 'tiktok', 'facebook'],
+    platforms: ['twitter', 'tiktok'],
     category: 'engagement',
     tags: ['ugc', 'user-generated', 'engagement']
   },
@@ -168,7 +168,7 @@ const templates = [
     name: "Job Opening Announcement",
     description: "Recruit talent with engaging posts",
     text: "🎯 WE'RE HIRING!\n\nPosition: {{job_title}}\nLocation: {{location}}\nType: {{job_type}}\n\n{{brief_description}}\n\nApply here: {{apply_link}}\n\n#Hiring #{{industry}}",
-    platforms: ['linkedin', 'twitter', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'announcement',
     tags: ['hiring', 'recruitment', 'jobs']
   },
@@ -184,7 +184,7 @@ const templates = [
     name: "Partnership Announcement",
     description: "Announce collaboration or partnership",
     text: "🤝 PARTNERSHIP ALERT!\n\nWe're excited to announce a partnership with {{partner_name}}!\n\n{{partnership_details}}\n\nThis means {{benefits_for_audience}}\n\nLearn more: {{link}}",
-    platforms: ['linkedin', 'twitter', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'announcement',
     tags: ['partnership', 'collaboration', 'announcement']
   },
@@ -192,7 +192,7 @@ const templates = [
     name: "Community Member Spotlight",
     description: "Celebrate community members",
     text: "⭐ COMMUNITY SPOTLIGHT!\n\nMeet {{member_name}}, a {{what_makes_them_special}}!\n\n\"{{their_quote}}\"\n\nShoutout to {{member_name}} for {{their_contribution}}! 🎉\n\nYou could be featured next! {{cta}}",
-    platforms: ['linkedin', 'twitter', 'instagram'],
+    platforms: ['linkedin', 'twitter'],
     category: 'personal',
     tags: ['community', 'spotlight', 'appreciation']
   },
@@ -200,7 +200,7 @@ const templates = [
     name: "Product Update / Feature Release",
     description: "Announce new features or improvements",
     text: "🆕 NEW FEATURE ALERT!\n\n{{feature_name}} is now available!\n\nWhat it does: {{feature_description}}\n\nBenefits:\n• {{benefit1}}\n• {{benefit2}}\n• {{benefit3}}\n\nGet started: {{link}}",
-    platforms: ['linkedin', 'twitter', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'announcement',
     tags: ['product-update', 'feature', 'release']
   },
@@ -208,7 +208,7 @@ const templates = [
     name: "Customer Appreciation Post",
     description: "Thank and celebrate customers",
     text: "💝 THANK YOU!\n\nWe're grateful for {{what_customers_do}}.\n\nYou make {{positive_impact}} possible.\n\nAs a thank you, {{special_offer_or_benefit}}\n\n{{cta}}\n#{{hashtag}}",
-    platforms: ['instagram', 'facebook', 'twitter'],
+    platforms: ['twitter', 'linkedin'],
     category: 'engagement',
     tags: ['appreciation', 'gratitude', 'customer-love']
   },
@@ -216,7 +216,7 @@ const templates = [
     name: "Limited Time Offer",
     description: "Create urgency with time-sensitive deals",
     text: "⏰ LIMITED TIME OFFER\n\n{{offer_description}}\n\n🎁 {{specific_benefit}}\n💰 {{price_or_discount}}\n📅 Ends: {{end_date}}\n\nGrab yours now: {{link}}\n\nDon't miss out! #{{hashtag}}",
-    platforms: ['twitter', 'instagram', 'facebook', 'telegram'],
+    platforms: ['twitter', 'telegram'],
     category: 'promotional',
     tags: ['limited-offer', 'urgency', 'deal']
   },
@@ -232,7 +232,7 @@ const templates = [
     name: "Crisis / Service Disruption Notice",
     description: "Communicate issues professionally",
     text: "⚠️ SERVICE NOTICE\n\nWe wanted to inform you of {{issue}}.\n\nWhat's happening: {{explanation}}\nWhen: {{timeline}}\nWhat we're doing: {{solution}}\n\nWe appreciate your patience. Questions? {{contact_info}}",
-    platforms: ['linkedin', 'twitter', 'facebook'],
+    platforms: ['linkedin', 'twitter'],
     category: 'announcement',
     tags: ['crisis-communication', 'notice', 'transparency']
   },
@@ -240,7 +240,7 @@ const templates = [
     name: "Follower Milestone Celebration",
     description: "Celebrate reaching follower milestones",
     text: "🎉 {{follower_count}} FOLLOWERS!\n\nWe hit {{milestone}}! Thank you {{followers}}!\n\nThis means {{what_it_means}}.\n\nTo celebrate: {{special_offer_or_content}}\n\n{{gratitude_message}}\n💙",
-    platforms: ['instagram', 'twitter', 'tiktok', 'facebook'],
+    platforms: ['twitter', 'tiktok'],
     category: 'announcement',
     tags: ['milestone', 'followers', 'gratitude']
   }
@@ -328,4 +328,3 @@ async function insertTemplates(userId) {
 
 // Run the script
 seedTemplates();
-

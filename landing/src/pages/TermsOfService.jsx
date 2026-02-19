@@ -53,7 +53,7 @@ export default function TermsOfService() {
                 <li>Bulk CSV upload</li>
               </ul>
               <p className="text-gray-300 mt-4">
-                <strong>Note:</strong> Some platforms (Facebook, Instagram, YouTube, Pinterest, TikTok) require platform approval and may not be immediately available.
+                <strong>Note:</strong> Some platforms (YouTube, Pinterest, TikTok) require platform approval and may not be immediately available.
               </p>
             </section>
 

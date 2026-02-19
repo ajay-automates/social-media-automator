@@ -26,7 +26,7 @@ const CATEGORIES = [
   { id: 'event_promotion', name: 'Event Promotion', icon: '📅' }
 ];
 
-const AVAILABLE_PLATFORMS = ['linkedin', 'twitter', 'instagram', 'facebook', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'youtube'];
+const AVAILABLE_PLATFORMS = ['linkedin', 'twitter', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'youtube'];
 
 export default function Templates() {
   const [templates, setTemplates] = useState([]);

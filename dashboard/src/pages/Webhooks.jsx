@@ -20,7 +20,7 @@ export default function Webhooks() {
   
   // Available events and platforms
   const [availableEvents, setAvailableEvents] = useState([]);
-  const allPlatforms = ['linkedin', 'twitter', 'instagram', 'facebook', 'reddit', 'telegram', 'tiktok', 'youtube'];
+  const allPlatforms = ['linkedin', 'twitter', 'reddit', 'telegram', 'tiktok', 'youtube'];
 
   // Form state
   const [formData, setFormData] = useState({

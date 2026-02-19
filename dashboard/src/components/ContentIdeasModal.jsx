@@ -3,13 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { showSuccess, showError } from './ui/Toast';
-import { 
-  FaLinkedin, 
-  FaTwitter, 
-  FaInstagram, 
-  FaFacebook, 
-  FaReddit, 
-  FaTiktok, 
+import {
+  FaLinkedin,
+  FaTwitter,
+  FaReddit,
+  FaTiktok,
   FaYoutube,
   FaLightbulb,
   FaRocket,
@@ -33,8 +31,6 @@ export default function ContentIdeasModal({ isOpen, onClose }) {
   const platforms = [
     { id: 'linkedin', name: 'LinkedIn', Icon: FaLinkedin, color: 'from-blue-600 to-blue-700', glow: 'rgba(59, 130, 246, 0.5)' },
     { id: 'twitter', name: 'Twitter', Icon: FaTwitter, color: 'from-sky-500 to-sky-600', glow: 'rgba(14, 165, 233, 0.5)' },
-    { id: 'instagram', name: 'Instagram', Icon: FaInstagram, color: 'from-pink-600 to-purple-600', glow: 'rgba(236, 72, 153, 0.5)' },
-    { id: 'facebook', name: 'Facebook', Icon: FaFacebook, color: 'from-blue-700 to-blue-800', glow: 'rgba(29, 78, 216, 0.5)' },
     { id: 'reddit', name: 'Reddit', Icon: FaReddit, color: 'from-orange-600 to-orange-700', glow: 'rgba(249, 115, 22, 0.5)' },
     { id: 'tiktok', name: 'TikTok', Icon: FaTiktok, color: 'from-gray-700 to-gray-900', glow: 'rgba(107, 114, 128, 0.5)' },
     { id: 'youtube', name: 'YouTube', Icon: FaYoutube, color: 'from-red-600 to-red-700', glow: 'rgba(220, 38, 38, 0.5)' }

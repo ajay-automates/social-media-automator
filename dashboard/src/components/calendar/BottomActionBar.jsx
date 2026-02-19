@@ -12,8 +12,6 @@ import {
   FaCheckDouble,
   FaLinkedin,
   FaTwitter,
-  FaInstagram,
-  FaFacebook,
   FaTiktok,
   FaYoutube,
   FaReddit,
@@ -21,7 +19,6 @@ import {
   FaSlack,
   FaTelegram,
   FaPinterest,
-  FaWhatsapp,
   FaMedium,
   FaTumblr
 } from 'react-icons/fa';
@@ -31,15 +28,12 @@ import { SiMastodon, SiBluesky } from 'react-icons/si';
 const PLATFORM_CONFIG = {
   linkedin: { Icon: FaLinkedin, color: '#0A66C2', name: 'LinkedIn' },
   twitter: { Icon: FaTwitter, color: '#1DA1F2', name: 'X' },
-  instagram: { Icon: FaInstagram, color: '#E1306C', name: 'Instagram' },
-  facebook: { Icon: FaFacebook, color: '#1877F2', name: 'Facebook' },
   tiktok: { Icon: FaTiktok, color: '#FE2C55', name: 'TikTok' },
   youtube: { Icon: FaYoutube, color: '#FF0000', name: 'YouTube' },
   reddit: { Icon: FaReddit, color: '#FF4500', name: 'Reddit' },
   discord: { Icon: FaDiscord, color: '#5865F2', name: 'Discord' },
   slack: { Icon: FaSlack, color: '#4A154B', name: 'Slack' },
   telegram: { Icon: FaTelegram, color: '#26A5E4', name: 'Telegram' },
-  whatsapp: { Icon: FaWhatsapp, color: '#25D366', name: 'WhatsApp' },
   pinterest: { Icon: FaPinterest, color: '#E60023', name: 'Pinterest' },
   medium: { Icon: FaMedium, color: '#00AB6C', name: 'Medium' },
   tumblr: { Icon: FaTumblr, color: '#36465D', name: 'Tumblr' },

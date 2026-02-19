@@ -619,383 +619,11 @@ async function getUserConnectedAccounts(userId) {
   }
 }
 
-// ============================================
-// INSTAGRAM OAUTH
-// ============================================
-
-/**
- * Initiate Instagram OAuth flow
- * @param {string} userId - User ID from Supabase auth
- * @returns {string} Authorization URL
- */
-function initiateInstagramOAuth(userId) {
-  // Instagram uses Facebook Login OAuth flow, not Instagram Basic Display
-  // Use the same FACEBOOK_APP_ID (which has Instagram Graph API enabled)
-  const clientId = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
-  const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
-
-  if (!clientId) {
-    throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID or FACEBOOK_APP_ID in environment variables.');
-  }
-
-  // Generate state parameter for security (store userId in it)
-  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-
-  // Instagram Business API (2025 - via Facebook Pages)
-  // Modern approach: Get Instagram access through Facebook Page permissions
-  // The Instagram Business account MUST be linked to a Facebook Page
-  // Then use Page token to access Instagram Graph API
-  // 
-  // Required permissions (no app review needed):
-  // - pages_show_list: List your Facebook Pages
-  // - business_management: Access business accounts
-  //
-  // Optional (improves posting, may need review):
-  // - pages_read_engagement: Read engagement data
-  // - pages_manage_posts: Post to pages (usually auto-granted for page owners)
-  const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
-  authUrl.searchParams.append('client_id', clientId);
-  authUrl.searchParams.append('redirect_uri', redirectUri);
-  authUrl.searchParams.append('scope', 'pages_show_list,business_management');
-  authUrl.searchParams.append('response_type', 'code');
-  authUrl.searchParams.append('state', state);
-
-  return authUrl.toString();
-}
-
-/**
- * Handle Instagram OAuth callback
- * Exchange authorization code for access token and store in database
- * @param {string} code - Authorization code from Instagram
- * @param {string} state - State parameter (contains userId)
- * @returns {object} Account info
- */
-async function handleInstagramCallback(code, state) {
-  try {
-    // Decode state to get userId
-    const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-
-    // Instagram uses same App ID/Secret as Facebook (same app with Instagram Graph API enabled)
-    const clientId = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
-    const clientSecret = process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET;
-    const redirectUri = process.env.INSTAGRAM_REDIRECT_URI;
-
-    if (!clientId || !clientSecret) {
-      throw new Error('Instagram OAuth not configured. Set INSTAGRAM_APP_ID/INSTAGRAM_APP_SECRET or FACEBOOK_APP_ID/FACEBOOK_APP_SECRET');
-    }
-
-    // Step 1: Exchange code for access token (Facebook Graph API)
-    console.log('📱 Step 1: Exchanging code for access token...');
-    const tokenResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/oauth/access_token`,
-      {
-        params: {
-          client_id: clientId,
-          client_secret: clientSecret,
-          redirect_uri: redirectUri,
-          code
-        }
-      }
-    );
-
-    const accessToken = tokenResponse.data.access_token;
-    const expiresIn = tokenResponse.data.expires_in || 5184000; // Default 60 days if not provided
-
-    // Step 2: Get Facebook Pages (to find Instagram Business Account)
-    console.log('📱 Step 2: Getting Facebook Pages...');
-    const pagesResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/me/accounts`,
-      {
-        params: {
-          access_token: accessToken
-        }
-      }
-    );
-
-    const pages = pagesResponse.data.data;
-    if (!pages || pages.length === 0) {
-      throw new Error('No Facebook Pages found. Instagram Business account must be linked to a Facebook Page.');
-    }
-
-    // Step 3: Get Instagram Business Account ID from first page
-    console.log('📱 Step 3: Getting Instagram Business Account ID...');
-    console.log('   - Page ID:', pages[0].id);
-    console.log('   - Page Name:', pages[0].name);
-    console.log('   - Page Token:', pages[0].access_token ? 'exists' : 'missing');
-
-    const pageId = pages[0].id;
-    const pageToken = pages[0].access_token;
-
-    let igBusinessResponse;
-    try {
-      igBusinessResponse = await axios.get(
-        `https://graph.facebook.com/v18.0/${pageId}`,
-        {
-          params: {
-            fields: 'instagram_business_account',
-            access_token: pageToken
-          }
-        }
-      );
-    } catch (igError) {
-      console.error('❌ Failed to get Instagram account from Page:');
-      console.error('   - Status:', igError.response?.status);
-      console.error('   - Error:', igError.response?.data);
-      console.error('   - Message:', igError.response?.data?.error?.message);
-
-      throw new Error(`Facebook API error: ${igError.response?.data?.error?.message || igError.message}. Make sure your Facebook Page has an Instagram Business account linked.`);
-    }
-
-    console.log('   - Instagram account data:', igBusinessResponse.data);
-
-    const igBusinessId = igBusinessResponse.data.instagram_business_account?.id;
-    if (!igBusinessId) {
-      console.error('❌ No Instagram Business account found on this Page');
-      console.error('   - Available fields:', Object.keys(igBusinessResponse.data));
-      throw new Error('Instagram Business or Creator account not found on your Facebook Page. Please link your Instagram Business account to this Facebook Page in Instagram app settings.');
-    }
-
-    console.log('   ✅ Instagram Business ID:', igBusinessId);
-
-    // Step 4: Get Instagram username
-    console.log('📱 Step 4: Getting Instagram username...');
-    const usernameResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/${igBusinessId}`,
-      {
-        params: {
-          fields: 'username',
-          access_token: accessToken
-        }
-      }
-    );
-
-    const username = usernameResponse.data.username;
-
-    // Step 5: Calculate token expiry
-    const expiresAt = new Date(Date.now() + (expiresIn * 1000));
-
-    // Step 6: Store in database (use supabaseAdmin to bypass RLS)
-    const { data: account, error } = await supabaseAdmin
-      .from('user_accounts')
-      .upsert({
-        user_id: userId,
-        platform: 'instagram',
-        platform_name: 'Instagram',
-        oauth_provider: 'instagram',
-        access_token: accessToken,
-        token_expires_at: expiresAt.toISOString(),
-        platform_user_id: igBusinessId,
-        platform_username: username,
-        status: 'active',
-        connected_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id,platform,platform_user_id'
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    console.log(`✅ Instagram account connected for user ${userId}`);
-
-    return {
-      success: true,
-      account: {
-        id: account.id,
-        platform: 'instagram',
-        username: username,
-        connected: true
-      }
-    };
-
-  } catch (error) {
-    console.error('❌ Instagram OAuth error:', error.message);
-    throw new Error('Failed to connect Instagram account: ' + error.message);
-  }
-}
-
-// ============================================
-// FACEBOOK OAUTH
-// ============================================
-
-/**
- * Initiate Facebook OAuth flow
- * @param {string} userId - User ID from Supabase auth
- * @returns {string} Authorization URL
- */
-function initiateFacebookOAuth(userId) {
-  const clientId = process.env.FACEBOOK_APP_ID;
-  const redirectUri = process.env.FACEBOOK_REDIRECT_URI;
-
-  if (!clientId) {
-    throw new Error('Facebook OAuth not configured. Set FACEBOOK_APP_ID in environment variables.');
-  }
-
-  // Generate state parameter for security (store userId in it)
-  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-
-  // Facebook OAuth - request permissions for Pages
-  // pages_show_list: List pages you manage
-  // pages_manage_posts: Post to pages you manage (may require app review for public pages)
-  // pages_read_engagement: Read page insights (may require app review)
-  // Note: For pages you own, page access token from /me/accounts should have publish permission
-  const authUrl = new URL('https://www.facebook.com/v18.0/dialog/oauth');
-  authUrl.searchParams.append('client_id', clientId);
-  authUrl.searchParams.append('redirect_uri', redirectUri);
-  // Facebook OAuth - request minimal permissions
-  // pages_show_list: List pages you manage (only permission that works without app review)
-  // Note: Page access tokens from /me/accounts should have publish permissions by default
-  // If posting fails, the page token might need explicit permissions or app review
-  authUrl.searchParams.append('scope', 'pages_show_list');
-  authUrl.searchParams.append('response_type', 'code');
-  authUrl.searchParams.append('state', state);
-
-  return authUrl.toString();
-}
-
-/**
- * Handle Facebook OAuth callback
- * @param {string} code - Authorization code
- * @param {string} state - State parameter
- * @returns {object} Account info
- */
-async function handleFacebookCallback(code, state) {
-  try {
-    // Decode state to get userId
-    const { userId } = JSON.parse(Buffer.from(state, 'base64').toString());
-
-    const redirectUri = process.env.FACEBOOK_REDIRECT_URI;
-
-    console.log('📘 Facebook OAuth callback for user:', userId);
-
-    // Step 1: Exchange code for access token
-    console.log('📘 Step 1: Exchanging code for access token...');
-    const tokenResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/oauth/access_token`,
-      {
-        params: {
-          client_id: process.env.FACEBOOK_APP_ID,
-          client_secret: process.env.FACEBOOK_APP_SECRET,
-          redirect_uri: redirectUri,
-          code: code
-        }
-      }
-    );
-
-    const userAccessToken = tokenResponse.data.access_token;
-    const expiresIn = tokenResponse.data.expires_in || 0;
-
-    console.log('✅ Got user access token, expires in:', expiresIn);
-
-    // Step 2: Get user's Facebook Pages
-    console.log('📘 Step 2: Getting user\'s Facebook Pages...');
-    // Request page token with explicit permissions for posting
-    // Note: For pages you own, the page token should have publish permissions by default
-    const pagesResponse = await axios.get(
-      `https://graph.facebook.com/v18.0/me/accounts`,
-      {
-        params: {
-          access_token: userAccessToken,
-          fields: 'id,name,access_token,username,picture',
-          // Request permissions needed for posting
-          // This should grant the page token publishing permissions
-        }
-      }
-    );
-
-    console.log('📘 Pages API response:', JSON.stringify(pagesResponse.data, null, 2));
-
-    const pages = pagesResponse.data?.data;
-
-    if (!pages || pages.length === 0) {
-      console.log('⚠️  No pages found in response. Response structure:', {
-        hasData: !!pagesResponse.data?.data,
-        dataLength: pagesResponse.data?.data?.length,
-        fullResponse: pagesResponse.data
-      });
-      throw new Error('No Facebook Pages found. Please create a Facebook Page first and make sure you are an admin of the page.');
-    }
-
-    console.log(`✅ Found ${pages.length} Facebook Pages`);
-
-    // Save each Page as a separate account
-    const savedAccounts = [];
-
-    for (const page of pages) {
-      // Use page data directly from /me/accounts response
-      // No need for extra API call - we already have name, username, etc.
-      const pageId = page.id;
-      const pageAccessToken = page.access_token;
-      const pageName = page.name || 'Facebook Page';
-      const pageUsername = page.username || page.name || pageId;
-
-      console.log(`📘 Processing page: ${pageName} (ID: ${pageId})`);
-
-      // Calculate expiry (use page token expiry or default 60 days)
-      const expiresAt = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000));
-
-      // Save to database (use supabaseAdmin to bypass RLS for backend operations)
-      const { data: account, error } = await supabaseAdmin
-        .from('user_accounts')
-        .upsert({
-          user_id: userId,
-          platform: 'facebook',
-          platform_name: `Facebook (${pageName})`,
-          oauth_provider: 'facebook',
-          access_token: pageAccessToken,
-          refresh_token: userAccessToken, // Store user token as refresh
-          token_expires_at: expiresAt.toISOString(),
-          platform_user_id: pageId,
-          platform_username: pageUsername,
-          status: 'active',
-          connected_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,platform,platform_user_id'
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('❌ Error saving Facebook Page:', error);
-        continue;
-      }
-
-      savedAccounts.push(account);
-      console.log(`✅ Saved Facebook Page: ${pageName}`);
-    }
-
-    return {
-      success: true,
-      accounts: savedAccounts,
-      connected: true
-    };
-
-  } catch (error) {
-    console.error('❌ Facebook OAuth error:', error.message);
-
-    // Log full error details for debugging
-    if (error.response) {
-      console.error('❌ Facebook API error response:', {
-        status: error.response.status,
-        statusText: error.response.statusText,
-        data: error.response.data
-      });
-    }
-
-    // Provide more helpful error messages
-    if (error.message.includes('No Facebook Pages')) {
-      throw new Error('No Facebook Pages found. Please:\n1. Create a Facebook Page at https://www.facebook.com/pages/create\n2. Make sure you are an admin of the page\n3. Try connecting again');
-    }
-
-    throw new Error('Failed to connect Facebook account: ' + error.message);
-  }
-}
-
 /**
  * Get user credentials for posting
  * Returns credentials formatted for the posting services
  * @param {string} userId - User ID
- * @returns {object} Credentials object with linkedin, twitter, instagram, facebook
+ * @returns {object} Credentials object with linkedin, twitter
  */
 async function getUserCredentialsForPosting(userId) {
   try {
@@ -1012,12 +640,10 @@ async function getUserCredentialsForPosting(userId) {
     const credentials = {
       linkedin: [],
       twitter: [],
-      instagram: [],
       telegram: [],
       slack: [],
       discord: [],
       reddit: [],
-      facebook: [],
       youtube: [],
       pinterest: [],
       medium: [],
@@ -1113,12 +739,6 @@ async function getUserCredentialsForPosting(userId) {
         }
 
         credentials.twitter.push(twitterCreds);
-      } else if (account.platform === 'instagram') {
-        credentials.instagram.push({
-          id: account.id,
-          accessToken: account.access_token,
-          igUserId: account.platform_user_id
-        });
       } else if (account.platform === 'telegram') {
         credentials.telegram.push({
           id: account.id,
@@ -1145,12 +765,6 @@ async function getUserCredentialsForPosting(userId) {
           tokenExpiresAt: account.token_expires_at,
           username: account.platform_username,
           moderatedSubreddits: account.platform_metadata ? JSON.parse(account.platform_metadata) : []
-        });
-      } else if (account.platform === 'facebook') {
-        credentials.facebook.push({
-          id: account.id,
-          accessToken: account.access_token,
-          pageId: account.platform_user_id
         });
       } else if (account.platform === 'youtube') {
         credentials.youtube.push({
@@ -1221,9 +835,7 @@ async function getUserCredentialsForPosting(userId) {
     return {
       linkedin: [],
       twitter: [],
-      instagram: [],
       telegram: [],
-      facebook: [],
       youtube: [],
       pinterest: []
     };
@@ -1588,14 +1200,6 @@ module.exports = {
   // Pinterest
   initiatePinterestOAuth,
   handlePinterestCallback,
-
-  // Instagram
-  initiateInstagramOAuth,
-  handleInstagramCallback,
-
-  // Facebook
-  initiateFacebookOAuth,
-  handleFacebookCallback,
 
   // Medium
   initiateMediumOAuth,

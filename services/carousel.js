@@ -40,12 +40,6 @@ function validateCarousel(platform, images) {
       maxSize: 10 * 1024 * 1024, // 10MB
       formats: ['image/jpeg', 'image/png']
     },
-    instagram: { 
-      min: 2, 
-      max: 10, 
-      maxSize: 8 * 1024 * 1024, // 8MB
-      formats: ['image/jpeg', 'image/png']
-    },
     twitter: { 
       min: 2, 
       max: 4, 
@@ -89,7 +83,6 @@ function validateCarousel(platform, images) {
 function getCarouselLimits(platform) {
   const limits = {
     linkedin: { min: 2, max: 10, maxSizeMB: 10 },
-    instagram: { min: 2, max: 10, maxSizeMB: 8 },
     twitter: { min: 2, max: 4, maxSizeMB: 5 }
   };
   

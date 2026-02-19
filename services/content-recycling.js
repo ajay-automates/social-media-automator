@@ -36,7 +36,7 @@ async function getRecyclingSettings(userId) {
           recycle_interval_days: 90,
           frequency: 'weekly',
           posts_per_cycle: 3,
-          allowed_platforms: ['linkedin', 'twitter', 'instagram', 'facebook']
+          allowed_platforms: ['linkedin', 'twitter']
         })
         .select()
         .single();

@@ -76,8 +76,6 @@ const elements = {
 const PLATFORMS = [
   { id: 'linkedin', name: 'LinkedIn', icon: '💼' },
   { id: 'twitter', name: 'Twitter', icon: '𝕏' },
-  { id: 'facebook', name: 'Facebook', icon: '👤' },
-  { id: 'instagram', name: 'Instagram', icon: '📷' },
   { id: 'reddit', name: 'Reddit', icon: '🤖' },
   { id: 'telegram', name: 'Telegram', icon: '✈️' },
   { id: 'discord', name: 'Discord', icon: '💬' },

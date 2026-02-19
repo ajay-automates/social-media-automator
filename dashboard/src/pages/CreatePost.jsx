@@ -96,8 +96,6 @@ export default function CreatePost() {
   const PLATFORM_LIMITS = {
     twitter: 280,
     linkedin: 3000,
-    instagram: 2200,
-    facebook: 63206,
     tiktok: 2200,
     youtube: 5000,
     reddit: 40000,
@@ -325,7 +323,7 @@ export default function CreatePost() {
     setGeneratedHashtags([]);
 
     try {
-      const selectedPlatform = platforms.length > 0 ? platforms[0] : 'instagram';
+      const selectedPlatform = platforms.length > 0 ? platforms[0] : 'linkedin';
 
       const response = await api.post('/ai/hashtags', {
         caption: caption.trim(),
@@ -907,11 +905,6 @@ export default function CreatePost() {
       }
     }
 
-    // Validate Instagram requires image
-    if (platforms.includes('instagram') && !image) {
-      showError('Instagram requires an image. Please upload or generate an image first.');
-      return;
-    }
 
     // Check usage limits
     if (billingInfo && billingInfo.usage && billingInfo.usage.posts) {
@@ -1439,8 +1432,6 @@ export default function CreatePost() {
                         <span className="text-lg">
                           {platform === 'linkedin' && '💼'}
                           {platform === 'twitter' && '🐦'}
-                          {platform === 'instagram' && '📸'}
-                          {platform === 'facebook' && '👥'}
                           {platform === 'reddit' && '🤖'}
                           {platform === 'tiktok' && '🎵'}
                           {platform === 'youtube' && '📹'}
@@ -2014,17 +2005,6 @@ export default function CreatePost() {
                     })}
                   </motion.div>
                 )}
-              </div>
-            )}
-
-            {/* Instagram Image Requirement Warning */}
-            {platforms.includes('instagram') && !image && (
-              <div className="border border-yellow-500/30 bg-yellow-900/20 backdrop-blur-sm rounded-lg p-3 flex items-center gap-2 mt-4">
-                <span className="text-2xl">⚠️</span>
-                <div>
-                  <div className="font-semibold text-yellow-300">Image Required</div>
-                  <div className="text-sm text-yellow-400">Instagram requires an image or video. Please upload or generate one above.</div>
-                </div>
               </div>
             )}
 

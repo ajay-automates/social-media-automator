@@ -1,24 +1,16 @@
-import { 
-  FaLinkedin, 
-  FaTwitter, 
-  FaInstagram, 
-  FaFacebook, 
-  FaTiktok, 
-  FaYoutube, 
-  FaReddit, 
-  FaDiscord, 
-  FaSlack, 
+import {
+  FaLinkedin,
+  FaTwitter,
+  FaTiktok,
+  FaYoutube,
+  FaReddit,
+  FaDiscord,
+  FaSlack,
   FaTelegram,
-  FaWhatsapp,
   FaPinterest,
   FaMedium,
-  FaSnapchat,
-  FaTwitch,
   FaQuora,
   FaTumblr,
-  FaVk,
-  FaLine,
-  FaWeixin,
   FaMicrophone,
   FaRocket,
   FaCalendarAlt,
@@ -35,7 +27,7 @@ import {
   FaSync,
   FaFlask
 } from 'react-icons/fa';
-import { SiThreads, SiBluesky, SiMastodon, SiVimeo } from 'react-icons/si';
+import { SiBluesky, SiMastodon } from 'react-icons/si';
 import { HiOutlineSparkles, HiOutlineCalendar, HiOutlineChartBar, HiOutlineTag, HiOutlineCube, HiOutlineUserGroup, HiOutlineDocumentText, HiOutlineLink, HiOutlineChatBubbleLeftRight, HiOutlineCurrencyDollar, HiOutlinePhoto } from 'react-icons/hi2';
 
 // Split features into Available Now vs Future Suite
@@ -44,7 +36,7 @@ export const features = {
     {
       id: 1,
       title: "Multi-Platform Posting",
-      description: "Post to 20+ platforms simultaneously—LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky, YouTube. Instagram, Facebook, Pinterest, TikTok pending approval.",
+      description: "Post to 20+ platforms simultaneously—LinkedIn, Twitter, Telegram, Slack, Discord, Reddit, Dev.to, Tumblr, Mastodon, Bluesky, YouTube. More platforms coming soon.",
       icon: FaRocket,
       status: "available"
     },
@@ -114,7 +106,7 @@ export const features = {
     {
       id: 11,
       title: "Carousel Creator",
-      description: "Design multi-image carousels for Instagram and LinkedIn. Templates, drag-and-drop builder, auto-sizing for platforms.",
+      description: "Design multi-image carousels for LinkedIn. Templates, drag-and-drop builder, auto-sizing for platforms.",
       icon: FaImages,
       status: "available"
     },
@@ -191,16 +183,10 @@ export const platforms = {
     { name: "YouTube", Icon: FaYoutube, color: "from-red-600 to-red-700", status: "working" }
   ],
   pending: [
-    { name: "Instagram", Icon: FaInstagram, color: "from-pink-500 to-purple-500", status: "pending" },
-    { name: "Facebook", Icon: FaFacebook, color: "from-blue-600 to-blue-700", status: "pending" },
     { name: "Pinterest", Icon: FaPinterest, color: "from-red-500 to-red-600", status: "pending" },
     { name: "TikTok", Icon: FaTiktok, color: "from-black to-cyan-500", status: "pending" }
   ],
   comingSoon: [
-    { name: "Threads", Icon: SiThreads, color: "from-black to-gray-900", status: "coming" },
-    { name: "WhatsApp", Icon: FaWhatsapp, color: "from-green-500 to-green-600", status: "coming" },
-    { name: "Snapchat", Icon: FaSnapchat, color: "from-yellow-400 to-yellow-500", status: "coming" },
-    { name: "Twitch", Icon: FaTwitch, color: "from-purple-500 to-purple-600", status: "coming" },
     { name: "Quora", Icon: FaQuora, color: "from-red-600 to-red-700", status: "coming" }
   ]
 };

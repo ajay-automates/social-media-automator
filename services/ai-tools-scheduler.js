@@ -1113,7 +1113,7 @@ function generateFallbackBusinessTopics(businessProfile, count) {
 async function generateBusinessProfilePostContent(topic, businessProfile) {
     // Using AI wrapper with cost tracking
 
-    const platforms = ['linkedin', 'twitter', 'instagram', 'facebook'];
+    const platforms = ['linkedin', 'twitter'];
     const brandVoice = businessProfile.brand_voice || 'professional';
     const toneDesc = businessProfile.tone_description || '';
     const tagline = businessProfile.tagline || '';
@@ -1156,15 +1156,11 @@ CONTENT REQUIREMENTS:
 PLATFORM-SPECIFIC GUIDELINES:
 - LinkedIn: Professional, 150-300 words, industry insights, value-driven
 - Twitter/X: Concise, engaging, under 280 chars, can be more casual
-- Instagram: Visual-friendly, 100-200 words, emojis appropriate, storytelling
-- Facebook: Conversational, 100-250 words, community-focused
 
 Return ONLY valid JSON (no markdown, no code blocks):
 {
   "linkedin": "LinkedIn post text...",
-  "twitter": "Twitter post text...",
-  "instagram": "Instagram post text...",
-  "facebook": "Facebook post text..."
+  "twitter": "Twitter post text..."
 }`;
 
     try {
@@ -1186,9 +1182,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
         const basePost = `${topic.name}\n\n${topic.hook}${website ? `\n\n${website}` : ''}${autoCTA ? `\n\n${ctaText}` : ''}`;
         return {
             linkedin: basePost,
-            twitter: basePost.substring(0, 280),
-            instagram: basePost,
-            facebook: basePost
+            twitter: basePost.substring(0, 280)
         };
     }
 }

@@ -15,12 +15,10 @@ export default function HashtagAnalytics() {
   const [selectedPlatform, setSelectedPlatform] = useState(null);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
 
-  const platforms = ['linkedin', 'twitter', 'instagram', 'facebook', 'reddit', 'telegram', 'tiktok', 'youtube'];
+  const platforms = ['linkedin', 'twitter', 'reddit', 'telegram', 'tiktok', 'youtube'];
   const platformColors = {
     linkedin: '#0A66C2',
     twitter: '#1DA1F2',
-    instagram: '#E1306C',
-    facebook: '#1877F2',
     reddit: '#FF4500',
     telegram: '#0088CC',
     tiktok: '#000000',

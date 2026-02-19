@@ -2,10 +2,10 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { allPlatforms } from '../data/features';
 
-// Show ALL platforms (20 total)
+// Show ALL platforms
 const platformsToShow = allPlatforms;
 
-// Position configuration for floating platform icons - 20 positions, well distributed across the entire area
+// Position configuration for floating platform icons - distributed across the entire area
 const platformPositions = [
   { top: '2%', left: '2%' },      // 1. LinkedIn
   { top: '5%', right: '3%' },      // 2. Twitter/X
@@ -18,15 +18,15 @@ const platformPositions = [
   { top: '34%', left: '22%' },     // 9. Mastodon
   { top: '37%', right: '15%' },    // 10. Bluesky
   { top: '42%', left: '6%' },      // 11. YouTube
-  { top: '45%', right: '20%' },    // 12. Instagram
-  { top: '50%', left: '18%' },     // 13. Facebook
-  { top: '53%', right: '5%' },     // 14. Pinterest
-  { top: '58%', left: '26%' },     // 15. TikTok
-  { top: '61%', right: '12%' },    // 16. Threads
-  { top: '66%', left: '11%' },     // 17. WhatsApp
-  { top: '69%', right: '22%' },    // 18. Snapchat
-  { top: '74%', left: '4%' },      // 19. Twitch
-  { top: '77%', right: '8%' },     // 20. Quora
+  { top: '45%', right: '20%' },    // 12.
+  { top: '50%', left: '18%' },     // 13.
+  { top: '53%', right: '5%' },     // 14.
+  { top: '58%', left: '26%' },     // 15.
+  { top: '61%', right: '12%' },    // 16.
+  { top: '66%', left: '11%' },     // 17.
+  { top: '69%', right: '22%' },    // 18.
+  { top: '74%', left: '4%' },      // 19.
+  { top: '77%', right: '8%' },     // 20.
 ];
 
 export default function Hero() {

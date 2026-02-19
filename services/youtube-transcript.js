@@ -99,8 +99,6 @@ async function generateCaptionFromTranscript(transcript, instructions = '', plat
     const platformGuidelines = {
       linkedin: 'Professional tone, 1-3 paragraphs, use emojis sparingly, focus on insights and takeaways',
       twitter: 'Concise, under 280 characters, engaging hook, 1-2 hashtags',
-      instagram: 'Casual and engaging, use relevant emojis, include call-to-action, 3-5 hashtags',
-      facebook: 'Conversational tone, 2-3 paragraphs, ask questions to drive engagement',
       youtube: 'Detailed description, include timestamps if relevant, SEO keywords',
       tiktok: 'Short and punchy, trending phrases, 3-5 hashtags',
       telegram: 'Clear and informative, use formatting for readability',

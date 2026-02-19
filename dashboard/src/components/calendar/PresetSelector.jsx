@@ -39,7 +39,7 @@ export default function PresetSelector({ selectedPreset, onSelectPreset, connect
   const calculatePostCount = (presetId) => {
     switch (presetId) {
       case 'balanced':
-        const balanced = { linkedin: 3, twitter: 7, instagram: 3, facebook: 2, tiktok: 3 };
+        const balanced = { linkedin: 3, twitter: 7, tiktok: 3 };
         return connectedPlatforms.reduce((sum, p) => sum + (balanced[p] || 2), 0);
       case 'linkedin_focus':
         return connectedPlatforms.includes('linkedin') ? 7 : 0;

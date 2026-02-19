@@ -17,7 +17,7 @@ export const testimonials = [
     avatar: "https://i.pravatar.cc/150?img=12",
     rating: 5,
     text: "The AI caption generation is incredibly accurate. It understands our brand voice perfectly and saves us so much time on content creation.",
-    platforms: ["Instagram", "Facebook"]
+    platforms: ["LinkedIn", "Twitter"]
   },
   {
     id: 3,
@@ -27,7 +27,7 @@ export const testimonials = [
     avatar: "https://i.pravatar.cc/150?img=5",
     rating: 5,
     text: "Posting to 7+ platforms used to take us hours. Now it's done in minutes. The ROI has been phenomenal - we're reaching 10x more people!",
-    platforms: ["LinkedIn", "Twitter", "Instagram"]
+    platforms: ["LinkedIn", "Twitter", "YouTube"]
   },
   {
     id: 4,
@@ -57,7 +57,7 @@ export const testimonials = [
     avatar: "https://i.pravatar.cc/150?img=13",
     rating: 5,
     text: "The scheduling feature is brilliant. We plan our entire month in one sitting and the automation handles everything. Our consistency has improved dramatically.",
-    platforms: ["Instagram", "Pinterest"]
+    platforms: ["LinkedIn", "Reddit"]
   },
   {
     id: 7,
@@ -77,7 +77,7 @@ export const testimonials = [
     avatar: "https://i.pravatar.cc/150?img=15",
     rating: 5,
     text: "Integration was seamless and the OAuth security gives us peace of mind. Our engagement rates have tripled since we started using this.",
-    platforms: ["Facebook", "Instagram"]
+    platforms: ["Twitter", "Telegram"]
   },
   {
     id: 9,
@@ -87,7 +87,7 @@ export const testimonials = [
     avatar: "https://i.pravatar.cc/150?img=24",
     rating: 5,
     text: "The AI image generation feature is amazing! I can create professional visuals without hiring a designer. My followers love the consistent quality.",
-    platforms: ["Instagram", "TikTok", "YouTube"]
+    platforms: ["TikTok", "YouTube"]
   },
   {
     id: 10,
