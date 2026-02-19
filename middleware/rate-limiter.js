@@ -1,11 +1,11 @@
 /**
  * Rate Limiting Middleware
- * 
+ *
  * Implements tiered rate limiting to protect against API abuse:
- * - AI Endpoints: 50 requests/hour (strictest - expensive API calls)
- * - Auth Endpoints: 10 requests/15min (prevent brute force)
- * - General API: 100 requests/15min (moderate protection)
- * - Public Routes: 200 requests/15min (lenient for public access)
+ * - AI Endpoints:   50  req/hour   (strictest — expensive LLM calls)
+ * - Auth Endpoints: 50  req/15min  (prevent brute force)
+ * - General API:    500 req/15min  (authenticated dashboard — not a public API)
+ * - Public Routes:  200 req/15min  (lenient for public access)
  */
 
 const rateLimit = require('express-rate-limit');
@@ -80,11 +80,11 @@ const authLimiter = rateLimit({
         res.status(429).json({
             success: false,
             error: {
-            message: 'Too many authentication attempts from this IP. Please try again in 15 minutes.',
-            code: 'RATE_LIMIT_EXCEEDED',
-            retryAfter: '15 minutes',
-            limit: 50,
-            window: '15 minutes'
+                message: 'Too many authentication attempts from this IP. Please try again in 15 minutes.',
+                code: 'RATE_LIMIT_EXCEEDED',
+                retryAfter: '15 minutes',
+                limit: 50,
+                window: '15 minutes'
             }
         });
     }
@@ -93,11 +93,12 @@ const authLimiter = rateLimit({
 // ============================================
 // TIER 3: General API (Moderate)
 // ============================================
-// Standard protection for general API endpoints
-// Limit: 100 requests per 15 minutes per IP (1000 in development)
+// Authenticated dashboard — Analytics alone fires 4+ calls on load + auto-refresh.
+// 500 req/15min per IP is plenty for normal use while still blocking actual abuse.
+// Limit: 500 req/15min in production (1000 in development)
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: process.env.NODE_ENV === 'production' ? 100 : 1000,
+    max: process.env.NODE_ENV === 'production' ? 500 : 1000,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
@@ -106,7 +107,7 @@ const apiLimiter = rateLimit({
             message: 'Too many requests from this IP. Please try again in 15 minutes.',
             code: 'RATE_LIMIT_EXCEEDED',
             retryAfter: '15 minutes',
-            limit: 100,
+            limit: 500,
             window: '15 minutes'
         }
     },
@@ -122,7 +123,7 @@ const apiLimiter = rateLimit({
                 message: 'Too many requests from this IP. Please try again in 15 minutes.',
                 code: 'RATE_LIMIT_EXCEEDED',
                 retryAfter: '15 minutes',
-                limit: 100,
+                limit: 500,
                 window: '15 minutes'
             }
         });

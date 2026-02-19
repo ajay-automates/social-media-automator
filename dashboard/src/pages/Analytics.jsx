@@ -43,28 +43,28 @@ export default function Analytics() {
   useEffect(() => {
     loadAnalytics();
     loadHistory();
-    // loadInsights(); // Commented out - AI Insights removed from UI
 
-    // Auto-refresh every 30 seconds
+    // Auto-refresh every 5 minutes (was 30s — too aggressive, caused rate-limit hits)
     const interval = setInterval(() => {
       loadAnalytics();
       loadHistory();
-      // loadInsights(); // Commented out - AI Insights removed from UI
-    }, 30000);
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Also refresh when window gains focus
+  // Refresh on visibility change (tab becomes visible) — throttled to max once per 2 min
   useEffect(() => {
-    const handleFocus = () => {
-      loadAnalytics();
-      loadHistory();
-      // loadInsights(); // Commented out - AI Insights removed from UI
+    let lastRefresh = Date.now();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && Date.now() - lastRefresh > 2 * 60 * 1000) {
+        lastRefresh = Date.now();
+        loadAnalytics();
+        loadHistory();
+      }
     };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
   const loadAnalytics = async () => {
