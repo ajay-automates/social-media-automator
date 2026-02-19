@@ -7,7 +7,6 @@ validateEnv();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const session = require('express-session');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs').promises;
@@ -320,33 +319,33 @@ async function verifyAuth(req, res, next) {
     try {
       const result = await Promise.race([
         supabase.auth.getUser(token),
-        new Promise((_, reject) => 
+        new Promise((_, reject) =>
           setTimeout(() => reject(new Error('AUTH_TIMEOUT')), 8000)
         )
       ]);
       user = result.data?.user;
       error = result.error;
-      
+
       // Reset failure count on success
       authFailureCount = 0;
       circuitBreakerOpen = false;
     } catch (timeoutError) {
       // Network timeout or connection error
-      if (timeoutError.message === 'AUTH_TIMEOUT' || 
-          timeoutError.code === 'UND_ERR_CONNECT_TIMEOUT' ||
-          timeoutError.cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
+      if (timeoutError.message === 'AUTH_TIMEOUT' ||
+        timeoutError.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+        timeoutError.cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
         console.error('⚠️  Supabase connection timeout - returning 503');
-        
+
         // Track failures for circuit breaker
         authFailureCount++;
         lastAuthFailureTime = now;
-        
+
         if (authFailureCount >= AUTH_FAILURE_THRESHOLD) {
           circuitBreakerOpen = true;
           circuitBreakerOpenUntil = now + 30000; // Open for 30 seconds
           console.error(`🔴 Circuit breaker opened after ${authFailureCount} failures`);
         }
-        
+
         return res.status(503).json({
           success: false,
           error: 'Authentication service temporarily unavailable',
@@ -375,23 +374,23 @@ async function verifyAuth(req, res, next) {
     next();
   } catch (error) {
     // Check if it's a network/connection error
-    if (error.code === 'UND_ERR_CONNECT_TIMEOUT' || 
-        error.cause?.code === 'UND_ERR_CONNECT_TIMEOUT' ||
-        error.message?.includes('timeout') ||
-        error.message?.includes('ECONNREFUSED') ||
-        error.message?.includes('ENOTFOUND')) {
+    if (error.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+      error.cause?.code === 'UND_ERR_CONNECT_TIMEOUT' ||
+      error.message?.includes('timeout') ||
+      error.message?.includes('ECONNREFUSED') ||
+      error.message?.includes('ENOTFOUND')) {
       console.error('⚠️  Network error during auth verification:', error.message);
-      
+
       // Track failures for circuit breaker
       authFailureCount++;
       lastAuthFailureTime = now;
-      
+
       if (authFailureCount >= AUTH_FAILURE_THRESHOLD) {
         circuitBreakerOpen = true;
         circuitBreakerOpenUntil = now + 30000; // Open for 30 seconds
         console.error(`🔴 Circuit breaker opened after ${authFailureCount} failures`);
       }
-      
+
       return res.status(503).json({
         success: false,
         error: 'Authentication service temporarily unavailable',
@@ -399,7 +398,7 @@ async function verifyAuth(req, res, next) {
         isNetworkError: true
       });
     }
-    
+
     console.error('Auth verification error:', error);
     res.status(401).json({
       success: false,
@@ -497,7 +496,7 @@ if (process.env.NODE_ENV === 'production') {
         console.log(`✅ Analytics chunk found: ${analyticsFile}`);
       }
     }
-    
+
     // Serve ALL static files from dashboard/dist with correct MIME types
     app.use(express.static(dashboardPath, {
       index: false, // Don't auto-serve index.html
@@ -1678,7 +1677,7 @@ app.post('/api/ai-tools/schedule-now', verifyAuth, async (req, res) => {
       scheduled: result.scheduled || 0,
       failed: result.failed || 0,
       total: result.total || 0,
-      message: result.success !== false 
+      message: result.success !== false
         ? `Successfully scheduled ${result.scheduled || 0} posts (${result.failed || 0} failed)`
         : result.error || 'Failed to schedule posts',
       error: result.error
@@ -2953,16 +2952,39 @@ app.get('/api/news/public', async (req, res) => {
 
 /**
  * GET /api/news/trending
- * Fetch trending AI news from updated RSS sources
+ * Get trending news categorized by topic
  */
 app.get('/api/news/trending', verifyAuth, async (req, res) => {
   try {
-    const { limit = 20 } = req.query;
-    const news = await fetchTrendingNews(parseInt(limit));
-    res.json({ success: true, news, count: news.length });
+    const { limit = 30, refresh = false } = req.query;
+
+    console.log(`📰 Fetching trending news (refresh=${refresh})...`);
+
+    // Prevent browser caching of news responses
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
+    // Use fetchNewsByCategory which returns pre-grouped news
+    // bypass cache if refresh=true
+    const grouped = await fetchNewsByCategory(refresh === 'true');
+
+    // Calculate total articles
+    const total = Object.values(grouped).reduce((sum, cat) => sum + cat.articles.length, 0);
+
+    res.json({
+      success: true,
+      news: grouped,
+      total: total,
+      timestamp: new Date().toISOString()
+    });
+
   } catch (error) {
     console.error('❌ Error in /api/news/trending:', error);
-    res.status(500).json({ success: false, error: error.message || 'Failed to fetch trending news' });
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch trending news'
+    });
   }
 });
 
@@ -3144,44 +3166,6 @@ app.post('/api/content-agent/generate-from-keyword', verifyAuth, async (req, res
 // ============================================
 // NEWS AGENT ROUTES
 // ============================================
-
-/**
- * GET /api/news/trending
- * Get trending news categorized by topic
- */
-app.get('/api/news/trending', verifyAuth, async (req, res) => {
-  try {
-    const { limit = 30, refresh = false } = req.query;
-
-    console.log(`📰 Fetching trending news (refresh=${refresh})...`);
-
-    // Prevent browser caching of news responses
-    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-
-    // Use new fetchNewsByCategory function which returns pre-grouped news
-    // bypass cache if refresh=true
-    const grouped = await fetchNewsByCategory(refresh === 'true');
-
-    // Calculate total articles
-    const total = Object.values(grouped).reduce((sum, cat) => sum + cat.articles.length, 0);
-
-    res.json({
-      success: true,
-      news: grouped,
-      total: total,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error('❌ Error in /api/news/trending:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Failed to fetch trending news'
-    });
-  }
-});
 
 /**
  * GET /api/news/category/:category

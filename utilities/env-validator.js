@@ -18,8 +18,7 @@ const requiredVars = {
     core: [
         'SUPABASE_URL',
         'SUPABASE_ANON_KEY',
-        'SUPABASE_SERVICE_ROLE_KEY',
-        'SESSION_SECRET'
+        'SUPABASE_SERVICE_ROLE_KEY'
     ]
 };
 

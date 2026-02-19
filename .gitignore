@@ -48,6 +48,7 @@ build/
 out/
 .cache/
 .turbo/
+landing-dist/
 
 # Runtime
 node.pid

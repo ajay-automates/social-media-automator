@@ -78,9 +78,6 @@ function Navigation() {
     // Key Features
     { path: '/content-agent', label: 'AI Agent', icon: '🤖', category: 'Features' },
     { path: '/team', label: 'Team', icon: '👥', category: 'Features' },
-    { path: '/viral-posts', label: 'Viral Posts', icon: '🔥', category: 'Features' },
-    { path: '/ai-news', label: 'AI News', icon: '📰', category: 'Features' },
-    { path: '/saved-items', label: 'Saved Items', icon: '🔖', category: 'Features' },
 
     // Content Tools
     { path: '/carousel', label: 'Create Carousel', icon: '📸', category: 'Content' },
@@ -202,17 +199,17 @@ function Navigation() {
             <div className="hidden lg:flex items-center gap-2 mr-4">
               {/* Plan Badge */}
               <div className={`px-4 py-2 rounded-full border-2 ${billingInfo.plan.name === 'free'
-                  ? 'bg-gradient-to-r from-gray-800 to-gray-900 border-gray-600/50'
-                  : billingInfo.plan.name === 'pro'
-                    ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/50'
-                    : 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/50'
+                ? 'bg-gradient-to-r from-gray-800 to-gray-900 border-gray-600/50'
+                : billingInfo.plan.name === 'pro'
+                  ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-blue-500/50'
+                  : 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 border-purple-500/50'
                 }`}>
                 <div className="flex items-center gap-2">
                   <span className={`text-xs font-bold uppercase tracking-wider ${billingInfo.plan.name === 'free'
-                      ? 'text-gray-400'
-                      : billingInfo.plan.name === 'pro'
-                        ? 'text-blue-300'
-                        : 'text-purple-300'
+                    ? 'text-gray-400'
+                    : billingInfo.plan.name === 'pro'
+                      ? 'text-blue-300'
+                      : 'text-purple-300'
                     }`}>
                     {billingInfo.plan.name === 'free' ? '🆓 Free' : billingInfo.plan.name === 'pro' ? '⭐ Pro' : '💎 Business'}
                   </span>
@@ -220,8 +217,8 @@ function Navigation() {
                     <>
                       <div className="h-4 w-px bg-gray-600"></div>
                       <span className={`text-xs font-semibold ${(billingInfo.usage.posts.used / billingInfo.plan.limits.posts) > 0.8
-                          ? 'text-red-400'
-                          : 'text-gray-300'
+                        ? 'text-red-400'
+                        : 'text-gray-300'
                         }`}>
                         {billingInfo.usage.posts.used}/{billingInfo.plan.limits.posts}
                       </span>
