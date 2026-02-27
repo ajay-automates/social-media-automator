@@ -1,317 +1,167 @@
-# Social Media Automator
+<div align="center">
 
-AI-powered multi-platform social media automation SaaS. Schedule, create, and automate posts across 16 social platforms.
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,10,18&height=170&section=header&text=Social%20Media%20Automator&fontSize=44&fontAlignY=35&animation=twinkling&fontColor=ffffff&desc=AI-Powered%20Multi-Platform%20SaaS%20%7C%2016%20Platforms%20%7C%206%20AI%20Agents&descAlignY=55&descSize=18" width="100%" />
 
-**Live:** https://capable-motivation-production-7a75.up.railway.app
+[![Live](https://img.shields.io/badge/Live-Production-00C853?style=for-the-badge&logo=railway&logoColor=white)](https://capable-motivation-production-7a75.up.railway.app)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=node.js&logoColor=white)](.)
+[![Claude API](https://img.shields.io/badge/Claude_Sonnet_4-8B5CF6?style=for-the-badge&logo=anthropic&logoColor=white)](.)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](.)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](.)
+[![Railway](https://img.shields.io/badge/Railway-Deployed-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](.)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+**Schedule, create, and automate posts across 16 social platforms with 6 AI agents. Full production SaaS.**
+
+[Live App](https://capable-motivation-production-7a75.up.railway.app) · [Features](#features) · [Architecture](#project-structure) · [Quick Start](#quick-start)
+
+</div>
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                        Express Server (191+ routes)               │
+│                                                                   │
+│  ┌─────────────────────┐  ┌─────────────────────────────────┐    │
+│  │    AI Layer          │  │     Platform Layer               │    │
+│  │  • Claude Sonnet 4   │  │  LinkedIn   Twitter   Instagram  │    │
+│  │  • Stability AI      │  │  Facebook   Pinterest  Medium    │    │
+│  │  • Google Gemini     │  │  Tumblr     Reddit    Dev.to    │    │
+│  │  • 6 AI Agents       │  │  Telegram   Discord   Slack     │    │
+│  └─────────────────────┘  │  Bluesky    Mastodon  YouTube    │    │
+│                            │  TikTok                          │    │
+│  ┌─────────────────────┐  └─────────────────────────────────┘    │
+│  │    Data Layer        │                                         │
+│  │  • Supabase (PG)    │  ┌─────────────────────────────────┐    │
+│  │  • Cloudinary        │  │     Business Layer               │    │
+│  │  • 29 migrations     │  │  • Razorpay billing              │    │
+│  └─────────────────────┘  │  • Team collaboration             │    │
+│                            │  • A/B testing                    │    │
+│  ┌─────────────────────┐  │  • Webhooks (Zapier/Make)         │    │
+│  │    Chrome Extension  │  │  • Analytics dashboard            │    │
+│  │  • One-click post    │  └─────────────────────────────────┘    │
+│  └─────────────────────┘                                          │
+└──────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## Tech Stack
 
-- **Backend:** Node.js (>=20) + Express
-- **Database:** PostgreSQL via Supabase
-- **AI:** Claude Sonnet 4 (Anthropic), Stability AI, Google Gemini
-- **Frontend:** React 19 + Vite + Recharts
-- **Payments:** Razorpay
-- **Storage:** Cloudinary
-- **Infrastructure:** Railway (auto-deploy on push to main)
-
----
-
-## Quick Start
-
-```bash
-git clone <repo-url>
-cd social-media-automator
-npm install
-cp .env.example .env   # fill in your credentials
-npm run dev            # runs on http://localhost:5001
-```
-
-Build dashboard and landing page:
-```bash
-npm run build          # builds both landing + dashboard
-npm start              # production server
-```
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in:
-
-### Required
-
-```env
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=eyJhbGc...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...
-
-# Session
-SESSION_SECRET=<random 32+ char string>
-OAUTH_STATE_SECRET=<random 32 byte hex>
-
-# Generate secrets with:
-# node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-### OAuth Platforms
-
-```env
-LINKEDIN_CLIENT_ID=
-LINKEDIN_CLIENT_SECRET=
-
-TWITTER_CLIENT_ID=
-TWITTER_CLIENT_SECRET=
-
-YOUTUBE_CLIENT_ID=         # Google Cloud Console OAuth credentials
-YOUTUBE_CLIENT_SECRET=
-
-TIKTOK_CLIENT_KEY=
-TIKTOK_CLIENT_SECRET=
-```
-
-### AI Services
-
-```env
-ANTHROPIC_API_KEY=sk-ant-...     # Claude AI captions & agents
-STABILITY_API_KEY=sk-...         # Image generation
-GEMINI_API_KEY=                  # Google Gemini (optional)
-```
-
-### Storage & Payments
-
-```env
-CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
-
-RAZORPAY_KEY_ID=
-RAZORPAY_KEY_SECRET=
-RAZORPAY_PRO_MONTHLY_PLAN_ID=
-RAZORPAY_PRO_ANNUAL_PLAN_ID=
-RAZORPAY_BUSINESS_MONTHLY_PLAN_ID=
-RAZORPAY_BUSINESS_ANNUAL_PLAN_ID=
-```
-
-### Application
-
-```env
-APP_URL=http://localhost:5001
-PORT=5001
-NODE_ENV=development
-```
-
----
-
-## Database Setup
-
-Run migrations in order in your Supabase SQL Editor:
-
-```
-migrations/001_initial_schema.sql
-migrations/002_multi_tenant.sql
-migrations/003_fix_signup_trigger.sql
-migrations/004_add_user_credentials.sql
-migrations/005_add_telegram_support.sql
-migrations/006_add_instagram_platform.sql
-migrations/007_add_facebook_platform.sql
-migrations/008_add_slack_platform.sql
-migrations/009_add_discord_platform.sql
-migrations/010_add_reddit_platform.sql
-migrations/011_add_post_templates.sql
-migrations/012_add_public_templates.sql
-migrations/013_add_email_reports.sql
-migrations/014_add_bulk_upload_tracking.sql
-migrations/015_add_account_labels.sql
-migrations/016_add_team_collaboration.sql
-migrations/017_add_pinterest.sql
-migrations/018_add_medium_devto_platforms.sql
-migrations/018_user_milestones.sql
-migrations/019_add_mastodon_platform.sql
-migrations/020_add_bluesky_platform.sql
-migrations/021_add_content_agent.sql
-migrations/022_add_analytics_insights_agent.sql
-migrations/023_add_content_recycling.sql
-migrations/024_add_webhooks.sql
-migrations/025_add_ab_testing.sql
-migrations/026_add_hashtag_tracker.sql
-migrations/027_performance_optimization_indexes.sql
-migrations/028_add_business_profiles.sql
-migrations/029_add_ai_cost_tracking.sql
-```
-
----
-
-## Project Structure
-
-```
-social-media-automator/
-├── server.js                  # Main Express server (191+ API routes)
-├── package.json
-├── .env.example
-├── railway.json               # Railway deployment config
-├── nodemon.json               # Dev server watch config
-│
-├── services/                  # Business logic
-│   ├── Platform services:
-│   │   linkedin.js, twitter.js, instagram.js, facebook.js,
-│   │   pinterest.js, medium.js, tumblr.js, reddit.js,
-│   │   devto.js, telegram.js, discord.js, slack.js,
-│   │   bluesky.js, mastodon.js, tiktok.js, youtube.js
-│   ├── AI services:
-│   │   ai.js, ai-image.js, ai-wrapper.js,
-│   │   content-creation-agent.js, analytics-insights-agent.js,
-│   │   brand-voice-analyzer.js, trend-monitor.js,
-│   │   news-fetcher.js, news-agent.js
-│   └── Core services:
-│       scheduler.js, database.js, accounts.js, billing.js,
-│       email.js, activity.js, permissions.js, invitations.js,
-│       carousel.js, ab-testing.js, content-recycling.js,
-│       hashtag-tracker.js, smart-scheduling.js, templates.js,
-│       webhooks.js, reports.js, cache.js, cloudinary.js,
-│       business.js, oauth.js, twitter-auth.js, admin.js
-│
-├── middleware/
-│   ├── error-handler.js
-│   ├── rate-limiter.js
-│   └── request-logger.js
-│
-├── utilities/
-│   ├── env-validator.js
-│   └── oauthState.js
-│
-├── config/
-│   └── plans.js               # Pricing tier definitions
-│
-├── migrations/                # SQL database migrations (001–029)
-│
-├── dashboard/                 # React frontend (Vite)
-│   └── src/
-│       ├── App.jsx
-│       ├── main.jsx
-│       ├── pages/             # 23 pages
-│       ├── components/        # UI, calendar, dashboard, onboarding
-│       ├── contexts/
-│       ├── hooks/
-│       └── utils/
-│
-├── landing/                   # Marketing website (React + Vite)
-│   └── src/
-│       └── components/        # Hero, Features, Pricing, FAQ, etc.
-│
-├── landing-dist/              # Built landing page (served by Express)
-│
-├── chrome-extension/          # Browser extension (Manifest V3)
-│   ├── manifest.json
-│   ├── popup.html / popup.js
-│   ├── background.js
-│   ├── content-script.js
-│   ├── manual-settings.html
-│   ├── icons/
-│   ├── styles/
-│   └── utils/                 # api-client.js, storage.js, constants.js
-│
-├── scripts/                   # Utility scripts
-└── supabase/                  # Supabase config files
-```
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Node.js 20+ / Express (191+ API routes) |
+| **Database** | PostgreSQL via Supabase (29 migrations) |
+| **AI** | Claude Sonnet 4, Stability AI, Google Gemini |
+| **Frontend** | React 19 + Vite + Recharts |
+| **Payments** | Razorpay (Pro + Business tiers) |
+| **Storage** | Cloudinary |
+| **Infrastructure** | Railway (auto-deploy on push) |
 
 ---
 
 ## Features
 
 ### Core
-- **Multi-Platform Posting** — 16 social platforms
-- **AI Content Generation** — Captions, hashtags, optimal posting times via Claude Sonnet 4
-- **Smart Scheduling** — 10-post daily spreads (hourly) or weekly calendar (21 posts/7 days)
-- **Calendar UI** — Drag-and-drop, bulk actions, CSV/iCal export, platform filtering
-- **AI Image Generation** — Auto-generated images via Stability AI / Pollinations.ai
-- **Bulk Upload** — CSV import for mass scheduling
+| Feature | Details |
+|---------|---------|
+| **Multi-Platform Posting** | 16 social platforms with native API integration |
+| **AI Content Generation** | Captions, hashtags, optimal posting times via Claude Sonnet 4 |
+| **Smart Scheduling** | 10-post daily spreads or weekly calendar (21 posts/7 days) |
+| **Calendar UI** | Drag-and-drop, bulk actions, CSV/iCal export |
+| **AI Image Generation** | Auto-generated images via Stability AI / Pollinations.ai |
+| **Bulk Upload** | CSV import for mass scheduling |
 
 ### AI Agents
-- **Content Creation Agent** — Autonomous 7–30 day content calendar with brand voice learning, trend monitoring, quality scoring
-- **Analytics Insights Agent** — Pattern detection (7 types), personalized recommendations, predictive post scoring
+| Agent | Capability |
+|-------|-----------|
+| **Content Creation Agent** | Autonomous 7–30 day content calendar with brand voice learning |
+| **Analytics Insights Agent** | 7 pattern types, predictive post scoring, recommendations |
+| **Brand Voice Analyzer** | Learns and replicates your writing style |
+| **Trend Monitor** | Real-time trend detection and content suggestions |
+| **News Agent** | Curates industry news for thought leadership posts |
 
-### Team & Business
-- **Team Collaboration** — Roles, approval workflows, invitations
-- **Business Profiles** — Brand info storage for AI personalization
-- **A/B Testing** — Test content variations
-- **Content Recycling** — Auto-repost top performers
-- **Hashtag Tracking** — Performance analytics per hashtag
-- **Webhooks** — Integrations with Zapier, Make.com, etc.
-- **Analytics Dashboard** — Real-time metrics, heatmaps, reports
-
-### Integrations
-- **Chrome Extension** — One-click posting from any webpage
-- **Billing** — Razorpay with Pro and Business tier plans (monthly/annual)
+### Business Features
+| Feature | Details |
+|---------|---------|
+| **Team Collaboration** | Roles, approval workflows, invitations |
+| **A/B Testing** | Test content variations across audiences |
+| **Content Recycling** | Auto-repost top performers |
+| **Webhooks** | Zapier, Make.com integrations |
+| **Analytics Dashboard** | Real-time metrics, heatmaps, reports |
+| **Chrome Extension** | One-click posting from any webpage |
 
 ---
 
 ## Supported Platforms
 
-| Platform | Status |
-|----------|--------|
-| LinkedIn | Live |
-| Twitter/X | Live |
-| Telegram | Live |
-| Slack | Live |
-| Discord | Live |
-| Reddit | Live |
-| Dev.to | Live |
-| Tumblr | Live |
-| Mastodon | Live |
-| Bluesky | Live |
-| Medium | Live |
-| YouTube | Live |
-| Pinterest | Live |
-| TikTok | Pending |
+| Platform | Status | Platform | Status |
+|----------|--------|----------|--------|
+| LinkedIn | ✅ Live | Reddit | ✅ Live |
+| Twitter/X | ✅ Live | Dev.to | ✅ Live |
+| Telegram | ✅ Live | Tumblr | ✅ Live |
+| Slack | ✅ Live | Mastodon | ✅ Live |
+| Discord | ✅ Live | Bluesky | ✅ Live |
+| Medium | ✅ Live | YouTube | ✅ Live |
+| Pinterest | ✅ Live | TikTok | ⏳ Pending |
 
 ---
 
-## Deployment (Railway)
+## Quick Start
 
-Push to `main` branch → Railway auto-deploys.
+```bash
+git clone https://github.com/ajay-automates/social-media-automator.git
+cd social-media-automator
+npm install
+cp .env.example .env    # Fill in your credentials
+npm run dev             # http://localhost:5001
+```
 
-**Build command:** `npm run build`
-**Start command:** `node server.js`
-**Health check:** `GET /api/health`
+### Production Build
 
-Update `APP_URL` and all OAuth redirect URIs in platform developer consoles when going to production.
-
----
-
-## Chrome Extension Setup
-
-1. Open Chrome → `chrome://extensions/`
-2. Enable **Developer mode**
-3. Click **Load unpacked** → select the `chrome-extension/` folder
-4. Click the extension icon → enter your API token from the dashboard Settings page
-
-The extension reads your Supabase auth token from the dashboard and sends posts directly to the API.
+```bash
+npm run build           # Builds both landing + dashboard
+npm start               # Production server
+```
 
 ---
 
-## API Overview
+## Deployment
 
-All routes are in `server.js`. Key route groups:
+Push to `main` → Railway auto-deploys.
 
-| Prefix | Purpose |
-|--------|---------|
-| `/api/auth` | Authentication & OAuth |
-| `/api/posts` | Post CRUD, scheduling |
-| `/api/accounts` | Connected social accounts |
-| `/api/generate` | AI content generation |
-| `/api/analytics` | Metrics & reports |
-| `/api/team` | Team management |
-| `/api/billing` | Payments & subscriptions |
-| `/api/templates` | Post templates |
-| `/api/webhooks` | Webhook management |
-| `/api/content-agent` | Content creation agent |
-| `/api/analytics-agent` | Analytics insights agent |
-| `/api/admin` | Admin operations |
-| `/api/health` | Health check |
+| Config | Value |
+|--------|-------|
+| **Build command** | `npm run build` |
+| **Start command** | `node server.js` |
+| **Health check** | `GET /api/health` |
 
 ---
 
-## License
+## Tech Stack
 
-MIT
+`Node.js` `Express` `React 19` `Vite` `Supabase` `Claude Sonnet 4` `Stability AI` `Razorpay` `Cloudinary` `Railway` `Chrome Extension` `Recharts`
+
+---
+
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [EazyApply](https://github.com/ajay-automates/eazyapply) | Chrome extension for auto-filling job applications |
+| [AI Voice Agent](https://github.com/ajay-automates/ai-voice-agent) | Voice-powered document Q&A |
+| [EmailBlast](https://github.com/ajay-automates/EmailBlast) | AI-powered email automation SaaS |
+
+---
+
+<div align="center">
+
+**Built by [Ajay Kumar Reddy Nelavetla](https://github.com/ajay-automates)**
+
+*Full production SaaS — not a demo. 191+ API routes. 16 platforms. 6 AI agents.*
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,10,18&height=100&section=footer" width="100%" />
+
+</div>
