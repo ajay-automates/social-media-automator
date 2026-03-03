@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { allPlatforms } from '../data/features';
 
 // Show ALL platforms
@@ -164,8 +163,8 @@ export default function Hero() {
             >
               {/* Primary CTA */}
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                  to="/auth"
+                <a
+                  href="/auth"
                   className="inline-flex items-center gap-2 px-8 py-4 bg-netflix-red text-white rounded font-semibold text-lg hover:bg-netflix-red-dark transition-all shadow-lg hover:shadow-xl font-netflix"
                 >
                   Join 3,000+ creators
@@ -175,7 +174,7 @@ export default function Hero() {
                   >
                     →
                   </motion.span>
-                </Link>
+                </a>
               </motion.div>
 
               {/* Secondary CTA */}
