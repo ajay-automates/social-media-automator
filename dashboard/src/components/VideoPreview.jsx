@@ -37,7 +37,7 @@ export default function VideoPreview({ video, onRemove, onChangeVideo }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-xl p-4 shadow-xl"
+      className="bg-[#18181b] border-2 border-[#22d3ee]/20 rounded-xl p-4"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
@@ -73,7 +73,7 @@ export default function VideoPreview({ video, onRemove, onChangeVideo }) {
           className="absolute inset-0 flex items-center justify-center cursor-pointer hover:bg-black/20 transition"
         >
           {!isPlaying && (
-            <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
               <svg className="w-8 h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
@@ -82,21 +82,21 @@ export default function VideoPreview({ video, onRemove, onChangeVideo }) {
         </div>
 
         {/* Quality Badge */}
-        <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 backdrop-blur-sm text-white text-xs font-bold rounded">
+        <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs font-bold rounded">
           {getQualityLabel()}
         </div>
       </div>
 
       {/* Video Info */}
       <div className="flex items-center justify-between text-sm mb-3">
-        <div className="flex items-center gap-3 text-gray-300">
+        <div className="flex items-center gap-3 text-[#a1a1aa]">
           <span className="flex items-center gap-1">
             {getOrientationIcon()} {video.width}x{video.height}
           </span>
           <span className="flex items-center gap-1">
             ⏱️ {Math.round(video.duration)}s
           </span>
-          <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs font-semibold">
+          <span className="px-2 py-0.5 bg-[#22d3ee]/10 text-[#a1a1aa] rounded text-xs font-semibold">
             Pexels
           </span>
         </div>
@@ -106,13 +106,13 @@ export default function VideoPreview({ video, onRemove, onChangeVideo }) {
       <div className="flex gap-2">
         <button
           onClick={onChangeVideo}
-          className="flex-1 px-4 py-2 bg-gray-700/50 border border-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm font-semibold"
+          className="flex-1 px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg hover:bg-[#18181b] transition text-sm font-semibold"
         >
           Change Video
         </button>
         <button
           onClick={togglePlay}
-          className="px-4 py-2 bg-purple-600/20 border border-purple-500/50 text-purple-300 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
+          className="px-4 py-2 bg-[#22d3ee]/10 border border-[#22d3ee]/30 text-[#a1a1aa] rounded-lg hover:bg-[#22d3ee]/10 transition text-sm font-semibold"
         >
           {isPlaying ? '⏸️ Pause' : '▶️ Preview'}
         </button>

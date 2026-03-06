@@ -410,8 +410,8 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
         return (
             <div className="mb-8 relative z-10">
                 <div className="animate-pulse">
-                    <div className="h-8 bg-white/10 rounded w-64 mb-4"></div>
-                    <div className="h-96 bg-white/5 rounded-2xl"></div>
+                    <div className="h-8 bg-[#111113] rounded w-64 mb-4"></div>
+                    <div className="h-96 bg-[#18181b] rounded-2xl"></div>
                 </div>
             </div>
         );
@@ -433,11 +433,11 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
             {/* Section Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent inline-flex items-center gap-2">
+                    <h2 className="text-3xl font-bold text-[#22d3ee] inline-flex items-center gap-2">
                         <span>📰</span>
                         <span>AI NEWS FEED</span>
                     </h2>
-                    <p className="text-gray-400 text-sm mt-1">
+                    <p className="text-[#a1a1aa] text-sm mt-1">
                         Latest updates from OpenAI, Anthropic, Google & AI ecosystem
                     </p>
                 </div>
@@ -448,8 +448,8 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         <button
                             onClick={handleSelectAll}
                             className={`px-4 py-2 rounded-lg border transition-all text-sm font-medium ${selectedArticles.size === news.length
-                                    ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400'
-                                    : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'
+                                    ? 'bg-[#22d3ee]/10 border-[#22d3ee] text-[#22d3ee]'
+                                    : 'bg-[#18181b] border-white/[0.06] text-[#a1a1aa] hover:text-white'
                                 }`}
                         >
                             {selectedArticles.size === news.length ? 'Deselect All' : 'Select All'}
@@ -460,7 +460,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                     <button
                         onClick={handleRefresh}
                         disabled={refreshing}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 hover:shadow-cyan-500/20 shadow-lg border border-gray-700 hover:border-cyan-500/30 transition-all text-sm font-medium text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed group"
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#18181b] hover:bg-[#18181b] border border-white/[0.06] hover:border-[#22d3ee]/30 transition-all text-sm font-medium text-[#22d3ee] disabled:opacity-50 disabled:cursor-not-allowed group"
                     >
                         <span className={`text-lg transition-transform duration-700 ${refreshing ? 'animate-spin' : 'group-hover:rotate-180'}`}>
                             🔄
@@ -477,13 +477,13 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-gray-900/90 backdrop-blur-xl border border-white/20 px-6 py-4 rounded-full shadow-2xl flex items-center gap-4"
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-[#111113] border border-white/[0.08] px-6 py-4 rounded-full flex items-center gap-4"
                     >
                         <span className="text-white font-medium">{selectedArticles.size} articles selected</span>
                         <button
                             onClick={handleBulkSchedule} // Calls the new handleBulkSchedule to open modal
                             disabled={refreshing}
-                            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2 rounded-full font-bold hover:shadow-lg hover:shadow-cyan-500/20 transition-all disabled:opacity-50"
+                            className="bg-[#22d3ee] text-white px-6 py-2 rounded-full font-bold transition-all disabled:opacity-50"
                         >
                             {refreshing ? 'Scheduling...' : `Schedule ${selectedArticles.size} AI Posts`}
                         </button>
@@ -492,7 +492,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                                 setSelectedArticles(new Set());
                                 setIsSelectionMode(false);
                             }}
-                            className="text-gray-400 hover:text-white"
+                            className="text-[#a1a1aa] hover:text-white"
                         >
                             ✕
                         </button>
@@ -512,7 +512,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                                     e.stopPropagation();
                                     toggleSelection(featuredArticle.id);
                                 }}
-                                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${selectedArticles.has(featuredArticle.id) ? 'bg-cyan-500 border-cyan-500' : 'bg-black/40 border-white/60 hover:bg-black/60'
+                                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all ${selectedArticles.has(featuredArticle.id) ? 'bg-[#22d3ee] border-[#22d3ee]' : 'bg-black/40 border-white/60 hover:bg-black/60'
                                     }`}>
                                 {selectedArticles.has(featuredArticle.id) && <span className="text-white font-bold text-xl">✓</span>}
                             </div>
@@ -547,7 +547,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                         <>
                             <button
                                 onClick={handleFeaturedPrev}
-                                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+                                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 border border-white/[0.08] flex items-center justify-center text-white transition-all hover:scale-110"
                                 aria-label="Previous featured article"
                             >
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -556,7 +556,7 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
                             </button>
                             <button
                                 onClick={handleFeaturedNext}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+                                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 border border-white/[0.08] flex items-center justify-center text-white transition-all hover:scale-110"
                                 aria-label="Next featured article"
                             >
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

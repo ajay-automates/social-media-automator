@@ -41,17 +41,17 @@ export default function WelcomeModal() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
     >
       <motion.div
         initial={{ opacity: 0, y: 100, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 100, scale: 0.9 }}
         transition={{ type: 'spring', duration: 0.6 }}
-        className="relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/20 rounded-3xl shadow-2xl p-12 max-w-2xl w-full overflow-hidden"
+        className="relative bg-[#111113] border border-white/[0.08] rounded-3xl p-12 max-w-2xl w-full overflow-hidden"
       >
         {/* Gradient Background Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[#0a0a0b]/10 via-transparent pointer-events-none"></div>
         
         {/* Content */}
         <div className="relative z-10">
@@ -80,9 +80,9 @@ export default function WelcomeModal() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="text-xl text-gray-300 text-center mb-8"
+            className="text-xl text-[#a1a1aa] text-center mb-8"
           >
-            Let's get you posting in <span className="text-blue-400 font-semibold">3 simple steps</span>
+            Let's get you posting in <span className="text-[#22d3ee] font-semibold">3 simple steps</span>
           </motion.p>
 
           {/* Time Estimate */}
@@ -92,7 +92,7 @@ export default function WelcomeModal() {
             transition={{ delay: 0.6 }}
             className="text-center mb-10"
           >
-            <span className="text-sm text-purple-400 font-semibold bg-purple-500/20 px-4 py-2 rounded-full border border-purple-400/30">
+            <span className="text-sm text-[#a1a1aa] font-semibold bg-[#22d3ee]/10 px-4 py-2 rounded-full border border-[#22d3ee]/20">
               ⏱️ Takes only 2 minutes
             </span>
           </motion.div>
@@ -110,12 +110,12 @@ export default function WelcomeModal() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8 + index * 0.1 }}
-                className="flex items-center gap-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-all"
+                className="flex items-center gap-4 bg-[#18181b] border border-white/[0.06] rounded-xl p-4 hover:bg-[#111113] transition-all"
               >
                 <span className="text-3xl">{step.icon}</span>
                 <div className="flex-1">
                   <h3 className="text-white font-semibold text-lg">{step.text}</h3>
-                  <p className="text-gray-400 text-sm">Step {index + 1} of 3</p>
+                  <p className="text-[#a1a1aa] text-sm">Step {index + 1} of 3</p>
                 </div>
               </motion.div>
             ))}
@@ -133,7 +133,7 @@ export default function WelcomeModal() {
               whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.4)' }}
               whileTap={{ scale: 0.95 }}
               onClick={nextStep}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-5 rounded-xl font-bold text-lg shadow-2xl hover:shadow-blue-500/50 transition-all flex items-center justify-center gap-2"
+              className="flex-1 bg-[#22d3ee] text-white px-8 py-5 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2"
             >
               <span>Get Started</span>
               <motion.span
@@ -149,7 +149,7 @@ export default function WelcomeModal() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleSkip}
-              className="glass border border-white/20 text-gray-300 px-8 py-5 rounded-xl font-medium text-lg hover:bg-white/10 transition-all"
+              className="glass border border-white/[0.08] text-[#a1a1aa] px-8 py-5 rounded-xl font-medium text-lg hover:bg-[#111113] transition-all"
             >
               Skip Tutorial
             </motion.button>
@@ -164,19 +164,19 @@ export default function WelcomeModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 flex items-center justify-center bg-black/50"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-gray-900/90 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-8 max-w-md mx-4"
+              className="bg-[#111113] border border-white/[0.08] rounded-2xl p-8 max-w-md mx-4"
             >
               <div className="text-5xl text-center mb-4">🤔</div>
               <h3 className="text-2xl font-bold text-white text-center mb-3">
                 {skipCount === 0 ? 'Are you sure?' : 'Last chance!'}
               </h3>
-              <p className="text-gray-300 text-center mb-6">
+              <p className="text-[#a1a1aa] text-center mb-6">
                 {skipCount === 0 
                   ? 'This guided tour only takes 2 minutes and helps you post to all 10 platforms instantly.'
                   : 'You\'re missing out on our step-by-step guide that makes your first post effortless!'}
@@ -184,13 +184,13 @@ export default function WelcomeModal() {
               <div className="flex gap-3">
                 <button
                   onClick={cancelSkip}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all"
+                  className="flex-1 bg-[#22d3ee] text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all"
                 >
                   {skipCount === 0 ? 'Continue Tutorial' : 'Give It a Try'}
                 </button>
                 <button
                   onClick={confirmSkip}
-                  className="flex-1 glass border border-white/20 text-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-white/10 transition-all"
+                  className="flex-1 glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-lg font-medium hover:bg-[#111113] transition-all"
                 >
                   Skip Anyway
                 </button>

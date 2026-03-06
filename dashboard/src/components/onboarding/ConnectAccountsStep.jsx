@@ -134,24 +134,24 @@ export default function ConnectAccountsStep() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
     >
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/20 rounded-3xl shadow-2xl p-8 max-w-4xl w-full my-8"
+        className="relative bg-[#111113] border border-white/[0.08] rounded-3xl p-8 max-w-4xl w-full my-8"
       >
         {/* Progress Indicator */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-purple-400 font-semibold">STEP 1 of 3</span>
-            <span className="text-sm text-gray-400">{connectedAccounts.length} / 10 platforms</span>
+            <span className="text-sm text-[#a1a1aa] font-semibold">STEP 1 of 3</span>
+            <span className="text-sm text-[#a1a1aa]">{connectedAccounts.length} / 10 platforms</span>
           </div>
-          <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-2 bg-[#18181b] rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${(connectedAccounts.length / 10) * 100}%` }}
-              className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
+              className="h-full bg-[#22d3ee]"
             />
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function ConnectAccountsStep() {
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
           Connect Your Accounts
         </h2>
-        <p className="text-gray-300 mb-8">
+        <p className="text-[#a1a1aa] mb-8">
           {connectedAccounts.length === 0 
             ? 'Choose at least one platform to continue. You can add more later!'
             : `Great! ${connectedAccounts.length} connected. Add more or continue to the next step.`}
@@ -169,7 +169,7 @@ export default function ConnectAccountsStep() {
         {/* Platform Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#22d3ee]"></div>
           </div>
         ) : (
           <div className="flex flex-wrap gap-4 justify-center mb-8">
@@ -198,7 +198,7 @@ export default function ConnectAccountsStep() {
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={prevStep}
-            className="glass border border-white/20 text-gray-300 px-8 py-4 rounded-xl font-medium hover:bg-white/10 transition-all"
+            className="glass border border-white/[0.08] text-[#a1a1aa] px-8 py-4 rounded-xl font-medium hover:bg-[#111113] transition-all"
           >
             ← Back
           </button>
@@ -207,8 +207,8 @@ export default function ConnectAccountsStep() {
             disabled={!canContinue}
             className={`flex-1 px-8 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
               canContinue
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-xl hover:shadow-blue-500/50'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#22d3ee] text-white'
+                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
             }`}
           >
             <span>{canContinue ? 'Continue' : 'Connect at least 1 platform'}</span>
@@ -297,21 +297,21 @@ function TokenInputModal({ title, description, placeholder, value, onChange, onS
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-3xl"
+      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-gray-900/90 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-6 max-w-md w-full mx-4"
+        className="bg-[#111113] border border-white/[0.08] rounded-2xl p-6 max-w-md w-full mx-4"
       >
         <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-gray-300 mb-4">{description}</p>
+        <p className="text-[#a1a1aa] mb-4">{description}</p>
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 mb-4 focus:border-blue-500 focus:outline-none"
+          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-4 focus:border-[#22d3ee] focus:outline-none"
         />
         <div className="flex gap-3">
           <button
@@ -319,15 +319,15 @@ function TokenInputModal({ title, description, placeholder, value, onChange, onS
             disabled={!value.trim()}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
               value.trim()
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#22d3ee] text-white hover:opacity-90'
+                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
             }`}
           >
             Connect
           </button>
           <button
             onClick={onClose}
-            className="glass border border-white/20 text-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-white/10"
+            className="glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-lg font-medium hover:bg-[#111113]"
           >
             Cancel
           </button>
@@ -343,28 +343,28 @@ function MastodonModal({ instance, token, onInstanceChange, onTokenChange, onSub
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-3xl"
+      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-gray-900/90 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-6 max-w-md w-full mx-4"
+        className="bg-[#111113] border border-white/[0.08] rounded-2xl p-6 max-w-md w-full mx-4"
       >
         <h3 className="text-2xl font-bold text-white mb-2">Connect Mastodon</h3>
-        <p className="text-gray-300 mb-4">Enter your Mastodon instance and access token</p>
+        <p className="text-[#a1a1aa] mb-4">Enter your Mastodon instance and access token</p>
         <input
           type="text"
           value={instance}
           onChange={(e) => onInstanceChange(e.target.value)}
           placeholder="mastodon.social"
-          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 mb-3 focus:border-blue-500 focus:outline-none"
+          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-3 focus:border-[#22d3ee] focus:outline-none"
         />
         <input
           type="text"
           value={token}
           onChange={(e) => onTokenChange(e.target.value)}
           placeholder="Access Token"
-          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 mb-4 focus:border-blue-500 focus:outline-none"
+          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-4 focus:border-[#22d3ee] focus:outline-none"
         />
         <div className="flex gap-3">
           <button
@@ -372,15 +372,15 @@ function MastodonModal({ instance, token, onInstanceChange, onTokenChange, onSub
             disabled={!instance.trim() || !token.trim()}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
               instance.trim() && token.trim()
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#22d3ee] text-white hover:opacity-90'
+                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
             }`}
           >
             Connect
           </button>
           <button
             onClick={onClose}
-            className="glass border border-white/20 text-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-white/10"
+            className="glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-lg font-medium hover:bg-[#111113]"
           >
             Cancel
           </button>
@@ -396,28 +396,28 @@ function BlueskyModal({ handle, password, onHandleChange, onPasswordChange, onSu
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm rounded-3xl"
+      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-gray-900/90 backdrop-blur-xl border-2 border-white/20 rounded-2xl p-6 max-w-md w-full mx-4"
+        className="bg-[#111113] border border-white/[0.08] rounded-2xl p-6 max-w-md w-full mx-4"
       >
         <h3 className="text-2xl font-bold text-white mb-2">Connect Bluesky</h3>
-        <p className="text-gray-300 mb-4">Enter your Bluesky handle and app password</p>
+        <p className="text-[#a1a1aa] mb-4">Enter your Bluesky handle and app password</p>
         <input
           type="text"
           value={handle}
           onChange={(e) => onHandleChange(e.target.value)}
           placeholder="username.bsky.social"
-          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 mb-3 focus:border-blue-500 focus:outline-none"
+          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-3 focus:border-[#22d3ee] focus:outline-none"
         />
         <input
           type="password"
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
           placeholder="App Password"
-          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 mb-4 focus:border-blue-500 focus:outline-none"
+          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-4 focus:border-[#22d3ee] focus:outline-none"
         />
         <div className="flex gap-3">
           <button
@@ -425,15 +425,15 @@ function BlueskyModal({ handle, password, onHandleChange, onPasswordChange, onSu
             disabled={!handle.trim() || !password.trim()}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
               handle.trim() && password.trim()
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#22d3ee] text-white hover:opacity-90'
+                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
             }`}
           >
             Connect
           </button>
           <button
             onClick={onClose}
-            className="glass border border-white/20 text-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-white/10"
+            className="glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-lg font-medium hover:bg-[#111113]"
           >
             Cancel
           </button>

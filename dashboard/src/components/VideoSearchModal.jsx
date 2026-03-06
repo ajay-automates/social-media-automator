@@ -79,7 +79,7 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
@@ -87,10 +87,10 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-6xl w-full max-h-[90vh] shadow-2xl flex flex-col"
+          className="bg-[#18181b] border-2 border-[#22d3ee]/20 rounded-2xl max-w-6xl w-full max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between flex-shrink-0">
+          <div className="bg-[#22d3ee] p-6 flex items-center justify-between flex-shrink-0">
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 🎬 Stock Video Library
@@ -101,7 +101,7 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:bg-white/10 rounded-lg p-2 transition"
+              className="text-white hover:bg-[#111113] rounded-lg p-2 transition"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -110,7 +110,7 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
           </div>
 
           {/* Search Controls */}
-          <div className="p-6 border-b border-gray-700 flex-shrink-0">
+          <div className="p-6 border-b border-white/[0.06] flex-shrink-0">
             <div className="flex gap-4 mb-4">
               <input
                 type="text"
@@ -118,12 +118,12 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Search videos... (e.g., 'coffee shop', 'business', 'sunset')"
-                className="flex-1 bg-gray-700/50 border-2 border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                className="flex-1 bg-[#18181b] border border-white/[0.06] text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-[#22d3ee] transition"
               />
               <button
                 onClick={() => handleSearch()}
                 disabled={loading}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:opacity-90 transition disabled:opacity-50"
+                className="px-6 py-3 bg-[#22d3ee] text-white font-semibold rounded-lg hover:opacity-90 transition disabled:opacity-50"
               >
                 {loading ? '🔍 Searching...' : '🔍 Search'}
               </button>
@@ -131,15 +131,15 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
 
             {/* Orientation Selector */}
             <div className="flex gap-2">
-              <span className="text-gray-400 text-sm font-semibold mr-2">Orientation:</span>
+              <span className="text-[#a1a1aa] text-sm font-semibold mr-2">Orientation:</span>
               {['portrait', 'landscape', 'square'].map((orient) => (
                 <button
                   key={orient}
                   onClick={() => setOrientation(orient)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
                     orientation === orient
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                      ? 'bg-[#06b6d4] text-white'
+                      : 'bg-[#18181b] text-[#a1a1aa] hover:bg-[#18181b]'
                   }`}
                 >
                   {orient === 'portrait' && '📱 Portrait (9:16)'}
@@ -154,17 +154,17 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
           <div className="p-6 overflow-y-auto flex-1">
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-[#22d3ee]/20 border-t-[#22d3ee] rounded-full animate-spin"></div>
               </div>
             ) : videos.length === 0 ? (
               <div className="text-center py-20">
                 <div className="text-6xl mb-4">🎬</div>
-                <p className="text-gray-400">Search for professional stock videos</p>
-                <p className="text-gray-500 text-sm mt-2">Try: "business", "technology", "nature", "people"</p>
+                <p className="text-[#a1a1aa]">Search for professional stock videos</p>
+                <p className="text-[#52525b] text-sm mt-2">Try: "business", "technology", "nature", "people"</p>
               </div>
             ) : (
               <>
-                <p className="text-gray-400 text-sm mb-4">{videos.length} videos found</p>
+                <p className="text-[#a1a1aa] text-sm mb-4">{videos.length} videos found</p>
                 <div className="grid grid-cols-3 gap-4">
                   {videos.map((video) => (
                     <VideoCard
@@ -183,10 +183,10 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
           </div>
 
           {/* Footer - Always Visible */}
-          <div className="p-6 border-t border-gray-700 flex items-center justify-between flex-shrink-0 bg-gray-800">
-            <div className="text-sm text-gray-400">
+          <div className="p-6 border-t border-white/[0.06] flex items-center justify-between flex-shrink-0 bg-[#18181b]">
+            <div className="text-sm text-[#a1a1aa]">
               {selectedVideo ? (
-                <span className="text-purple-400 font-semibold">
+                <span className="text-[#a1a1aa] font-semibold">
                   ✓ Selected: {selectedVideo.width}x{selectedVideo.height} • {Math.round(selectedVideo.duration)}s
                 </span>
               ) : (
@@ -196,14 +196,14 @@ export default function VideoSearchModal({ show, onClose, onSelectVideo }) {
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+                className="px-6 py-3 bg-[#18181b] text-white rounded-lg hover:bg-[#18181b] transition font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSelectVideo}
                 disabled={!selectedVideo}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-[#22d3ee] text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Use This Video →
               </button>
@@ -267,7 +267,7 @@ function VideoCard({ video, isSelected, isHovered, onSelect, onHover, onHoverEnd
       {/* Play Icon Overlay (when not playing) */}
       {!isPlaying && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-          <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+          <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-gray-900 ml-1" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
@@ -276,12 +276,12 @@ function VideoCard({ video, isSelected, isHovered, onSelect, onHover, onHoverEnd
       )}
 
       {/* Quality Badge */}
-      <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 backdrop-blur-sm text-white text-xs font-bold rounded">
+      <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs font-bold rounded">
         {getQualityBadge()}
       </div>
 
       {/* Duration Badge */}
-      <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/70 backdrop-blur-sm text-white text-xs font-semibold rounded">
+      <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/70 text-white text-xs font-semibold rounded">
         {Math.round(video.duration)}s
       </div>
 
@@ -290,7 +290,7 @@ function VideoCard({ video, isSelected, isHovered, onSelect, onHover, onHoverEnd
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute top-2 left-2 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center shadow-lg"
+          className="absolute top-2 left-2 w-8 h-8 bg-[#06b6d4] rounded-full flex items-center justify-center"
         >
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -300,7 +300,7 @@ function VideoCard({ video, isSelected, isHovered, onSelect, onHover, onHoverEnd
 
       {/* Resolution Info (on hover) */}
       {isHovered && (
-        <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 backdrop-blur-sm text-white text-xs font-semibold rounded">
+        <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/70 text-white text-xs font-semibold rounded">
           {video.width}x{video.height}
         </div>
       )}

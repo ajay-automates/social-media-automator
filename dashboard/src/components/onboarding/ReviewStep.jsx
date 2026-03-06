@@ -144,25 +144,25 @@ export default function ReviewStep() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
     >
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/20 rounded-3xl shadow-2xl p-8 max-w-3xl w-full my-8"
+        className="relative bg-[#111113] border border-white/[0.08] rounded-3xl p-8 max-w-3xl w-full my-8"
       >
         {/* Progress Indicator */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-purple-400 font-semibold">STEP 3 of 3</span>
+            <span className="text-sm text-[#a1a1aa] font-semibold">STEP 3 of 3</span>
             <span className="text-sm text-green-400 font-semibold">✨ Final Step!</span>
           </div>
-          <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-2 bg-[#18181b] rounded-full overflow-hidden">
             <motion.div
               initial={{ width: '66%' }}
               animate={{ width: '100%' }}
               transition={{ duration: 0.5 }}
-              className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500"
+              className="h-full bg-[#22d3ee]"
             />
           </div>
         </div>
@@ -171,23 +171,23 @@ export default function ReviewStep() {
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
           Review & Post
         </h2>
-        <p className="text-gray-300 mb-6">
+        <p className="text-[#a1a1aa] mb-6">
           Almost there! Review your post and hit the button to share it across all your platforms.
         </p>
 
         {/* Business Profile Suggestion */}
         {!hasBusinessProfile && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-2 border-blue-500/30 rounded-xl">
+          <div className="mb-6 p-4 bg-[#22d3ee] border border-[#22d3ee]/30 rounded-xl">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🏢</span>
               <div className="flex-1">
                 <h4 className="text-white font-semibold mb-1">Set Up Your Business Profile</h4>
-                <p className="text-gray-300 text-sm mb-3">
+                <p className="text-[#a1a1aa] text-sm mb-3">
                   Generate personalized posts about your business automatically! Set up your business profile to unlock AI-powered content generation.
                 </p>
                 <a
                   href="/business"
-                  className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all"
+                  className="inline-block px-4 py-2 bg-[#06b6d4] hover:bg-[#06b6d4] text-white text-sm font-medium rounded-lg transition-all"
                   onClick={(e) => {
                     e.preventDefault();
                     window.location.href = '/business';
@@ -201,9 +201,9 @@ export default function ReviewStep() {
         )}
 
         {/* Post Preview */}
-        <div className="glass border-2 border-white/20 rounded-2xl p-6 mb-6">
-          <h3 className="text-sm font-semibold text-purple-400 mb-3">📝 YOUR POST</h3>
-          <div className="bg-gray-800/50 rounded-xl p-4 mb-4">
+        <div className="glass border border-white/[0.08] rounded-2xl p-6 mb-6">
+          <h3 className="text-sm font-semibold text-[#a1a1aa] mb-3">📝 YOUR POST</h3>
+          <div className="bg-[#18181b] rounded-xl p-4 mb-4">
             <p className="text-white whitespace-pre-wrap">{firstPostData.caption}</p>
           </div>
           {firstPostData.imagePreview && (
@@ -220,17 +220,17 @@ export default function ReviewStep() {
         {/* Selected Platforms */}
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#22d3ee]"></div>
           </div>
         ) : (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-purple-400">
+              <h3 className="text-sm font-semibold text-[#a1a1aa]">
                 🚀 POSTING TO ({selectedPlatforms.length} selected)
               </h3>
               <button
                 onClick={() => setShowAllPlatforms(!showAllPlatforms)}
-                className="text-sm text-blue-400 hover:text-blue-300 transition-all"
+                className="text-sm text-[#22d3ee] hover:text-[#22d3ee] transition-all"
               >
                 {showAllPlatforms ? 'Hide' : 'Show All'} Platforms
               </button>
@@ -249,7 +249,7 @@ export default function ReviewStep() {
                     className={`p-4 rounded-xl border-2 transition-all ${
                       isSelected
                         ? 'bg-green-500/20 border-green-400'
-                        : 'glass border-white/20 opacity-50'
+                        : 'glass border-white/[0.08] opacity-50'
                     }`}
                   >
                     <div className="text-3xl mb-1">{platformIcons[account.platform]}</div>
@@ -272,18 +272,18 @@ export default function ReviewStep() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-4"
+                className="bg-[#22d3ee]/10 border border-[#22d3ee]/20 rounded-xl p-4"
               >
                 <div className="flex items-start gap-3">
                   <div className="text-2xl">💡</div>
                   <div>
                     <h4 className="text-white font-semibold mb-1">Want to reach more people?</h4>
-                    <p className="text-sm text-gray-300 mb-3">
+                    <p className="text-sm text-[#a1a1aa] mb-3">
                       You've connected {connectedAccounts.length} out of 10 available platforms. Connect more to maximize your reach!
                     </p>
                     <button
                       onClick={() => window.location.href = '/connect-accounts'}
-                      className="text-sm bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold transition-all"
+                      className="text-sm bg-[#06b6d4] hover:bg-[#06b6d4] text-white px-4 py-2 rounded-lg font-semibold transition-all"
                     >
                       + Connect More Platforms
                     </button>
@@ -304,10 +304,10 @@ export default function ReviewStep() {
             disabled={posting || selectedPlatforms.length === 0}
             className={`w-full px-8 py-5 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
               posting
-                ? 'bg-gray-700 cursor-wait'
+                ? 'bg-[#18181b] cursor-wait'
                 : selectedPlatforms.length > 0
-                ? 'bg-gradient-to-r from-green-600 to-blue-600 text-white hover:shadow-xl hover:shadow-green-500/50'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#22d3ee] text-white'
+                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
             }`}
           >
             {posting ? (
@@ -327,14 +327,14 @@ export default function ReviewStep() {
             <button
               onClick={prevStep}
               disabled={posting}
-              className="glass border border-white/20 text-gray-300 px-6 py-3 rounded-xl font-medium hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-xl font-medium hover:bg-[#111113] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               ← Edit Post
             </button>
             <button
               onClick={handleSchedule}
               disabled={posting || selectedPlatforms.length === 0}
-              className="flex-1 glass border border-white/20 text-white px-6 py-3 rounded-xl font-medium hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 glass border border-white/[0.08] text-white px-6 py-3 rounded-xl font-medium hover:bg-[#111113] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               📅 Schedule for Later
             </button>
@@ -346,13 +346,13 @@ export default function ReviewStep() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-6 bg-blue-500/10 border border-blue-400/30 rounded-xl p-4"
+            className="mt-6 bg-[#22d3ee]/10 border border-[#22d3ee]/20 rounded-xl p-4"
           >
             <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-[#22d3ee]"></div>
               <div className="flex-1">
                 <h4 className="text-white font-semibold">Posting in progress...</h4>
-                <p className="text-sm text-gray-300">
+                <p className="text-sm text-[#a1a1aa]">
                   Sharing your content to {selectedPlatforms.length} platforms. This may take a few seconds.
                 </p>
               </div>

@@ -20,14 +20,14 @@ export const EmptyState = ({
     )}
 
     <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
-    <p className="text-gray-500 mb-6 max-w-sm">{description}</p>
+    <p className="text-[#52525b] mb-6 max-w-sm">{description}</p>
 
     {actionLabel && (
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={actionOnClick}
-        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-lg"
+        className="bg-[#06b6d4] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#06b6d4] transition"
       >
         {actionLabel}
       </motion.button>

@@ -178,7 +178,7 @@ export default function Team() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="w-16 h-16 border-4 border-white/[0.08] border-t-purple-500 rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-white/[0.08] border-t-[#22d3ee] rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -201,7 +201,7 @@ export default function Team() {
             {canInvite && (
               <motion.button
                 onClick={() => setShowInviteModal(true)}
-                className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white font-bold rounded-lg hover:shadow-purple-500/50 transition-all"
+                className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white font-bold rounded-lg transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -216,7 +216,7 @@ export default function Team() {
           <button
             onClick={() => setActiveTab('members')}
             className={`pb-3 px-4 font-semibold transition-colors ${activeTab === 'members'
-              ? 'text-[#a1a1aa] border-b-2 border-purple-400'
+              ? 'text-[#a1a1aa] border-b-2 border-[#22d3ee]'
               : 'text-[#a1a1aa] hover:text-white'
               }`}
           >
@@ -227,7 +227,7 @@ export default function Team() {
             <button
               onClick={() => setActiveTab('invitations')}
               className={`pb-3 px-4 font-semibold transition-colors relative ${activeTab === 'invitations'
-                ? 'text-[#a1a1aa] border-b-2 border-purple-400'
+                ? 'text-[#a1a1aa] border-b-2 border-[#22d3ee]'
                 : 'text-[#a1a1aa] hover:text-white'
                 }`}
             >
@@ -237,7 +237,7 @@ export default function Team() {
           <button
             onClick={() => setActiveTab('activity')}
             className={`pb-3 px-4 font-semibold transition-colors ${activeTab === 'activity'
-              ? 'text-[#a1a1aa] border-b-2 border-purple-400'
+              ? 'text-[#a1a1aa] border-b-2 border-[#22d3ee]'
               : 'text-[#a1a1aa] hover:text-white'
               }`}
           >
@@ -405,7 +405,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
       className="bg-[#18181b] border-2 border-yellow-500/30 rounded-xl p-6"
     >
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xl">
+        <div className="w-12 h-12 bg-[#0a0a0b] rounded-full flex items-center justify-center text-white text-xl">
           📧
         </div>
         <div className="flex-1">
@@ -442,7 +442,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
               />
               <button
                 onClick={() => copyToClipboard(inviteUrl)}
-                className="px-3 py-1 bg-blue-600/20 text-[#22d3ee] text-xs rounded hover:bg-blue-600/30 transition"
+                className="px-3 py-1 bg-[#22d3ee]/10 text-[#22d3ee] text-xs rounded hover:bg-[#22d3ee]/20 transition"
               >
                 Copy
               </button>
@@ -454,7 +454,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
       <div className="flex gap-2">
         <button
           onClick={onResend}
-          className="flex-1 px-4 py-2 bg-purple-600/20 text-[#a1a1aa] border border-[#22d3ee]/30 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
+          className="flex-1 px-4 py-2 bg-[#22d3ee]/10 text-[#a1a1aa] border border-[#22d3ee]/30 rounded-lg hover:bg-[#22d3ee]/10 transition text-sm font-semibold"
         >
           Resend
         </button>
@@ -484,7 +484,7 @@ function ActivityFeed({ activities }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="p-4 hover:bg-white/5 transition-colors"
+            className="p-4 hover:bg-[#18181b] transition-colors"
           >
             <div className="flex items-start gap-4">
               {/* Icon */}

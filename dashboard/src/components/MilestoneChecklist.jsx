@@ -61,7 +61,7 @@ export default function MilestoneChecklist() {
       description: 'Confirm your email address',
       emoji: '✉️',
       icon: '✓',
-      color: 'from-blue-400 to-blue-600'
+      color: 'bg-[#22d3ee]'
     },
     {
       id: 'first_account_connected',
@@ -69,7 +69,7 @@ export default function MilestoneChecklist() {
       description: 'Link your first social media account',
       emoji: '🔗',
       icon: '✓',
-      color: 'from-green-400 to-green-600'
+      color: ''
     },
     {
       id: 'first_post_created',
@@ -77,18 +77,18 @@ export default function MilestoneChecklist() {
       description: 'Create and publish your first post',
       emoji: '🚀',
       icon: '✓',
-      color: 'from-purple-400 to-purple-600'
+      color: 'bg-[#22d3ee]'
     }
   ];
 
   if (loading) {
     return (
       <div className="mb-8 relative z-10">
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg p-6 animate-pulse">
-          <div className="h-8 bg-gray-700/50 rounded w-1/3 mb-4"></div>
+        <div className="bg-[#111113] border border-white/[0.06] rounded-lg p-6 animate-pulse">
+          <div className="h-8 bg-[#18181b] rounded w-1/3 mb-4"></div>
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 bg-gray-700/50 rounded"></div>
+              <div key={i} className="h-16 bg-[#18181b] rounded"></div>
             ))}
           </div>
         </div>
@@ -110,14 +110,14 @@ export default function MilestoneChecklist() {
       animate={{ opacity: 1, y: 0 }}
       className="mb-8 relative z-10"
     >
-      <div className="bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-2xl">
+      <div className="bg-[#0a0a0b]/10 border border-white/[0.08] rounded-2xl p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <span className="text-4xl">🎯</span>
             <div>
               <h2 className="text-2xl font-bold text-white">Onboarding Checklist</h2>
-              <p className="text-sm text-gray-300 mt-1">Complete these steps to get the most out of Social Media Automator</p>
+              <p className="text-sm text-[#a1a1aa] mt-1">Complete these steps to get the most out of Social Media Automator</p>
             </div>
           </div>
           {allCompleted && (
@@ -135,15 +135,15 @@ export default function MilestoneChecklist() {
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <p className="text-sm font-medium text-gray-300">Progress</p>
-            <p className="text-sm font-bold text-blue-400">{progressPercent}%</p>
+            <p className="text-sm font-medium text-[#a1a1aa]">Progress</p>
+            <p className="text-sm font-bold text-[#22d3ee]">{progressPercent}%</p>
           </div>
-          <div className="w-full bg-gray-800/50 rounded-full h-2">
+          <div className="w-full bg-[#18181b] rounded-full h-2">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+              className="bg-[#22d3ee] h-2 rounded-full"
             />
           </div>
         </div>
@@ -165,8 +165,8 @@ export default function MilestoneChecklist() {
                 <div className={`
                   relative p-4 rounded-lg border-2 transition-all
                   ${isCompleted
-                    ? 'bg-gradient-to-r from-green-500/10 to-green-600/10 border-green-500/50'
-                    : 'bg-white/5 border-white/10 group-hover:border-white/20'
+                    ? 'bg-[#22d3ee] border-green-500/50'
+                    : 'bg-[#18181b] border-white/[0.06] group-hover:border-white/[0.08]'
                   }
                 `}>
                   <div className="flex items-start gap-4">
@@ -181,7 +181,7 @@ export default function MilestoneChecklist() {
                       className={`
                         flex-shrink-0 w-8 h-8 rounded-lg border-2 flex items-center justify-center font-bold text-lg
                         ${isCompleted
-                          ? 'bg-gradient-to-br from-green-400 to-green-600 border-green-500'
+                          ? 'bg-[#0a0a0b] border-green-500'
                           : 'border-white/30 group-hover:border-white/50'
                         }
                       `}
@@ -200,7 +200,7 @@ export default function MilestoneChecklist() {
                         </h3>
                         <span className="text-lg">{milestone.emoji}</span>
                       </div>
-                      <p className="text-sm text-gray-400">{milestone.description}</p>
+                      <p className="text-sm text-[#a1a1aa]">{milestone.description}</p>
                       {isCompleted && completedAt && (
                         <p className="text-xs text-green-400 mt-2">
                           ✓ Completed on {new Date(completedAt).toLocaleDateString()}
@@ -224,10 +224,10 @@ export default function MilestoneChecklist() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-6 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/50 rounded-lg text-center"
+            className="mt-6 p-4 bg-[#22d3ee] border border-green-500/50 rounded-lg text-center"
           >
             <p className="text-green-400 font-semibold mb-2">🎊 You're All Set!</p>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-[#a1a1aa]">
               You've completed all the essential steps. Now start creating amazing content and watch your social media grow!
             </p>
           </motion.div>
@@ -239,7 +239,7 @@ export default function MilestoneChecklist() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-6 text-sm text-gray-400 text-center"
+            className="mt-6 text-sm text-[#a1a1aa] text-center"
           >
             Complete your onboarding journey to unlock all features
           </motion.p>

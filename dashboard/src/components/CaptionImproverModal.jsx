@@ -52,10 +52,10 @@ export default function CaptionImproverModal({ show, onClose, originalCaption, o
   ];
 
   const colorClasses = {
-    blue: 'from-blue-600 to-cyan-600',
-    green: 'from-green-600 to-emerald-600',
-    orange: 'from-orange-600 to-pink-600',
-    purple: 'from-purple-600 to-pink-600'
+    blue: 'bg-[#22d3ee]',
+    green: '',
+    orange: '',
+    purple: 'bg-[#22d3ee]'
   };
 
   if (!show) return null;
@@ -66,7 +66,7 @@ export default function CaptionImproverModal({ show, onClose, originalCaption, o
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
@@ -74,10 +74,10 @@ export default function CaptionImproverModal({ show, onClose, originalCaption, o
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+          className="bg-[#18181b] border-2 border-[#22d3ee]/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between">
+          <div className="bg-[#22d3ee] p-6 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 🎨 AI Caption Improver
@@ -88,7 +88,7 @@ export default function CaptionImproverModal({ show, onClose, originalCaption, o
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:bg-white/10 rounded-lg p-2 transition"
+              className="text-white hover:bg-[#111113] rounded-lg p-2 transition"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -100,26 +100,26 @@ export default function CaptionImproverModal({ show, onClose, originalCaption, o
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
             {/* Original Caption */}
             <div className="mb-6">
-              <h3 className="text-sm font-bold text-gray-400 mb-2">YOUR ORIGINAL:</h3>
-              <div className="bg-gray-900/50 border-2 border-gray-700 rounded-lg p-4">
-                <p className="text-gray-300 whitespace-pre-wrap">{originalCaption}</p>
-                <p className="text-gray-500 text-xs mt-2">{originalCaption.length} characters</p>
+              <h3 className="text-sm font-bold text-[#a1a1aa] mb-2">YOUR ORIGINAL:</h3>
+              <div className="bg-[#111113] border border-white/[0.06] rounded-lg p-4">
+                <p className="text-[#a1a1aa] whitespace-pre-wrap">{originalCaption}</p>
+                <p className="text-[#52525b] text-xs mt-2">{originalCaption.length} characters</p>
               </div>
             </div>
 
-            <div className="border-t border-gray-700 mb-6"></div>
+            <div className="border-t border-white/[0.06] mb-6"></div>
 
             {/* Loading State */}
             {improving ? (
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mb-4"></div>
-                <p className="text-gray-300 font-semibold">AI is improving your caption...</p>
-                <p className="text-gray-500 text-sm">This takes 5-10 seconds</p>
+                <div className="w-12 h-12 border-4 border-[#22d3ee]/20 border-t-[#22d3ee] rounded-full animate-spin mb-4"></div>
+                <p className="text-[#a1a1aa] font-semibold">AI is improving your caption...</p>
+                <p className="text-[#52525b] text-sm">This takes 5-10 seconds</p>
               </div>
             ) : improved ? (
               /* Improved Versions */
               <div className="space-y-4">
-                <h3 className="text-sm font-bold text-gray-400 mb-4">AI-IMPROVED VERSIONS:</h3>
+                <h3 className="text-sm font-bold text-[#a1a1aa] mb-4">AI-IMPROVED VERSIONS:</h3>
                 
                 {modes.map((mode) => (
                   <CaptionCard
@@ -132,21 +132,21 @@ export default function CaptionImproverModal({ show, onClose, originalCaption, o
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-[#a1a1aa]">
                 No improvements generated yet
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-700 bg-gray-800">
+          <div className="p-6 border-t border-white/[0.06] bg-[#18181b]">
             <div className="flex items-center justify-between">
-              <p className="text-gray-400 text-sm">
+              <p className="text-[#a1a1aa] text-sm">
                 Pick your favorite style or mix and match!
               </p>
               <button
                 onClick={onClose}
-                className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+                className="px-6 py-3 bg-[#18181b] text-white rounded-lg hover:bg-[#18181b] transition font-semibold"
               >
                 Close
               </button>
@@ -166,7 +166,7 @@ function CaptionCard({ mode, caption, colorClass, onUse }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gray-900/50 border-2 border-gray-700 rounded-xl p-5 hover:border-purple-500/50 transition-all"
+      className="bg-[#111113] border border-white/[0.06] rounded-xl p-5 hover:border-[#22d3ee]/30 transition-all"
     >
       {/* Mode Header */}
       <div className="flex items-center justify-between mb-3">
@@ -176,26 +176,26 @@ function CaptionCard({ mode, caption, colorClass, onUse }) {
         </div>
         <button
           onClick={onUse}
-          className={`px-4 py-2 bg-gradient-to-r ${colorClass} text-white font-semibold rounded-lg hover:opacity-90 transition shadow-lg`}
+          className={`px-4 py-2 bg-[#22d3ee] ${colorClass} text-white font-semibold rounded-lg hover:opacity-90 transition`}
         >
           Use This →
         </button>
       </div>
 
       {/* Caption Text */}
-      <div className="bg-gray-800/50 border border-gray-600 rounded-lg p-4 mb-3">
-        <p className="text-gray-200 whitespace-pre-wrap leading-relaxed">{caption}</p>
+      <div className="bg-[#18181b] border border-white/[0.06] rounded-lg p-4 mb-3">
+        <p className="text-[#a1a1aa] whitespace-pre-wrap leading-relaxed">{caption}</p>
       </div>
 
       {/* Character Count */}
       <div className="flex items-center justify-between text-xs">
-        <span className="text-gray-500">{caption.length} characters</span>
+        <span className="text-[#52525b]">{caption.length} characters</span>
         <div className="flex gap-2">
           {caption.length <= 280 && (
-            <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded">✓ Twitter</span>
+            <span className="px-2 py-1 bg-[#22d3ee]/10 text-[#22d3ee] rounded">✓ Twitter</span>
           )}
           {caption.length <= 3000 && (
-            <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded">✓ LinkedIn</span>
+            <span className="px-2 py-1 bg-[#22d3ee]/10 text-[#22d3ee] rounded">✓ LinkedIn</span>
           )}
         </div>
       </div>

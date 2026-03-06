@@ -47,7 +47,7 @@ export default function UpgradeModal({ isOpen, onClose, reason = 'posts_limit', 
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/60" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -61,11 +61,11 @@ export default function UpgradeModal({ isOpen, onClose, reason = 'posts_limit', 
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-2xl transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle transition-all">
                 {/* Close Button */}
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+                  className="absolute top-4 right-4 text-[#a1a1aa] hover:text-[#52525b] transition"
                 >
                   <XMarkIcon className="h-6 w-6" />
                 </button>
@@ -77,16 +77,16 @@ export default function UpgradeModal({ isOpen, onClose, reason = 'posts_limit', 
                 <Dialog.Title className="text-2xl font-bold text-gray-900 text-center mb-2">
                   {config.title}
                 </Dialog.Title>
-                <p className="text-gray-600 text-center mb-6">{config.description}</p>
+                <p className="text-[#52525b] text-center mb-6">{config.description}</p>
 
                 {/* Benefits Section */}
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 mb-6">
+                <div className="bg-[#0a0a0b] rounded-xl p-6 mb-6">
                   <h3 className="font-semibold text-gray-900 mb-3">
                     Upgrade to {currentPlan === 'free' ? 'Pro' : 'Business'} and get:
                   </h3>
                   <ul className="space-y-2">
                     {benefits.map((benefit, index) => (
-                      <li key={index} className="flex items-center gap-2 text-gray-700">
+                      <li key={index} className="flex items-center gap-2 text-[#52525b]">
                         <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
@@ -100,20 +100,20 @@ export default function UpgradeModal({ isOpen, onClose, reason = 'posts_limit', 
                 <div className="space-y-3">
                   <button
                     onClick={handleUpgrade}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition transform hover:scale-105"
+                    className="w-full bg-[#22d3ee] text-white font-semibold py-3 rounded-lg transition transform hover:scale-105"
                   >
                     View Pricing Plans
                   </button>
                   <button
                     onClick={onClose}
-                    className="w-full bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-200 transition"
+                    className="w-full bg-[#18181b] text-[#52525b] font-semibold py-3 rounded-lg hover:bg-[#18181b] transition"
                   >
                     Maybe Later
                   </button>
                 </div>
 
                 {/* Footer */}
-                <p className="text-xs text-gray-500 text-center mt-6">
+                <p className="text-xs text-[#52525b] text-center mt-6">
                   No credit card required • 14-day free trial • Cancel anytime
                 </p>
               </Dialog.Panel>

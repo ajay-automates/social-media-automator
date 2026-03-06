@@ -134,7 +134,7 @@ export default function HashtagAnalytics() {
             whileTap={{ scale: 0.95 }}
             onClick={handleAnalyzeTrends}
             disabled={showAnalyzing}
-            className={`px-6 py-3 ${showAnalyzing ? 'bg-[#18181b]' : 'bg-gradient-to-r from-blue-600 to-cyan-600'} text-white rounded-lg font-semibold hover:shadow-lg transition-all`}
+            className={`px-6 py-3 ${showAnalyzing ? 'bg-[#18181b]' : 'bg-[#22d3ee]'} text-white rounded-lg font-semibold transition-all`}
           >
             {showAnalyzing ? 'Analyzing...' : 'Analyze Trends'}
           </motion.button>
@@ -151,8 +151,8 @@ export default function HashtagAnalytics() {
             onClick={() => setSelectedPlatform(null)}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
               selectedPlatform === null
-                ? 'bg-blue-600 text-white'
-                : 'bg-white/10 text-[#a1a1aa] hover:bg-white/20'
+                ? 'bg-[#06b6d4] text-white'
+                : 'bg-[#111113] text-[#a1a1aa] hover:bg-[#18181b]'
             }`}
           >
             All Platforms
@@ -163,8 +163,8 @@ export default function HashtagAnalytics() {
               onClick={() => setSelectedPlatform(platform)}
               className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${
                 selectedPlatform === platform
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white/10 text-[#a1a1aa] hover:bg-white/20'
+                  ? 'bg-[#06b6d4] text-white'
+                  : 'bg-[#111113] text-[#a1a1aa] hover:bg-[#18181b]'
               }`}
             >
               {platform}
@@ -180,21 +180,21 @@ export default function HashtagAnalytics() {
             transition={{ delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Total Hashtags</div>
               <div className="text-3xl font-bold text-white mt-1">{analytics.total_hashtags || 0}</div>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Total Uses</div>
               <div className="text-3xl font-bold text-[#22d3ee] mt-1">{analytics.total_uses || 0}</div>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Avg Success Rate</div>
               <div className="text-3xl font-bold text-green-400 mt-1">
                 {analytics.avg_success_rate ? `${analytics.avg_success_rate.toFixed(1)}%` : '0%'}
               </div>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Total Engagement</div>
               <div className="text-3xl font-bold text-[#a1a1aa] mt-1">
                 {analytics.total_engagement || 0}
@@ -208,7 +208,7 @@ export default function HashtagAnalytics() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8"
+          className="bg-[#18181b] border border-white/[0.06] rounded-xl p-6 mb-8"
         >
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
             <FaArrowUp className="text-green-400" />
@@ -270,7 +270,7 @@ export default function HashtagAnalytics() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="bg-white/5 border border-white/10 rounded-xl p-6"
+            className="bg-[#18181b] border border-white/[0.06] rounded-xl p-6"
           >
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <FaArrowDown className="text-red-400" />
@@ -312,7 +312,7 @@ export default function HashtagAnalytics() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="bg-white/5 border border-white/10 rounded-xl p-6"
+            className="bg-[#18181b] border border-white/[0.06] rounded-xl p-6"
           >
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <FaFire className="text-yellow-400" />
@@ -352,13 +352,13 @@ export default function HashtagAnalytics() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="bg-white/5 border border-white/10 rounded-xl p-6 mt-8"
+            className="bg-[#18181b] border border-white/[0.06] rounded-xl p-6 mt-8"
           >
             <h2 className="text-2xl font-bold text-white mb-6">Performance by Platform</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10">
+                  <tr className="border-b border-white/[0.06]">
                     <th className="text-left py-3 px-4 text-[#a1a1aa]">Platform</th>
                     <th className="text-center py-3 px-4 text-[#a1a1aa]">Hashtags</th>
                     <th className="text-center py-3 px-4 text-[#a1a1aa]">Uses</th>
@@ -368,7 +368,7 @@ export default function HashtagAnalytics() {
                 </thead>
                 <tbody>
                   {analytics.platform_breakdown.map((platform, idx) => (
-                    <tr key={platform.platform} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <tr key={platform.platform} className="border-b border-white/5 hover:bg-[#18181b] transition-colors">
                       <td className="py-3 px-4 text-white font-semibold capitalize">{platform.platform}</td>
                       <td className="py-3 px-4 text-center text-[#a1a1aa]">{platform.hashtag_count}</td>
                       <td className="py-3 px-4 text-center text-[#a1a1aa]">{platform.total_uses}</td>

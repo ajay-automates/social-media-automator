@@ -218,7 +218,7 @@ export default function ABTesting() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/50 transition-all"
+            className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg font-semibold flex items-center gap-2 transition-all"
           >
             <FaPlus /> Create Test
           </motion.button>
@@ -232,19 +232,19 @@ export default function ABTesting() {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Total Tests</div>
               <div className="text-3xl font-bold text-white mt-1">{insights.total_tests || 0}</div>
             </div>
-            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Active</div>
               <div className="text-3xl font-bold text-green-400 mt-1">{insights.active_tests || 0}</div>
             </div>
-            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Completed</div>
               <div className="text-3xl font-bold text-[#22d3ee] mt-1">{insights.completed_tests || 0}</div>
             </div>
-            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+            <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
               <div className="text-[#a1a1aa] text-sm">Avg Winner Lift</div>
               <div className="text-3xl font-bold text-[#a1a1aa] mt-1">
                 {insights.avg_winner_lift ? `${insights.avg_winner_lift}%` : 'N/A'}
@@ -258,7 +258,7 @@ export default function ABTesting() {
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-white/5 border border-white/[0.06] rounded-xl p-12 text-center"
+            className="bg-[#18181b] border border-white/[0.06] rounded-xl p-12 text-center"
           >
             <FaVial className="text-5xl text-[#52525b] mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">No A/B tests yet</h3>
@@ -278,10 +278,10 @@ export default function ABTesting() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white/5 border border-white/[0.06] rounded-xl overflow-hidden"
+                className="bg-[#18181b] border border-white/[0.06] rounded-xl overflow-hidden"
               >
                 <div
-                  className="p-6 cursor-pointer hover:bg-white/10 transition-colors"
+                  className="p-6 cursor-pointer hover:bg-[#111113] transition-colors"
                   onClick={() => setExpandedTest(expandedTest === test.id ? null : test.id)}
                 >
                   <div className="flex items-start justify-between">
@@ -330,7 +330,7 @@ export default function ABTesting() {
                         <h4 className="text-sm font-semibold text-white mb-3">Variations</h4>
                         <div className="space-y-3">
                           {test.variations?.map((variation, vidx) => (
-                            <div key={variation.id} className="bg-white/5 rounded-lg p-4 border border-white/[0.06]">
+                            <div key={variation.id} className="bg-[#18181b] rounded-lg p-4 border border-white/[0.06]">
                               <div className="flex items-center justify-between mb-2">
                                 <span className="font-semibold text-white">
                                   Variation {variation.variation_name}
@@ -418,7 +418,7 @@ export default function ABTesting() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Caption A vs B"
-                  className="w-full bg-white/5 border border-white/[0.06] rounded-lg px-4 py-2 text-white placeholder-gray-500"
+                  className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-2 text-white placeholder-[#52525b]"
                 />
               </div>
 
@@ -430,7 +430,7 @@ export default function ABTesting() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="What are you testing?"
                   rows="2"
-                  className="w-full bg-white/5 border border-white/[0.06] rounded-lg px-4 py-2 text-white placeholder-gray-500"
+                  className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-2 text-white placeholder-[#52525b]"
                 />
               </div>
 
@@ -444,8 +444,8 @@ export default function ABTesting() {
                       onClick={() => togglePlatform(platform)}
                       className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                         formData.platforms.includes(platform)
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-white/5 text-[#a1a1aa] border border-white/[0.06]'
+                          ? 'bg-[#06b6d4] text-white'
+                          : 'bg-[#18181b] text-[#a1a1aa] border border-white/[0.06]'
                       }`}
                     >
                       {platform}
@@ -463,7 +463,7 @@ export default function ABTesting() {
                   max="336"
                   value={formData.test_duration_hours}
                   onChange={(e) => setFormData({ ...formData, test_duration_hours: parseInt(e.target.value) })}
-                  className="w-full bg-white/5 border border-white/[0.06] rounded-lg px-4 py-2 text-white"
+                  className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-2 text-white"
                 />
               </div>
 
@@ -474,7 +474,7 @@ export default function ABTesting() {
                   {formData.variations.length < 5 && (
                     <button
                       onClick={addVariation}
-                      className="text-xs px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
+                      className="text-xs px-2 py-1 bg-[#06b6d4] text-white rounded hover:bg-[#06b6d4]"
                     >
                       + Add
                     </button>
@@ -482,7 +482,7 @@ export default function ABTesting() {
                 </div>
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   {formData.variations.map((variation, idx) => (
-                    <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/[0.06]">
+                    <div key={idx} className="bg-[#18181b] rounded-lg p-3 border border-white/[0.06]">
                       <div className="flex items-start justify-between mb-2">
                         <span className="text-white font-semibold">Variation {String.fromCharCode(65 + idx)}</span>
                         {formData.variations.length > 2 && (
@@ -499,14 +499,14 @@ export default function ABTesting() {
                         onChange={(e) => updateVariation(idx, 'caption', e.target.value)}
                         placeholder="Caption text"
                         rows="2"
-                        className="w-full bg-white/10 border border-white/[0.08] rounded px-2 py-1 text-white placeholder-gray-500 text-sm mb-2"
+                        className="w-full bg-[#111113] border border-white/[0.08] rounded px-2 py-1 text-white placeholder-[#52525b] text-sm mb-2"
                       />
                       <input
                         type="text"
                         value={variation.hashtags}
                         onChange={(e) => updateVariation(idx, 'hashtags', e.target.value)}
                         placeholder="Hashtags (comma-separated)"
-                        className="w-full bg-white/10 border border-white/[0.08] rounded px-2 py-1 text-white placeholder-gray-500 text-sm"
+                        className="w-full bg-[#111113] border border-white/[0.08] rounded px-2 py-1 text-white placeholder-[#52525b] text-sm"
                       />
                     </div>
                   ))}
@@ -517,13 +517,13 @@ export default function ABTesting() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                  className="flex-1 px-4 py-2 bg-[#111113] text-white rounded-lg hover:bg-[#18181b] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreate}
-                  className="flex-1 px-4 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50"
+                  className="flex-1 px-4 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg"
                 >
                   Create Test
                 </button>

@@ -113,7 +113,7 @@ export default function Approvals() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-2 border-white/[0.06] border-t-[#22d3ee] rounded-full animate-spin" />
+        <div className="w-10 h-10 border border-white/[0.06] border-t-[#22d3ee] rounded-full animate-spin" />
       </div>
     );
   }

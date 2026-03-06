@@ -84,7 +84,7 @@ export default function FeaturedAINews({
         >
             {/* Featured Hero Card */}
             <motion.div
-                className="relative w-full rounded-2xl overflow-hidden backdrop-blur-md border border-white/20 transition-all duration-300 hover:border-white/30 hover:shadow-2xl hover:shadow-purple-500/20"
+                className="relative w-full rounded-2xl overflow-hidden border border-white/[0.08] transition-all duration-300 hover:border-white/30"
                 style={{
                     background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
                     minHeight: '350px'
@@ -104,17 +104,17 @@ export default function FeaturedAINews({
                             referrerPolicy="no-referrer"
                         />
                     ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600" />
+                        <div className="w-full h-full bg-[#0a0a0b]" />
                     )}
                     {/* Dark overlay for text readability */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+                    <div className="absolute inset-0 bg-[#22d3ee] from-black/80 via-black/60 to-black/40" />
                 </div>
 
                 {/* Content Container */}
                 <div className="relative z-10 p-6 md:p-8 lg:p-10 flex flex-col lg:flex-row gap-6 lg:gap-8 min-h-[350px]">
                     {/* Left: Image (60% on desktop, full width on mobile) */}
                     <div className="lg:w-[60%] flex-shrink-0">
-                        <div className="relative w-full h-[200px] md:h-[250px] lg:h-[300px] rounded-xl overflow-hidden border border-white/20">
+                        <div className="relative w-full h-[200px] md:h-[250px] lg:h-[300px] rounded-xl overflow-hidden border border-white/[0.08]">
                             {imageSrc ? (
                                 <img
                                     src={imageSrc}
@@ -125,7 +125,7 @@ export default function FeaturedAINews({
                                     referrerPolicy="no-referrer"
                                 />
                             ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center">
+                                <div className="w-full h-full bg-[#0a0a0b] flex items-center justify-center">
                                     <span className="text-6xl opacity-50">🤖</span>
                                 </div>
                             )}
@@ -136,12 +136,12 @@ export default function FeaturedAINews({
                     <div className="lg:w-[40%] flex flex-col justify-between flex-grow">
                         {/* Top: Badges */}
                         <div className="flex items-start justify-between mb-4">
-                            <span className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs font-bold shadow-lg">
+                            <span className="px-3 py-1.5 rounded-lg bg-[#22d3ee] text-white text-xs font-bold">
                                 TRENDING
                             </span>
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 backdrop-blur-sm border border-white/20">
-                                <span className="text-cyan-400 text-sm font-bold">{viralScore}</span>
-                                <span className="text-gray-400 text-xs">/100</span>
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/[0.08]">
+                                <span className="text-[#22d3ee] text-sm font-bold">{viralScore}</span>
+                                <span className="text-[#a1a1aa] text-xs">/100</span>
                             </div>
                         </div>
 
@@ -151,12 +151,12 @@ export default function FeaturedAINews({
                         </h2>
 
                         {/* Summary */}
-                        <p className="text-gray-300 text-sm md:text-base mb-4 line-clamp-2 flex-grow">
+                        <p className="text-[#a1a1aa] text-sm md:text-base mb-4 line-clamp-2 flex-grow">
                             {article.summary || article.bulletPoints?.[0] || 'Latest AI news update'}
                         </p>
 
                         {/* Source & Timestamp */}
-                        <div className="flex items-center gap-2 text-xs text-gray-400 mb-6">
+                        <div className="flex items-center gap-2 text-xs text-[#a1a1aa] mb-6">
                             <span className="font-medium text-white">{article.source}</span>
                             <span>•</span>
                             <span>{article.timestamp || 'Just now'}</span>
@@ -166,13 +166,13 @@ export default function FeaturedAINews({
                         <div className="flex flex-col sm:flex-row gap-3">
                             <button
                                 onClick={onReadArticle}
-                                className="flex-1 px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all border border-white/30 hover:border-white/50 backdrop-blur-sm"
+                                className="flex-1 px-6 py-3 rounded-lg bg-[#111113] hover:bg-[#18181b] text-white text-sm font-medium transition-all border border-white/30 hover:border-white/50"
                             >
                                 Read Article
                             </button>
                             <button
                                 onClick={onGeneratePost}
-                                className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm font-medium transition-all shadow-lg hover:shadow-purple-500/50"
+                                className="flex-1 px-6 py-3 rounded-lg bg-[#22d3ee] text-white text-sm font-medium transition-all"
                             >
                                 Generate Post
                             </button>

@@ -168,7 +168,7 @@ export default function ContentRecycling() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center">
         
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#22d3ee] mx-auto mb-4"></div>
           <p className="text-[#a1a1aa]">Loading Content Recycling...</p>
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function ContentRecycling() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowSettings(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-[#18181b] border border-purple-400/30 rounded-lg text-white hover:bg-white/[0.1] transition"
+              className="flex items-center gap-2 px-6 py-3 bg-[#18181b] border border-[#22d3ee]/20 rounded-lg text-white hover:bg-white/[0.1] transition"
             >
               <FaCog />
               Settings
@@ -208,7 +208,7 @@ export default function ContentRecycling() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-[#111113] border border-purple-400/30 rounded-xl p-6"
+              className="bg-[#111113] border border-[#22d3ee]/20 rounded-xl p-6"
             >
               <div className="flex items-center gap-3 mb-2">
                 <FaChartLine className="text-3xl text-[#a1a1aa]" />
@@ -236,7 +236,7 @@ export default function ContentRecycling() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-[#111113] border border-blue-400/30 rounded-xl p-6"
+              className="bg-[#111113] border border-[#22d3ee]/20 rounded-xl p-6"
             >
               <div className="flex items-center gap-3 mb-2">
                 <FaClock className="text-3xl text-[#22d3ee]" />
@@ -271,7 +271,7 @@ export default function ContentRecycling() {
             whileTap={{ scale: 0.98 }}
             onClick={handleAutoRecycle}
             disabled={autoRecycling || recyclablePosts.length === 0}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-purple-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            className="w-full bg-[#22d3ee] text-white py-4 rounded-xl font-bold text-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
           >
             {autoRecycling ? (
               <>
@@ -296,7 +296,7 @@ export default function ContentRecycling() {
             onClick={() => setActiveTab('recyclable')}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold transition ${
               activeTab === 'recyclable'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-[#06b6d4] text-white'
                 : 'bg-[#18181b] text-[#a1a1aa] hover:bg-white/[0.1]'
             }`}
           >
@@ -307,7 +307,7 @@ export default function ContentRecycling() {
             onClick={() => setActiveTab('history')}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold transition ${
               activeTab === 'history'
-                ? 'bg-purple-600 text-white'
+                ? 'bg-[#06b6d4] text-white'
                 : 'bg-[#18181b] text-[#a1a1aa] hover:bg-white/[0.1]'
             }`}
           >
@@ -337,7 +337,7 @@ export default function ContentRecycling() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-[#18181b] border border-white/[0.06] rounded-xl p-6 hover:border-purple-400/50 transition"
+                  className="bg-[#18181b] border border-white/[0.06] rounded-xl p-6 hover:border-[#22d3ee]/30 transition"
                 >
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1">
@@ -374,7 +374,7 @@ export default function ContentRecycling() {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleRecyclePost(post.id)}
                       disabled={recycling}
-                      className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition disabled:opacity-50 whitespace-nowrap"
+                      className="px-6 py-3 bg-[#22d3ee] text-white rounded-lg font-semibold transition disabled:opacity-50 whitespace-nowrap"
                     >
                       <FaRecycle className="inline mr-2" />
                       Recycle Now
@@ -417,7 +417,7 @@ export default function ContentRecycling() {
                       <div className="flex items-center gap-3 mb-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           item.trigger_type === 'automatic' 
-                            ? 'bg-purple-500/20 text-[#a1a1aa]' 
+                            ? 'bg-[#22d3ee]/10 text-[#a1a1aa]' 
                             : 'bg-[#22d3ee]/10 text-[#22d3ee]'
                         }`}>
                           {item.trigger_type === 'automatic' ? '🤖 Auto' : '👆 Manual'}
@@ -492,7 +492,7 @@ export default function ContentRecycling() {
 
             <div className="space-y-6">
               {/* Auto-Recycle Toggle */}
-              <div className="flex items-center justify-between p-4 bg-[#18181b] rounded-lg border border-purple-400/30">
+              <div className="flex items-center justify-between p-4 bg-[#18181b] rounded-lg border border-[#22d3ee]/20">
                 <div>
                   <label className="text-lg font-semibold text-white">Enable Auto-Recycle</label>
                   <p className="text-sm text-[#a1a1aa]">Automatically schedule your best posts to be recycled</p>
@@ -500,7 +500,7 @@ export default function ContentRecycling() {
                 <button
                   onClick={() => setAutoRecycleEnabled(!autoRecycleEnabled)}
                   className={`relative inline-flex h-8 w-16 items-center rounded-full transition ${
-                    autoRecycleEnabled ? 'bg-purple-600' : 'bg-[#18181b]'
+                    autoRecycleEnabled ? 'bg-[#06b6d4]' : 'bg-[#18181b]'
                   }`}
                 >
                   <span
@@ -622,7 +622,7 @@ export default function ContentRecycling() {
                       onClick={() => togglePlatform(platform)}
                       className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
                         allowedPlatforms.includes(platform)
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-[#06b6d4] text-white'
                           : 'bg-[#18181b] text-[#a1a1aa]'
                       }`}
                     >
@@ -639,7 +639,7 @@ export default function ContentRecycling() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={saveSettings}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-bold hover:shadow-lg hover:shadow-purple-500/50 transition"
+                  className="flex-1 bg-[#22d3ee] text-white py-3 rounded-lg font-bold transition"
                 >
                   Save Settings
                 </motion.button>

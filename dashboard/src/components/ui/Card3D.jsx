@@ -3,7 +3,7 @@ import { useRef } from 'react';
 
 export default function Card3D({
   children,
-  gradient = 'from-blue-400/80 via-blue-500/60 to-cyan-500/80',
+  gradient = 'bg-[#22d3ee]',
   shadowColor = 'rgba(59, 130, 246, 0.5)',
   className = '',
   intensity = 15,
@@ -66,7 +66,7 @@ export default function Card3D({
             transform: "translateZ(-30px)",
             background: shadowColor,
           }}
-          className="absolute inset-0 rounded-2xl blur-xl opacity-20 will-change-transform"
+          className="absolute inset-0 rounded-2xl  opacity-20 will-change-transform"
         />
 
         {/* Main Card */}
@@ -75,11 +75,11 @@ export default function Card3D({
           style={{
             transform: hover3D ? "translateZ(20px)" : "translateZ(0px)",
           }}
-          className={`relative bg-gradient-to-br ${gradient} backdrop-blur-md rounded-2xl border border-white/20 shadow-xl overflow-hidden will-change-transform`}
+          className={`relative bg-[#111113] ${gradient} rounded-2xl border border-white/[0.08] overflow-hidden will-change-transform`}
         >
           {/* Static gradient overlay instead of animated for performance */}
           <div
-            className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"
+            className="absolute inset-0 bg-[#111113] from-white/5 to-transparent opacity-50"
           />
 
           {/* Content */}

@@ -105,7 +105,7 @@ export default function NotificationBell() {
       {/* Bell Icon */}
       <motion.button
         onClick={handleBellClick}
-        className="relative p-2 text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+        className="relative p-2 text-white hover:bg-[#111113] rounded-lg transition-all duration-200"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -129,7 +129,7 @@ export default function NotificationBell() {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg"
+            className="absolute -top-1 -right-1 bg-[#22d3ee] text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
             style={{
               boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)'
             }}
@@ -147,13 +147,13 @@ export default function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-80 bg-gray-800/95 backdrop-blur-xl border-2 border-purple-500/30 rounded-xl shadow-2xl overflow-hidden z-50"
+            className="absolute right-0 mt-2 w-80 bg-[#18181b] border-2 border-[#22d3ee]/20 rounded-xl overflow-hidden z-50"
             style={{
               boxShadow: '0 0 40px rgba(168, 85, 247, 0.3)'
             }}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-3">
+            <div className="bg-[#22d3ee] px-4 py-3">
               <h3 className="text-white font-bold text-lg">
                 Pending Approvals ({notificationCount})
               </h3>
@@ -163,10 +163,10 @@ export default function NotificationBell() {
             <div className="max-h-96 overflow-y-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+                  <div className="w-8 h-8 border-4 border-[#22d3ee]/20 border-t-[#22d3ee] rounded-full animate-spin"></div>
                 </div>
               ) : notifications.length === 0 ? (
-                <div className="px-4 py-8 text-center text-gray-400">
+                <div className="px-4 py-8 text-center text-[#a1a1aa]">
                   <p>No pending approvals</p>
                 </div>
               ) : (
@@ -175,12 +175,12 @@ export default function NotificationBell() {
                     <motion.div
                       key={notification.id}
                       onClick={() => handleNotificationClick(notification)}
-                      className="px-4 py-3 hover:bg-white/5 cursor-pointer transition-colors"
+                      className="px-4 py-3 hover:bg-[#18181b] cursor-pointer transition-colors"
                       whileHover={{ x: 4 }}
                     >
                       <div className="flex items-start gap-3">
                         {/* Icon */}
-                        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <div className="flex-shrink-0 w-10 h-10 bg-[#0a0a0b] rounded-full flex items-center justify-center">
                           <span className="text-white text-lg">✏️</span>
                         </div>
 
@@ -189,22 +189,22 @@ export default function NotificationBell() {
                           <p className="text-white font-semibold text-sm">
                             {notification.title}
                           </p>
-                          <p className="text-gray-300 text-xs mt-0.5">
+                          <p className="text-[#a1a1aa] text-xs mt-0.5">
                             {notification.message}
                           </p>
                           {notification.post && (
-                            <p className="text-gray-400 text-xs mt-1 truncate">
+                            <p className="text-[#a1a1aa] text-xs mt-1 truncate">
                               "{notification.post.text?.substring(0, 50)}..."
                             </p>
                           )}
-                          <p className="text-gray-500 text-xs mt-1">
+                          <p className="text-[#52525b] text-xs mt-1">
                             {formatTimestamp(notification.timestamp)}
                           </p>
                         </div>
 
                         {/* Unread Indicator */}
                         {!notification.read && (
-                          <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <div className="flex-shrink-0 w-2 h-2 bg-[#22d3ee] rounded-full"></div>
                         )}
                       </div>
                     </motion.div>
@@ -215,10 +215,10 @@ export default function NotificationBell() {
 
             {/* Footer */}
             {notifications.length > 0 && (
-              <div className="bg-gray-900/50 px-4 py-3 border-t border-gray-700/50">
+              <div className="bg-[#111113] px-4 py-3 border-t border-white/[0.08]">
                 <button
                   onClick={handleViewAll}
-                  className="w-full text-center text-purple-400 hover:text-purple-300 text-sm font-semibold transition-colors"
+                  className="w-full text-center text-[#a1a1aa] hover:text-[#a1a1aa] text-sm font-semibold transition-colors"
                 >
                   View All Approvals →
                 </button>

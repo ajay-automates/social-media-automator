@@ -82,12 +82,12 @@ export default function GeneratePostPreview({
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-[10000] p-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[10000] p-4">
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-[#1c1c1e] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#38383a] overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar"
+                className="bg-[#1c1c1e] w-full max-w-2xl rounded-2xl border border-[#38383a] overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar"
                 style={{
                     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif'
                 }}
@@ -100,7 +100,7 @@ export default function GeneratePostPreview({
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-[#98989d] hover:text-white transition p-2 rounded-full hover:bg-white/10"
+                        className="text-[#98989d] hover:text-white transition p-2 rounded-full hover:bg-[#111113]"
                     >
                         <span className="text-xl">✕</span>
                     </button>
@@ -212,7 +212,7 @@ export default function GeneratePostPreview({
                         <button
                             onClick={() => onSchedule(selectedPlatforms)}
                             disabled={isGenerating || selectedPlatforms.length === 0}
-                            className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:opacity-50"
+                            className="flex-1 bg-[#22d3ee] text-white px-4 py-3 rounded-xl font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:opacity-50"
                         >
                             <span>📅</span> Schedule
                         </button>

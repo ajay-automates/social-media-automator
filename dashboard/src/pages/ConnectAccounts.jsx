@@ -521,7 +521,7 @@ export default function ConnectAccounts() {
 
         {loading ? (
           <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#22d3ee] mx-auto"></div>
           </div>
         ) : accounts.length === 0 ? (
           <div className="text-center py-12">
@@ -534,35 +534,35 @@ export default function ConnectAccounts() {
             {accounts.map((account, idx) => {
               // Get platform-specific gradient
               const platformGradients = {
-                linkedin: 'from-blue-600/20 via-blue-500/10 to-transparent',
-                twitter: 'from-sky-600/20 via-sky-500/10 to-transparent',
-                telegram: 'from-cyan-600/20 via-cyan-500/10 to-transparent',
-                slack: 'from-purple-600/20 via-purple-500/10 to-transparent',
-                discord: 'from-indigo-600/20 via-indigo-500/10 to-transparent',
-                reddit: 'from-orange-600/20 via-orange-500/10 to-transparent',
-                youtube: 'from-red-600/20 via-red-500/10 to-transparent',
-                tiktok: 'from-gray-700/20 via-gray-600/10 to-transparent'
+                linkedin: 'bg-[#22d3ee]/10',
+                twitter: ' to-transparent',
+                telegram: 'bg-[#22d3ee]/10',
+                slack: 'bg-[#22d3ee]/10',
+                discord: ' to-transparent',
+                reddit: ' to-transparent',
+                youtube: ' to-transparent',
+                tiktok: 'bg-[#18181b]/50'
               };
 
-              const gradient = platformGradients[account?.platform] || 'from-gray-600/20 via-gray-500/10 to-transparent';
+              const gradient = platformGradients[account?.platform] || 'bg-[#18181b]/50';
 
               return (
                 <div
                   key={idx}
-                  className={`group relative overflow-hidden border-2 border-white/10 bg-gradient-to-br ${gradient} rounded-xl p-6 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] hover:border-white/20 transition-all duration-300`}
+                  className={`group relative overflow-hidden border border-white/[0.06] bg-[#111113] ${gradient} rounded-xl p-6 hover:scale-[1.02] hover:border-white/[0.08] transition-all duration-300`}
                 >
                   {/* Glossy shine effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                   <div className="relative flex items-start justify-between">
                     <div className="flex items-center gap-4">
                       {/* Icon with glow effect */}
                       <div className="relative">
-                        <div className="absolute inset-0 blur-xl opacity-50">
+                        <div className="absolute inset-0  opacity-50">
                           {account?.platform === 'linkedin' && <FaLinkedin className="text-5xl text-[#22d3ee]" />}
                           {account?.platform === 'twitter' && <FaTwitter className="text-5xl text-sky-500" />}
-                          {account?.platform === 'telegram' && <FaTelegram className="text-5xl text-cyan-500" />}
-                          {account?.platform === 'slack' && <FaSlack className="text-5xl text-purple-500" />}
+                          {account?.platform === 'telegram' && <FaTelegram className="text-5xl text-[#22d3ee]" />}
+                          {account?.platform === 'slack' && <FaSlack className="text-5xl text-[#22d3ee]" />}
                           {account?.platform === 'discord' && <FaDiscord className="text-5xl text-indigo-500" />}
                           {account?.platform === 'reddit' && <FaReddit className="text-5xl text-orange-500" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-5xl text-red-500" />}
@@ -571,13 +571,13 @@ export default function ConnectAccounts() {
                           {account?.platform === 'medium' && <FaMedium className="text-5xl text-[#a1a1aa]" />}
                           {account?.platform === 'devto' && <FaMedium className="text-5xl text-white" />}
                           {account?.platform === 'tumblr' && <FaTumblr className="text-5xl text-[#22d3ee]" />}
-                          {account?.platform === 'mastodon' && <SiMastodon className="text-5xl text-purple-500" />}
+                          {account?.platform === 'mastodon' && <SiMastodon className="text-5xl text-[#22d3ee]" />}
                           {account?.platform === 'bluesky' && <SiBluesky className="text-5xl text-[#22d3ee]" />}
                         </div>
                         <div className="relative text-5xl drop-shadow-lg">
                           {account?.platform === 'linkedin' && <FaLinkedin className="text-[#22d3ee]" />}
                           {account?.platform === 'twitter' && <FaTwitter className="text-sky-400" />}
-                          {account?.platform === 'telegram' && <FaTelegram className="text-cyan-400" />}
+                          {account?.platform === 'telegram' && <FaTelegram className="text-[#22d3ee]" />}
                           {account?.platform === 'slack' && <FaSlack className="text-[#a1a1aa]" />}
                           {account?.platform === 'discord' && <FaDiscord className="text-indigo-400" />}
                           {account?.platform === 'reddit' && <FaReddit className="text-orange-400" />}
@@ -650,7 +650,7 @@ export default function ConnectAccounts() {
 
                           {/* Default Badge */}
                           {account.is_default ? (
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-200 border border-yellow-400/50">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-[#22d3ee] text-yellow-200 border border-yellow-400/50">
                               <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                               </svg>
@@ -659,7 +659,7 @@ export default function ConnectAccounts() {
                           ) : (
                             <button
                               onClick={() => toggleDefault(account.id, account.is_default)}
-                              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#18181b] text-[#a1a1aa] border border-white/[0.06] hover:bg-blue-600/30 hover:border-blue-400/50 hover:text-blue-200 transition"
+                              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#18181b] text-[#a1a1aa] border border-white/[0.06] hover:bg-[#22d3ee]/20 hover:border-[#22d3ee]/30 hover:text-[#22d3ee] transition"
                               title="Set as default account for this platform"
                             >
                               <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 20 20">
@@ -674,7 +674,7 @@ export default function ConnectAccounts() {
                     {account?.id && (
                       <button
                         onClick={() => disconnectAccount(account)}
-                        className="group/btn relative overflow-hidden text-red-400 hover:text-white font-semibold text-sm px-5 py-2.5 rounded-lg border-2 border-red-500/30 hover:border-red-500 bg-red-500/10 hover:bg-red-500 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/50"
+                        className="group/btn relative overflow-hidden text-red-400 hover:text-white font-semibold text-sm px-5 py-2.5 rounded-lg border border-red-500/30 hover:border-red-500 bg-red-500/10 hover:bg-red-500 transition-all duration-300"
                       >
                         <span className="relative z-10 flex items-center gap-2">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -692,7 +692,7 @@ export default function ConnectAccounts() {
         )}
 
         {/* Connect New Platform Section - Restructured */}
-        <div className="border-t border-white/10 pt-6 space-y-8">
+        <div className="border-t border-white/[0.06] pt-6 space-y-8">
 
           {/* Section 1: Available to Connect (10 Working Platforms) */}
           <div>
@@ -707,8 +707,8 @@ export default function ConnectAccounts() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {/* LinkedIn - Working */}
               {!isPlatformConnected('linkedin') && (
-                <button onClick={connectLinkedIn} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-400/50 rounded-xl hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectLinkedIn} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border border-[#22d3ee]/30 rounded-xl hover:border-[#22d3ee]/60 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaLinkedin className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-semibold text-sm text-white">LinkedIn</span>
                 </button>
@@ -716,8 +716,8 @@ export default function ConnectAccounts() {
 
               {/* Twitter - Working */}
               {!isPlatformConnected('twitter') && (
-                <button onClick={connectTwitter} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-sky-500 to-sky-600 border-2 border-sky-400/50 rounded-xl hover:border-sky-300 hover:shadow-2xl hover:shadow-sky-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectTwitter} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border-2 border-sky-400/50 rounded-xl hover:border-sky-300 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaTwitter className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-semibold text-sm text-white">Twitter / X</span>
                 </button>
@@ -725,8 +725,8 @@ export default function ConnectAccounts() {
 
               {/* Telegram - Working */}
               {!isPlatformConnected('telegram') && (
-                <button onClick={connectTelegram} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-cyan-500 to-cyan-600 border-2 border-cyan-400/50 rounded-xl hover:border-cyan-300 hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectTelegram} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border-2 border-cyan-400/50 rounded-xl hover:border-cyan-300 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaTelegram className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-semibold text-sm text-white">Telegram</span>
                 </button>
@@ -734,8 +734,8 @@ export default function ConnectAccounts() {
 
               {/* Slack - Working */}
               {!isPlatformConnected('slack') && (
-                <button onClick={connectSlack} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-500 to-purple-600 border-2 border-purple-400/50 rounded-xl hover:border-purple-300 hover:shadow-2xl hover:shadow-purple-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectSlack} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border border-[#22d3ee]/30 rounded-xl hover:border-[#22d3ee]/40 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaSlack className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-semibold text-sm text-white">Slack</span>
                 </button>
@@ -743,8 +743,8 @@ export default function ConnectAccounts() {
 
               {/* Discord - Working */}
               {!isPlatformConnected('discord') && (
-                <button onClick={connectDiscord} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-indigo-500 to-indigo-600 border-2 border-indigo-400/50 rounded-xl hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectDiscord} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border-2 border-indigo-400/50 rounded-xl hover:border-indigo-300 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaDiscord className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Discord</span>
                 </button>
@@ -752,8 +752,8 @@ export default function ConnectAccounts() {
 
               {/* Reddit - Working */}
               {!isPlatformConnected('reddit') && (
-                <button onClick={connectReddit} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-orange-500 to-orange-600 border-2 border-orange-400/50 rounded-xl hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectReddit} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border-2 border-orange-400/50 rounded-xl hover:border-orange-300 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaReddit className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Reddit</span>
                 </button>
@@ -761,8 +761,8 @@ export default function ConnectAccounts() {
 
               {/* YouTube - Working */}
               {!isPlatformConnected('youtube') && (
-                <button onClick={connectYouTube} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-500 to-red-600 border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:shadow-2xl hover:shadow-red-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectYouTube} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border-2 border-red-400/50 rounded-xl hover:border-red-300 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaYoutube className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">YouTube</span>
                 </button>
@@ -770,8 +770,8 @@ export default function ConnectAccounts() {
 
               {/* Pinterest - Working */}
               {!isPlatformConnected('pinterest') && (
-                <button onClick={() => handleComingSoon('Pinterest')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-red-600 to-red-700 border-2 border-red-500/50 rounded-xl hover:border-red-400 hover:shadow-2xl hover:shadow-red-600/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={() => handleComingSoon('Pinterest')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border-2 border-red-500/50 rounded-xl hover:border-red-400 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaPinterest className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Pinterest</span>
                 </button>
@@ -780,7 +780,7 @@ export default function ConnectAccounts() {
               {/* TikTok - Working */}
               {!isPlatformConnected('tiktok') && (
                 <button onClick={() => handleComingSoon('TikTok')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#18181b] border border-white/[0.06] rounded-xl hover:border-white/[0.12]  hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaTiktok className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">TikTok</span>
                 </button>
@@ -791,7 +791,7 @@ export default function ConnectAccounts() {
               {/* Dev.to - Working */}
               {!isPlatformConnected('devto') && (
                 <button onClick={connectDevTo} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#18181b] border border-white/[0.06] rounded-xl hover:border-white/[0.06]  hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaMedium className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Dev.to</span>
                 </button>
@@ -799,8 +799,8 @@ export default function ConnectAccounts() {
 
               {/* Tumblr - Working */}
               {!isPlatformConnected('tumblr') && (
-                <button onClick={connectTumblr} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-[#22d3ee]/50 rounded-xl hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-600/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectTumblr} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border border-[#22d3ee]/50 rounded-xl hover:border-[#22d3ee] hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaTumblr className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Tumblr</span>
                 </button>
@@ -808,8 +808,8 @@ export default function ConnectAccounts() {
 
               {/* Mastodon - Working */}
               {!isPlatformConnected('mastodon') && (
-                <button onClick={connectMastodon} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-600 to-indigo-700 border-2 border-[#22d3ee]/30 rounded-xl hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-600/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectMastodon} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border border-[#22d3ee]/30 rounded-xl hover:border-[#22d3ee] hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <SiMastodon className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Mastodon</span>
                 </button>
@@ -817,8 +817,8 @@ export default function ConnectAccounts() {
 
               {/* Bluesky - Working */}
               {!isPlatformConnected('bluesky') && (
-                <button onClick={connectBluesky} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-500 to-sky-600 border-2 border-blue-400/50 rounded-xl hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-500/50 hover:scale-105 transition-all duration-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <button onClick={connectBluesky} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#0a0a0b] border border-[#22d3ee]/30 rounded-xl hover:border-[#22d3ee]/60 hover:scale-105 transition-all duration-200">
+                  <div className="absolute inset-0 bg-white/[0.04] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <SiBluesky className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Bluesky</span>
                 </button>
@@ -851,7 +851,7 @@ export default function ConnectAccounts() {
                   value={telegramBotToken}
                   onChange={(e) => setTelegramBotToken(e.target.value)}
                   placeholder="Enter your Telegram bot token"
-                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20"
                 />
               </div>
               <div>
@@ -863,14 +863,14 @@ export default function ConnectAccounts() {
                   value={telegramChatId}
                   onChange={(e) => setTelegramChatId(e.target.value)}
                   placeholder="Enter your Telegram chat ID"
-                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20"
                 />
               </div>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleTelegramConnect}
-                className="flex-1 bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 font-medium"
+                className="flex-1 bg-[#06b6d4] text-white px-4 py-2 rounded-lg hover:bg-[#06b6d4] font-medium"
               >
                 Connect
               </button>
@@ -923,7 +923,7 @@ export default function ConnectAccounts() {
             <div className="flex gap-3">
               <button
                 onClick={handleSlackConnect}
-                className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 font-medium"
+                className="flex-1 bg-[#06b6d4] text-white px-4 py-2 rounded-lg hover:bg-[#06b6d4] font-medium"
               >
                 Connect
               </button>
@@ -1023,7 +1023,7 @@ export default function ConnectAccounts() {
             <div className="flex gap-3">
               <button
                 onClick={handleDevToConnect}
-                className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 font-medium"
+                className="flex-1 bg-[#06b6d4] text-white px-4 py-2 rounded-lg hover:bg-[#06b6d4] font-medium"
               >
                 Connect
               </button>
@@ -1085,7 +1085,7 @@ export default function ConnectAccounts() {
             <div className="flex gap-3">
               <button
                 onClick={handleMastodonConnect}
-                className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 font-medium"
+                className="flex-1 bg-[#06b6d4] text-white px-4 py-2 rounded-lg hover:bg-[#06b6d4] font-medium"
               >
                 Connect
               </button>
@@ -1147,7 +1147,7 @@ export default function ConnectAccounts() {
             <div className="flex gap-3">
               <button
                 onClick={handleBlueskyConnect}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
+                className="flex-1 bg-[#06b6d4] text-white px-4 py-2 rounded-lg hover:bg-[#06b6d4] font-medium"
               >
                 Connect
               </button>
@@ -1177,7 +1177,7 @@ export default function ConnectAccounts() {
             </p>
             <button
               onClick={() => setShowComingSoonModal(false)}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium"
+              className="bg-[#06b6d4] text-white px-6 py-2 rounded-lg hover:bg-[#06b6d4] font-medium"
             >
               Got it!
             </button>

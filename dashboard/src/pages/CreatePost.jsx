@@ -1152,13 +1152,13 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowTemplateModal(true)}
-                  className="group relative bg-white/[0.06] border border-white/[0.08] text-white px-5 py-2.5 rounded-xl hover:bg-purple-600/40 font-medium transition-all hover:shadow-purple-500/30 overflow-hidden"
+                  className="group relative bg-white/[0.06] border border-white/[0.08] text-white px-5 py-2.5 rounded-xl hover:bg-[#22d3ee]/10 font-medium transition-all overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+                  <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                   <span className="relative flex items-center gap-2">
                     📋 Load from Template
                     {templates.length > 0 && (
-                      <span className="bg-purple-500/50 px-2 py-0.5 rounded-full text-xs">
+                      <span className="bg-[#22d3ee]/20 px-2 py-0.5 rounded-full text-xs">
                         {templates.length}
                       </span>
                     )}
@@ -1204,9 +1204,9 @@ export default function CreatePost() {
                 <span className="text-xs text-[#a1a1aa] font-semibold">Character Count:</span>
                 {characterCounts.map((count) => {
                   const getStatusColor = () => {
-                    if (count.status === 'exceeded') return 'from-red-600 to-red-700 border-red-500/50';
-                    if (count.status === 'warning') return 'from-yellow-600 to-orange-600 border-yellow-500/50';
-                    return 'from-green-600 to-emerald-600 border-green-500/50';
+                    if (count.status === 'exceeded') return ' border-red-500/50';
+                    if (count.status === 'warning') return ' border-yellow-500/50';
+                    return ' border-green-500/50';
                   };
 
                   const getStatusIcon = () => {
@@ -1220,7 +1220,7 @@ export default function CreatePost() {
                       key={count.platform}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className={`inline-flex items-center gap-1.5 bg-gradient-to-r ${getStatusColor()} border-2 text-white px-3 py-1.5 rounded-lg font-bold text-xs`}
+                      className={`inline-flex items-center gap-1.5 bg-[#22d3ee] ${getStatusColor()} border-2 text-white px-3 py-1.5 rounded-lg font-bold text-xs`}
                     >
                       <span>{getStatusIcon()}</span>
                       <span className="capitalize">{count.platform}</span>
@@ -1317,9 +1317,9 @@ export default function CreatePost() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 shadow-blue-500/20 overflow-hidden"
+            className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+            <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
 
             <div className="relative">
               <div className="flex items-center justify-between mb-5">
@@ -1371,7 +1371,7 @@ export default function CreatePost() {
             animate={{ opacity: 1, y: 0 }}
             className="group relative bg-[#111113] border border-[#22d3ee]/20 rounded-xl p-6  overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+            <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
 
             <div className="relative">
               <div className="flex items-center justify-between mb-5">
@@ -1398,7 +1398,7 @@ export default function CreatePost() {
                 </div>
                 <button
                   onClick={toggleUseVariations}
-                  className={`relative w-14 h-7 rounded-full transition-all ${useVariations ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-[#18181b]'
+                  className={`relative w-14 h-7 rounded-full transition-all ${useVariations ? 'bg-[#22d3ee]' : 'bg-[#18181b]'
                     }`}
                 >
                   <div
@@ -1455,7 +1455,7 @@ export default function CreatePost() {
         )}
 
         {/* AI Features Section */}
-        <div className="glass border border-white/20 rounded-xl p-6 mb-6 mt-6 relative z-10">
+        <div className="glass border border-white/[0.08] rounded-xl p-6 mb-6 mt-6 relative z-10">
           <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
             💡 AI Helpers
             <span className="text-sm text-[#a1a1aa] font-normal">(Optional)</span>
@@ -1477,7 +1477,7 @@ export default function CreatePost() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowYoutubeModal(true)}
-                className="bg-gradient-to-r from-red-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                className="bg-[#22d3ee] text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
                 📺 Generate from URL
               </motion.button>
@@ -1538,13 +1538,13 @@ export default function CreatePost() {
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-6 p-4 border-2 border-purple-200 rounded-lg bg-purple-50"
+                      className="mt-6 p-4 border border-white/[0.06] rounded-lg bg-[#111113]"
                     >
                       <p className="text-sm font-semibold text-[#52525b] mb-3">Generated Image:</p>
                       <img
                         src={generatedImage}
                         alt="Generated preview"
-                        className="w-full rounded-lg mb-4 border-2 border-white/[0.06]"
+                        className="w-full rounded-lg mb-4 border border-white/[0.06]"
                       />
                       <div className="flex gap-3">
                         <motion.button
@@ -1560,7 +1560,7 @@ export default function CreatePost() {
                           whileTap={{ scale: 0.98 }}
                           onClick={regenerateImage}
                           disabled={generatingImage}
-                          className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                          className="flex-1 bg-[#06b6d4] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#06b6d4] disabled:opacity-50 disabled:cursor-not-allowed transition"
                         >
                           🔄 Regenerate
                         </motion.button>
@@ -1604,12 +1604,12 @@ export default function CreatePost() {
                     >
                       <span className="text-2xl">🎬</span>
                       <span>Search Stock Videos</span>
-                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full">FREE</span>
+                      <span className="text-xs bg-[#18181b] px-2 py-1 rounded-full">FREE</span>
                     </motion.button>
                   )}
 
                   {/* AI Video Generation */}
-                  <div className="bg-blue-900/10 border border-blue-400/30 rounded-lg p-4 mb-4">
+                  <div className="bg-[#22d3ee]/5 border border-[#22d3ee]/20 rounded-lg p-4 mb-4">
                     <h4 className="text-white font-semibold mb-3">🎬 AI Video Generation (Experimental)</h4>
                     <p className="text-sm text-[#a1a1aa] mb-4">Quick examples:</p>
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -1651,7 +1651,7 @@ export default function CreatePost() {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-6 p-4 bg-blue-900/20 border-2 border-[#22d3ee]/30 rounded-lg"
+                        className="mt-6 p-4 bg-[#22d3ee]/5 border border-[#22d3ee]/30 rounded-lg"
                       >
                         <p className="text-sm font-semibold text-[#a1a1aa] mb-3">Generated Video:</p>
                         <video
@@ -1673,7 +1673,7 @@ export default function CreatePost() {
                             whileTap={{ scale: 0.98 }}
                             onClick={regenerateVideo}
                             disabled={generatingVideo}
-                            className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                            className="flex-1 bg-[#06b6d4] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#06b6d4] disabled:opacity-50 disabled:cursor-not-allowed transition"
                           >
                             🔄 Regenerate
                           </motion.button>
@@ -1710,7 +1710,7 @@ export default function CreatePost() {
                 </label>
                 {image && (
                   <div className="mb-3">
-                    <img src={image} alt="Preview" className="w-full max-h-64 object-contain rounded-lg border-2 border-white/[0.06]" />
+                    <img src={image} alt="Preview" className="w-full max-h-64 object-contain rounded-lg border border-white/[0.06]" />
                     <div className="mt-3 flex gap-2 flex-wrap">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
@@ -1758,7 +1758,7 @@ export default function CreatePost() {
 
               {/* Video Preview and Attach Button */}
               {pendingVideoFile && (
-                <div className="bg-blue-900/20 border-2 border-[#22d3ee]/30 rounded-lg p-4 mt-4">
+                <div className="bg-[#22d3ee]/5 border border-[#22d3ee]/30 rounded-lg p-4 mt-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="text-4xl">🎬</div>
@@ -1772,7 +1772,7 @@ export default function CreatePost() {
                     <button
                       onClick={handleAttachVideo}
                       disabled={uploadingMedia}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      className="bg-[#06b6d4] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#06b6d4] disabled:opacity-50 disabled:cursor-not-allowed transition"
                     >
                       {uploadingMedia ? 'Uploading...' : 'Attach Video'}
                     </button>
@@ -1791,7 +1791,7 @@ export default function CreatePost() {
 
               {/* Attached Media Confirmation */}
               {image && !pendingVideoFile && (
-                <div className="bg-green-900/20 border-2 border-green-500/30 rounded-lg p-4 mt-4">
+                <div className="bg-green-500/5 border-2 border-green-500/30 rounded-lg p-4 mt-4">
                   <div className="flex items-center gap-3">
                     <div className="text-2xl">✅</div>
                     <div>
@@ -1825,10 +1825,10 @@ export default function CreatePost() {
                 onClick={() => setShowAIAssistant(!showAIAssistant)}
                 className={`group relative overflow-hidden p-5 rounded-xl border-2 transition-all ${showAIAssistant
                   ? 'bg-[#22d3ee]/10 border border-[#22d3ee]/20'
-                  : 'bg-[#18181b] border-white/[0.06] hover:border-purple-400/50'
+                  : 'bg-[#18181b] border-white/[0.06] hover:border-[#22d3ee]/30'
                   }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-3xl">✨</span>
@@ -1850,10 +1850,10 @@ export default function CreatePost() {
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 className={`group relative overflow-hidden p-5 rounded-xl border-2 transition-all ${showAdvanced
                   ? 'bg-[#22d3ee]/10 border border-[#22d3ee]/20'
-                  : 'bg-[#18181b] border-white/[0.06] hover:border-blue-400/50'
+                  : 'bg-[#18181b] border-white/[0.06] hover:border-[#22d3ee]/30'
                   }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-3xl">⚙️</span>
@@ -1899,7 +1899,7 @@ export default function CreatePost() {
                       setPlatforms([]);
                       showSuccess('Deselected all platforms');
                     }}
-                    className="px-4 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white text-sm font-semibold rounded-lg hover:opacity-90 transition"
+                    className="px-4 py-2 bg-[#22d3ee] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition"
                     title="Clear all platform selections"
                   >
                     ❌ Clear All
@@ -1918,7 +1918,7 @@ export default function CreatePost() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/connect-accounts')}
-                    className="bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold hover:shadow-xl hover:shadow-blue-500/50 transition-all"
+                    className="bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold transition-all"
                     title="Connect your social media accounts to start posting"
                   >
                     🚀 Connect Accounts
@@ -2040,7 +2040,7 @@ export default function CreatePost() {
                       whileTap={{ scale: 0.98 }}
                       onClick={loadBestTimes}
                       disabled={loadingBestTimes}
-                      className="w-full bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-3 border-2 border-blue-400/30"
+                      className="w-full bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold hover:opacity-90 transition flex items-center justify-center gap-3 border border-[#22d3ee]/20"
                     >
                       {loadingBestTimes ? (
                         <>
@@ -2051,7 +2051,7 @@ export default function CreatePost() {
                         <>
                           <span className="text-2xl">⏰</span>
                           <span>Want AI Best Time to Post Suggestions?</span>
-                          <span className="text-sm bg-white/20 px-2 py-1 rounded-full">Click Here</span>
+                          <span className="text-sm bg-[#18181b] px-2 py-1 rounded-full">Click Here</span>
                         </>
                       )}
                     </motion.button>
@@ -2063,9 +2063,9 @@ export default function CreatePost() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 shadow-blue-500/20 overflow-hidden mt-4"
+                    className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden mt-4"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                    <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
 
                     <div className="relative">
                       <div className="flex items-center justify-between mb-5">
@@ -2098,7 +2098,7 @@ export default function CreatePost() {
                                 setScheduledDate(date);
                                 setShowBestTimes(false);
                               }}
-                              className="relative bg-[#18181b] border border-[#22d3ee]/30 p-4 rounded-xl hover:bg-blue-600/20 hover:border-blue-400 transition group/btn text-left"
+                              className="relative bg-[#18181b] border border-[#22d3ee]/30 p-4 rounded-xl hover:bg-[#22d3ee]/10 hover:border-[#22d3ee] transition group/btn text-left"
                             >
                               <div className="flex items-center justify-between mb-2">
                                 <span className="text-[#22d3ee] font-bold text-lg">
@@ -2111,7 +2111,7 @@ export default function CreatePost() {
                               <div className="text-[#a1a1aa] text-sm">
                                 {new Date(time.timestamp).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
                               </div>
-                              <div className="absolute inset-0 border-2 border-blue-400/0 group-hover/btn:border-blue-400/50 rounded-xl transition-all duration-300"></div>
+                              <div className="absolute inset-0 border-2 border-[#22d3ee]/0 group-hover/btn:border-[#22d3ee]/30 rounded-xl transition-all duration-300"></div>
                             </motion.button>
                           ))}
                         </div>
@@ -2170,7 +2170,7 @@ export default function CreatePost() {
                   whileTap={{ scale: 0.98 }}
                   onClick={handlePost}
                   disabled={isLoading || !caption.trim() || platforms.length === 0 || hasExceededLimit}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="flex-1 bg-[#06b6d4] text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                   title={hasExceededLimit ? 'Please fix character limit warnings before posting' : ''}
                 >
                   {isLoading ? 'Posting...' : 'Post Now'}
@@ -2228,7 +2228,7 @@ export default function CreatePost() {
                   </button>
                   <button
                     onClick={confirmSchedule}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+                    className="px-4 py-2 bg-[#06b6d4] text-white rounded-lg hover:bg-[#06b6d4] font-semibold"
                   >
                     Confirm Schedule
                   </button>
@@ -2274,13 +2274,13 @@ export default function CreatePost() {
                           whileTap={{ scale: 0.98 }}
                           onClick={() => selectVariation(variation, index)}
                           className={`w-full p-4 rounded-lg border-2 text-left transition ${selectedVariation === index
-                            ? 'border-purple-500 bg-purple-900/50'
-                            : 'border-white/[0.06] hover:border-purple-400 bg-[#18181b]'
+                            ? 'border-[#22d3ee] bg-[#111113]'
+                            : 'border-white/[0.06] hover:border-[#22d3ee] bg-[#18181b]'
                             }`}
                         >
                           <div className="flex items-start gap-3">
                             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${selectedVariation === index
-                              ? 'bg-purple-600 text-white'
+                              ? 'bg-[#06b6d4] text-white'
                               : 'bg-[#18181b] text-[#a1a1aa]'
                               }`}>
                               {index + 1}
@@ -2328,7 +2328,7 @@ export default function CreatePost() {
                         whileTap={{ scale: 0.98 }}
                         onClick={generateCaption}
                         disabled={generating || !niche}
-                        className="flex-1 bg-purple-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        className="flex-1 bg-[#06b6d4] text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                       >
                         {generating ? 'Generating...' : 'Generate ✨'}
                       </motion.button>
@@ -2457,7 +2457,7 @@ export default function CreatePost() {
                         whileTap={{ scale: 0.98 }}
                         onClick={generateFromYoutube}
                         disabled={generatingFromYoutube || !youtubeUrl.trim()}
-                        className="flex-1 bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                        className="flex-1 bg-[#22d3ee] text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                       >
                         {generatingFromYoutube ? 'Generating...' : '🔗 Generate'}
                       </motion.button>
@@ -2529,7 +2529,7 @@ export default function CreatePost() {
                   </h3>
                   <button
                     onClick={() => setShowPreviewModal(false)}
-                    className="text-[#a1a1aa] hover:text-white transition p-2 rounded-lg hover:bg-white/10"
+                    className="text-[#a1a1aa] hover:text-white transition p-2 rounded-lg hover:bg-[#111113]"
                   >
                     ✕
                   </button>
@@ -2556,7 +2556,7 @@ export default function CreatePost() {
                       setShowPreviewModal(false);
                       handlePost();
                     }}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-blue-600/20"
+                    className="bg-[#06b6d4] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#06b6d4] transition shadow-blue-600/20"
                   >
                     Post Now
                   </button>
@@ -2592,7 +2592,7 @@ export default function CreatePost() {
                 className="bg-[#111113] border border-white/[0.08] rounded-xl max-w-4xl w-full max-h-[85vh] overflow-hidden"
               >
                 {/* Modal Header */}
-                <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 border-b border-white/[0.06] p-6">
+                <div className="bg-[#22d3ee] border-b border-white/[0.06] p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-2xl font-bold text-white">📋 Load from Template</h2>
@@ -2654,10 +2654,10 @@ export default function CreatePost() {
                           <motion.div
                             key={template.id}
                             whileHover={{ scale: 1.02 }}
-                            className="group relative bg-[#18181b] border-2 border-white/[0.06] rounded-xl p-5 cursor-pointer hover:border-purple-400/50 transition-all"
+                            className="group relative bg-[#18181b] border border-white/[0.06] rounded-xl p-5 cursor-pointer hover:border-[#22d3ee]/30 transition-all"
                             onClick={() => loadTemplateIntoForm(template)}
                           >
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+                            <div className="absolute inset-0 bg-[#0a0a0b]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
 
                             <div className="relative">
                               {/* Template Header */}
@@ -2665,7 +2665,7 @@ export default function CreatePost() {
                                 <div className="flex-1 pr-2">
                                   <h3 className="text-lg font-bold text-white mb-1">{template.name}</h3>
                                   {template.is_public && (
-                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-400/40 text-[#22d3ee] rounded-full text-xs font-medium">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#22d3ee] border border-[#22d3ee]/30 text-[#22d3ee] rounded-full text-xs font-medium">
                                       🌐 Public
                                     </span>
                                   )}
@@ -2685,7 +2685,7 @@ export default function CreatePost() {
 
                               {/* Metadata */}
                               <div className="flex items-center justify-between text-xs">
-                                <span className="px-2 py-1 bg-purple-500/20 text-[#a1a1aa] rounded border border-purple-400/30">
+                                <span className="px-2 py-1 bg-[#22d3ee]/10 text-[#a1a1aa] rounded border border-[#22d3ee]/20">
                                   {template.category}
                                 </span>
                                 <span className="text-[#a1a1aa]">
@@ -2762,10 +2762,10 @@ export default function CreatePost() {
 
                 {/* Overall Score */}
                 <div className="mb-8">
-                  <div className="relative h-20 bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl border border-purple-400/30 flex items-center justify-center overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+                  <div className="relative h-20 bg-[#22d3ee] rounded-xl border border-[#22d3ee]/20 flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-0 bg-[#22d3ee] from-transparent via-white/5 to-transparent" />
                     <div className="text-center relative z-10">
-                      <div className="text-5xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                      <div className="text-5xl font-bold text-[#22d3ee]">
                         {draftScore.overallScore || 0}
                       </div>
                       <p className="text-[#a1a1aa] text-sm mt-1">Overall Quality Score / 100</p>
@@ -2788,7 +2788,7 @@ export default function CreatePost() {
                                     setScheduledDate(date);
                                     setShowBestTimes(false);
                                   }}
-                                  className="relative bg-[#18181b] border border-[#22d3ee]/30 p-4 rounded-xl hover:bg-blue-600/20 hover:border-blue-400 transition group/btn text-left"
+                                  className="relative bg-[#18181b] border border-[#22d3ee]/30 p-4 rounded-xl hover:bg-[#22d3ee]/10 hover:border-[#22d3ee] transition group/btn text-left"
                                 >
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="text-[#22d3ee] font-bold text-lg">
@@ -2801,7 +2801,7 @@ export default function CreatePost() {
                                   <div className="text-[#a1a1aa] text-sm">
                                     {new Date(time.timestamp).toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })}
                                   </div>
-                                  <div className="absolute inset-0 border-2 border-blue-400/0 group-hover/btn:border-blue-400/50 rounded-xl transition-all duration-300"></div>
+                                  <div className="absolute inset-0 border-2 border-[#22d3ee]/0 group-hover/btn:border-[#22d3ee]/30 rounded-xl transition-all duration-300"></div>
                                 </motion.button>
                               ))}
                             </div>
@@ -2843,7 +2843,7 @@ export default function CreatePost() {
                           <span className="w-20 text-sm text-[#a1a1aa] capitalize">{platform}</span>
                           <div className="flex-1 h-2 bg-[#18181b] rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-300"
+                              className="h-full bg-[#22d3ee] rounded-full transition-all duration-300"
                               style={{ width: `${Math.min(score, 100)}%` }}
                             />
                           </div>
@@ -2860,7 +2860,7 @@ export default function CreatePost() {
                     <h3 className="text-lg font-semibold text-green-400 mb-4">✅ Strengths</h3>
                     <div className="space-y-2">
                       {draftScore.strengths.map((strength, idx) => (
-                        <div key={idx} className="flex gap-3 items-start p-3 bg-green-900/20 border border-green-400/30 rounded-lg">
+                        <div key={idx} className="flex gap-3 items-start p-3 bg-green-500/5 border border-green-400/30 rounded-lg">
                           <span className="text-green-400 mt-0.5">•</span>
                           <p className="text-[#a1a1aa] text-sm">{strength}</p>
                         </div>
@@ -2890,7 +2890,7 @@ export default function CreatePost() {
                     <h3 className="text-lg font-semibold text-[#22d3ee] mb-4">💡 Suggestions</h3>
                     <div className="space-y-2">
                       {draftScore.suggestions.map((suggestion, idx) => (
-                        <div key={idx} className="flex gap-3 items-start p-3 bg-blue-900/20 border border-blue-400/30 rounded-lg">
+                        <div key={idx} className="flex gap-3 items-start p-3 bg-[#22d3ee]/5 border border-[#22d3ee]/20 rounded-lg">
                           <span className="text-[#22d3ee] mt-0.5">→</span>
                           <p className="text-[#a1a1aa] text-sm">{suggestion}</p>
                         </div>
@@ -2904,7 +2904,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowDraftScore(false)}
-                  className="w-full bg-white/[0.06] border border-white/[0.08] text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition"
+                  className="w-full bg-white/[0.06] border border-white/[0.08] text-white py-3 rounded-lg font-semibold transition"
                 >
                   Close & Keep Editing
                 </motion.button>

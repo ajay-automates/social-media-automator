@@ -69,7 +69,7 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
@@ -77,10 +77,10 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl"
+          className="bg-[#18181b] border-2 border-[#22d3ee]/20 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between">
+          <div className="bg-[#22d3ee] p-6 flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 🤖 AI Carousel Caption Generator
@@ -91,7 +91,7 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:bg-white/10 rounded-lg p-2 transition"
+              className="text-white hover:bg-[#111113] rounded-lg p-2 transition"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -104,20 +104,20 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
             {generating ? (
               /* Loading State */
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mb-4"></div>
-                <p className="text-gray-300 font-semibold text-lg">AI is analyzing your images...</p>
-                <p className="text-gray-500 text-sm mt-2">This may take 10-20 seconds</p>
+                <div className="w-16 h-16 border-4 border-[#22d3ee]/20 border-t-[#22d3ee] rounded-full animate-spin mb-4"></div>
+                <p className="text-[#a1a1aa] font-semibold text-lg">AI is analyzing your images...</p>
+                <p className="text-[#52525b] text-sm mt-2">This may take 10-20 seconds</p>
                 <div className="mt-4 flex gap-2">
                   {images.map((_, i) => (
-                    <div key={i} className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: `${i * 200}ms` }}></div>
+                    <div key={i} className="w-2 h-2 bg-[#22d3ee] rounded-full animate-pulse" style={{ animationDelay: `${i * 200}ms` }}></div>
                   ))}
                 </div>
               </div>
             ) : captions.length > 0 ? (
               /* Generated Captions */
               <div className="space-y-4">
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
-                  <p className="text-blue-200 text-sm">
+                <div className="bg-[#22d3ee]/10 border border-[#22d3ee]/30 rounded-lg p-4 mb-6">
+                  <p className="text-[#22d3ee] text-sm">
                     ✨ AI has analyzed all {images.length} slides and created a progressive story!
                     Review and edit each caption below.
                   </p>
@@ -129,7 +129,7 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-gray-900/50 border-2 border-gray-700 rounded-xl p-5 hover:border-purple-500/50 transition-all"
+                    className="bg-[#111113] border border-white/[0.06] rounded-xl p-5 hover:border-[#22d3ee]/30 transition-all"
                   >
                     <div className="flex items-start gap-4">
                       {/* Thumbnail */}
@@ -146,7 +146,7 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
                           </div>
                           <button
                             onClick={() => setEditingIndex(editingIndex === index ? null : index)}
-                            className="text-blue-400 hover:text-blue-300 text-sm font-semibold"
+                            className="text-[#22d3ee] hover:text-[#22d3ee] text-sm font-semibold"
                           >
                             {editingIndex === index ? '✓ Done' : '✏️ Edit'}
                           </button>
@@ -156,15 +156,15 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
                           <textarea
                             value={caption}
                             onChange={(e) => updateCaption(index, e.target.value)}
-                            className="w-full bg-gray-800/50 border border-gray-600 text-white rounded-lg p-3 focus:ring-2 focus:ring-purple-500 resize-none"
+                            className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-lg p-3 focus:ring-2 focus:ring-purple-500 resize-none"
                             rows={3}
                           />
                         ) : (
-                          <p className="text-gray-200 whitespace-pre-wrap leading-relaxed">{caption}</p>
+                          <p className="text-[#a1a1aa] whitespace-pre-wrap leading-relaxed">{caption}</p>
                         )}
 
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-gray-500 text-xs">{caption.length} characters</span>
+                          <span className="text-[#52525b] text-xs">{caption.length} characters</span>
                         </div>
                       </div>
                     </div>
@@ -173,18 +173,18 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
               </div>
             ) : (
               /* Initial State */
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-[#a1a1aa]">
                 Click "Generate" to create AI captions
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-700 bg-gray-800 flex items-center justify-between">
+          <div className="p-6 border-t border-white/[0.06] bg-[#18181b] flex items-center justify-between">
             <button
               onClick={generateCaptions}
               disabled={generating}
-              className="px-6 py-3 bg-purple-600/20 text-purple-300 border border-purple-500/50 rounded-lg hover:bg-purple-600/30 transition font-semibold disabled:opacity-50"
+              className="px-6 py-3 bg-[#22d3ee]/10 text-[#a1a1aa] border border-[#22d3ee]/30 rounded-lg hover:bg-[#22d3ee]/10 transition font-semibold disabled:opacity-50"
             >
               🔄 Regenerate All
             </button>
@@ -192,14 +192,14 @@ export default function CarouselCaptionModal({ show, onClose, images, topic, pla
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+                className="px-6 py-3 bg-[#18181b] text-white rounded-lg hover:bg-[#18181b] transition font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUse}
                 disabled={captions.length === 0}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-[#22d3ee] text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Use These Captions →
               </button>

@@ -100,7 +100,7 @@ export default function Settings() {
               <button
                 onClick={() => setEmailReportsEnabled(!emailReportsEnabled)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                  emailReportsEnabled ? 'bg-[#22d3ee]' : 'bg-white/10'
+                  emailReportsEnabled ? 'bg-[#22d3ee]' : 'bg-[#111113]'
                 }`}
               >
                 <span

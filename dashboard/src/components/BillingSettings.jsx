@@ -41,10 +41,10 @@ export default function BillingSettings() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-32 bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg animate-pulse" />
+        <div className="h-32 bg-[#111113] border border-white/[0.06] rounded-lg animate-pulse" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-48 bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-lg animate-pulse" />
+            <div key={i} className="h-48 bg-[#111113] border border-white/[0.06] rounded-lg animate-pulse" />
           ))}
         </div>
       </div>
@@ -54,7 +54,7 @@ export default function BillingSettings() {
   if (!billingData) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-300">Failed to load billing information</p>
+        <p className="text-[#a1a1aa]">Failed to load billing information</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default function BillingSettings() {
   if (!plan || !usage) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Failed to load billing information</p>
+        <p className="text-[#52525b]">Failed to load billing information</p>
       </div>
     );
   }
@@ -103,20 +103,20 @@ export default function BillingSettings() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden bg-gradient-to-br from-blue-500/40 to-purple-600/40 backdrop-blur-lg border-2 border-blue-400/50 rounded-2xl p-6 text-white shadow-xl"
+        className="relative overflow-hidden bg-[#0a0a0b]/40 border border-[#22d3ee]/30 rounded-2xl p-6 text-white"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent"></div>
         <div className="relative flex justify-between items-start mb-4">
           <div>
             <h3 className="text-2xl font-bold mb-1">{plan.displayName} Plan</h3>
-            <p className="text-blue-200">${plan.price}/{isFree ? 'free' : 'month'}</p>
+            <p className="text-[#22d3ee]">${plan.price}/{isFree ? 'free' : 'month'}</p>
           </div>
-          <span className="bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-semibold border border-white/30">
+          <span className="bg-[#18181b] px-4 py-1.5 rounded-full text-sm font-semibold border border-white/30">
             {subscription.status === 'trialing' ? 'Trial' : 'Active'}
           </span>
         </div>
         {!isFree && (
-          <div className="relative border-t border-white/20 pt-4">
+          <div className="relative border-t border-white/[0.08] pt-4">
             <p className="text-sm text-blue-100">
               {subscription.trialEndsAt
                 ? `Trial ends on ${formatDate(subscription.trialEndsAt)}`
@@ -124,7 +124,7 @@ export default function BillingSettings() {
             </p>
             <button
               onClick={handleManageSubscription}
-              className="mt-3 bg-white/90 backdrop-blur-sm text-blue-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-white hover:shadow-lg transition-all"
+              className="mt-3 bg-white/90 text-[#0a0a0b] px-5 py-2.5 rounded-lg font-semibold hover:bg-white transition-all"
             >
               Manage Subscription
             </button>
@@ -135,22 +135,22 @@ export default function BillingSettings() {
       {/* Usage Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Posts Usage */}
-        <div className="group relative overflow-hidden bg-gray-900/30 backdrop-blur-lg border-2 border-white/10 rounded-xl p-6 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-400/30 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="group relative overflow-hidden bg-[#111113] border border-white/[0.06] rounded-xl p-6 hover:border-[#22d3ee]/20 transition-all duration-300">
+          <div className="absolute inset-0 bg-[#111113] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative flex justify-between items-center mb-4">
             <h4 className="font-semibold text-white">Posts</h4>
-            <FaFileAlt className="text-3xl text-blue-400" />
+            <FaFileAlt className="text-3xl text-[#22d3ee]" />
           </div>
           <div className="relative mb-2">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-300">
+              <span className="text-[#a1a1aa]">
                 {usage.posts.used} / {formatLimit(usage.posts.limit)}
               </span>
               <span className="text-white font-semibold">
                 {usage.posts.remaining}
               </span>
             </div>
-            <div className="w-full bg-gray-700/50 backdrop-blur-sm rounded-full h-2.5 border border-white/10">
+            <div className="w-full bg-[#18181b] rounded-full h-2.5 border border-white/[0.06]">
               <div
                 className={`h-full rounded-full transition-all ${getProgressColor(
                   calculatePercentage(usage.posts.used, usage.posts.limit)
@@ -164,19 +164,19 @@ export default function BillingSettings() {
         </div>
 
         {/* Accounts Usage */}
-        <div className="group relative overflow-hidden bg-gray-900/30 backdrop-blur-lg border-2 border-white/10 rounded-xl p-6 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 hover:border-purple-400/30 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="group relative overflow-hidden bg-[#111113] border border-white/[0.06] rounded-xl p-6 hover:border-[#22d3ee]/20 transition-all duration-300">
+          <div className="absolute inset-0 bg-[#111113] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative flex justify-between items-center mb-4">
             <h4 className="font-semibold text-white">Accounts</h4>
-            <FaUsers className="text-3xl text-purple-400" />
+            <FaUsers className="text-3xl text-[#a1a1aa]" />
           </div>
           <div className="relative mb-2">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-300">
+              <span className="text-[#a1a1aa]">
                 {usage.accounts.used} / {formatLimit(usage.accounts.limit)}
               </span>
             </div>
-            <div className="w-full bg-gray-700/50 backdrop-blur-sm rounded-full h-2.5 border border-white/10">
+            <div className="w-full bg-[#18181b] rounded-full h-2.5 border border-white/[0.06]">
               <div
                 className={`h-full rounded-full transition-all ${getProgressColor(
                   calculatePercentage(usage.accounts.used, usage.accounts.limit)
@@ -190,22 +190,22 @@ export default function BillingSettings() {
         </div>
 
         {/* AI Usage */}
-        <div className="group relative overflow-hidden bg-gray-900/30 backdrop-blur-lg border-2 border-white/10 rounded-xl p-6 shadow-lg hover:shadow-2xl hover:shadow-green-500/20 hover:border-green-400/30 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="group relative overflow-hidden bg-[#111113] border border-white/[0.06] rounded-xl p-6 hover:border-green-400/30 transition-all duration-300">
+          <div className="absolute inset-0 bg-[#111113] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative flex justify-between items-center mb-4">
             <h4 className="font-semibold text-white">AI Generations</h4>
             <FaRobot className="text-3xl text-green-400" />
           </div>
           <div className="relative mb-2">
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-gray-300">
+              <span className="text-[#a1a1aa]">
                 {usage.ai.used} / {formatLimit(usage.ai.limit)}
               </span>
               <span className="text-white font-semibold">
                 {usage.ai.remaining}
               </span>
             </div>
-            <div className="w-full bg-gray-700/50 backdrop-blur-sm rounded-full h-2.5 border border-white/10">
+            <div className="w-full bg-[#18181b] rounded-full h-2.5 border border-white/[0.06]">
               <div
                 className={`h-full rounded-full transition-all ${getProgressColor(
                   calculatePercentage(usage.ai.used, usage.ai.limit)
@@ -225,14 +225,14 @@ export default function BillingSettings() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="relative overflow-hidden bg-gradient-to-r from-blue-500/20 to-purple-600/20 backdrop-blur-lg rounded-2xl p-6 border-2 border-blue-400/30 shadow-xl"
+          className="relative overflow-hidden bg-[#22d3ee] rounded-2xl p-6 border border-[#22d3ee]/20"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent"></div>
+          <div className="absolute inset-0 bg-[#111113] from-white/5 via-transparent to-transparent"></div>
           <div className="relative">
             <h3 className="text-xl font-bold text-white mb-3">
               ✨ Upgrade to Pro and Unlock All Features
             </h3>
-            <p className="text-gray-200 mb-4">
+            <p className="text-[#a1a1aa] mb-4">
               Get unlimited posts, AI generations, and more with Pro.
             </p>
             <ul className="space-y-2 mb-6">
@@ -243,7 +243,7 @@ export default function BillingSettings() {
                 'CSV bulk upload',
                 'All platforms',
               ].map((feature, i) => (
-                <li key={i} className="flex items-center gap-2 text-gray-200">
+                <li key={i} className="flex items-center gap-2 text-[#a1a1aa]">
                   <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
@@ -253,7 +253,7 @@ export default function BillingSettings() {
             </ul>
             <a
               href="/pricing"
-              className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-2xl hover:shadow-purple-500/50 transition-all transform hover:scale-105"
+              className="inline-block bg-[#22d3ee] text-white px-8 py-3 rounded-xl font-bold transition-all transform hover:scale-105"
             >
               View Pricing Plans →
             </a>

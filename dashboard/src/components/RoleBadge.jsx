@@ -13,28 +13,28 @@ export default function RoleBadge({ role, size = 'md' }) {
     owner: {
       icon: '⭐',
       label: 'Owner',
-      gradient: 'from-yellow-400 via-yellow-500 to-orange-500',
+      gradient: '',
       glow: 'shadow-[0_0_20px_rgba(251,191,36,0.5)]',
       hoverGlow: 'hover:shadow-[0_0_30px_rgba(251,191,36,0.7)]'
     },
     admin: {
       icon: '👑',
       label: 'Admin',
-      gradient: 'from-purple-500 via-purple-600 to-pink-500',
+      gradient: 'bg-[#22d3ee]',
       glow: 'shadow-[0_0_20px_rgba(168,85,247,0.5)]',
       hoverGlow: 'hover:shadow-[0_0_30px_rgba(168,85,247,0.7)]'
     },
     editor: {
       icon: '✏️',
       label: 'Editor',
-      gradient: 'from-blue-500 via-blue-600 to-cyan-500',
+      gradient: 'bg-[#22d3ee]',
       glow: 'shadow-[0_0_20px_rgba(59,130,246,0.5)]',
       hoverGlow: 'hover:shadow-[0_0_30px_rgba(59,130,246,0.7)]'
     },
     viewer: {
       icon: '👁️',
       label: 'Viewer',
-      gradient: 'from-gray-400 via-gray-500 to-gray-600',
+      gradient: 'bg-[#18181b]',
       glow: 'shadow-[0_0_15px_rgba(156,163,175,0.3)]',
       hoverGlow: 'hover:shadow-[0_0_25px_rgba(156,163,175,0.5)]'
     }
@@ -72,12 +72,11 @@ export default function RoleBadge({ role, size = 'md' }) {
       whileHover={{ scale: 1.05 }}
       className={`
         inline-flex items-center ${sizing.gap}
-        bg-gradient-to-r ${config.gradient}
+        bg-[#22d3ee] ${config.gradient}
         ${sizing.padding} rounded-full
         font-bold ${sizing.text} text-white
         ${config.glow} ${config.hoverGlow}
         transition-all duration-300
-        backdrop-blur-sm
         cursor-default
         select-none
       `}
@@ -93,10 +92,10 @@ export default function RoleBadge({ role, size = 'md' }) {
  */
 export function RoleBadgeWithLabel({ role, label, size = 'md' }) {
   const config = {
-    owner: 'from-yellow-400 via-yellow-500 to-orange-500 shadow-[0_0_20px_rgba(251,191,36,0.5)]',
-    admin: 'from-purple-500 via-purple-600 to-pink-500 shadow-[0_0_20px_rgba(168,85,247,0.5)]',
-    editor: 'from-blue-500 via-blue-600 to-cyan-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]',
-    viewer: 'from-gray-400 via-gray-500 to-gray-600 shadow-[0_0_15px_rgba(156,163,175,0.3)]'
+    owner: ' shadow-[0_0_20px_rgba(251,191,36,0.5)]',
+    admin: ' shadow-[0_0_20px_rgba(168,85,247,0.5)]',
+    editor: ' shadow-[0_0_20px_rgba(59,130,246,0.5)]',
+    viewer: ' shadow-[0_0_15px_rgba(156,163,175,0.3)]'
   };
 
   const sizeConfig = {
@@ -111,9 +110,8 @@ export function RoleBadgeWithLabel({ role, label, size = 'md' }) {
   return (
     <div
       className={`
-        inline-block bg-gradient-to-r ${styling}
+        inline-block bg-[#22d3ee] ${styling}
         ${sizing} rounded-full font-bold text-white
-        backdrop-blur-sm
       `}
     >
       {label || role?.toUpperCase()}

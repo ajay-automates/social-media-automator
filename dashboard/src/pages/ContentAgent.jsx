@@ -601,7 +601,7 @@ export default function ContentAgent() {
                 <FaRobot className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl font-bold text-[#22d3ee] mb-2">
                   Content Creation Agent
                 </h1>
                 <p className="text-[#a1a1aa]">AI-powered content generation for your social media</p>
@@ -613,7 +613,7 @@ export default function ContentAgent() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card3D hover3D={false} className="bg-white/10 border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Posts Generated</p>
@@ -623,7 +623,7 @@ export default function ContentAgent() {
               </div>
             </Card3D>
 
-            <Card3D hover3D={false} className="bg-white/10 border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Avg Quality Score</p>
@@ -633,7 +633,7 @@ export default function ContentAgent() {
               </div>
             </Card3D>
 
-            <Card3D hover3D={false} className="bg-white/10 border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Generation Time</p>
@@ -643,7 +643,7 @@ export default function ContentAgent() {
               </div>
             </Card3D>
 
-            <Card3D hover3D={false} className="bg-white/10 border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Trends Used</p>
@@ -662,7 +662,7 @@ export default function ContentAgent() {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Generator Card */}
-            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <FaMagic className="text-[#a1a1aa]" />
                 Generate Content Calendar
@@ -681,8 +681,8 @@ export default function ContentAgent() {
                         onClick={() => setDays(d)}
                         className={`px-4 py-2 rounded-lg font-medium transition-all ${
                           days === d
-                            ? 'bg-purple-500 text-white'
-                            : 'bg-white/5 text-[#a1a1aa] hover:bg-white/10'
+                            ? 'bg-[#22d3ee] text-white'
+                            : 'bg-[#18181b] text-[#a1a1aa] hover:bg-[#111113]'
                         }`}
                       >
                         {d} days
@@ -724,13 +724,13 @@ export default function ContentAgent() {
                     type="text"
                     value={niches.join(', ')}
                     onChange={(e) => setNiches(e.target.value.split(',').map(n => n.trim()))}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#22d3ee]/20"
+                    className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-white placeholder-[#52525b] focus:outline-none focus:ring-2 focus:ring-[#22d3ee]/20"
                     placeholder="e.g., SaaS, AI, productivity"
                   />
                 </div>
 
                 {/* Custom Keyword Input */}
-                <div className="border-t border-white/10 pt-4">
+                <div className="border-t border-white/[0.06] pt-4">
                   <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                     Or Generate from Keyword
                   </label>
@@ -740,13 +740,13 @@ export default function ContentAgent() {
                       value={customKeyword}
                       onChange={(e) => setCustomKeyword(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleGenerateFromKeyword()}
-                      className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="flex-1 px-4 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-white placeholder-[#52525b] focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20"
                       placeholder="e.g., cricket, technology, AI"
                     />
                     <button
                       onClick={handleGenerateFromKeyword}
                       disabled={keywordLoading || !customKeyword.trim()}
-                      className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 bg-[#06b6d4] text-white rounded-lg hover:bg-[#06b6d4] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {keywordLoading ? 'Loading...' : 'Preview'}
                     </button>
@@ -760,7 +760,7 @@ export default function ContentAgent() {
                 <button
                   onClick={handleGenerate}
                   disabled={generating}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-[#22d3ee] text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {generating ? (
                     <>
@@ -778,7 +778,7 @@ export default function ContentAgent() {
             </Card3D>
 
             {/* Generated Posts */}
-            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                 <FaCalendar className="text-[#a1a1aa]" />
                 Generated Posts ({generatedPosts.length})
@@ -794,7 +794,7 @@ export default function ContentAgent() {
                 <>
                   {/* Batch Actions */}
                   {selectedPostIds.size > 0 && (
-                    <div className="mb-4 p-4 bg-blue-500/10 border border-[#22d3ee]/20 rounded-lg flex items-center justify-between">
+                    <div className="mb-4 p-4 bg-[#22d3ee]/10 border border-[#22d3ee]/20 rounded-lg flex items-center justify-between">
                       <span className="text-sm text-[#22d3ee]">{selectedPostIds.size} post{selectedPostIds.size !== 1 ? 's' : ''} selected</span>
                       <div className="flex gap-2">
                         <button
@@ -831,10 +831,10 @@ export default function ContentAgent() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className={`bg-white/5 border rounded-lg p-4 transition-all ${
+                      className={`bg-[#18181b] border rounded-lg p-4 transition-all ${
                         selectedPostIds.has(post.id)
-                          ? 'border-[#22d3ee]/50 bg-blue-500/10'
-                          : 'border-white/10'
+                          ? 'border-[#22d3ee]/50 bg-[#22d3ee]/10'
+                          : 'border-white/[0.06]'
                       }`}
                     >
                       {/* Post Header with Checkbox */}
@@ -855,7 +855,7 @@ export default function ContentAgent() {
                             </div>
                           </div>
                         </div>
-                        <span className="px-2 py-1 bg-white/10 text-[#a1a1aa] text-xs rounded-full">
+                        <span className="px-2 py-1 bg-[#111113] text-[#a1a1aa] text-xs rounded-full">
                           {post.content_type}
                         </span>
                       </div>
@@ -877,12 +877,12 @@ export default function ContentAgent() {
                       )}
 
                       {/* Platforms & Actions */}
-                      <div className="flex items-center justify-between pt-3 border-t border-white/10 ml-7">
+                      <div className="flex items-center justify-between pt-3 border-t border-white/[0.06] ml-7">
                         <div className="flex gap-2">
                           {post.platforms.map(platform => (
                             <span
                               key={platform}
-                              className="px-2 py-1 bg-white/5 text-[#a1a1aa] text-xs rounded capitalize"
+                              className="px-2 py-1 bg-[#18181b] text-[#a1a1aa] text-xs rounded capitalize"
                             >
                               {platform}
                             </span>
@@ -925,7 +925,7 @@ export default function ContentAgent() {
           <div className="space-y-6">
 
             {/* Brand Voice */}
-            <Card3D hover3D={false} gradient="from-blue-950/40 via-slate-900/40 to-blue-950/40" shadowColor="rgba(30, 58, 138, 0.2)" className="bg-white/10 border border-white/20 p-6">
+            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <FaEdit className="text-[#a1a1aa]" />
                 Brand Voice
@@ -984,10 +984,10 @@ export default function ContentAgent() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-900/95 border border-white/20 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-slate-900/95 border border-white/[0.08] rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             >
               {/* Preview Header */}
-              <div className="sticky top-0 bg-slate-900/95 border-b border-white/10 px-6 py-4 flex items-center justify-between">
+              <div className="sticky top-0 bg-slate-900/95 border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-white">
                     7-Day Preview: {customKeyword}
@@ -1008,8 +1008,8 @@ export default function ContentAgent() {
               <div className="p-6 space-y-6">
                 {/* Context Section */}
                 {previewContext && (
-                  <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-                    <h3 className="text-cyan-300 font-semibold mb-2">
+                  <div className="bg-[#22d3ee]/10 border border-[#22d3ee]/30 rounded-lg p-4">
+                    <h3 className="text-[#22d3ee] font-semibold mb-2">
                       About "{customKeyword}"
                     </h3>
                     <p className="text-[#a1a1aa] text-sm">
@@ -1031,14 +1031,14 @@ export default function ContentAgent() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-colors"
+                          className="bg-[#18181b] border border-white/[0.06] rounded-lg p-4 hover:bg-white/8 transition-colors"
                         >
                           {/* Post Header */}
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
                                 <h4 className="text-white font-semibold">{post.topic}</h4>
-                                <span className="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded">
+                                <span className="text-xs bg-[#22d3ee]/10 text-[#22d3ee] px-2 py-1 rounded">
                                   Day {index + 1}
                                 </span>
                               </div>
@@ -1061,7 +1061,7 @@ export default function ContentAgent() {
                           {post.hashtags && post.hashtags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-3">
                               {post.hashtags.slice(0, 8).map((tag, i) => (
-                                <span key={i} className="text-xs text-cyan-400">
+                                <span key={i} className="text-xs text-[#22d3ee]">
                                   {tag}
                                 </span>
                               ))}
@@ -1070,11 +1070,11 @@ export default function ContentAgent() {
 
                           {/* Platforms */}
                           {post.platforms && post.platforms.length > 0 && (
-                            <div className="flex gap-2 pt-3 border-t border-white/10">
+                            <div className="flex gap-2 pt-3 border-t border-white/[0.06]">
                               {post.platforms.map((platform) => (
                                 <span
                                   key={platform}
-                                  className="px-2 py-1 bg-white/5 text-[#a1a1aa] text-xs rounded capitalize"
+                                  className="px-2 py-1 bg-[#18181b] text-[#a1a1aa] text-xs rounded capitalize"
                                 >
                                   {platform}
                                 </span>
@@ -1093,16 +1093,16 @@ export default function ContentAgent() {
               </div>
 
               {/* Preview Actions */}
-              <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/10 px-6 py-4 flex gap-3 justify-end">
+              <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/[0.06] px-6 py-4 flex gap-3 justify-end">
                 <button
                   onClick={() => setShowPreview(false)}
-                  className="px-6 py-2 bg-white/5 text-[#a1a1aa] rounded-lg hover:bg-white/10 transition-colors"
+                  className="px-6 py-2 bg-[#18181b] text-[#a1a1aa] rounded-lg hover:bg-[#111113] transition-colors"
                 >
                   Close
                 </button>
                 <button
                   onClick={handleApproveKeywordPosts}
-                  className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-colors flex items-center gap-2"
+                  className="px-6 py-2 bg-[#22d3ee] text-white rounded-lg transition-colors flex items-center gap-2"
                 >
                   <FaCheckCircle />
                   Schedule All {previewPosts.length} Posts
@@ -1121,7 +1121,7 @@ export default function ContentAgent() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold text-[#22d3ee]">
                 📰 Trending News Today
               </h2>
               {newsLastRefreshed && (
@@ -1133,7 +1133,7 @@ export default function ContentAgent() {
             <button
               onClick={handleRefreshNews}
               disabled={newsLoading}
-              className="p-2 text-[#a1a1aa] hover:text-cyan-400 hover:bg-white/10 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 text-[#a1a1aa] hover:text-[#22d3ee] hover:bg-[#111113] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               title="Refresh for fresh news articles"
             >
               <FaSync className={newsLoading ? 'animate-spin' : ''} size={20} />
@@ -1141,7 +1141,7 @@ export default function ContentAgent() {
           </div>
 
           <p className="text-[#a1a1aa] max-w-2xl">
-            Real-time news and articles from today's trending topics. Click refresh to get <span className="text-cyan-400 font-semibold">fresh articles</span>, "Open Link" to read full article, or "Use This" to generate content.
+            Real-time news and articles from today's trending topics. Click refresh to get <span className="text-[#22d3ee] font-semibold">fresh articles</span>, "Open Link" to read full article, or "Use This" to generate content.
           </p>
 
           {newsLoading ? (
@@ -1164,11 +1164,11 @@ export default function ContentAgent() {
                 };
 
                 const categoryColors = {
-                  technology: 'from-purple-500/20 to-blue-500/20 border-white/[0.08]',
-                  business: 'from-green-500/20 to-emerald-500/20 border-green-500/30',
-                  sports: 'from-orange-500/20 to-red-500/20 border-orange-500/30',
-                  world: 'from-blue-500/20 to-cyan-500/20 border-[#22d3ee]/30',
-                  lifestyle: 'from-pink-500/20 to-rose-500/20 border-pink-500/30'
+                  technology: 'bg-[#22d3ee]/10 border-[#22d3ee]/20',
+                  business: ' border-green-500/30',
+                  sports: ' border-orange-500/30',
+                  world: 'bg-[#22d3ee]/10 border-[#22d3ee]/30',
+                  lifestyle: ' border-pink-500/30'
                 };
 
                 return (
@@ -1176,7 +1176,7 @@ export default function ContentAgent() {
                     key={category}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`bg-gradient-to-br ${categoryColors[category] || categoryColors.technology} border rounded-xl p-6 space-y-4`}
+                    className={`bg-[#111113] ${categoryColors[category] || categoryColors.technology} border rounded-xl p-6 space-y-4`}
                   >
                     <h3 className="text-xl font-bold text-white">
                       {categoryLabels[category] || 'News'}
@@ -1184,7 +1184,7 @@ export default function ContentAgent() {
 
                     <div className="space-y-3">
                       {articles.slice(0, 2).map((article, idx) => (
-                        <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10 hover:bg-white/10 transition-colors">
+                        <div key={idx} className="bg-[#18181b] rounded-lg p-3 border border-white/[0.06] hover:bg-[#111113] transition-colors">
                           <h4 className="text-sm font-semibold text-white mb-2 line-clamp-2">
                             {article.title}
                           </h4>
@@ -1200,7 +1200,7 @@ export default function ContentAgent() {
                             </button>
                             <button
                               onClick={() => handleUseNewsForContent(article)}
-                              className="flex-1 px-3 py-1.5 bg-cyan-500/30 text-cyan-300 text-xs rounded hover:bg-cyan-500/50 transition-all flex items-center justify-center gap-1"
+                              className="flex-1 px-3 py-1.5 bg-cyan-500/30 text-[#22d3ee] text-xs rounded hover:bg-cyan-500/50 transition-all flex items-center justify-center gap-1"
                             >
                               <span>✨</span> Use
                             </button>
@@ -1216,7 +1216,7 @@ export default function ContentAgent() {
               })}
             </div>
           ) : (
-            <div className="text-center py-12 bg-white/5 rounded-xl border border-white/10">
+            <div className="text-center py-12 bg-[#18181b] rounded-xl border border-white/[0.06]">
               <p className="text-[#a1a1aa]">No news available yet. Click refresh to load today's trending news.</p>
             </div>
           )}
@@ -1236,10 +1236,10 @@ export default function ContentAgent() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-900/95 border border-white/20 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-slate-900/95 border border-white/[0.08] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             >
               {/* Modal Header */}
-              <div className="sticky top-0 bg-slate-900/95 border-b border-white/10 px-6 py-4 flex items-center justify-between">
+              <div className="sticky top-0 bg-slate-900/95 border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-white">
                   📰 Generate Posts from News
                 </h2>
@@ -1255,8 +1255,8 @@ export default function ContentAgent() {
               <div className="p-6 space-y-6">
                 {/* Article Info */}
                 {selectedArticle && (
-                  <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-                    <h3 className="text-cyan-300 font-semibold mb-2">Selected Article</h3>
+                  <div className="bg-[#22d3ee]/10 border border-[#22d3ee]/30 rounded-lg p-4">
+                    <h3 className="text-[#22d3ee] font-semibold mb-2">Selected Article</h3>
                     <p className="text-white font-medium">{selectedArticle.title}</p>
                     <p className="text-[#a1a1aa] text-sm mt-2">{selectedArticle.description}</p>
                     <p className="text-xs text-[#52525b] mt-2">Source: {selectedArticle.source}</p>
@@ -1265,25 +1265,25 @@ export default function ContentAgent() {
 
                 {/* Single Post Preview */}
                 {newsPostMode === 'options' && newsGeneratedPosts.length > 0 && (
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
+                  <div className="bg-[#18181b] border border-white/[0.06] rounded-lg p-4 space-y-3">
                     <h3 className="text-lg font-bold text-white">Quick Preview</h3>
                     <div>
                       <p className="text-[#a1a1aa] text-sm mb-3">{newsGeneratedPosts[0].caption}</p>
                       <div className="flex flex-wrap gap-1 mb-3">
                         {newsGeneratedPosts[0].hashtags?.slice(0, 6).map((tag, i) => (
-                          <span key={i} className="text-xs text-cyan-400">{tag}</span>
+                          <span key={i} className="text-xs text-[#22d3ee]">{tag}</span>
                         ))}
                       </div>
                       <div className="flex gap-2">
-                        <span className="px-2 py-1 bg-white/10 text-[#a1a1aa] text-xs rounded">Quality: {newsGeneratedPosts[0].quality_score}/100</span>
-                        <span className="px-2 py-1 bg-white/10 text-[#a1a1aa] text-xs rounded">Engagement: {newsGeneratedPosts[0].engagement_prediction}/100</span>
+                        <span className="px-2 py-1 bg-[#111113] text-[#a1a1aa] text-xs rounded">Quality: {newsGeneratedPosts[0].quality_score}/100</span>
+                        <span className="px-2 py-1 bg-[#111113] text-[#a1a1aa] text-xs rounded">Engagement: {newsGeneratedPosts[0].engagement_prediction}/100</span>
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-white/10">
+                    <div className="pt-4 border-t border-white/[0.06]">
                       <button
                         onClick={() => {setNewsPostMode('multiple'); setNewsGeneratedPosts([]);}}
-                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
+                        className="w-full px-4 py-2 bg-[#06b6d4] text-white rounded-lg hover:bg-[#06b6d4] transition-all"
                       >
                         Generate More Posts
                       </button>
@@ -1295,12 +1295,12 @@ export default function ContentAgent() {
                 {(newsPostMode === 'single' || (newsPostMode === 'multiple' && newsGeneratedPosts.length === 0)) && (
                   <div className="space-y-4">
                     {newsPostMode === 'single' ? (
-                      <div className="text-center py-6 bg-white/5 rounded-lg border border-white/10">
+                      <div className="text-center py-6 bg-[#18181b] rounded-lg border border-white/[0.06]">
                         <p className="text-[#a1a1aa] mb-4">Ready to generate a quick post?</p>
                         <button
                           onClick={handleGenerateNewsPost}
                           disabled={newsGenerating}
-                          className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
+                          className="px-6 py-2 bg-[#06b6d4] text-white rounded-lg hover:bg-[#06b6d4] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mx-auto"
                         >
                           {newsGenerating ? '⏳ Generating...' : '✨ Generate Post (3-5s)'}
                         </button>
@@ -1312,7 +1312,7 @@ export default function ContentAgent() {
                           <select
                             value={newsPostCount}
                             onChange={(e) => setNewsPostCount(parseInt(e.target.value))}
-                            className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white"
+                            className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-white"
                           >
                             {[3, 5, 7, 10].map(num => <option key={num} value={num}>{num} posts</option>)}
                           </select>
@@ -1365,7 +1365,7 @@ export default function ContentAgent() {
                                 <select
                                   value={newsSpreadInterval}
                                   onChange={(e) => setNewsSpreadInterval(parseInt(e.target.value))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+                                  className="w-full px-3 py-2 bg-[#18181b] border border-white/[0.06] rounded text-sm text-white"
                                 >
                                   {[1, 2, 3].map(days => <option key={days} value={days}>Every {days} day(s)</option>)}
                                 </select>
@@ -1376,7 +1376,7 @@ export default function ContentAgent() {
                                   type="date"
                                   value={newsStartDate}
                                   onChange={(e) => setNewsStartDate(e.target.value)}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+                                  className="w-full px-3 py-2 bg-[#18181b] border border-white/[0.06] rounded text-sm text-white"
                                 />
                               </div>
                               <div>
@@ -1385,7 +1385,7 @@ export default function ContentAgent() {
                                   type="time"
                                   value={newsPostTime}
                                   onChange={(e) => setNewsPostTime(e.target.value)}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+                                  className="w-full px-3 py-2 bg-[#18181b] border border-white/[0.06] rounded text-sm text-white"
                                 />
                               </div>
                             </div>
@@ -1395,7 +1395,7 @@ export default function ContentAgent() {
                         <button
                           onClick={handleGenerateNewsPost}
                           disabled={newsGenerating}
-                          className="w-full px-4 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:from-cyan-700 hover:to-blue-700 transition-all disabled:opacity-50"
+                          className="w-full px-4 py-3 bg-[#22d3ee] text-white rounded-lg transition-all disabled:opacity-50"
                         >
                           {newsGenerating ? `⏳ Generating ${newsPostCount} posts...` : `✨ Generate ${newsPostCount} Posts`}
                         </button>
@@ -1406,7 +1406,7 @@ export default function ContentAgent() {
 
                 {/* Platform Selection */}
                 {(newsPostMode === 'options' || showNewsPostPreview) && newsGeneratedPosts.length > 0 && (
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
+                  <div className="bg-[#18181b] border border-white/[0.06] rounded-lg p-4 space-y-3">
                     <label className="block text-sm font-medium text-[#a1a1aa]">Post to Platforms</label>
                     <div className="flex flex-wrap gap-3">
                       {['linkedin', 'twitter', 'tiktok', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'mastodon', 'bluesky'].map(platform => (
@@ -1434,11 +1434,11 @@ export default function ContentAgent() {
                     <h3 className="text-lg font-bold text-white">Generated Posts ({newsGeneratedPosts.length})</h3>
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {newsGeneratedPosts.map((post, idx) => (
-                        <div key={idx} className="bg-white/5 border border-white/10 rounded-lg p-3">
+                        <div key={idx} className="bg-[#18181b] border border-white/[0.06] rounded-lg p-3">
                           <p className="text-sm text-white mb-2">{post.caption}</p>
                           <div className="flex flex-wrap gap-1 mb-2">
                             {post.hashtags?.slice(0, 5).map((tag, i) => (
-                              <span key={i} className="text-xs text-cyan-400">{tag}</span>
+                              <span key={i} className="text-xs text-[#22d3ee]">{tag}</span>
                             ))}
                           </div>
                           <div className="text-xs text-[#52525b]">Quality: {post.quality_score}/100 | Engagement: {post.engagement_prediction}/100</div>
@@ -1450,10 +1450,10 @@ export default function ContentAgent() {
               </div>
 
               {/* Modal Actions */}
-              <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/10 px-6 py-4 flex gap-3 justify-end">
+              <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/[0.06] px-6 py-4 flex gap-3 justify-end">
                 <button
                   onClick={() => setNewsGenerationModal(false)}
-                  className="px-6 py-2 bg-white/5 text-[#a1a1aa] rounded-lg hover:bg-white/10 transition-colors"
+                  className="px-6 py-2 bg-[#18181b] text-[#a1a1aa] rounded-lg hover:bg-[#111113] transition-colors"
                 >
                   Close
                 </button>
@@ -1461,13 +1461,13 @@ export default function ContentAgent() {
                   <>
                     <button
                       onClick={handlePostNewsNow}
-                      className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-colors flex items-center gap-2 font-medium"
+                      className="px-6 py-2 bg-[#22d3ee] text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
                     >
                       🚀 Post Now
                     </button>
                     <button
                       onClick={handleScheduleNewsPosts}
-                      className="px-6 py-2 bg-[#22d3ee] text-[#0a0a0b] rounded-lg hover:from-green-700 hover:to-emerald-700 transition-colors flex items-center gap-2 font-medium"
+                      className="px-6 py-2 bg-[#22d3ee] text-[#0a0a0b] rounded-lg transition-colors flex items-center gap-2 font-medium"
                     >
                       <FaCheckCircle />
                       Schedule {newsGeneratedPosts.length} Post{newsGeneratedPosts.length !== 1 ? 's' : ''}
@@ -1494,10 +1494,10 @@ export default function ContentAgent() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-slate-900/95 border border-white/20 rounded-xl w-full max-w-2xl"
+                className="bg-slate-900/95 border border-white/[0.08] rounded-xl w-full max-w-2xl"
               >
                 {/* Modal Header */}
-                <div className="bg-slate-900/95 border-b border-white/10 px-6 py-4 flex items-center justify-between sticky top-0">
+                <div className="bg-slate-900/95 border-b border-white/[0.06] px-6 py-4 flex items-center justify-between sticky top-0">
                   <div>
                     <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                       <FaEdit className="text-[#22d3ee]" />
@@ -1519,11 +1519,11 @@ export default function ContentAgent() {
                 <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
                   {/* Current Stats */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                    <div className="bg-[#18181b] rounded-lg p-3 border border-white/[0.06]">
                       <p className="text-xs text-[#a1a1aa] uppercase mb-1">Quality Score</p>
                       <p className="text-xl font-bold text-white">{editingPost.quality_score}/100</p>
                     </div>
-                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                    <div className="bg-[#18181b] rounded-lg p-3 border border-white/[0.06]">
                       <p className="text-xs text-[#a1a1aa] uppercase mb-1">Engagement Prediction</p>
                       <p className="text-xl font-bold text-white">{editingPost.engagement_prediction}/100</p>
                     </div>
@@ -1534,7 +1534,7 @@ export default function ContentAgent() {
                     <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                       Content Type
                     </label>
-                    <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[#a1a1aa] capitalize">
+                    <div className="px-4 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-[#a1a1aa] capitalize">
                       {editingPost.content_type}
                     </div>
                   </div>
@@ -1547,7 +1547,7 @@ export default function ContentAgent() {
                     <textarea
                       value={editingCaption}
                       onChange={(e) => setEditingCaption(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-[#18181b] border border-white/[0.06] rounded-lg text-white placeholder-[#52525b] focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none"
                       rows="6"
                       placeholder="Edit your post caption..."
                     />
@@ -1564,7 +1564,7 @@ export default function ContentAgent() {
                     <textarea
                       value={editingHashtags}
                       onChange={(e) => setEditingHashtags(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none"
+                      className="w-full px-4 py-3 bg-[#18181b] border border-white/[0.06] rounded-lg text-white placeholder-[#52525b] focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none"
                       rows="3"
                       placeholder="e.g., #AI, #Technology, #Innovation"
                     />
@@ -1582,7 +1582,7 @@ export default function ContentAgent() {
                       {editingPost.platforms && editingPost.platforms.map(platform => (
                         <span
                           key={platform}
-                          className="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-lg text-sm capitalize flex items-center gap-1"
+                          className="px-3 py-1 bg-[#22d3ee]/10 text-[#22d3ee] rounded-lg text-sm capitalize flex items-center gap-1"
                         >
                           {platform === 'linkedin' && '💼'}
                           {platform === 'twitter' && '𝕏'}
@@ -1594,23 +1594,23 @@ export default function ContentAgent() {
                   </div>
 
                   {/* Created Info */}
-                  <div className="bg-white/5 rounded-lg p-3 border border-white/10 text-xs text-[#a1a1aa]">
+                  <div className="bg-[#18181b] rounded-lg p-3 border border-white/[0.06] text-xs text-[#a1a1aa]">
                     <p>Created: {new Date(editingPost.created_at).toLocaleDateString()} at {new Date(editingPost.created_at).toLocaleTimeString()}</p>
                     {editingPost.source && <p>Source: {editingPost.source}</p>}
                   </div>
                 </div>
 
                 {/* Modal Actions */}
-                <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/10 px-6 py-4 flex gap-3 justify-end">
+                <div className="sticky bottom-0 bg-slate-900/95 border-t border-white/[0.06] px-6 py-4 flex gap-3 justify-end">
                   <button
                     onClick={() => setShowEditModal(false)}
-                    className="px-6 py-2 bg-white/5 text-[#a1a1aa] rounded-lg hover:bg-white/10 transition-colors font-medium"
+                    className="px-6 py-2 bg-[#18181b] text-[#a1a1aa] rounded-lg hover:bg-[#111113] transition-colors font-medium"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSaveEdit}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-colors flex items-center gap-2 font-medium"
+                    className="px-6 py-2 bg-[#22d3ee] text-white rounded-lg transition-colors flex items-center gap-2 font-medium"
                   >
                     <FaCheckCircle />
                     Save Changes

@@ -359,7 +359,7 @@ export default function Business() {
             onClick={() => setActiveSection(section.id)}
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
               activeSection === section.id
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[#06b6d4] text-white'
                 : 'bg-[#18181b] text-[#a1a1aa] hover:bg-[#18181b]'
             }`}
           >
@@ -384,7 +384,7 @@ export default function Business() {
             </div>
 
             {/* Auto-fill from Website */}
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-2 border-[#22d3ee]/30 rounded-xl p-5 mb-6">
+            <div className="bg-[#22d3ee] border border-[#22d3ee]/30 rounded-xl p-5 mb-6">
               <div className="flex items-start gap-3 mb-4">
                 <span className="text-2xl">✨</span>
                 <div className="flex-1">
@@ -405,7 +405,7 @@ export default function Business() {
                     <button
                       onClick={handleAutofill}
                       disabled={autofilling || !autofillUrl.trim()}
-                      className="px-6 py-3 bg-[#22d3ee] hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="px-6 py-3 bg-[#22d3ee] text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {autofilling ? (
                         <>
@@ -443,7 +443,7 @@ export default function Business() {
                 className={`w-full bg-[#18181b] border text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors  ${
                   autofilledFields.includes('business_name') 
                     ? 'border-green-500/50 bg-green-500/10' 
-                    : 'border-white/[0.06]/50'
+                    : 'border-white/[0.08]'
                 }`}
                 placeholder="Your Company Name"
               />
@@ -637,7 +637,7 @@ export default function Business() {
                 />
                 <button
                   onClick={addProductService}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all"
+                  className="px-4 py-2 bg-[#06b6d4] hover:bg-[#06b6d4] text-white rounded-xl font-medium transition-all"
                 >
                   Add
                 </button>
@@ -646,7 +646,7 @@ export default function Business() {
                 {formData.key_products_services.map((item, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/20 text-[#22d3ee] rounded-lg text-sm"
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-[#22d3ee]/10 text-[#22d3ee] rounded-lg text-sm"
                   >
                     {item}
                     <button
@@ -673,7 +673,7 @@ export default function Business() {
                 />
                 <button
                   onClick={addFeatureBenefit}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all"
+                  className="px-4 py-2 bg-[#06b6d4] hover:bg-[#06b6d4] text-white rounded-xl font-medium transition-all"
                 >
                   Add
                 </button>
@@ -682,7 +682,7 @@ export default function Business() {
                 {formData.key_features_benefits.map((item, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-purple-600/20 text-[#a1a1aa] rounded-lg text-sm"
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-[#22d3ee]/10 text-[#a1a1aa] rounded-lg text-sm"
                   >
                     {item}
                     <button
@@ -713,7 +713,7 @@ export default function Business() {
                     onClick={() => toggleContentTheme(theme.value)}
                     className={`p-3 rounded-lg border-2 transition-all text-left ${
                       formData.content_themes.includes(theme.value)
-                        ? 'border-[#22d3ee] bg-blue-600/20 text-white'
+                        ? 'border-[#22d3ee] bg-[#22d3ee]/10 text-white'
                         : 'border-white/[0.06] bg-[#18181b] text-[#a1a1aa] hover:border-white/[0.12]'
                     }`}
                   >
@@ -768,7 +768,7 @@ export default function Business() {
                 />
                 <button
                   onClick={addBrandColor}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all"
+                  className="px-4 py-2 bg-[#06b6d4] hover:bg-[#06b6d4] text-white rounded-xl font-medium transition-all"
                 >
                   Add
                 </button>
@@ -811,7 +811,7 @@ export default function Business() {
               <button
                 onClick={() => setFormData({ ...formData, auto_include_cta: !formData.auto_include_cta })}
                 className={`relative w-14 h-7 rounded-full transition-colors ${
-                  formData.auto_include_cta ? 'bg-blue-600' : 'bg-[#18181b]'
+                  formData.auto_include_cta ? 'bg-[#06b6d4]' : 'bg-[#18181b]'
                 }`}
               >
                 <div
@@ -848,7 +848,7 @@ export default function Business() {
                 />
                 <button
                   onClick={addHashtag}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all"
+                  className="px-4 py-2 bg-[#06b6d4] hover:bg-[#06b6d4] text-white rounded-xl font-medium transition-all"
                 >
                   Add
                 </button>
@@ -885,7 +885,7 @@ export default function Business() {
                 />
                 <button
                   onClick={addAvoidWord}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all"
+                  className="px-4 py-2 bg-[#06b6d4] hover:bg-[#06b6d4] text-white rounded-xl font-medium transition-all"
                 >
                   Add
                 </button>
@@ -916,7 +916,7 @@ export default function Business() {
         <button
           onClick={handleSave}
           disabled={saving || !formData.business_name.trim()}
-          className="px-6 py-3 bg-[#22d3ee] hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-[#22d3ee] text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving...' : 'Save Business Profile'}
         </button>

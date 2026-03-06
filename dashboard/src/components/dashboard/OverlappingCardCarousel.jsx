@@ -75,7 +75,7 @@ export default function OverlappingCardCarousel({
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => scroll('left')}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-black/90 transition-all shadow-xl"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/70 border border-white/30 flex items-center justify-center hover:bg-black/90 transition-all"
                     aria-label="Scroll left"
                 >
                     <svg
@@ -101,7 +101,7 @@ export default function OverlappingCardCarousel({
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => scroll('right')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/30 flex items-center justify-center hover:bg-black/90 transition-all shadow-xl"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-black/70 border border-white/30 flex items-center justify-center hover:bg-black/90 transition-all"
                     aria-label="Scroll right"
                 >
                     <svg

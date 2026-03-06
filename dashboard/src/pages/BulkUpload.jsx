@@ -243,7 +243,7 @@ export default function BulkUpload() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+            <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
             
             <input
               type="file"
@@ -261,9 +261,9 @@ export default function BulkUpload() {
             >
               <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 ${
                 dragging 
-                  ? 'bg-gradient-to-br from-blue-500 to-purple-500' 
-                  : 'bg-gradient-to-br from-blue-600/50 to-purple-600/50'
-              } border-2 border-blue-400/60`}>
+                  ? 'bg-[#0a0a0b]' 
+                  : 'bg-[#0a0a0b]/50'
+              } border border-[#22d3ee]/40`}>
                 {uploading ? (
                   <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
@@ -299,12 +299,12 @@ export default function BulkUpload() {
             </h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-blue-900/30 border border-blue-400/30 rounded-xl p-4">
+              <div className="bg-[#22d3ee]/5 border border-[#22d3ee]/20 rounded-xl p-4">
                 <p className="text-[#22d3ee] text-sm font-semibold mb-1">Total Posts</p>
                 <p className="text-3xl font-black text-white">{summary.total}</p>
               </div>
               
-              <div className="bg-green-900/30 border border-green-400/30 rounded-xl p-4">
+              <div className="bg-green-500/5 border border-green-400/30 rounded-xl p-4">
                 <p className="text-green-300 text-sm font-semibold mb-1">Valid Posts</p>
                 <p className="text-3xl font-black text-white">{summary.valid}</p>
               </div>
@@ -365,7 +365,7 @@ export default function BulkUpload() {
 
             <button
               onClick={handleReset}
-              className="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition"
+              className="bg-[#22d3ee] text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition"
             >
               ❌ Cancel & Upload New
             </button>
@@ -387,7 +387,7 @@ export default function BulkUpload() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b-2 border-white/20">
+                  <tr className="border-b-2 border-white/[0.08]">
                     <th className="text-left text-white font-bold p-3">Row</th>
                     <th className="text-left text-white font-bold p-3">Status</th>
                     <th className="text-left text-white font-bold p-3">Date/Time</th>
@@ -401,7 +401,7 @@ export default function BulkUpload() {
                     <tr
                       key={row.rowNumber}
                       className={`border-b border-white/[0.06] ${
-                        row.isValid ? 'bg-green-900/10' : 'bg-red-900/10'
+                        row.isValid ? 'bg-green-500/5' : 'bg-red-900/10'
                       }`}
                     >
                       <td className="p-3 text-white font-mono">{row.rowNumber}</td>
@@ -438,7 +438,7 @@ export default function BulkUpload() {
                           {row.parsed.platforms.map(platform => (
                             <span
                               key={platform}
-                              className="inline-block bg-blue-600/30 border border-blue-400/50 text-blue-200 px-2 py-0.5 rounded text-xs font-semibold capitalize"
+                              className="inline-block bg-blue-600/30 border border-[#22d3ee]/30 text-[#22d3ee] px-2 py-0.5 rounded text-xs font-semibold capitalize"
                             >
                               {platform}
                             </span>
@@ -464,7 +464,7 @@ export default function BulkUpload() {
                         ) : (
                           <button
                             onClick={() => handleEditRow(row)}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
+                            className="bg-[#06b6d4] text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
                           >
                             Edit
                           </button>

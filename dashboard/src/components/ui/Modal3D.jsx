@@ -39,7 +39,7 @@ export default function Modal3D({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 z-50"
           >
             {/* Floating particles */}
             {showParticles && (
@@ -87,16 +87,16 @@ export default function Modal3D({
                 perspective: "1000px",
               }}
             >
-              <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200 dark:border-white/20 overflow-hidden">
+              <div className="bg-white/95 dark:bg-[#111113] rounded-3xl border border-white/[0.06] dark:border-white/[0.08] overflow-hidden">
                 {/* Header */}
                 {title && (
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
+                  <div className="px-6 py-4 border-b border-white/[0.06] dark:border-white/[0.06] flex items-center justify-between">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                       {title}
                     </h3>
                     <button
                       onClick={onClose}
-                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors"
+                      className="text-[#52525b] hover:text-[#52525b] dark:text-[#a1a1aa] dark:hover:text-white transition-colors"
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

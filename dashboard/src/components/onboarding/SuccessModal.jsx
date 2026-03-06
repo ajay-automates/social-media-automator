@@ -117,13 +117,13 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 overflow-y-auto"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.8, y: 100 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: 'spring', duration: 0.6 }}
-        className="relative bg-gray-900/30 backdrop-blur-xl border-2 border-white/20 rounded-3xl shadow-2xl p-8 max-w-2xl w-full my-8"
+        className="relative bg-[#111113] border border-white/[0.08] rounded-3xl p-8 max-w-2xl w-full my-8"
       >
         {/* Success Animation */}
         <motion.div
@@ -145,7 +145,7 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-xl text-gray-300"
+            className="text-xl text-[#a1a1aa]"
           >
             Your content is now live across {successfulPosts} platform{successfulPosts !== 1 ? 's' : ''}!
           </motion.p>
@@ -158,17 +158,17 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
           transition={{ delay: 0.6 }}
           className="grid grid-cols-3 gap-4 mb-6"
         >
-          <div className="glass border border-white/20 rounded-xl p-4 text-center">
+          <div className="glass border border-white/[0.08] rounded-xl p-4 text-center">
             <div className="text-3xl font-bold text-green-400">{successfulPosts}</div>
-            <div className="text-sm text-gray-400">Posted</div>
+            <div className="text-sm text-[#a1a1aa]">Posted</div>
           </div>
-          <div className="glass border border-white/20 rounded-xl p-4 text-center">
-            <div className="text-3xl font-bold text-blue-400">{platformCount}</div>
-            <div className="text-sm text-gray-400">Platforms</div>
+          <div className="glass border border-white/[0.08] rounded-xl p-4 text-center">
+            <div className="text-3xl font-bold text-[#22d3ee]">{platformCount}</div>
+            <div className="text-sm text-[#a1a1aa]">Platforms</div>
           </div>
-          <div className="glass border border-white/20 rounded-xl p-4 text-center">
-            <div className="text-3xl font-bold text-purple-400">{timeSpent}s</div>
-            <div className="text-sm text-gray-400">Time Saved</div>
+          <div className="glass border border-white/[0.08] rounded-xl p-4 text-center">
+            <div className="text-3xl font-bold text-[#a1a1aa]">{timeSpent}s</div>
+            <div className="text-sm text-[#a1a1aa]">Time Saved</div>
           </div>
         </motion.div>
 
@@ -177,9 +177,9 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="glass border border-white/20 rounded-xl p-4 mb-6 max-h-48 overflow-y-auto"
+          className="glass border border-white/[0.08] rounded-xl p-4 mb-6 max-h-48 overflow-y-auto"
         >
-          <h3 className="text-sm font-semibold text-purple-400 mb-3">✅ PLATFORM STATUS</h3>
+          <h3 className="text-sm font-semibold text-[#a1a1aa] mb-3">✅ PLATFORM STATUS</h3>
           <div className="space-y-2">
             {results.map((result, index) => (
               <motion.div
@@ -220,7 +220,7 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
             animate={{ opacity: 1, height: 'auto' }}
             className="mb-6"
           >
-            <h3 className="text-sm font-semibold text-purple-400 mb-3">💡 WHAT'S NEXT?</h3>
+            <h3 className="text-sm font-semibold text-[#a1a1aa] mb-3">💡 WHAT'S NEXT?</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {tips.slice(0, 4).map((tip, index) => (
                 <motion.div
@@ -228,13 +228,13 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  className="glass border border-white/20 rounded-lg p-3 hover:bg-white/10 transition-all"
+                  className="glass border border-white/[0.08] rounded-lg p-3 hover:bg-[#111113] transition-all"
                 >
                   <div className="flex items-start gap-2">
                     <span className="text-2xl">{tip.icon}</span>
                     <div>
                       <h4 className="text-white font-semibold text-sm mb-1">{tip.title}</h4>
-                      <p className="text-xs text-gray-400">{tip.description}</p>
+                      <p className="text-xs text-[#a1a1aa]">{tip.description}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -249,7 +249,7 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handlePostAnother}
-            className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-green-500/50 transition-all"
+            className="flex-1 bg-[#22d3ee] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all"
           >
             📝 Post Another
           </motion.button>
@@ -257,7 +257,7 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleViewDashboard}
-            className="flex-1 glass border border-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all"
+            className="flex-1 glass border border-white/[0.08] text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#111113] transition-all"
           >
             📊 View Dashboard
           </motion.button>
@@ -269,7 +269,7 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="text-center text-sm text-gray-400 mt-4"
+            className="text-center text-sm text-[#a1a1aa] mt-4"
           >
             Redirecting to dashboard in {countdown} second{countdown !== 1 ? 's' : ''}...
           </motion.p>
@@ -280,10 +280,10 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
-          className="mt-6 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/30 rounded-xl p-4 text-center"
+          className="mt-6 bg-[#22d3ee] border border-[#22d3ee]/20 rounded-xl p-4 text-center"
         >
           <p className="text-white font-semibold mb-1">🌟 Welcome to Social Media Automator!</p>
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-[#a1a1aa]">
             You just saved hours of manual posting. Imagine what you'll achieve next!
           </p>
         </motion.div>

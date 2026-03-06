@@ -308,16 +308,16 @@ export default function Analytics() {
       content_type: <FaLightbulb className="text-yellow-400" />,
       hashtag_performance: <FaHashtag className="text-pink-400" />,
       platform_performance: <FaServer className="text-[#a1a1aa]" />,
-      overall_trend: <FaChartLine className="text-cyan-400" />,
+      overall_trend: <FaChartLine className="text-[#22d3ee]" />,
     };
     return icons[type] || <FaBrain className="text-[#a1a1aa]" />;
   };
 
   const getCategoryColor = (category) => {
     const colors = {
-      positive: 'from-green-500/20 to-emerald-500/20 border-green-500/30',
-      negative: 'from-red-500/20 to-rose-500/20 border-red-500/30',
-      neutral: 'from-gray-500/20 to-slate-500/20 border-white/[0.06]',
+      positive: ' border-green-500/30',
+      negative: ' border-red-500/30',
+      neutral: 'bg-[#18181b] border-white/[0.06]',
     };
     return colors[category] || colors.neutral;
   };
@@ -433,7 +433,7 @@ export default function Analytics() {
             className="group relative bg-white/[0.06] border border-white/[0.08] text-white text-sm px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2"
             title="Export your analytics data as CSV"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+            <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -450,7 +450,7 @@ export default function Analytics() {
             className="group relative bg-white/[0.06] border border-white/[0.08] text-white text-sm px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2"
             title="Refresh analytics data now"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+            <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
             <div className="relative flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -467,10 +467,10 @@ export default function Analytics() {
           whileHover={{ y: -5, scale: 1.02 }}
           className="group relative bg-[#111113] border border-[#22d3ee]/20 rounded-xl p-6 text-white overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
             <div className="text-3xl font-bold">{analytics.totalPosts}</div>
-            <div className="text-blue-200 mt-1">Total Posts</div>
+            <div className="text-[#22d3ee] mt-1">Total Posts</div>
           </div>
         </motion.div>
 
@@ -478,7 +478,7 @@ export default function Analytics() {
           whileHover={{ y: -5, scale: 1.02 }}
           className="group relative bg-[#111113] border border-green-400/20 rounded-xl p-6 text-white overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
             <div className="text-3xl font-bold">{analytics.successRate || 98}%</div>
             <div className="text-green-200 mt-1">Success Rate</div>
@@ -489,10 +489,10 @@ export default function Analytics() {
           whileHover={{ y: -5, scale: 1.02 }}
           className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 text-white overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="absolute inset-0 bg-[#111113] from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
             <div className="text-3xl font-bold">{analytics.activePlatforms || 3}</div>
-            <div className="text-purple-200 mt-1">Active Platforms</div>
+            <div className="text-[#a1a1aa] mt-1">Active Platforms</div>
           </div>
         </motion.div>
       </div>
@@ -504,7 +504,7 @@ export default function Analytics() {
           <button
             onClick={handleReachSync}
             disabled={reachSyncing}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600/20 border border-purple-400/30 text-purple-200 hover:bg-purple-600/30 transition-all text-sm disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#22d3ee]/10 border border-[#22d3ee]/20 text-[#a1a1aa] hover:bg-[#22d3ee]/10 transition-all text-sm disabled:opacity-50"
           >
             <FaSync className={reachSyncing ? 'animate-spin' : ''} />
             {reachSyncing ? 'Syncing…' : 'Sync Now'}
@@ -512,7 +512,7 @@ export default function Analytics() {
         </div>
 
         {reachSnapshots.length === 0 ? (
-          <div className="bg-[#111113] border border-white/10 rounded-xl p-8 text-center text-[#a1a1aa]">
+          <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-8 text-center text-[#a1a1aa]">
             <p className="mb-2">No platform data yet.</p>
             <p className="text-sm">Click <span className="text-[#a1a1aa] font-medium">Sync Now</span> to pull followers, views, and engagement from your connected accounts.</p>
           </div>
@@ -534,10 +534,10 @@ export default function Analytics() {
               return (
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   {[
-                    { label: 'Total Followers', value: totals.followers, delta: totals.followersDelta, color: 'from-green-600/20 to-emerald-600/20 border-green-400/30' },
-                    { label: 'Total Views', value: totals.views, delta: totals.viewsDelta, color: 'from-blue-600/20 to-blue-700/20 border-blue-400/30' },
-                    { label: 'Total Likes', value: totals.likes, delta: totals.likesDelta, color: 'from-red-600/20 to-rose-600/20 border-red-400/30' },
-                    { label: 'Total Comments', value: totals.comments, delta: totals.commentsDelta, color: 'from-yellow-600/20 to-amber-600/20 border-yellow-400/30' },
+                    { label: 'Total Followers', value: totals.followers, delta: totals.followersDelta, color: ' border-green-400/30' },
+                    { label: 'Total Views', value: totals.views, delta: totals.viewsDelta, color: ' border-[#22d3ee]/20' },
+                    { label: 'Total Likes', value: totals.likes, delta: totals.likesDelta, color: ' border-red-400/30' },
+                    { label: 'Total Comments', value: totals.comments, delta: totals.commentsDelta, color: ' border-yellow-400/30' },
                   ].map(stat => (
                     <motion.div key={stat.label} whileHover={{ y: -3 }}
                       className={`bg-[#111113] border-2 rounded-xl p-5 text-white`}>
@@ -562,7 +562,7 @@ export default function Analytics() {
 
                 return (
                   <motion.div key={snap.platform} whileHover={{ y: -3 }}
-                    className="bg-[#111113] border border-white/10 rounded-xl overflow-hidden">
+                    className="bg-[#111113] border border-white/[0.06] rounded-xl overflow-hidden">
                     <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${meta.color}22` }}>
                       <div className="flex items-center gap-2">
                         <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
@@ -571,7 +571,7 @@ export default function Analytics() {
                       </div>
                       <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: meta.color }} />
                     </div>
-                    <div className="grid grid-cols-2 gap-px bg-white/5 p-px">
+                    <div className="grid grid-cols-2 gap-px bg-[#18181b] p-px">
                       {[
                         { label: 'Followers', value: snap.followers, delta: snap.followers_delta },
                         { label: 'Views', value: snap.total_views, delta: snap.views_delta },
@@ -605,8 +605,8 @@ export default function Analytics() {
 
             {/* Top Posts table */}
             {reachPosts.length > 0 && (
-              <div className="bg-[#111113] border border-white/10 rounded-xl overflow-hidden">
-                <div className="px-5 py-3 border-b border-white/10">
+              <div className="bg-[#111113] border border-white/[0.06] rounded-xl overflow-hidden">
+                <div className="px-5 py-3 border-b border-white/[0.06]">
                   <h3 className="font-semibold text-white">Top Performing Posts</h3>
                 </div>
                 <div className="overflow-x-auto">
@@ -628,7 +628,7 @@ export default function Analytics() {
                         .map(post => {
                           const meta = PLATFORM_META[post.platform] || { label: post.platform, color: '#888' };
                           return (
-                            <tr key={post.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <tr key={post.id} className="border-b border-white/5 hover:bg-[#18181b] transition-colors">
                               <td className="px-5 py-3">
                                 <a href={post.post_url || '#'} target="_blank" rel="noopener noreferrer"
                                   className="flex items-center gap-2 hover:text-white text-[#a1a1aa] transition-colors">
@@ -667,7 +667,7 @@ export default function Analytics() {
           whileHover={{ y: -5 }}
           className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="absolute inset-0 bg-[#111113] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
             <h2 className="text-xl font-bold text-white mb-4">Posts Timeline (Last 30 Days)</h2>
             {lineData.length > 0 && lineData[0].date !== 'No data' ? (
@@ -694,7 +694,7 @@ export default function Analytics() {
           whileHover={{ y: -5 }}
           className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+          <div className="absolute inset-0 bg-[#111113] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
             <h2 className="text-xl font-bold text-white mb-4">Platform Distribution</h2>
             {pieData.length > 0 && pieData[0].name !== 'No data' ? (
@@ -736,7 +736,7 @@ export default function Analytics() {
         whileHover={{ y: -5 }}
         className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+        <div className="absolute inset-0 bg-[#111113] from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
         <div className="relative">
           <h2 className="text-2xl font-bold text-white mb-4">Recent Posts</h2>
           {history.length === 0 ? (
@@ -771,18 +771,18 @@ export default function Analytics() {
 
                     // Platform icons mapping
                     const platformIcons = {
-                      linkedin: { Icon: FaLinkedin, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-blue-400/30', name: 'LinkedIn' },
+                      linkedin: { Icon: FaLinkedin, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/20', name: 'LinkedIn' },
                       twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border-sky-400/30', name: 'Twitter' },
-                      telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border-cyan-400/30', name: 'Telegram' },
+                      telegram: { Icon: FaTelegram, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-cyan-400/30', name: 'Telegram' },
                       youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border-red-400/30', name: 'YouTube' },
                       reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
                       discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
-                      slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-[#a1a1aa] border-purple-400/30', name: 'Slack' },
+                      slack: { Icon: FaSlack, color: 'bg-[#22d3ee]/10 text-[#a1a1aa] border-[#22d3ee]/20', name: 'Slack' },
                       tiktok: { Icon: FaTiktok, color: 'bg-white/[0.04] text-[#a1a1aa] border-white/[0.06]', name: 'TikTok' },
-                      tumblr: { Icon: FaTumblr, color: 'bg-blue-600/20 text-[#22d3ee] border-blue-400/30', name: 'Tumblr' },
+                      tumblr: { Icon: FaTumblr, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/20', name: 'Tumblr' },
                       devto: { Icon: FaMedium, color: 'bg-[#111113] text-[#a1a1aa] border-white/[0.06]', name: 'Dev.to' },
-                      mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-[#a1a1aa] border-purple-400/30', name: 'Mastodon' },
-                      bluesky: { Icon: SiBluesky, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-blue-400/30', name: 'Bluesky' },
+                      mastodon: { Icon: SiMastodon, color: 'bg-[#22d3ee]/10 text-[#a1a1aa] border-[#22d3ee]/20', name: 'Mastodon' },
+                      bluesky: { Icon: SiBluesky, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/20', name: 'Bluesky' },
                       medium: { Icon: FaMedium, color: 'bg-[#18181b]/20 text-[#a1a1aa] border-white/[0.06]', name: 'Medium' },
                       pinterest: { Icon: FaPinterest, color: 'bg-red-600/20 text-red-400 border-red-400/30', name: 'Pinterest' }
                     };
@@ -914,7 +914,7 @@ export default function Analytics() {
                                       }
                                     }}
                                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border ${platformInfo.color} transition ${isClickable
-                                      ? 'hover:scale-110 cursor-pointer hover:shadow-md hover:ring-2 hover:ring-blue-400'
+                                      ? 'hover:scale-110 cursor-pointer hover:ring-2 hover:ring-blue-400'
                                       : 'cursor-pointer opacity-70 hover:opacity-100'
                                       }`}
                                     title={isClickable ? `View post on ${platformInfo.name}` : `Click to see why link isn't available for ${platformInfo.name}`}
@@ -981,7 +981,7 @@ export default function Analytics() {
                                 };
                                 window.location.href = `/create?clone=${JSON.stringify(state)}`;
                               }}
-                              className="px-3 py-1 bg-purple-600/20 text-[#a1a1aa] border border-white/[0.08] rounded hover:bg-purple-600/30 transition-all text-xs font-semibold"
+                              className="px-3 py-1 bg-[#22d3ee]/10 text-[#a1a1aa] border border-white/[0.08] rounded hover:bg-[#22d3ee]/10 transition-all text-xs font-semibold"
                               title="Clone this post"
                             >
                               📋 Clone
@@ -1029,12 +1029,12 @@ export default function Analytics() {
           {insightsStats && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <FaBrain className="text-cyan-400" />
+                <FaBrain className="text-[#22d3ee]" />
                 AI Insights
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {insightsStats.bestTime && (
-                  <div className="glass border border-white/20 rounded-xl p-6">
+                  <div className="glass border border-white/[0.08] rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
                       <FaClock className="text-[#22d3ee] text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Time</h3>
@@ -1045,7 +1045,7 @@ export default function Analytics() {
                 )}
 
                 {insightsStats.bestDay && (
-                  <div className="glass border border-white/20 rounded-xl p-6">
+                  <div className="glass border border-white/[0.08] rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
                       <FaCalendar className="text-green-400 text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Day</h3>
@@ -1056,7 +1056,7 @@ export default function Analytics() {
                 )}
 
                 {insightsStats.bestContent && (
-                  <div className="glass border border-white/20 rounded-xl p-6">
+                  <div className="glass border border-white/[0.08] rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
                       <FaLightbulb className="text-yellow-400 text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Content</h3>
@@ -1067,7 +1067,7 @@ export default function Analytics() {
                 )}
 
                 {insightsStats.bestPlatform && (
-                  <div className="glass border border-white/20 rounded-xl p-6">
+                  <div className="glass border border-white/[0.08] rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
                       <FaTrophy className="text-[#a1a1aa] text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Platform</h3>
@@ -1096,7 +1096,7 @@ export default function Analytics() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className={`glass border-2 rounded-xl p-6 bg-gradient-to-br ${getCategoryColor(insight.category)}`}
+                      className={`glass border-2 rounded-xl p-6 bg-[#111113] ${getCategoryColor(insight.category)}`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
@@ -1121,7 +1121,7 @@ export default function Analytics() {
                           <p className="text-[#a1a1aa] mb-4">{insight.description}</p>
 
                           {insight.metric_value && (
-                            <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                            <div className="mb-4 p-3 bg-[#18181b] rounded-lg border border-white/[0.06]">
                               <p className="text-sm text-[#a1a1aa] mb-1">Key Metric</p>
                               <p className="text-2xl font-bold text-white">
                                 {insight.metric_value}% {insight.comparison_value && `(vs ${insight.comparison_value}%)`}
@@ -1129,15 +1129,15 @@ export default function Analytics() {
                             </div>
                           )}
 
-                          <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                            <p className="text-sm text-cyan-400 font-semibold mb-2">💡 Recommendation:</p>
+                          <div className="p-4 bg-[#18181b] rounded-lg border border-white/[0.06]">
+                            <p className="text-sm text-[#22d3ee] font-semibold mb-2">💡 Recommendation:</p>
                             <p className="text-white">{insight.recommendation}</p>
                           </div>
                         </div>
 
                         <button
                           onClick={() => handleDismissInsight(insight.id)}
-                          className="text-[#a1a1aa] hover:text-white transition p-2 rounded-lg hover:bg-white/10"
+                          className="text-[#a1a1aa] hover:text-white transition p-2 rounded-lg hover:bg-[#111113]"
                           title="Dismiss insight"
                         >
                           <FaTimes />
@@ -1154,7 +1154,7 @@ export default function Analytics() {
           {patterns.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-4">Detected Patterns</h2>
-              <div className="glass border border-white/20 rounded-xl p-6">
+              <div className="glass border border-white/[0.08] rounded-xl p-6">
                 <p className="text-[#a1a1aa] mb-4">
                   Analyzed {patterns.length} patterns from your posting history.
                 </p>
@@ -1162,7 +1162,7 @@ export default function Analytics() {
                   {[...new Set(patterns.map(p => p.pattern_type))].map(type => {
                     const typePatterns = patterns.filter(p => p.pattern_type === type);
                     return (
-                      <div key={type} className="p-4 bg-white/5 rounded-lg border border-white/10">
+                      <div key={type} className="p-4 bg-[#18181b] rounded-lg border border-white/[0.06]">
                         <p className="text-sm text-[#a1a1aa] capitalize mb-1">{type.replace(/_/g, ' ')}</p>
                         <p className="text-2xl font-bold text-white">{typePatterns.length}</p>
                       </div>
@@ -1179,7 +1179,7 @@ export default function Analytics() {
               <button
                 onClick={handleAnalyze}
                 disabled={analyzing}
-                className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                className="bg-[#22d3ee] text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
                 {analyzing ? (
                   <>
@@ -1201,8 +1201,8 @@ export default function Analytics() {
       {/* Analyze Button for Empty State - REMOVED */}
       {false && insights.length === 0 && patterns.length === 0 && analytics && analytics.totalPosts > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 text-center">
-          <div className="glass border-2 border-white/20 rounded-xl p-12 max-w-2xl mx-auto">
-            <FaBrain className="w-20 h-20 text-cyan-400 mx-auto mb-6" />
+          <div className="glass border border-white/[0.08] rounded-xl p-12 max-w-2xl mx-auto">
+            <FaBrain className="w-20 h-20 text-[#22d3ee] mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-white mb-4">No insights yet</h2>
             <p className="text-[#a1a1aa] mb-8">
               You need at least 10 posts to generate insights. The AI will analyze your posting patterns
@@ -1211,7 +1211,7 @@ export default function Analytics() {
             <button
               onClick={handleAnalyze}
               disabled={analyzing}
-              className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 inline-flex items-center gap-2"
+              className="bg-[#22d3ee] text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 inline-flex items-center gap-2"
             >
               {analyzing ? (
                 <>
