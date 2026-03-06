@@ -512,12 +512,12 @@ export default function ConnectAccounts() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">Connect Accounts</h1>
-        <p className="text-gray-300">Connect your social media accounts to start posting</p>
+        <p className="text-[#a1a1aa]">Connect your social media accounts to start posting</p>
       </div>
 
       {/* Connected Accounts Section */}
-      <div className="bg-[#111113] border border-white/[0.06] rounded-xl shadow-2xl p-6 mb-8">
-        <h2 className="text-2xl font-bold text-gray-100 mb-4">Connected Accounts</h2>
+      <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 mb-8">
+        <h2 className="text-2xl font-bold text-[#a1a1aa] mb-4">Connected Accounts</h2>
 
         {loading ? (
           <div className="text-center py-8">
@@ -526,8 +526,8 @@ export default function ConnectAccounts() {
         ) : accounts.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔗</div>
-            <p className="text-gray-400 mb-2 text-lg font-medium">No accounts connected yet</p>
-            <p className="text-sm text-gray-500">Connect your first platform below to get started</p>
+            <p className="text-[#a1a1aa] mb-2 text-lg font-medium">No accounts connected yet</p>
+            <p className="text-sm text-[#52525b]">Connect your first platform below to get started</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -549,7 +549,7 @@ export default function ConnectAccounts() {
               return (
                 <div
                   key={idx}
-                  className={`group relative overflow-hidden border-2 border-white/10 bg-gradient-to-br ${gradient} backdrop-blur-xl rounded-2xl p-6 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] hover:border-white/20 transition-all duration-300`}
+                  className={`group relative overflow-hidden border-2 border-white/10 bg-gradient-to-br ${gradient} rounded-xl p-6 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] hover:border-white/20 transition-all duration-300`}
                 >
                   {/* Glossy shine effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -559,7 +559,7 @@ export default function ConnectAccounts() {
                       {/* Icon with glow effect */}
                       <div className="relative">
                         <div className="absolute inset-0 blur-xl opacity-50">
-                          {account?.platform === 'linkedin' && <FaLinkedin className="text-5xl text-blue-500" />}
+                          {account?.platform === 'linkedin' && <FaLinkedin className="text-5xl text-[#22d3ee]" />}
                           {account?.platform === 'twitter' && <FaTwitter className="text-5xl text-sky-500" />}
                           {account?.platform === 'telegram' && <FaTelegram className="text-5xl text-cyan-500" />}
                           {account?.platform === 'slack' && <FaSlack className="text-5xl text-purple-500" />}
@@ -567,28 +567,28 @@ export default function ConnectAccounts() {
                           {account?.platform === 'reddit' && <FaReddit className="text-5xl text-orange-500" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-5xl text-red-500" />}
                           {account?.platform === 'pinterest' && <FaPinterest className="text-5xl text-red-600" />}
-                          {account?.platform === 'tiktok' && <FaTiktok className="text-5xl text-gray-300" />}
-                          {account?.platform === 'medium' && <FaMedium className="text-5xl text-gray-100" />}
-                          {account?.platform === 'devto' && <FaMedium className="text-5xl text-gray-900" />}
-                          {account?.platform === 'tumblr' && <FaTumblr className="text-5xl text-blue-500" />}
+                          {account?.platform === 'tiktok' && <FaTiktok className="text-5xl text-[#a1a1aa]" />}
+                          {account?.platform === 'medium' && <FaMedium className="text-5xl text-[#a1a1aa]" />}
+                          {account?.platform === 'devto' && <FaMedium className="text-5xl text-white" />}
+                          {account?.platform === 'tumblr' && <FaTumblr className="text-5xl text-[#22d3ee]" />}
                           {account?.platform === 'mastodon' && <SiMastodon className="text-5xl text-purple-500" />}
-                          {account?.platform === 'bluesky' && <SiBluesky className="text-5xl text-blue-500" />}
+                          {account?.platform === 'bluesky' && <SiBluesky className="text-5xl text-[#22d3ee]" />}
                         </div>
                         <div className="relative text-5xl drop-shadow-lg">
-                          {account?.platform === 'linkedin' && <FaLinkedin className="text-blue-400" />}
+                          {account?.platform === 'linkedin' && <FaLinkedin className="text-[#22d3ee]" />}
                           {account?.platform === 'twitter' && <FaTwitter className="text-sky-400" />}
                           {account?.platform === 'telegram' && <FaTelegram className="text-cyan-400" />}
-                          {account?.platform === 'slack' && <FaSlack className="text-purple-400" />}
+                          {account?.platform === 'slack' && <FaSlack className="text-[#a1a1aa]" />}
                           {account?.platform === 'discord' && <FaDiscord className="text-indigo-400" />}
                           {account?.platform === 'reddit' && <FaReddit className="text-orange-400" />}
                           {account?.platform === 'youtube' && <FaYoutube className="text-red-400" />}
                           {account?.platform === 'pinterest' && <FaPinterest className="text-red-500" />}
-                          {account?.platform === 'tiktok' && <FaTiktok className="text-gray-300" />}
-                          {account?.platform === 'medium' && <FaMedium className="text-gray-50" />}
-                          {account?.platform === 'devto' && <FaMedium className="text-gray-800" />}
-                          {account?.platform === 'tumblr' && <FaTumblr className="text-blue-400" />}
-                          {account?.platform === 'mastodon' && <SiMastodon className="text-purple-400" />}
-                          {account?.platform === 'bluesky' && <SiBluesky className="text-blue-400" />}
+                          {account?.platform === 'tiktok' && <FaTiktok className="text-[#a1a1aa]" />}
+                          {account?.platform === 'medium' && <FaMedium className="text-white" />}
+                          {account?.platform === 'devto' && <FaMedium className="text-white" />}
+                          {account?.platform === 'tumblr' && <FaTumblr className="text-[#22d3ee]" />}
+                          {account?.platform === 'mastodon' && <SiMastodon className="text-[#a1a1aa]" />}
+                          {account?.platform === 'bluesky' && <SiBluesky className="text-[#22d3ee]" />}
                         </div>
                       </div>
 
@@ -604,7 +604,7 @@ export default function ConnectAccounts() {
                               type="text"
                               value={editLabel}
                               onChange={(e) => setEditLabel(e.target.value)}
-                              className="bg-gray-800/70 border border-gray-600 text-white px-3 py-1.5 rounded-lg text-sm focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-500"
+                              className="bg-[#18181b] border border-white/[0.06] text-white px-3 py-1.5 rounded-lg text-sm focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-[#22d3ee]"
                               placeholder="Account label"
                               autoFocus
                             />
@@ -616,19 +616,19 @@ export default function ConnectAccounts() {
                             </button>
                             <button
                               onClick={cancelEditLabel}
-                              className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
+                              className="bg-[#18181b] hover:bg-[#18181b] text-white px-3 py-1.5 rounded-lg text-xs font-bold transition"
                             >
                               Cancel
                             </button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 mt-1">
-                            <p className="text-sm text-gray-300 font-semibold">
+                            <p className="text-sm text-[#a1a1aa] font-semibold">
                               {account?.account_label || 'Main Account'}
                             </p>
                             <button
                               onClick={() => startEditLabel(account)}
-                              className="text-blue-400 hover:text-blue-300 transition"
+                              className="text-[#22d3ee] hover:text-[#22d3ee] transition"
                               title="Edit label"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -638,10 +638,10 @@ export default function ConnectAccounts() {
                           </div>
                         )}
 
-                        <p className="text-xs text-gray-400 mt-1">{account?.platform_username || account?.username || 'Connected'}</p>
+                        <p className="text-xs text-[#a1a1aa] mt-1">{account?.platform_username || account?.username || 'Connected'}</p>
 
                         <div className="flex items-center gap-2 mt-3 flex-wrap">
-                          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-400/30 backdrop-blur-sm">
+                          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-400/30">
                             <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
@@ -650,7 +650,7 @@ export default function ConnectAccounts() {
 
                           {/* Default Badge */}
                           {account.is_default ? (
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-200 border border-yellow-400/50 backdrop-blur-sm">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-500/30 to-orange-500/30 text-yellow-200 border border-yellow-400/50">
                               <svg className="w-3 h-3 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                               </svg>
@@ -659,7 +659,7 @@ export default function ConnectAccounts() {
                           ) : (
                             <button
                               onClick={() => toggleDefault(account.id, account.is_default)}
-                              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-700/30 text-gray-300 border border-gray-600/50 hover:bg-blue-600/30 hover:border-blue-400/50 hover:text-blue-200 transition backdrop-blur-sm"
+                              className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#18181b] text-[#a1a1aa] border border-white/[0.06] hover:bg-blue-600/30 hover:border-blue-400/50 hover:text-blue-200 transition"
                               title="Set as default account for this platform"
                             >
                               <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 20 20">
@@ -674,7 +674,7 @@ export default function ConnectAccounts() {
                     {account?.id && (
                       <button
                         onClick={() => disconnectAccount(account)}
-                        className="group/btn relative overflow-hidden text-red-400 hover:text-white font-semibold text-sm px-5 py-2.5 rounded-lg border-2 border-red-500/30 hover:border-red-500 bg-red-500/10 hover:bg-red-500 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-red-500/50"
+                        className="group/btn relative overflow-hidden text-red-400 hover:text-white font-semibold text-sm px-5 py-2.5 rounded-lg border-2 border-red-500/30 hover:border-red-500 bg-red-500/10 hover:bg-red-500 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/50"
                       >
                         <span className="relative z-10 flex items-center gap-2">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -702,7 +702,7 @@ export default function ConnectAccounts() {
                 ✓ NOW
               </span>
             </div>
-            <p className="text-sm text-gray-400 mb-4">Connect instantly to these 10 platforms.</p>
+            <p className="text-sm text-[#a1a1aa] mb-4">Connect instantly to these 10 platforms.</p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {/* LinkedIn - Working */}
@@ -779,7 +779,7 @@ export default function ConnectAccounts() {
 
               {/* TikTok - Working */}
               {!isPlatformConnected('tiktok') && (
-                <button onClick={() => handleComingSoon('TikTok')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-gray-600/50 rounded-xl hover:border-gray-500 hover:shadow-2xl hover:shadow-gray-700/50 hover:scale-105 transition-all duration-200">
+                <button onClick={() => handleComingSoon('TikTok')} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#18181b] border border-white/[0.06] rounded-xl hover:border-white/[0.12]  hover:scale-105 transition-all duration-200">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaTiktok className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">TikTok</span>
@@ -790,7 +790,7 @@ export default function ConnectAccounts() {
 
               {/* Dev.to - Working */}
               {!isPlatformConnected('devto') && (
-                <button onClick={connectDevTo} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-gray-900 to-black border-2 border-gray-800/50 rounded-xl hover:border-gray-700 hover:shadow-2xl hover:shadow-gray-900/50 hover:scale-105 transition-all duration-200">
+                <button onClick={connectDevTo} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-[#18181b] border border-white/[0.06] rounded-xl hover:border-white/[0.06]  hover:scale-105 transition-all duration-200">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaMedium className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Dev.to</span>
@@ -799,7 +799,7 @@ export default function ConnectAccounts() {
 
               {/* Tumblr - Working */}
               {!isPlatformConnected('tumblr') && (
-                <button onClick={connectTumblr} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-blue-500/50 rounded-xl hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-600/50 hover:scale-105 transition-all duration-200">
+                <button onClick={connectTumblr} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-blue-600 to-blue-700 border-2 border-[#22d3ee]/50 rounded-xl hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-600/50 hover:scale-105 transition-all duration-200">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <FaTumblr className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Tumblr</span>
@@ -808,7 +808,7 @@ export default function ConnectAccounts() {
 
               {/* Mastodon - Working */}
               {!isPlatformConnected('mastodon') && (
-                <button onClick={connectMastodon} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-600 to-indigo-700 border-2 border-purple-500/50 rounded-xl hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-600/50 hover:scale-105 transition-all duration-200">
+                <button onClick={connectMastodon} className="group relative overflow-hidden flex flex-col items-center gap-2 p-5 bg-gradient-to-br from-purple-600 to-indigo-700 border-2 border-[#22d3ee]/30 rounded-xl hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-600/50 hover:scale-105 transition-all duration-200">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <SiMastodon className="relative text-4xl text-white drop-shadow-lg" />
                   <span className="relative font-bold text-sm text-white">Mastodon</span>
@@ -843,7 +843,7 @@ export default function ConnectAccounts() {
             <h3 className="text-xl font-bold text-white mb-4">Connect Telegram</h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Bot Token
                 </label>
                 <input
@@ -851,11 +851,11 @@ export default function ConnectAccounts() {
                   value={telegramBotToken}
                   onChange={(e) => setTelegramBotToken(e.target.value)}
                   placeholder="Enter your Telegram bot token"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Chat ID
                 </label>
                 <input
@@ -863,7 +863,7 @@ export default function ConnectAccounts() {
                   value={telegramChatId}
                   onChange={(e) => setTelegramChatId(e.target.value)}
                   placeholder="Enter your Telegram chat ID"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
                 />
               </div>
             </div>
@@ -876,7 +876,7 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowTelegramModal(false)}
-                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+                className="flex-1 bg-[#18181b] text-white px-4 py-2 rounded-lg hover:bg-white/[0.1] font-medium"
               >
                 Cancel
               </button>
@@ -896,7 +896,7 @@ export default function ConnectAccounts() {
             <h3 className="text-xl font-bold text-white mb-4">Connect Slack</h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Webhook URL
                 </label>
                 <input
@@ -904,11 +904,11 @@ export default function ConnectAccounts() {
                   value={slackWebhookUrl}
                   onChange={(e) => setSlackWebhookUrl(e.target.value)}
                   placeholder="https://hooks.slack.com/services/..."
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-[#22d3ee]/20"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Channel Name (Optional)
                 </label>
                 <input
@@ -916,7 +916,7 @@ export default function ConnectAccounts() {
                   value={slackChannelName}
                   onChange={(e) => setSlackChannelName(e.target.value)}
                   placeholder="e.g., general"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-[#22d3ee]/20"
                 />
               </div>
             </div>
@@ -929,7 +929,7 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowSlackModal(false)}
-                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+                className="flex-1 bg-[#18181b] text-white px-4 py-2 rounded-lg hover:bg-white/[0.1] font-medium"
               >
                 Cancel
               </button>
@@ -949,7 +949,7 @@ export default function ConnectAccounts() {
             <h3 className="text-xl font-bold text-white mb-4">Connect Discord</h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Webhook URL
                 </label>
                 <input
@@ -957,11 +957,11 @@ export default function ConnectAccounts() {
                   value={discordWebhookUrl}
                   onChange={(e) => setDiscordWebhookUrl(e.target.value)}
                   placeholder="https://discord.com/api/webhooks/..."
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Server Name (Optional)
                 </label>
                 <input
@@ -969,7 +969,7 @@ export default function ConnectAccounts() {
                   value={discordServerName}
                   onChange={(e) => setDiscordServerName(e.target.value)}
                   placeholder="e.g., My Server"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
             </div>
@@ -982,7 +982,7 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowDiscordModal(false)}
-                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+                className="flex-1 bg-[#18181b] text-white px-4 py-2 rounded-lg hover:bg-white/[0.1] font-medium"
               >
                 Cancel
               </button>
@@ -1005,7 +1005,7 @@ export default function ConnectAccounts() {
             </h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   API Key <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -1013,10 +1013,10 @@ export default function ConnectAccounts() {
                   value={devToApiKey}
                   onChange={(e) => setDevToApiKey(e.target.value)}
                   placeholder="Q3QMaaq53dyqJsebtZ6ry14N"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-[#22d3ee]/20"
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Get your API key from <a href="https://dev.to/settings/extensions" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">Dev.to Settings → Extensions</a>
+                <p className="text-xs text-[#a1a1aa] mt-1">
+                  Get your API key from <a href="https://dev.to/settings/extensions" target="_blank" rel="noopener noreferrer" className="text-[#a1a1aa] hover:underline">Dev.to Settings → Extensions</a>
                 </p>
               </div>
             </div>
@@ -1029,7 +1029,7 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowDevToModal(false)}
-                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+                className="flex-1 bg-[#18181b] text-white px-4 py-2 rounded-lg hover:bg-white/[0.1] font-medium"
               >
                 Cancel
               </button>
@@ -1047,12 +1047,12 @@ export default function ConnectAccounts() {
             className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <SiMastodon className="text-2xl text-purple-400" />
+              <SiMastodon className="text-2xl text-[#a1a1aa]" />
               Connect Mastodon
             </h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Instance URL <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -1060,14 +1060,14 @@ export default function ConnectAccounts() {
                   value={mastodonInstanceUrl}
                   onChange={(e) => setMastodonInstanceUrl(e.target.value)}
                   placeholder="mastodon.social"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-[#22d3ee]/20"
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-[#a1a1aa] mt-1">
                   Your Mastodon instance (e.g., mastodon.social, mastodon.online)
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Access Token <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -1075,10 +1075,10 @@ export default function ConnectAccounts() {
                   value={mastodonAccessToken}
                   onChange={(e) => setMastodonAccessToken(e.target.value)}
                   placeholder="Your access token"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-[#22d3ee]/20"
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Create an app at: <code className="bg-gray-800 px-1 rounded">https://[your-instance]/settings/applications</code>
+                <p className="text-xs text-[#a1a1aa] mt-1">
+                  Create an app at: <code className="bg-[#18181b] px-1 rounded">https://[your-instance]/settings/applications</code>
                 </p>
               </div>
             </div>
@@ -1091,7 +1091,7 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowMastodonModal(false)}
-                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+                className="flex-1 bg-[#18181b] text-white px-4 py-2 rounded-lg hover:bg-white/[0.1] font-medium"
               >
                 Cancel
               </button>
@@ -1109,12 +1109,12 @@ export default function ConnectAccounts() {
             className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <SiBluesky className="text-2xl text-blue-400" />
+              <SiBluesky className="text-2xl text-[#22d3ee]" />
               Connect Bluesky
             </h3>
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Handle <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -1122,14 +1122,14 @@ export default function ConnectAccounts() {
                   value={blueskyHandle}
                   onChange={(e) => setBlueskyHandle(e.target.value)}
                   placeholder="username.bsky.social"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-[#a1a1aa] mt-1">
                   Your Bluesky handle (e.g., ajay.bsky.social)
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   App Password <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -1137,10 +1137,10 @@ export default function ConnectAccounts() {
                   value={blueskyAppPassword}
                   onChange={(e) => setBlueskyAppPassword(e.target.value)}
                   placeholder="xxxx-xxxx-xxxx-xxxx"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
+                  className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Create at: <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Settings → App Passwords</a>
+                <p className="text-xs text-[#a1a1aa] mt-1">
+                  Create at: <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer" className="text-[#22d3ee] hover:underline">Settings → App Passwords</a>
                 </p>
               </div>
             </div>
@@ -1153,7 +1153,7 @@ export default function ConnectAccounts() {
               </button>
               <button
                 onClick={() => setShowBlueskyModal(false)}
-                className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 font-medium"
+                className="flex-1 bg-[#18181b] text-white px-4 py-2 rounded-lg hover:bg-white/[0.1] font-medium"
               >
                 Cancel
               </button>
@@ -1172,7 +1172,7 @@ export default function ConnectAccounts() {
           >
             <div className="text-6xl mb-4">🚧</div>
             <h3 className="text-2xl font-bold text-white mb-2">{comingSoonPlatform} Integration</h3>
-            <p className="text-gray-300 mb-6">
+            <p className="text-[#a1a1aa] mb-6">
               We're working hard to bring {comingSoonPlatform} integration to you soon. Stay tuned for updates!
             </p>
             <button

@@ -178,22 +178,22 @@ export default function Team() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-white/[0.08] border-t-purple-500 rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2">
+              <h1 className="text-4xl font-black   mb-2">
                 Team Management
               </h1>
-              <p className="text-gray-400">
+              <p className="text-[#a1a1aa]">
                 {workspace?.workspace_name || 'Your Workspace'} • {members.length} {members.length === 1 ? 'member' : 'members'}
               </p>
             </div>
@@ -201,7 +201,7 @@ export default function Team() {
             {canInvite && (
               <motion.button
                 onClick={() => setShowInviteModal(true)}
-                className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all"
+                className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white font-bold rounded-lg hover:shadow-purple-500/50 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -212,12 +212,12 @@ export default function Team() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-gray-700">
+        <div className="flex gap-4 mb-8 border-b border-white/[0.06]">
           <button
             onClick={() => setActiveTab('members')}
             className={`pb-3 px-4 font-semibold transition-colors ${activeTab === 'members'
-              ? 'text-purple-400 border-b-2 border-purple-400'
-              : 'text-gray-400 hover:text-white'
+              ? 'text-[#a1a1aa] border-b-2 border-purple-400'
+              : 'text-[#a1a1aa] hover:text-white'
               }`}
           >
             Team Members ({members.length})
@@ -227,8 +227,8 @@ export default function Team() {
             <button
               onClick={() => setActiveTab('invitations')}
               className={`pb-3 px-4 font-semibold transition-colors relative ${activeTab === 'invitations'
-                ? 'text-purple-400 border-b-2 border-purple-400'
-                : 'text-gray-400 hover:text-white'
+                ? 'text-[#a1a1aa] border-b-2 border-purple-400'
+                : 'text-[#a1a1aa] hover:text-white'
                 }`}
             >
               Pending Invitations ({invitations.length})
@@ -237,8 +237,8 @@ export default function Team() {
           <button
             onClick={() => setActiveTab('activity')}
             className={`pb-3 px-4 font-semibold transition-colors ${activeTab === 'activity'
-              ? 'text-purple-400 border-b-2 border-purple-400'
-              : 'text-gray-400 hover:text-white'
+              ? 'text-[#a1a1aa] border-b-2 border-purple-400'
+              : 'text-[#a1a1aa] hover:text-white'
               }`}
           >
             Activity Feed
@@ -328,16 +328,16 @@ function MemberCard({ member, isOwner, currentUserRole, onRemove, onChangeRole }
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gray-800/50 backdrop-blur-xl border-2 border-gray-700/50 rounded-xl p-6 shadow-xl hover:border-purple-500/50 transition-all"
+      className="bg-[#18181b] border border-white/[0.06] rounded-xl p-6 hover:border-[#22d3ee]/30 transition-all"
     >
       {/* Avatar & Name */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
+        <div className="w-14 h-14 bg-[#22d3ee]/10 rounded-full flex items-center justify-center text-white text-xl font-bold">
           {member.name?.[0]?.toUpperCase() || '?'}
         </div>
         <div className="flex-1">
           <h3 className="text-white font-bold text-lg">{member.name || 'Unknown'}</h3>
-          <p className="text-gray-400 text-sm break-all">{member.email}</p>
+          <p className="text-[#a1a1aa] text-sm break-all">{member.email}</p>
         </div>
       </div>
 
@@ -347,7 +347,7 @@ function MemberCard({ member, isOwner, currentUserRole, onRemove, onChangeRole }
       </div>
 
       {/* Joined Date */}
-      <p className="text-gray-500 text-xs mb-4">
+      <p className="text-[#52525b] text-xs mb-4">
         Joined {new Date(member.joined_at).toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -366,7 +366,7 @@ function MemberCard({ member, isOwner, currentUserRole, onRemove, onChangeRole }
               setTimeout(() => setChangingRole(false), 1000);
             }}
             disabled={changingRole}
-            className="flex-1 bg-gray-700/50 border border-gray-600 text-white text-sm px-3 py-2 rounded-lg focus:ring-2 focus:ring-purple-500 transition disabled:opacity-50"
+            className="flex-1 bg-[#18181b] border border-white/[0.06] text-white text-sm px-3 py-2 rounded-lg focus:ring-2 focus:ring-[#22d3ee]/20 transition disabled:opacity-50"
           >
             <option value="admin">Admin</option>
             <option value="editor">Editor</option>
@@ -402,10 +402,10 @@ function InvitationCard({ invitation, onCancel, onResend }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="bg-gray-800/50 backdrop-blur-xl border-2 border-yellow-500/30 rounded-xl p-6 shadow-xl"
+      className="bg-[#18181b] border-2 border-yellow-500/30 rounded-xl p-6"
     >
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xl shadow-lg">
+        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xl">
           📧
         </div>
         <div className="flex-1">
@@ -426,23 +426,23 @@ function InvitationCard({ invitation, onCancel, onResend }) {
       <div className="mb-4">
         <button
           onClick={() => setShowToken(!showToken)}
-          className="text-xs text-blue-400 hover:text-blue-300 transition"
+          className="text-xs text-[#22d3ee] hover:text-[#22d3ee] transition"
         >
           {showToken ? '🔒 Hide' : '🔗 Show'} Invitation Link
         </button>
         {showToken && (
-          <div className="mt-2 bg-gray-900/50 border border-gray-700 rounded-lg p-3">
-            <p className="text-gray-400 text-xs mb-2">Copy this URL and send to the invitee:</p>
+          <div className="mt-2 bg-[#111113] border border-white/[0.06] rounded-lg p-3">
+            <p className="text-[#a1a1aa] text-xs mb-2">Copy this URL and send to the invitee:</p>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={inviteUrl}
                 readOnly
-                className="flex-1 bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded border border-gray-600"
+                className="flex-1 bg-[#18181b] text-[#a1a1aa] text-xs px-2 py-1 rounded border border-white/[0.06]"
               />
               <button
                 onClick={() => copyToClipboard(inviteUrl)}
-                className="px-3 py-1 bg-blue-600/20 text-blue-400 text-xs rounded hover:bg-blue-600/30 transition"
+                className="px-3 py-1 bg-blue-600/20 text-[#22d3ee] text-xs rounded hover:bg-blue-600/30 transition"
               >
                 Copy
               </button>
@@ -454,7 +454,7 @@ function InvitationCard({ invitation, onCancel, onResend }) {
       <div className="flex gap-2">
         <button
           onClick={onResend}
-          className="flex-1 px-4 py-2 bg-purple-600/20 text-purple-400 border border-purple-500/50 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
+          className="flex-1 px-4 py-2 bg-purple-600/20 text-[#a1a1aa] border border-[#22d3ee]/30 rounded-lg hover:bg-purple-600/30 transition text-sm font-semibold"
         >
           Resend
         </button>
@@ -476,7 +476,7 @@ function ActivityFeed({ activities }) {
   }
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-gray-700/50 rounded-xl overflow-hidden">
+    <div className="bg-[#18181b] border border-white/[0.06] rounded-xl overflow-hidden">
       <div className="divide-y divide-gray-700/50">
         {activities.map((activity, index) => (
           <motion.div
@@ -488,7 +488,7 @@ function ActivityFeed({ activities }) {
           >
             <div className="flex items-start gap-4">
               {/* Icon */}
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white">
+              <div className="flex-shrink-0 w-10 h-10 bg-[#22d3ee]/10 rounded-full flex items-center justify-center text-white">
                 {getActivityIcon(activity.action)}
               </div>
 
@@ -497,7 +497,7 @@ function ActivityFeed({ activities }) {
                 <p className="text-white text-sm">
                   {activity.formatted || activity.action}
                 </p>
-                <p className="text-gray-500 text-xs mt-1">
+                <p className="text-[#52525b] text-xs mt-1">
                   {formatTimestamp(new Date(activity.created_at))}
                 </p>
               </div>
@@ -519,7 +519,7 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
@@ -527,7 +527,7 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+          className="bg-[#18181b] border border-white/[0.08] rounded-xl p-8 max-w-md w-full"
         >
           <h2 className="text-2xl font-bold text-white mb-6">
             Invite Team Member
@@ -536,7 +536,7 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
           <form onSubmit={onSubmit} className="space-y-4">
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">
                 Email Address
               </label>
               <input
@@ -544,20 +544,20 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 placeholder="colleague@company.com"
-                className="w-full bg-gray-700/50 border-2 border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white px-4 py-3 rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors transition"
                 required
               />
             </div>
 
             {/* Role Selector */}
             <div>
-              <label className="block text-sm font-semibold text-gray-300 mb-2">
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">
                 Role
               </label>
               <select
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
-                className="w-full bg-gray-700/50 border-2 border-gray-600 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 transition"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#22d3ee]/20 transition"
               >
                 <option value="admin">Admin - Can manage team and approve posts</option>
                 <option value="editor">Editor - Can create posts that require approval</option>
@@ -570,7 +570,7 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition font-semibold"
+                className="flex-1 px-4 py-3 bg-[#18181b] text-white rounded-lg hover:bg-[#18181b] transition font-semibold"
                 disabled={inviting}
               >
                 Cancel

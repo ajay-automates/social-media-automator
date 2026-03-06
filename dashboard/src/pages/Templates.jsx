@@ -365,48 +365,48 @@ export default function Templates() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8 relative">
-        <div className="group relative bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 backdrop-blur-md border-2 border-white/20 rounded-2xl p-8 shadow-2xl overflow-hidden">
+        <div className="group relative bg-gradient-to-r from-purple-600/20 via-blue-600/20 to-pink-600/20 border border-white/[0.08] rounded-xl p-8 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="relative">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-300 via-blue-300 to-pink-300 bg-clip-text text-transparent">
               Post Templates
             </h1>
-            <p className="text-gray-200 mt-3 text-lg">Save and reuse your best-performing posts</p>
+            <p className="text-[#a1a1aa] mt-3 text-lg">Save and reuse your best-performing posts</p>
           </div>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="group relative bg-gradient-to-br from-blue-600/20 to-blue-900/20 backdrop-blur-lg border-2 border-blue-400/30 rounded-2xl shadow-2xl shadow-blue-500/20 p-6 hover:scale-105 hover:shadow-blue-500/40 transition-all duration-300 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+        <div className="group relative bg-[#111113] border-2 border-blue-400/30 rounded-xl shadow-blue-500/20 p-6 hover:scale-105 hover:shadow-blue-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="absolute inset-0 bg-blue-500/5 blur-xl"></div>
           <div className="relative">
-            <div className="text-4xl font-bold text-blue-300">{computedStats.total}</div>
+            <div className="text-4xl font-bold text-[#22d3ee]">{computedStats.total}</div>
             <div className="text-sm text-blue-200 mt-2 font-medium">Total Templates</div>
           </div>
         </div>
-        <div className="group relative bg-gradient-to-br from-yellow-600/20 to-yellow-900/20 backdrop-blur-lg border-2 border-yellow-400/30 rounded-2xl shadow-2xl shadow-yellow-500/20 p-6 hover:scale-105 hover:shadow-yellow-500/40 transition-all duration-300 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+        <div className="group relative bg-[#111113] border-2 border-yellow-400/30 rounded-xl shadow-yellow-500/20 p-6 hover:scale-105 hover:shadow-yellow-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="absolute inset-0 bg-yellow-500/5 blur-xl"></div>
           <div className="relative">
             <div className="text-4xl font-bold text-yellow-300">{computedStats.favorites}</div>
             <div className="text-sm text-yellow-200 mt-2 font-medium">Favorites</div>
           </div>
         </div>
-        <div className="group relative bg-gradient-to-br from-green-600/20 to-green-900/20 backdrop-blur-lg border-2 border-green-400/30 rounded-2xl shadow-2xl shadow-green-500/20 p-6 hover:scale-105 hover:shadow-green-500/40 transition-all duration-300 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+        <div className="group relative bg-[#111113] border-2 border-green-400/30 rounded-xl shadow-green-500/20 p-6 hover:scale-105 hover:shadow-green-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="absolute inset-0 bg-green-500/5 blur-xl"></div>
           <div className="relative">
             <div className="text-4xl font-bold text-green-300">{computedStats.totalUses}</div>
             <div className="text-sm text-green-200 mt-2 font-medium">Total Uses</div>
           </div>
         </div>
-        <div className="group relative bg-gradient-to-br from-purple-600/20 to-purple-900/20 backdrop-blur-lg border-2 border-purple-400/30 rounded-2xl shadow-2xl shadow-purple-500/20 p-6 hover:scale-105 hover:shadow-purple-500/40 transition-all duration-300 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+        <div className="group relative bg-[#111113] border-2 border-purple-400/30 rounded-xl shadow-purple-500/20 p-6 hover:scale-105 hover:shadow-purple-500/40 transition-all duration-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="absolute inset-0 bg-purple-500/5 blur-xl"></div>
           <div className="relative">
-            <div className="text-4xl font-bold text-purple-300">
+            <div className="text-4xl font-bold text-[#a1a1aa]">
               {computedStats.mostUsed && computedStats.mostUsed.length > 0 ? computedStats.mostUsed[0]?.use_count || 0 : 0}
             </div>
             <div className="text-sm text-purple-200 mt-2 font-medium">Most Used</div>
@@ -415,7 +415,7 @@ export default function Templates() {
       </div>
 
       {/* Controls */}
-      <div className="group relative bg-gradient-to-br from-gray-900/40 to-gray-800/40 backdrop-blur-lg border-2 border-white/20 rounded-2xl shadow-2xl p-6 mb-8 overflow-hidden">
+      <div className="group relative bg-[#111113] border border-white/[0.08] rounded-xl p-6 mb-8 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div className="relative">
           <div className="flex flex-col md:flex-row gap-4">
@@ -426,7 +426,7 @@ export default function Templates() {
                 placeholder="🔍 Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-5 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 placeholder:text-gray-400 transition-all shadow-lg"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-5 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 placeholder:text-[#a1a1aa] transition-all"
               />
             </div>
 
@@ -436,7 +436,7 @@ export default function Templates() {
                 resetForm();
                 setShowModal(true);
               }}
-              className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold whitespace-nowrap transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+              className="group/btn relative bg-gradient-to-r from-blue-600/40 to-purple-600/40 border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold whitespace-nowrap transition-all hover:shadow-blue-500/40 overflow-hidden"
               title="Create a new reusable template"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
@@ -451,8 +451,8 @@ export default function Templates() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`group/cat relative px-5 py-2.5 rounded-xl whitespace-nowrap transition-all overflow-hidden font-medium ${selectedCategory === cat.id
-                  ? 'bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/60 text-white shadow-xl shadow-blue-500/40'
-                  : 'bg-gray-800/60 backdrop-blur-lg text-gray-200 hover:bg-gray-700/60 border-2 border-white/20 hover:border-white/30 shadow-lg'
+                  ? 'bg-gradient-to-r from-blue-600/40 to-purple-600/40 border-2 border-blue-400/60 text-white shadow-blue-500/40'
+                  : 'bg-[#18181b] text-[#a1a1aa] hover:bg-[#18181b] border border-white/[0.08] hover:border-white/30'
                   }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent opacity-0 group-hover/cat:opacity-100 transition-opacity duration-300 rounded-xl"></div>
@@ -474,16 +474,16 @@ export default function Templates() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedTemplates.map(template => (
-            <div key={template.id} className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-md border-2 border-white/20 rounded-2xl shadow-2xl hover:shadow-purple-500/30 transition-all hover:scale-[1.03] hover:border-purple-400/40 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div key={template.id} className="group relative bg-[#111113] border border-white/[0.08] rounded-xl hover:shadow-purple-500/30 transition-all hover:scale-[1.03] hover:border-purple-400/40 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
+              <div className="absolute inset-0 bg-[#111113] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="p-6 relative">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-white mb-1">{template.name}</h3>
                     {template.is_public && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500/30 to-purple-500/30 backdrop-blur-sm border border-blue-400/40 text-blue-200 rounded-full text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-500/30 to-purple-500/30 border border-blue-400/40 text-blue-200 rounded-full text-xs font-medium">
                         🌐 Public Template
                       </span>
                     )}
@@ -500,11 +500,11 @@ export default function Templates() {
 
                 {/* Description */}
                 {template.description && (
-                  <p className="text-sm text-gray-300 mb-3">{template.description}</p>
+                  <p className="text-sm text-[#a1a1aa] mb-3">{template.description}</p>
                 )}
 
                 {/* Content Preview */}
-                <p className="text-sm text-gray-200 mb-4 line-clamp-3 bg-gray-700/50 p-3 rounded">
+                <p className="text-sm text-[#a1a1aa] mb-4 line-clamp-3 bg-[#18181b] p-3 rounded">
                   {template.text}
                 </p>
 
@@ -520,9 +520,9 @@ export default function Templates() {
                 </div>
 
                 {/* Meta */}
-                <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+                <div className="flex items-center justify-between text-xs text-[#a1a1aa] mb-4">
                   <span>Used {template.use_count} times</span>
-                  <span className="px-2 py-1 bg-gray-700/50 backdrop-blur-sm border border-white/10 rounded text-gray-300">{template.category}</span>
+                  <span className="px-2 py-1 bg-[#18181b] border border-white/10 rounded text-[#a1a1aa]">{template.category}</span>
                 </div>
 
                 {/* Actions */}
@@ -531,21 +531,21 @@ export default function Templates() {
                     <>
                       <button
                         onClick={() => handleEditTemplate(template)}
-                        className="group/btn relative flex-1 bg-blue-600/20 backdrop-blur-sm border border-blue-400/30 text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-600/30 text-sm font-medium transition-all overflow-hidden"
+                        className="group/btn relative flex-1 bg-blue-600/20 border border-blue-400/30 text-[#22d3ee] px-3 py-2 rounded-lg hover:bg-blue-600/30 text-sm font-medium transition-all overflow-hidden"
                       >
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                         <span className="relative">✏️ Edit</span>
                       </button>
                       <button
                         onClick={() => handleDuplicateTemplate(template.id)}
-                        className="group/btn relative flex-1 bg-green-600/20 backdrop-blur-sm border border-green-400/30 text-green-300 px-3 py-2 rounded-lg hover:bg-green-600/30 text-sm font-medium transition-all overflow-hidden"
+                        className="group/btn relative flex-1 bg-green-600/20 border border-green-400/30 text-green-300 px-3 py-2 rounded-lg hover:bg-green-600/30 text-sm font-medium transition-all overflow-hidden"
                       >
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                         <span className="relative">📋 Duplicate</span>
                       </button>
                       <button
                         onClick={() => handleDeleteTemplate(template.id)}
-                        className="group/btn relative bg-red-600/20 backdrop-blur-sm border border-red-400/30 text-red-300 px-3 py-2 rounded-lg hover:bg-red-600/30 text-sm font-medium transition-all overflow-hidden"
+                        className="group/btn relative bg-red-600/20 border border-red-400/30 text-red-300 px-3 py-2 rounded-lg hover:bg-red-600/30 text-sm font-medium transition-all overflow-hidden"
                       >
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                         <span className="relative">🗑️</span>
@@ -554,7 +554,7 @@ export default function Templates() {
                   ) : (
                     <button
                       onClick={() => handleDuplicateTemplate(template.id)}
-                      className="group/btn relative flex-1 bg-gradient-to-r from-purple-600/30 to-blue-600/30 backdrop-blur-sm border-2 border-purple-400/40 text-purple-200 px-4 py-2 rounded-lg hover:from-purple-600/40 hover:to-blue-600/40 text-sm font-semibold transition-all overflow-hidden shadow-lg hover:shadow-purple-500/30"
+                      className="group/btn relative flex-1 bg-gradient-to-r from-purple-600/30 to-blue-600/30 border-2 border-purple-400/40 text-purple-200 px-4 py-2 rounded-lg hover:from-purple-600/40 hover:to-blue-600/40 text-sm font-semibold transition-all overflow-hidden hover:shadow-purple-500/30"
                     >
                       <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                       <span className="relative">✨ Clone to My Templates</span>
@@ -569,9 +569,9 @@ export default function Templates() {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="group relative bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-2xl border-2 border-white/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="group relative bg-[#111113] border border-white/[0.08] rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
             <div className="p-8 relative">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent mb-6">
                 {editingTemplate ? 'Edit Template' : 'Create Template'}
@@ -580,45 +580,45 @@ export default function Templates() {
               <div className="space-y-5">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Template Name *</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Template Name *</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="e.g., Welcome Message"
                   />
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Description</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Description</label>
                   <input
                     type="text"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="Optional description"
                   />
                 </div>
 
                 {/* Content */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Content *</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Content *</label>
                   <textarea
                     value={formData.text}
                     onChange={(e) => setFormData({ ...formData, text: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 h-32 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg resize-none"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 h-32 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
                     placeholder="Template content... Use {{variable}} for dynamic values"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-[#52525b] mt-1">
                     Tip: Use variables like {'{'}{'{'} name {'}'}{'}'},  {'{'}{'{'} date {'}'}{'}'},  {'{'}{'{'} company {'}'}{'}'}
                   </p>
                 </div>
 
                 {/* Platforms */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Platforms *</label>
+                  <label className="block text-sm font-medium text-[#a1a1aa] mb-2">Platforms *</label>
                   <div className="flex gap-3 flex-wrap">
                     {AVAILABLE_PLATFORMS.map((platform) => (
                       <PlatformChip
@@ -634,11 +634,11 @@ export default function Templates() {
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Category</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Category</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   >
                     {CATEGORIES.filter(c => c.id !== 'all').map(cat => (
                       <option key={cat.id} value={cat.id}>
@@ -650,7 +650,7 @@ export default function Templates() {
 
                 {/* Tags */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Tags (comma-separated)</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Tags (comma-separated)</label>
                   <input
                     type="text"
                     value={Array.isArray(formData.tags) ? formData.tags.join(', ') : ''}
@@ -661,7 +661,7 @@ export default function Templates() {
                         .filter(tag => tag.length > 0);
                       setFormData({ ...formData, tags: tagsArray });
                     }}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="e.g., sales, promotion, engagement"
                   />
                   {formData.tags && formData.tags.length > 0 && (
@@ -690,12 +690,12 @@ export default function Templates() {
 
                 {/* Image URL */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Image URL (Optional)</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Image URL (Optional)</label>
                   <input
                     type="url"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="https://..."
                   />
                 </div>
@@ -705,7 +705,7 @@ export default function Templates() {
               <div className="flex gap-4 mt-8">
                 <button
                   onClick={handleSaveTemplate}
-                  className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden"
+                  className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all hover:shadow-blue-500/40 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                   <span className="relative">{editingTemplate ? 'Update Template' : 'Create Template'}</span>
@@ -715,7 +715,7 @@ export default function Templates() {
                     setShowModal(false);
                     resetForm();
                   }}
-                  className="group/btn relative flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-white/20 text-gray-200 px-6 py-3 rounded-xl hover:bg-gray-700/60 font-semibold transition-all shadow-lg overflow-hidden"
+                  className="group/btn relative flex-1 bg-[#18181b] border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-xl hover:bg-[#18181b] font-semibold transition-all overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                   <span className="relative">Cancel</span>

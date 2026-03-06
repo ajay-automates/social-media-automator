@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaBell, FaPlus, FaEdit, FaTrash, FaVial, FaHistory, FaCog, FaCheck, FaTimes, FaCopy } from 'react-icons/fa';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
-import AnimatedBackground from '../components/ui/AnimatedBackground';
 import PlatformChip from '../components/ui/PlatformChip';
 
 export default function Webhooks() {
@@ -201,19 +200,19 @@ export default function Webhooks() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
-        <AnimatedBackground />
+      <div className="min-h-screen flex items-center justify-center">
+        
         <div className="text-center relative z-10">
-          <div className="w-16 h-16 border-4 border-[#38383a] border-t-[#0a84ff] rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[#98989d] font-medium">Loading webhooks...</p>
+          <div className="w-16 h-16 border-4 border-white/[0.06] border-t-[#0a84ff] rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#a1a1aa] font-medium">Loading webhooks...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#000000] py-8 px-4">
-      <AnimatedBackground />
+    <div className="min-h-screen py-8 px-4">
+      
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
@@ -225,7 +224,7 @@ export default function Webhooks() {
             }}>
               🔔 Webhooks
             </h1>
-            <p className="text-[#98989d] mt-2 text-sm font-medium">
+            <p className="text-[#a1a1aa] mt-2 text-sm font-medium">
               Connect to Zapier, Make, and 1000+ apps
             </p>
           </div>
@@ -245,9 +244,9 @@ export default function Webhooks() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#1c1c1e] border border-[#38383a] rounded-xl p-6"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6"
           >
-            <div className="text-[#98989d] text-sm font-semibold uppercase tracking-wide mb-2">Total Webhooks</div>
+            <div className="text-[#a1a1aa] text-sm font-semibold uppercase tracking-wide mb-2">Total Webhooks</div>
             <div className="text-4xl font-bold text-white">{webhooks.length}</div>
           </motion.div>
 
@@ -255,19 +254,19 @@ export default function Webhooks() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-[#1c1c1e] border border-[#38383a] rounded-xl p-6"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6"
           >
-            <div className="text-[#98989d] text-sm font-semibold uppercase tracking-wide mb-2">Active</div>
-            <div className="text-4xl font-bold text-[#0a84ff]">{webhooks.filter(w => w.enabled).length}</div>
+            <div className="text-[#a1a1aa] text-sm font-semibold uppercase tracking-wide mb-2">Active</div>
+            <div className="text-4xl font-bold text-[#22d3ee]">{webhooks.filter(w => w.enabled).length}</div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-[#1c1c1e] border border-[#38383a] rounded-xl p-6"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6"
           >
-            <div className="text-[#98989d] text-sm font-semibold uppercase tracking-wide mb-2">Total Triggers</div>
+            <div className="text-[#a1a1aa] text-sm font-semibold uppercase tracking-wide mb-2">Total Triggers</div>
             <div className="text-4xl font-bold text-white">
               {stats.reduce((sum, s) => sum + (s.total_triggers || 0), 0)}
             </div>
@@ -277,10 +276,10 @@ export default function Webhooks() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-[#1c1c1e] border border-[#38383a] rounded-xl p-6"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6"
           >
-            <div className="text-[#98989d] text-sm font-semibold uppercase tracking-wide mb-2">Success Rate</div>
-            <div className="text-4xl font-bold text-[#32d74b]">
+            <div className="text-[#a1a1aa] text-sm font-semibold uppercase tracking-wide mb-2">Success Rate</div>
+            <div className="text-4xl font-bold text-green-400">
               {stats.length > 0 
                 ? Math.round(stats.reduce((sum, s) => sum + (s.success_rate || 0), 0) / stats.length)
                 : 0}%
@@ -294,8 +293,8 @@ export default function Webhooks() {
             onClick={() => setActiveTab('webhooks')}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition ${
               activeTab === 'webhooks'
-                ? 'bg-[#0a84ff] text-white'
-                : 'bg-[#3a3a3c] text-[#98989d] hover:bg-[#48484a]'
+                ? 'bg-[#22d3ee] text-white'
+                : 'bg-white/[0.06] text-[#a1a1aa] hover:bg-white/[0.1]'
             }`}
           >
             <FaBell className="inline mr-2" />
@@ -305,8 +304,8 @@ export default function Webhooks() {
             onClick={() => setActiveTab('logs')}
             className={`flex-1 px-6 py-3 rounded-lg font-semibold transition ${
               activeTab === 'logs'
-                ? 'bg-[#0a84ff] text-white'
-                : 'bg-[#3a3a3c] text-[#98989d] hover:bg-[#48484a]'
+                ? 'bg-[#22d3ee] text-white'
+                : 'bg-white/[0.06] text-[#a1a1aa] hover:bg-white/[0.1]'
             }`}
           >
             <FaHistory className="inline mr-2" />
@@ -318,10 +317,10 @@ export default function Webhooks() {
         {activeTab === 'webhooks' && (
           <div className="space-y-4">
             {webhooks.length === 0 ? (
-              <div className="bg-[#1c1c1e] border border-[#38383a] rounded-xl p-12 text-center">
+              <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-12 text-center">
                 <div className="text-6xl mb-4">🔔</div>
                 <h3 className="text-xl font-bold text-white mb-2">No Webhooks Configured</h3>
-                <p className="text-[#98989d] mb-6">
+                <p className="text-[#a1a1aa] mb-6">
                   Create a webhook to get notifications in Zapier, Slack, Discord, or any other service
                 </p>
                 <button
@@ -342,7 +341,7 @@ export default function Webhooks() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-[#1c1c1e] border border-[#38383a] rounded-xl p-6 hover:border-[#48484a] transition"
+                    className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 hover:border-[#48484a] transition"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
@@ -350,20 +349,20 @@ export default function Webhooks() {
                           <h3 className="text-xl font-bold text-white">{webhook.name}</h3>
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             webhook.enabled 
-                              ? 'bg-[#32d74b]/20 text-[#32d74b]' 
-                              : 'bg-[#636366]/20 text-[#98989d]'
+                              ? 'bg-green-400/10 text-green-400' 
+                              : 'bg-[#636366]/20 text-[#a1a1aa]'
                           }`}>
                             {webhook.enabled ? 'Enabled' : 'Disabled'}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-2 mb-4">
-                          <code className="bg-[#2c2c2e] border border-[#38383a] px-3 py-1.5 rounded-lg text-sm text-[#0a84ff] font-mono">
+                          <code className="bg-[#18181b] border border-white/[0.06] px-3 py-1.5 rounded-lg text-sm text-[#22d3ee] font-mono">
                             {webhook.url.length > 60 ? webhook.url.substring(0, 60) + '...' : webhook.url}
                           </code>
                           <button
                             onClick={() => copyToClipboard(webhook.url)}
-                            className="text-[#98989d] hover:text-white transition p-1.5"
+                            className="text-[#a1a1aa] hover:text-white transition p-1.5"
                             title="Copy URL"
                           >
                             <FaCopy />
@@ -372,16 +371,16 @@ export default function Webhooks() {
 
                         <div className="grid grid-cols-3 gap-4 mb-4">
                           <div>
-                            <div className="text-[#98989d] text-xs font-semibold uppercase tracking-wide mb-1">Events</div>
+                            <div className="text-[#a1a1aa] text-xs font-semibold uppercase tracking-wide mb-1">Events</div>
                             <div className="text-white font-bold">{webhook.events?.length || 0}</div>
                           </div>
                           <div>
-                            <div className="text-[#98989d] text-xs font-semibold uppercase tracking-wide mb-1">Total Triggers</div>
+                            <div className="text-[#a1a1aa] text-xs font-semibold uppercase tracking-wide mb-1">Total Triggers</div>
                             <div className="text-white font-bold">{stat?.total_triggers || 0}</div>
                           </div>
                           <div>
-                            <div className="text-[#98989d] text-xs font-semibold uppercase tracking-wide mb-1">Success Rate</div>
-                            <div className="text-[#32d74b] font-bold">{stat?.success_rate || 0}%</div>
+                            <div className="text-[#a1a1aa] text-xs font-semibold uppercase tracking-wide mb-1">Success Rate</div>
+                            <div className="text-green-400 font-bold">{stat?.success_rate || 0}%</div>
                           </div>
                         </div>
 
@@ -390,7 +389,7 @@ export default function Webhooks() {
                             {webhook.events.map(event => (
                               <span 
                                 key={event}
-                                className="px-2.5 py-1 bg-[#2c2c2e] border border-[#38383a] rounded-md text-xs text-[#98989d]"
+                                className="px-2.5 py-1 bg-[#18181b] border border-white/[0.06] rounded-md text-xs text-[#a1a1aa]"
                               >
                                 {event}
                               </span>
@@ -400,7 +399,7 @@ export default function Webhooks() {
 
                         {webhook.platforms && webhook.platforms.length > 0 && (
                           <div>
-                            <div className="text-[#98989d] text-xs font-semibold uppercase tracking-wide mb-2">Platform Filter:</div>
+                            <div className="text-[#a1a1aa] text-xs font-semibold uppercase tracking-wide mb-2">Platform Filter:</div>
                             <div className="flex flex-wrap gap-2">
                               {webhook.platforms.map(platform => (
                                 <PlatformChip key={platform} platform={platform} size="xs" />
@@ -445,7 +444,7 @@ export default function Webhooks() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleDelete(webhook.id)}
-                          className="bg-[#ff453a] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-[#ff6259] transition flex items-center gap-2"
+                          className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-400 transition flex items-center gap-2"
                         >
                           <FaTrash />
                           Delete
@@ -463,10 +462,10 @@ export default function Webhooks() {
         {activeTab === 'logs' && (
           <div className="space-y-3">
             {logs.length === 0 ? (
-              <div className="bg-[#1c1c1e] border border-[#38383a] rounded-xl p-12 text-center">
+              <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-12 text-center">
                 <div className="text-6xl mb-4">📜</div>
                 <h3 className="text-xl font-bold text-white mb-2">No Webhook Logs</h3>
-                <p className="text-[#98989d]">
+                <p className="text-[#a1a1aa]">
                   Webhook activity will appear here once they start triggering
                 </p>
               </div>
@@ -477,10 +476,10 @@ export default function Webhooks() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.02 }}
-                  className={`bg-[#1c1c1e] border rounded-xl p-4 ${
+                  className={`bg-[#111113] border rounded-xl p-4 ${
                     log.success 
                       ? 'border-[#32d74b]/30' 
-                      : 'border-[#ff453a]/30'
+                      : 'border-red-400/30'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -488,41 +487,41 @@ export default function Webhooks() {
                       <div className="flex items-center gap-3 mb-2">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                           log.success 
-                            ? 'bg-[#32d74b]/20 text-[#32d74b]' 
-                            : 'bg-[#ff453a]/20 text-[#ff453a]'
+                            ? 'bg-green-400/10 text-green-400' 
+                            : 'bg-red-400/10 text-red-400'
                         }`}>
                           {log.success ? '✓ SUCCESS' : '✗ FAILED'}
                         </span>
-                        <span className="text-[#98989d] text-sm">{log.event_type}</span>
-                        <span className="text-[#636366] text-xs">
+                        <span className="text-[#a1a1aa] text-sm">{log.event_type}</span>
+                        <span className="text-[#52525b] text-xs">
                           {new Date(log.sent_at).toLocaleString()}
                         </span>
                       </div>
 
                       <div className="grid grid-cols-4 gap-4 text-sm">
                         <div>
-                          <div className="text-[#98989d] text-xs mb-1">Status Code</div>
+                          <div className="text-[#a1a1aa] text-xs mb-1">Status Code</div>
                           <div className="text-white font-semibold">{log.status_code || 'N/A'}</div>
                         </div>
                         <div>
-                          <div className="text-[#98989d] text-xs mb-1">Response Time</div>
+                          <div className="text-[#a1a1aa] text-xs mb-1">Response Time</div>
                           <div className="text-white font-semibold">{log.response_time_ms || 0}ms</div>
                         </div>
                         <div>
-                          <div className="text-[#98989d] text-xs mb-1">Attempt</div>
+                          <div className="text-[#a1a1aa] text-xs mb-1">Attempt</div>
                           <div className="text-white font-semibold">
                             {log.attempt_number}{log.is_retry && ' (retry)'}
                           </div>
                         </div>
                         <div>
-                          <div className="text-[#98989d] text-xs mb-1">Post ID</div>
+                          <div className="text-[#a1a1aa] text-xs mb-1">Post ID</div>
                           <div className="text-white font-semibold">{log.post_id || 'Test'}</div>
                         </div>
                       </div>
 
                       {log.error_message && (
-                        <div className="mt-3 p-3 bg-[#ff453a]/10 border border-[#ff453a]/30 rounded-lg">
-                          <div className="text-[#ff453a] text-sm font-mono">{log.error_message}</div>
+                        <div className="mt-3 p-3 bg-red-400/10 border border-red-400/30 rounded-lg">
+                          <div className="text-red-400 text-sm font-mono">{log.error_message}</div>
                         </div>
                       )}
                     </div>
@@ -573,7 +572,7 @@ function WebhookModal({ show, isEdit, formData, setFormData, availableEvents, al
         <div className="ios-modal-header">
           <div className="flex items-center justify-between">
             <h2 className="ios-modal-title">{isEdit ? 'Edit' : 'Create'} Webhook</h2>
-            <button onClick={onClose} className="text-[#98989d] hover:text-white transition p-2">
+            <button onClick={onClose} className="text-[#a1a1aa] hover:text-white transition p-2">
               <span className="text-2xl">✕</span>
             </button>
           </div>
@@ -602,7 +601,7 @@ function WebhookModal({ show, isEdit, formData, setFormData, availableEvents, al
               placeholder="https://hooks.zapier.com/..."
               className="ios-input font-mono text-sm"
             />
-            <p className="text-xs text-[#636366] mt-1">Must start with http:// or https://</p>
+            <p className="text-xs text-[#52525b] mt-1">Must start with http:// or https://</p>
           </div>
 
           {/* Events */}
@@ -615,8 +614,8 @@ function WebhookModal({ show, isEdit, formData, setFormData, availableEvents, al
                   onClick={() => toggleEvent(event.value)}
                   className={`text-left px-4 py-3 rounded-lg border transition ${
                     formData.events.includes(event.value)
-                      ? 'bg-[#0a84ff]/20 border-[#0a84ff] text-white'
-                      : 'bg-[#2c2c2e] border-[#38383a] text-[#98989d] hover:bg-[#3a3a3c]'
+                      ? 'bg-[#22d3ee]/20 border-[#22d3ee] text-white'
+                      : 'bg-[#18181b] border-white/[0.06] text-[#a1a1aa] hover:bg-white/[0.06]'
                   }`}
                 >
                   <div className="font-semibold text-sm">{event.label}</div>
@@ -629,7 +628,7 @@ function WebhookModal({ show, isEdit, formData, setFormData, availableEvents, al
           {/* Platform Filter */}
           <div>
             <label className="ios-filter-label">Platform Filter (optional)</label>
-            <p className="text-xs text-[#636366] mb-3">Leave empty to trigger for all platforms</p>
+            <p className="text-xs text-[#52525b] mb-3">Leave empty to trigger for all platforms</p>
             <div className="flex flex-wrap gap-2">
               {allPlatforms.map(platform => (
                 <button
@@ -653,17 +652,17 @@ function WebhookModal({ show, isEdit, formData, setFormData, availableEvents, al
               placeholder="Your secret key for HMAC signature"
               className="ios-input font-mono text-sm"
             />
-            <p className="text-xs text-[#636366] mt-1">For verifying webhook authenticity (HMAC SHA256)</p>
+            <p className="text-xs text-[#52525b] mt-1">For verifying webhook authenticity (HMAC SHA256)</p>
           </div>
 
           {/* Retry Settings */}
-          <div className="bg-[#2c2c2e] border border-[#38383a] rounded-xl p-4">
+          <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
             <div className="flex items-center justify-between mb-4">
               <label className="text-white font-semibold">Enable Retry on Failure</label>
               <button
                 onClick={() => setFormData(prev => ({ ...prev, retry_enabled: !prev.retry_enabled }))}
                 className={`relative inline-flex h-8 w-16 items-center rounded-full transition ${
-                  formData.retry_enabled ? 'bg-[#0a84ff]' : 'bg-[#48484a]'
+                  formData.retry_enabled ? 'bg-[#22d3ee]' : 'bg-white/[0.1]'
                 }`}
               >
                 <span
@@ -677,7 +676,7 @@ function WebhookModal({ show, isEdit, formData, setFormData, availableEvents, al
             {formData.retry_enabled && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[#98989d] text-xs font-semibold mb-1 block">Max Retries</label>
+                  <label className="text-[#a1a1aa] text-xs font-semibold mb-1 block">Max Retries</label>
                   <input
                     type="number"
                     min="1"
@@ -688,7 +687,7 @@ function WebhookModal({ show, isEdit, formData, setFormData, availableEvents, al
                   />
                 </div>
                 <div>
-                  <label className="text-[#98989d] text-xs font-semibold mb-1 block">Delay (seconds)</label>
+                  <label className="text-[#a1a1aa] text-xs font-semibold mb-1 block">Delay (seconds)</label>
                   <input
                     type="number"
                     min="1"

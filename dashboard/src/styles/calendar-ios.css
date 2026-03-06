@@ -3,7 +3,7 @@
 /* Override react-big-calendar defaults with iOS dark aesthetics */
 .calendar-ios .rbc-calendar {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  background: #1c1c1e;
+  background: #111113;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -14,17 +14,17 @@
   padding: 12px 0;
   font-size: 11px;
   font-weight: 600;
-  color: #98989d;
+  color: #a1a1aa;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #38383a;
-  background: #2c2c2e;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #18181b;
 }
 
 /* Month grid */
 .calendar-ios .rbc-month-view {
   border: none;
-  background: #1c1c1e;
+  background: #111113;
 }
 
 .calendar-ios .rbc-month-row {
@@ -34,13 +34,13 @@
 
 /* Date cells */
 .calendar-ios .rbc-day-bg {
-  border: 1px solid #38383a;
-  background: #1c1c1e;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: #111113;
   transition: background-color 0.15s ease;
 }
 
 .calendar-ios .rbc-day-bg:hover {
-  background: #2c2c2e;
+  background: #18181b;
 }
 
 /* Today highlight - iOS blue dark mode */
@@ -54,7 +54,7 @@
 }
 
 .calendar-ios .rbc-off-range {
-  color: #48484a;
+  color: rgba(255,255,255,0.1);
 }
 
 /* Date numbers - Dark Mode */
@@ -80,13 +80,13 @@
 
 .calendar-ios .rbc-date-cell a:hover,
 .calendar-ios .rbc-date-cell button:hover {
-  background: #3a3a3c;
+  background: rgba(255,255,255,0.06);
 }
 
 /* Today date number - iOS blue dark mode */
 .calendar-ios .rbc-now a,
 .calendar-ios .rbc-now button {
-  background: #0a84ff;
+  background: #22d3ee;
   color: #ffffff;
   font-weight: 600;
 }
@@ -94,7 +94,7 @@
 /* Events - iOS dark mode */
 .calendar-ios .rbc-event {
   padding: 2px 6px;
-  background: #0a84ff;
+  background: #22d3ee;
   border: none;
   border-radius: 4px;
   font-size: 12px;
@@ -112,7 +112,7 @@
 }
 
 .calendar-ios .rbc-event:focus {
-  outline: 2px solid #0a84ff;
+  outline: 2px solid #22d3ee;
   outline-offset: 2px;
 }
 
@@ -132,7 +132,7 @@
 
 /* Show more link - Dark mode */
 .calendar-ios .rbc-show-more {
-  color: #0a84ff;
+  color: #22d3ee;
   font-size: 11px;
   font-weight: 500;
   padding: 2px 8px;
@@ -143,30 +143,30 @@
 }
 
 .calendar-ios .rbc-show-more:hover {
-  color: #409cff;
+  color: #06b6d4;
   text-decoration: underline;
 }
 
 /* Week view - Dark mode */
 .calendar-ios .rbc-time-view {
-  border: 1px solid #38383a;
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   overflow: hidden;
-  background: #1c1c1e;
+  background: #111113;
 }
 
 .calendar-ios .rbc-time-header {
-  border-bottom: 1px solid #38383a;
-  background: #2c2c2e;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #18181b;
 }
 
 .calendar-ios .rbc-time-content {
   border-top: none;
-  background: #1c1c1e;
+  background: #111113;
 }
 
 .calendar-ios .rbc-time-slot {
-  border-top: 1px solid #38383a;
+  border-top: 1px solid rgba(255,255,255,0.06);
   color: #8e8e93;
 }
 
@@ -178,7 +178,7 @@
 /* Agenda view - Dark mode */
 .calendar-ios .rbc-agenda-view {
   border: none;
-  background: #1c1c1e;
+  background: #111113;
 }
 
 .calendar-ios .rbc-agenda-view table {
@@ -189,17 +189,17 @@
   padding: 12px 16px;
   font-size: 13px;
   font-weight: 600;
-  color: #98989d;
+  color: #a1a1aa;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #38383a;
-  background: #2c2c2e;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #18181b;
 }
 
 .calendar-ios .rbc-agenda-time-cell {
   padding: 12px 16px;
   font-size: 14px;
-  color: #98989d;
+  color: #a1a1aa;
   white-space: nowrap;
 }
 
@@ -222,14 +222,14 @@
 .calendar-ios .rbc-time-view,
 .calendar-ios .rbc-agenda-view {
   backdrop-filter: none;
-  background: #1c1c1e;
+  background: #111113;
 }
 
 /* Clean borders throughout - Dark mode */
 .calendar-ios .rbc-month-row,
 .calendar-ios .rbc-time-header-content,
 .calendar-ios .rbc-timeslot-group {
-  border-color: #38383a;
+  border-color: rgba(255,255,255,0.06);
 }
 
 /* Scrollbar styling - iOS dark */
@@ -238,16 +238,16 @@
 }
 
 .calendar-ios .rbc-time-content::-webkit-scrollbar-track {
-  background: #1c1c1e;
+  background: #111113;
 }
 
 .calendar-ios .rbc-time-content::-webkit-scrollbar-thumb {
-  background: #48484a;
+  background: rgba(255,255,255,0.1);
   border-radius: 4px;
 }
 
 .calendar-ios .rbc-time-content::-webkit-scrollbar-thumb:hover {
-  background: #636366;
+  background: #52525b;
 }
 
 /* Platform-specific event colors - iOS palette */
@@ -315,7 +315,7 @@
 
 /* View buttons - iOS dark */
 .ios-view-button {
-  background: #3a3a3c;
+  background: rgba(255,255,255,0.06);
   color: #ffffff;
   border: none;
   padding: 6px 16px;
@@ -328,18 +328,18 @@
 }
 
 .ios-view-button:hover {
-  background: #48484a;
+  background: rgba(255,255,255,0.1);
 }
 
 .ios-view-button.active {
-  background: #0a84ff;
+  background: #22d3ee;
   color: #ffffff;
 }
 
 /* Filter panel - iOS dark */
 .ios-filter-panel {
-  background: #1c1c1e;
-  border: 1px solid #38383a;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
@@ -348,7 +348,7 @@
 .ios-filter-label {
   font-size: 13px;
   font-weight: 600;
-  color: #98989d;
+  color: #a1a1aa;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -358,28 +358,28 @@
 .ios-input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #38383a;
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px;
   font-size: 15px;
   color: #ffffff;
-  background: #2c2c2e;
+  background: #18181b;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   transition: border-color 0.15s ease;
 }
 
 .ios-input:focus {
   outline: none;
-  border-color: #0a84ff;
-  background: #1c1c1e;
+  border-color: #22d3ee;
+  background: #111113;
 }
 
 .ios-input::placeholder {
-  color: #636366;
+  color: #52525b;
 }
 
 /* Buttons - iOS dark */
 .ios-button {
-  background: #0a84ff;
+  background: #22d3ee;
   color: #ffffff;
   border: none;
   padding: 10px 20px;
@@ -389,12 +389,12 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(34, 211, 238, 0.3);
 }
 
 .ios-button:hover {
-  background: #409cff;
-  box-shadow: 0 4px 12px rgba(10, 132, 255, 0.4);
+  background: #06b6d4;
+  box-shadow: 0 4px 12px rgba(34, 211, 238, 0.4);
 }
 
 .ios-button:active {
@@ -402,13 +402,13 @@
 }
 
 .ios-button-secondary {
-  background: #3a3a3c;
+  background: rgba(255,255,255,0.06);
   color: #ffffff;
   box-shadow: none;
 }
 
 .ios-button-secondary:hover {
-  background: #48484a;
+  background: rgba(255,255,255,0.1);
 }
 
 /* Platform chips - iOS dark */
@@ -420,20 +420,20 @@
   border-radius: 16px;
   font-size: 13px;
   font-weight: 500;
-  border: 1px solid #38383a;
-  background: #2c2c2e;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: #18181b;
   color: #ffffff;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .ios-platform-chip:hover {
-  background: #3a3a3c;
+  background: rgba(255,255,255,0.06);
 }
 
 .ios-platform-chip.selected {
-  border-color: #0a84ff;
-  background: #0a84ff;
+  border-color: #22d3ee;
+  background: #22d3ee;
   color: #ffffff;
 }
 
@@ -444,17 +444,17 @@
 }
 
 .ios-modal {
-  background: #1c1c1e;
+  background: #111113;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
   overflow: hidden;
-  border: 1px solid #38383a;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .ios-modal-header {
   padding: 20px;
-  border-bottom: 1px solid #38383a;
-  background: #2c2c2e;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: #18181b;
 }
 
 .ios-modal-title {
@@ -466,6 +466,6 @@
 
 .ios-modal-content {
   padding: 20px;
-  background: #1c1c1e;
+  background: #111113;
 }
 

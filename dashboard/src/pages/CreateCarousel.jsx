@@ -150,7 +150,7 @@ export default function CreateCarousel() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -160,12 +160,12 @@ export default function CreateCarousel() {
         >
           <button
             onClick={() => navigate(-1)}
-            className="text-gray-300 hover:text-white mb-4 flex items-center gap-2"
+            className="text-[#a1a1aa] hover:text-white mb-4 flex items-center gap-2"
           >
             ← Back
           </button>
           <h1 className="text-4xl font-bold text-white mb-2">📸 Create Carousel Post</h1>
-          <p className="text-gray-300">Upload 2-10 images and let AI create captions for your slides</p>
+          <p className="text-[#a1a1aa]">Upload 2-10 images and let AI create captions for your slides</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -176,11 +176,11 @@ export default function CreateCarousel() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-gray-800/50 backdrop-blur-xl border-2 border-dashed border-purple-500/50 rounded-2xl p-12 text-center"
+                className="bg-[#18181b] border-2 border-dashed border-[#22d3ee]/30 rounded-xl p-12 text-center"
               >
-                <FaImages className="text-6xl text-purple-400 mx-auto mb-4" />
+                <FaImages className="text-6xl text-[#a1a1aa] mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-white mb-2">Upload Your Images</h3>
-                <p className="text-gray-300 mb-6">Select 2-10 images to create your carousel</p>
+                <p className="text-[#a1a1aa] mb-6">Select 2-10 images to create your carousel</p>
                 
                 <label className="cursor-pointer">
                   <input
@@ -194,20 +194,20 @@ export default function CreateCarousel() {
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg"
+                    className="inline-block bg-[#22d3ee] text-[#0a0a0b] px-8 py-4 rounded-xl font-bold text-lg"
                   >
                     {uploading ? 'Uploading...' : '📤 Choose Images'}
                   </motion.div>
                 </label>
                 
-                <p className="text-gray-400 text-sm mt-4">JPG, PNG • Max 10MB per image</p>
+                <p className="text-[#a1a1aa] text-sm mt-4">JPG, PNG • Max 10MB per image</p>
               </motion.div>
             ) : (
               /* Image Grid */
-              <div className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6">
+              <div className="bg-[#18181b] border border-white/[0.08] rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-bold text-white">Your Slides ({images.length})</h3>
-                  <label className="cursor-pointer text-blue-400 hover:text-blue-300 text-sm font-semibold">
+                  <label className="cursor-pointer text-[#22d3ee] hover:text-[#22d3ee] text-sm font-semibold">
                     <input
                       type="file"
                       multiple
@@ -226,7 +226,7 @@ export default function CreateCarousel() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       className={`relative aspect-square rounded-lg overflow-hidden border-2 cursor-pointer ${
-                        currentSlide === index ? 'border-blue-500' : 'border-gray-600'
+                        currentSlide === index ? 'border-[#22d3ee]' : 'border-white/[0.06]'
                       }`}
                       onClick={() => setCurrentSlide(index)}
                     >
@@ -244,7 +244,7 @@ export default function CreateCarousel() {
                         ×
                       </button>
                       {currentSlide === index && (
-                        <div className="absolute inset-0 border-4 border-blue-500 rounded-lg pointer-events-none"></div>
+                        <div className="absolute inset-0 border-4 border-[#22d3ee] rounded-lg pointer-events-none"></div>
                       )}
                     </motion.div>
                   ))}
@@ -257,7 +257,7 @@ export default function CreateCarousel() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6"
+                className="bg-[#18181b] border border-white/[0.08] rounded-xl p-6"
               >
                 <label className="block text-white font-bold mb-2">Carousel Topic (Optional)</label>
                 <input
@@ -265,9 +265,9 @@ export default function CreateCarousel() {
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   placeholder="e.g., Marketing tips, Product launch, Tutorial..."
-                  className="w-full bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-lg px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
                 />
-                <p className="text-gray-400 text-sm mt-2">Helps AI generate better captions</p>
+                <p className="text-[#a1a1aa] text-sm mt-2">Helps AI generate better captions</p>
               </motion.div>
             )}
 
@@ -279,7 +279,7 @@ export default function CreateCarousel() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowCaptionModal(true)}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-3"
+                className="w-full bg-white/[0.06] border border-white/[0.08] text-white px-6 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3"
               >
                 <FaRobot className="text-2xl" />
                 Generate AI Captions for All Slides
@@ -294,7 +294,7 @@ export default function CreateCarousel() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6"
+                className="bg-[#18181b] border border-white/[0.08] rounded-xl p-6"
               >
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <FaEye /> Preview Slide {currentSlide + 1}
@@ -313,7 +313,7 @@ export default function CreateCarousel() {
                   <button
                     onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
                     disabled={currentSlide === 0}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg disabled:opacity-30 hover:bg-gray-600"
+                    className="px-4 py-2 bg-[#18181b] text-white rounded-lg disabled:opacity-30 hover:bg-[#18181b]"
                   >
                     ← Prev
                   </button>
@@ -323,7 +323,7 @@ export default function CreateCarousel() {
                         key={i}
                         onClick={() => setCurrentSlide(i)}
                         className={`w-2 h-2 rounded-full ${
-                          i === currentSlide ? 'bg-blue-500' : 'bg-gray-600'
+                          i === currentSlide ? 'bg-[#22d3ee]' : 'bg-[#18181b]'
                         }`}
                       />
                     ))}
@@ -331,7 +331,7 @@ export default function CreateCarousel() {
                   <button
                     onClick={() => setCurrentSlide(Math.min(images.length - 1, currentSlide + 1))}
                     disabled={currentSlide === images.length - 1}
-                    className="px-4 py-2 bg-gray-700 text-white rounded-lg disabled:opacity-30 hover:bg-gray-600"
+                    className="px-4 py-2 bg-[#18181b] text-white rounded-lg disabled:opacity-30 hover:bg-[#18181b]"
                   >
                     Next →
                   </button>
@@ -345,9 +345,9 @@ export default function CreateCarousel() {
                     onChange={(e) => updateCaption(currentSlide, e.target.value)}
                     placeholder="Enter caption for this slide..."
                     rows={4}
-                    className="w-full bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-lg px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none"
                   />
-                  <p className="text-gray-400 text-sm mt-1">{captions[currentSlide]?.length || 0} characters</p>
+                  <p className="text-[#a1a1aa] text-sm mt-1">{captions[currentSlide]?.length || 0} characters</p>
                 </div>
               </motion.div>
 
@@ -355,7 +355,7 @@ export default function CreateCarousel() {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-gray-800/50 backdrop-blur-xl border-2 border-purple-500/30 rounded-2xl p-6"
+                className="bg-[#18181b] border border-white/[0.08] rounded-xl p-6"
               >
                 <h3 className="text-xl font-bold text-white mb-4">Select Platform</h3>
                 <div className="flex gap-3">
@@ -363,8 +363,8 @@ export default function CreateCarousel() {
                     onClick={() => setPlatforms(['linkedin'])}
                     className={`flex-1 px-4 py-3 rounded-lg font-semibold ${
                       platforms.includes('linkedin')
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        ? 'bg-[#22d3ee] text-[#0a0a0b]'
+                        : 'bg-[#18181b] text-[#a1a1aa] hover:bg-[#18181b]'
                     }`}
                   >
                     LinkedIn
@@ -380,7 +380,7 @@ export default function CreateCarousel() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handlePost}
                 disabled={posting || captions.filter(c => c.trim()).length === 0}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                className="w-full bg-[#22d3ee] text-[#0a0a0b] px-6 py-4 rounded-xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
               >
                 <FaPaperPlane />
                 {posting ? 'Posting Carousel...' : 'Post Carousel to LinkedIn'}

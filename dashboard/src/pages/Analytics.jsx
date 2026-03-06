@@ -303,21 +303,21 @@ export default function Analytics() {
 
   const getInsightIcon = (type) => {
     const icons = {
-      best_time: <FaClock className="text-blue-400" />,
+      best_time: <FaClock className="text-[#22d3ee]" />,
       best_day: <FaCalendar className="text-green-400" />,
       content_type: <FaLightbulb className="text-yellow-400" />,
       hashtag_performance: <FaHashtag className="text-pink-400" />,
-      platform_performance: <FaServer className="text-purple-400" />,
+      platform_performance: <FaServer className="text-[#a1a1aa]" />,
       overall_trend: <FaChartLine className="text-cyan-400" />,
     };
-    return icons[type] || <FaBrain className="text-gray-400" />;
+    return icons[type] || <FaBrain className="text-[#a1a1aa]" />;
   };
 
   const getCategoryColor = (category) => {
     const colors = {
       positive: 'from-green-500/20 to-emerald-500/20 border-green-500/30',
       negative: 'from-red-500/20 to-rose-500/20 border-red-500/30',
-      neutral: 'from-gray-500/20 to-slate-500/20 border-gray-500/30',
+      neutral: 'from-gray-500/20 to-slate-500/20 border-white/[0.06]',
     };
     return colors[category] || colors.neutral;
   };
@@ -337,10 +337,10 @@ export default function Analytics() {
         <h1 className="text-4xl font-bold text-white mb-8">Analytics</h1>
         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 text-center">
           <p className="text-red-400 text-lg mb-2">Failed to load analytics data</p>
-          <p className="text-gray-400 mb-4">{error}</p>
+          <p className="text-[#a1a1aa] mb-4">{error}</p>
           <button
             onClick={() => { setLoading(true); loadAnalytics(); }}
-            className="px-4 py-2 bg-red-600/20 text-red-300 border border-red-500/30 rounded hover:bg-red-600/30 transition shadow-lg"
+            className="px-4 py-2 bg-red-600/20 text-red-300 border border-red-500/30 rounded hover:bg-red-600/30 transition"
           >
             Try Again
           </button>
@@ -399,7 +399,7 @@ export default function Analytics() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-white mb-2">Analytics</h1>
-          <p className="text-gray-300">Track your social media performance • Auto-refreshes every 30s</p>
+          <p className="text-[#a1a1aa]">Track your social media performance • Auto-refreshes every 30s</p>
         </div>
         <div className="flex gap-3">
           <a
@@ -465,7 +465,7 @@ export default function Analytics() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <motion.div
           whileHover={{ y: -5, scale: 1.02 }}
-          className="group relative bg-gradient-to-br from-blue-600/20 to-blue-700/20 backdrop-blur-md border-2 border-blue-400/30 rounded-xl shadow-xl p-6 text-white overflow-hidden"
+          className="group relative bg-[#111113] border border-[#22d3ee]/20 rounded-xl p-6 text-white overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -476,7 +476,7 @@ export default function Analytics() {
 
         <motion.div
           whileHover={{ y: -5, scale: 1.02 }}
-          className="group relative bg-gradient-to-br from-green-600/20 to-green-700/20 backdrop-blur-md border-2 border-green-400/30 rounded-xl shadow-xl p-6 text-white overflow-hidden"
+          className="group relative bg-[#111113] border border-green-400/20 rounded-xl p-6 text-white overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -487,7 +487,7 @@ export default function Analytics() {
 
         <motion.div
           whileHover={{ y: -5, scale: 1.02 }}
-          className="group relative bg-gradient-to-br from-purple-600/20 to-purple-700/20 backdrop-blur-md border-2 border-purple-400/30 rounded-xl shadow-xl p-6 text-white overflow-hidden"
+          className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 text-white overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -512,9 +512,9 @@ export default function Analytics() {
         </div>
 
         {reachSnapshots.length === 0 ? (
-          <div className="bg-gray-900/30 border border-white/10 rounded-xl p-8 text-center text-gray-400">
+          <div className="bg-[#111113] border border-white/10 rounded-xl p-8 text-center text-[#a1a1aa]">
             <p className="mb-2">No platform data yet.</p>
-            <p className="text-sm">Click <span className="text-purple-300 font-medium">Sync Now</span> to pull followers, views, and engagement from your connected accounts.</p>
+            <p className="text-sm">Click <span className="text-[#a1a1aa] font-medium">Sync Now</span> to pull followers, views, and engagement from your connected accounts.</p>
           </div>
         ) : (
           <>
@@ -540,8 +540,8 @@ export default function Analytics() {
                     { label: 'Total Comments', value: totals.comments, delta: totals.commentsDelta, color: 'from-yellow-600/20 to-amber-600/20 border-yellow-400/30' },
                   ].map(stat => (
                     <motion.div key={stat.label} whileHover={{ y: -3 }}
-                      className={`bg-gradient-to-br ${stat.color} backdrop-blur-md border-2 rounded-xl p-5 text-white`}>
-                      <p className="text-xs font-mono text-gray-400 uppercase tracking-wider mb-1">{stat.label}</p>
+                      className={`bg-[#111113] border-2 rounded-xl p-5 text-white`}>
+                      <p className="text-xs font-mono text-[#a1a1aa] uppercase tracking-wider mb-1">{stat.label}</p>
                       <p className="text-2xl font-bold">{formatNum(stat.value)}<Delta value={stat.delta} /></p>
                     </motion.div>
                   ))}
@@ -562,7 +562,7 @@ export default function Analytics() {
 
                 return (
                   <motion.div key={snap.platform} whileHover={{ y: -3 }}
-                    className="bg-gray-900/40 border border-white/10 rounded-xl overflow-hidden">
+                    className="bg-[#111113] border border-white/10 rounded-xl overflow-hidden">
                     <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${meta.color}22` }}>
                       <div className="flex items-center gap-2">
                         <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
@@ -578,15 +578,15 @@ export default function Analytics() {
                         { label: 'Likes', value: snap.total_likes, delta: snap.likes_delta },
                         { label: 'Comments', value: snap.total_comments, delta: snap.comments_delta },
                       ].map(m => (
-                        <div key={m.label} className="bg-gray-900/60 px-3 py-2">
-                          <p className="text-[10px] font-mono text-gray-500 uppercase">{m.label}</p>
+                        <div key={m.label} className="bg-[#18181b] px-3 py-2">
+                          <p className="text-[10px] font-mono text-[#52525b] uppercase">{m.label}</p>
                           <p className="text-base font-bold text-white">{formatNum(m.value)}<Delta value={m.delta} /></p>
                         </div>
                       ))}
                     </div>
                     {platformHistory.length > 1 && (
                       <div className="px-4 py-3 border-t border-white/5">
-                        <p className="text-[10px] font-mono text-gray-500 mb-1">FOLLOWER TREND</p>
+                        <p className="text-[10px] font-mono text-[#52525b] mb-1">FOLLOWER TREND</p>
                         <div className="flex items-end gap-0.5 h-8">
                           {platformHistory.map((h, i) => {
                             const height = Math.max(((h.followers - minFollowers) / range) * 100, 5);
@@ -605,14 +605,14 @@ export default function Analytics() {
 
             {/* Top Posts table */}
             {reachPosts.length > 0 && (
-              <div className="bg-gray-900/30 border border-white/10 rounded-xl overflow-hidden">
+              <div className="bg-[#111113] border border-white/10 rounded-xl overflow-hidden">
                 <div className="px-5 py-3 border-b border-white/10">
                   <h3 className="font-semibold text-white">Top Performing Posts</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-white/5 text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                      <tr className="border-b border-white/5 text-[10px] font-mono text-[#52525b] uppercase tracking-wider">
                         <th className="text-left px-5 py-2">Post</th>
                         <th className="text-left px-5 py-2">Platform</th>
                         <th className="text-right px-5 py-2">Views</th>
@@ -631,7 +631,7 @@ export default function Analytics() {
                             <tr key={post.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                               <td className="px-5 py-3">
                                 <a href={post.post_url || '#'} target="_blank" rel="noopener noreferrer"
-                                  className="flex items-center gap-2 hover:text-white text-gray-300 transition-colors">
+                                  className="flex items-center gap-2 hover:text-white text-[#a1a1aa] transition-colors">
                                   {post.thumbnail_url && (
                                     <img src={post.thumbnail_url} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" />
                                   )}
@@ -642,10 +642,10 @@ export default function Analytics() {
                                 <span className="text-xs px-2 py-0.5 rounded-full font-medium"
                                   style={{ background: `${meta.color}22`, color: meta.color }}>{meta.label}</span>
                               </td>
-                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-300">{formatNum(post.views)}</td>
-                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-300">{formatNum(post.likes)}</td>
-                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-300">{formatNum(post.comments)}</td>
-                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-400">
+                              <td className="px-5 py-3 text-right font-mono text-xs text-[#a1a1aa]">{formatNum(post.views)}</td>
+                              <td className="px-5 py-3 text-right font-mono text-xs text-[#a1a1aa]">{formatNum(post.likes)}</td>
+                              <td className="px-5 py-3 text-right font-mono text-xs text-[#a1a1aa]">{formatNum(post.comments)}</td>
+                              <td className="px-5 py-3 text-right font-mono text-xs text-[#a1a1aa]">
                                 {post.published_at ? new Date(post.published_at).toLocaleDateString() : '—'}
                               </td>
                             </tr>
@@ -665,7 +665,7 @@ export default function Analytics() {
         {/* Timeline Chart */}
         <motion.div
           whileHover={{ y: -5 }}
-          className="group relative bg-gray-900/30 backdrop-blur-md border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+          className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -682,7 +682,7 @@ export default function Analytics() {
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[300px] text-gray-400">
+              <div className="flex items-center justify-center h-[300px] text-[#a1a1aa]">
                 <p>No timeline data available yet</p>
               </div>
             )}
@@ -692,7 +692,7 @@ export default function Analytics() {
         {/* Platform Distribution */}
         <motion.div
           whileHover={{ y: -5 }}
-          className="group relative bg-gray-900/30 backdrop-blur-md border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+          className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
           <div className="relative">
@@ -723,7 +723,7 @@ export default function Analytics() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[300px] text-gray-400">
+              <div className="flex items-center justify-center h-[300px] text-[#a1a1aa]">
                 <p>No platform data available yet</p>
               </div>
             )}
@@ -734,7 +734,7 @@ export default function Analytics() {
       {/* Post History Table */}
       <motion.div
         whileHover={{ y: -5 }}
-        className="group relative bg-gray-900/30 backdrop-blur-md border-2 border-white/10 rounded-xl shadow-xl p-6 overflow-hidden"
+        className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
         <div className="relative">
@@ -746,16 +746,16 @@ export default function Analytics() {
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-700">
-                <thead className="bg-gray-900/50">
+                <thead className="bg-[#111113]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Platform</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Caption</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">Platform</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">Caption</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#a1a1aa] uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-gray-800/30 divide-y divide-gray-700">
+                <tbody className="bg-[#18181b] divide-y divide-gray-700">
                   {history.slice(0, 10).map((post, idx) => {
                     // Get platforms - handle both array and string formats
                     let platforms = [];
@@ -771,19 +771,19 @@ export default function Analytics() {
 
                     // Platform icons mapping
                     const platformIcons = {
-                      linkedin: { Icon: FaLinkedin, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'LinkedIn' },
+                      linkedin: { Icon: FaLinkedin, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-blue-400/30', name: 'LinkedIn' },
                       twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border-sky-400/30', name: 'Twitter' },
                       telegram: { Icon: FaTelegram, color: 'bg-cyan-500/20 text-cyan-400 border-cyan-400/30', name: 'Telegram' },
                       youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border-red-400/30', name: 'YouTube' },
                       reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
                       discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
-                      slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-purple-400 border-purple-400/30', name: 'Slack' },
-                      tiktok: { Icon: FaTiktok, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: 'TikTok' },
-                      tumblr: { Icon: FaTumblr, color: 'bg-blue-600/20 text-blue-400 border-blue-400/30', name: 'Tumblr' },
-                      devto: { Icon: FaMedium, color: 'bg-gray-900/20 text-gray-300 border-gray-300/30', name: 'Dev.to' },
-                      mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-purple-400 border-purple-400/30', name: 'Mastodon' },
-                      bluesky: { Icon: SiBluesky, color: 'bg-blue-500/20 text-blue-400 border-blue-400/30', name: 'Bluesky' },
-                      medium: { Icon: FaMedium, color: 'bg-gray-700/20 text-gray-300 border-gray-300/30', name: 'Medium' },
+                      slack: { Icon: FaSlack, color: 'bg-purple-500/20 text-[#a1a1aa] border-purple-400/30', name: 'Slack' },
+                      tiktok: { Icon: FaTiktok, color: 'bg-white/[0.04] text-[#a1a1aa] border-white/[0.06]', name: 'TikTok' },
+                      tumblr: { Icon: FaTumblr, color: 'bg-blue-600/20 text-[#22d3ee] border-blue-400/30', name: 'Tumblr' },
+                      devto: { Icon: FaMedium, color: 'bg-[#111113] text-[#a1a1aa] border-white/[0.06]', name: 'Dev.to' },
+                      mastodon: { Icon: SiMastodon, color: 'bg-purple-600/20 text-[#a1a1aa] border-purple-400/30', name: 'Mastodon' },
+                      bluesky: { Icon: SiBluesky, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-blue-400/30', name: 'Bluesky' },
+                      medium: { Icon: FaMedium, color: 'bg-[#18181b]/20 text-[#a1a1aa] border-white/[0.06]', name: 'Medium' },
                       pinterest: { Icon: FaPinterest, color: 'bg-red-600/20 text-red-400 border-red-400/30', name: 'Pinterest' }
                     };
 
@@ -880,12 +880,12 @@ export default function Analytics() {
                     };
 
                     return (
-                      <tr key={idx} className="hover:bg-gray-700/30 transition-colors">
+                      <tr key={idx} className="hover:bg-[#18181b] transition-colors">
                         <td className="px-6 py-4">
                           {platforms.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
                               {platforms.map((platform, pIdx) => {
-                                const platformInfo = platformIcons[platform.toLowerCase()] || { Icon: FaTwitter, color: 'bg-gray-500/20 text-gray-400 border-gray-400/30', name: platform };
+                                const platformInfo = platformIcons[platform.toLowerCase()] || { Icon: FaTwitter, color: 'bg-white/[0.04] text-[#a1a1aa] border-white/[0.06]', name: platform };
                                 const postUrl = getPostUrl(platform);
                                 const isClickable = postUrl !== null;
                                 const PlatformIcon = platformInfo.Icon;
@@ -913,7 +913,7 @@ export default function Analytics() {
                                         }
                                       }
                                     }}
-                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border backdrop-blur-sm ${platformInfo.color} transition ${isClickable
+                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border ${platformInfo.color} transition ${isClickable
                                       ? 'hover:scale-110 cursor-pointer hover:shadow-md hover:ring-2 hover:ring-blue-400'
                                       : 'cursor-pointer opacity-70 hover:opacity-100'
                                       }`}
@@ -927,14 +927,14 @@ export default function Analytics() {
                               })}
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-400 italic">No platforms</span>
+                            <span className="text-sm text-[#a1a1aa] italic">No platforms</span>
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-200 max-w-md">
+                          <div className="text-sm text-[#a1a1aa] max-w-md">
                             <div className="truncate">{post.text || post.caption || 'No caption'}</div>
                             {post.image_url && (
-                              <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
+                              <div className="mt-2 flex items-center gap-1 text-xs text-[#52525b]">
                                 <span>🖼️</span>
                                 <span>With image</span>
                               </div>
@@ -946,23 +946,23 @@ export default function Analytics() {
                             <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${post.status === 'posted' ? 'bg-green-100 text-green-800' :
                               post.status === 'failed' ? 'bg-red-100 text-red-800' :
                                 post.status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-gray-100 text-gray-800'
+                                  'bg-white/[0.06] text-[#a1a1aa]'
                               }`}>
                               {post.status === 'posted' ? '✓ Posted' :
                                 post.status === 'failed' ? '✗ Failed' :
                                   post.status === 'partial' ? '⚠ Partial' : post.status}
                             </span>
                             {post.results && Object.keys(post.results).length > 0 && (
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-[#52525b]">
                                 {Object.values(post.results).filter(r => r.success).length}/{Object.keys(post.results).length} succeeded
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-[#52525b]">
                           <div className="flex flex-col">
                             <span>{new Date(post.created_at).toLocaleDateString()}</span>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-[#a1a1aa]">
                               {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
@@ -981,7 +981,7 @@ export default function Analytics() {
                                 };
                                 window.location.href = `/create?clone=${JSON.stringify(state)}`;
                               }}
-                              className="px-3 py-1 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded hover:bg-purple-600/30 transition-all text-xs font-semibold"
+                              className="px-3 py-1 bg-purple-600/20 text-[#a1a1aa] border border-white/[0.08] rounded hover:bg-purple-600/30 transition-all text-xs font-semibold"
                               title="Clone this post"
                             >
                               📋 Clone
@@ -1036,11 +1036,11 @@ export default function Analytics() {
                 {insightsStats.bestTime && (
                   <div className="glass border border-white/20 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
-                      <FaClock className="text-blue-400 text-2xl" />
+                      <FaClock className="text-[#22d3ee] text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Time</h3>
                     </div>
                     <p className="text-3xl font-bold text-white">{insightsStats.bestTime.characteristics?.hourLabel}</p>
-                    <p className="text-sm text-gray-400 mt-1">{insightsStats.bestTime.success_rate}% success rate</p>
+                    <p className="text-sm text-[#a1a1aa] mt-1">{insightsStats.bestTime.success_rate}% success rate</p>
                   </div>
                 )}
 
@@ -1051,7 +1051,7 @@ export default function Analytics() {
                       <h3 className="text-lg font-semibold text-white">Best Day</h3>
                     </div>
                     <p className="text-3xl font-bold text-white">{insightsStats.bestDay.characteristics?.dayName}</p>
-                    <p className="text-sm text-gray-400 mt-1">{insightsStats.bestDay.success_rate}% success rate</p>
+                    <p className="text-sm text-[#a1a1aa] mt-1">{insightsStats.bestDay.success_rate}% success rate</p>
                   </div>
                 )}
 
@@ -1062,18 +1062,18 @@ export default function Analytics() {
                       <h3 className="text-lg font-semibold text-white">Best Content</h3>
                     </div>
                     <p className="text-3xl font-bold text-white capitalize">{insightsStats.bestContent.characteristics?.contentType}</p>
-                    <p className="text-sm text-gray-400 mt-1">{insightsStats.bestContent.success_rate}% success rate</p>
+                    <p className="text-sm text-[#a1a1aa] mt-1">{insightsStats.bestContent.success_rate}% success rate</p>
                   </div>
                 )}
 
                 {insightsStats.bestPlatform && (
                   <div className="glass border border-white/20 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-2">
-                      <FaTrophy className="text-purple-400 text-2xl" />
+                      <FaTrophy className="text-[#a1a1aa] text-2xl" />
                       <h3 className="text-lg font-semibold text-white">Best Platform</h3>
                     </div>
                     <p className="text-3xl font-bold text-white capitalize">{insightsStats.bestPlatform.characteristics?.platform}</p>
-                    <p className="text-sm text-gray-400 mt-1">{insightsStats.bestPlatform.success_rate}% success rate</p>
+                    <p className="text-sm text-[#a1a1aa] mt-1">{insightsStats.bestPlatform.success_rate}% success rate</p>
                   </div>
                 )}
               </div>
@@ -1096,7 +1096,7 @@ export default function Analytics() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 20 }}
-                      className={`glass border-2 rounded-2xl p-6 bg-gradient-to-br ${getCategoryColor(insight.category)}`}
+                      className={`glass border-2 rounded-xl p-6 bg-gradient-to-br ${getCategoryColor(insight.category)}`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
@@ -1105,24 +1105,24 @@ export default function Analytics() {
                             <div>
                               <h3 className="text-xl font-bold text-white">{insight.title}</h3>
                               <div className="flex items-center gap-3 mt-1">
-                                <span className="text-xs text-gray-400">
+                                <span className="text-xs text-[#a1a1aa]">
                                   Impact: {insight.impact_score}/100
                                 </span>
-                                <span className="text-xs text-gray-400">
+                                <span className="text-xs text-[#a1a1aa]">
                                   Confidence: {insight.confidence_score}/100
                                 </span>
-                                <span className="text-xs text-gray-400">
+                                <span className="text-xs text-[#a1a1aa]">
                                   Based on {insight.data_points} posts
                                 </span>
                               </div>
                             </div>
                           </div>
 
-                          <p className="text-gray-300 mb-4">{insight.description}</p>
+                          <p className="text-[#a1a1aa] mb-4">{insight.description}</p>
 
                           {insight.metric_value && (
                             <div className="mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                              <p className="text-sm text-gray-400 mb-1">Key Metric</p>
+                              <p className="text-sm text-[#a1a1aa] mb-1">Key Metric</p>
                               <p className="text-2xl font-bold text-white">
                                 {insight.metric_value}% {insight.comparison_value && `(vs ${insight.comparison_value}%)`}
                               </p>
@@ -1137,7 +1137,7 @@ export default function Analytics() {
 
                         <button
                           onClick={() => handleDismissInsight(insight.id)}
-                          className="text-gray-400 hover:text-white transition p-2 rounded-lg hover:bg-white/10"
+                          className="text-[#a1a1aa] hover:text-white transition p-2 rounded-lg hover:bg-white/10"
                           title="Dismiss insight"
                         >
                           <FaTimes />
@@ -1155,7 +1155,7 @@ export default function Analytics() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 mb-8">
               <h2 className="text-2xl font-bold text-white mb-4">Detected Patterns</h2>
               <div className="glass border border-white/20 rounded-xl p-6">
-                <p className="text-gray-300 mb-4">
+                <p className="text-[#a1a1aa] mb-4">
                   Analyzed {patterns.length} patterns from your posting history.
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1163,7 +1163,7 @@ export default function Analytics() {
                     const typePatterns = patterns.filter(p => p.pattern_type === type);
                     return (
                       <div key={type} className="p-4 bg-white/5 rounded-lg border border-white/10">
-                        <p className="text-sm text-gray-400 capitalize mb-1">{type.replace(/_/g, ' ')}</p>
+                        <p className="text-sm text-[#a1a1aa] capitalize mb-1">{type.replace(/_/g, ' ')}</p>
                         <p className="text-2xl font-bold text-white">{typePatterns.length}</p>
                       </div>
                     );
@@ -1179,7 +1179,7 @@ export default function Analytics() {
               <button
                 onClick={handleAnalyze}
                 disabled={analyzing}
-                className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 shadow-lg"
+                className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
                 {analyzing ? (
                   <>
@@ -1201,17 +1201,17 @@ export default function Analytics() {
       {/* Analyze Button for Empty State - REMOVED */}
       {false && insights.length === 0 && patterns.length === 0 && analytics && analytics.totalPosts > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 text-center">
-          <div className="glass border-2 border-white/20 rounded-2xl p-12 max-w-2xl mx-auto">
+          <div className="glass border-2 border-white/20 rounded-xl p-12 max-w-2xl mx-auto">
             <FaBrain className="w-20 h-20 text-cyan-400 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-white mb-4">No insights yet</h2>
-            <p className="text-gray-400 mb-8">
+            <p className="text-[#a1a1aa] mb-8">
               You need at least 10 posts to generate insights. The AI will analyze your posting patterns
               and provide actionable recommendations.
             </p>
             <button
               onClick={handleAnalyze}
               disabled={analyzing}
-              className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 inline-flex items-center gap-2 shadow-lg"
+              className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 inline-flex items-center gap-2"
             >
               {analyzing ? (
                 <>

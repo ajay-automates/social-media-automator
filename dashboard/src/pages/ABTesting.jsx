@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaVial, FaPlus, FaTrash, FaClock, FaCheck, FaTimes, FaChartBar, FaEye } from 'react-icons/fa';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
-import AnimatedBackground from '../components/ui/AnimatedBackground';
 import PlatformChip from '../components/ui/PlatformChip';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -180,7 +179,7 @@ export default function ABTesting() {
   const getStatusBadge = (status) => {
     const colors = {
       active: 'bg-green-500/20 text-green-300 border-green-500/30',
-      completed: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+      completed: 'bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/30',
       cancelled: 'bg-red-500/20 text-red-300 border-red-500/30'
     };
     return colors[status] || colors.active;
@@ -188,18 +187,18 @@ export default function ABTesting() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-6">
-        <AnimatedBackground />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
         <div className="flex items-center justify-center h-96">
-          <div className="text-gray-400">Loading A/B tests...</div>
+          <div className="text-[#a1a1aa]">Loading A/B tests...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-6">
-      <AnimatedBackground />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
@@ -210,10 +209,10 @@ export default function ABTesting() {
         >
           <div>
             <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
-              <FaVial className="text-purple-400" />
+              <FaVial className="text-[#a1a1aa]" />
               A/B Testing
             </h1>
-            <p className="text-gray-400">Test content variations to optimize engagement</p>
+            <p className="text-[#a1a1aa]">Test content variations to optimize engagement</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -233,21 +232,21 @@ export default function ABTesting() {
             transition={{ delay: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
           >
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-4">
-              <div className="text-gray-400 text-sm">Total Tests</div>
+            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+              <div className="text-[#a1a1aa] text-sm">Total Tests</div>
               <div className="text-3xl font-bold text-white mt-1">{insights.total_tests || 0}</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-4">
-              <div className="text-gray-400 text-sm">Active</div>
+            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+              <div className="text-[#a1a1aa] text-sm">Active</div>
               <div className="text-3xl font-bold text-green-400 mt-1">{insights.active_tests || 0}</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-4">
-              <div className="text-gray-400 text-sm">Completed</div>
-              <div className="text-3xl font-bold text-blue-400 mt-1">{insights.completed_tests || 0}</div>
+            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+              <div className="text-[#a1a1aa] text-sm">Completed</div>
+              <div className="text-3xl font-bold text-[#22d3ee] mt-1">{insights.completed_tests || 0}</div>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-4">
-              <div className="text-gray-400 text-sm">Avg Winner Lift</div>
-              <div className="text-3xl font-bold text-purple-400 mt-1">
+            <div className="bg-white/5 border border-white/[0.06] rounded-xl p-4">
+              <div className="text-[#a1a1aa] text-sm">Avg Winner Lift</div>
+              <div className="text-3xl font-bold text-[#a1a1aa] mt-1">
                 {insights.avg_winner_lift ? `${insights.avg_winner_lift}%` : 'N/A'}
               </div>
             </div>
@@ -259,11 +258,11 @@ export default function ABTesting() {
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center"
+            className="bg-white/5 border border-white/[0.06] rounded-xl p-12 text-center"
           >
-            <FaVial className="text-5xl text-gray-600 mx-auto mb-4" />
+            <FaVial className="text-5xl text-[#52525b] mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">No A/B tests yet</h3>
-            <p className="text-gray-400 mb-6">Create your first test to start comparing content variations</p>
+            <p className="text-[#a1a1aa] mb-6">Create your first test to start comparing content variations</p>
             <button
               onClick={() => setShowCreateModal(true)}
               className="px-6 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg font-semibold inline-flex items-center gap-2"
@@ -279,7 +278,7 @@ export default function ABTesting() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: idx * 0.1 }}
-                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden"
+                className="bg-white/5 border border-white/[0.06] rounded-xl overflow-hidden"
               >
                 <div
                   className="p-6 cursor-pointer hover:bg-white/10 transition-colors"
@@ -289,16 +288,16 @@ export default function ABTesting() {
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold text-white mb-2">{test.name}</h3>
                       {test.description && (
-                        <p className="text-gray-400 text-sm mb-3">{test.description}</p>
+                        <p className="text-[#a1a1aa] text-sm mb-3">{test.description}</p>
                       )}
                       <div className="flex flex-wrap items-center gap-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusBadge(test.status)}`}>
                           {test.status.toUpperCase()}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-[#a1a1aa]">
                           {test.variation_count} variations
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-[#a1a1aa]">
                           {test.test_duration_hours} hours
                         </span>
                         <div className="flex gap-2">
@@ -310,7 +309,7 @@ export default function ABTesting() {
                     </div>
                     <motion.div
                       animate={{ rotate: expandedTest === test.id ? 180 : 0 }}
-                      className="text-gray-400"
+                      className="text-[#a1a1aa]"
                     >
                       <FaChartBar />
                     </motion.div>
@@ -324,14 +323,14 @@ export default function ABTesting() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="border-t border-white/10 bg-black/20 p-6"
+                      className="border-t border-white/[0.06] bg-black/20 p-6"
                     >
                       {/* Variations */}
                       <div className="mb-6">
                         <h4 className="text-sm font-semibold text-white mb-3">Variations</h4>
                         <div className="space-y-3">
                           {test.variations?.map((variation, vidx) => (
-                            <div key={variation.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
+                            <div key={variation.id} className="bg-white/5 rounded-lg p-4 border border-white/[0.06]">
                               <div className="flex items-center justify-between mb-2">
                                 <span className="font-semibold text-white">
                                   Variation {variation.variation_name}
@@ -342,9 +341,9 @@ export default function ABTesting() {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-gray-400 text-sm mb-2">{variation.caption}</p>
+                              <p className="text-[#a1a1aa] text-sm mb-2">{variation.caption}</p>
                               {variation.hashtags && variation.hashtags.length > 0 && (
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-[#52525b]">
                                   Hashtags: {variation.hashtags.join(', ')}
                                 </div>
                               )}
@@ -375,7 +374,7 @@ export default function ABTesting() {
                               className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
                                 variation.is_winner
                                   ? 'bg-green-500/20 text-green-300 border border-green-500/30 cursor-default'
-                                  : 'bg-blue-500/20 text-blue-300 border border-blue-500/30 hover:bg-blue-500/30'
+                                  : 'bg-[#22d3ee]/10 text-[#22d3ee] border border-[#22d3ee]/30 hover:bg-[#22d3ee]/15'
                               }`}
                             >
                               <FaCheck className="inline mr-2" /> Apply Variation {variation.variation_name}
@@ -399,7 +398,7 @@ export default function ABTesting() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50"
             onClick={() => setShowCreateModal(false)}
           >
             <motion.div
@@ -407,7 +406,7 @@ export default function ABTesting() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={e => e.stopPropagation()}
-              className="bg-gray-900 border border-white/20 rounded-2xl p-8 max-w-2xl w-full max-h-96 overflow-y-auto"
+              className="bg-[#111113] border border-white/[0.08] rounded-xl p-8 max-w-2xl w-full max-h-96 overflow-y-auto"
             >
               <h2 className="text-2xl font-bold text-white mb-6">Create A/B Test</h2>
 
@@ -419,7 +418,7 @@ export default function ABTesting() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Caption A vs B"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500"
+                  className="w-full bg-white/5 border border-white/[0.06] rounded-lg px-4 py-2 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -431,7 +430,7 @@ export default function ABTesting() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="What are you testing?"
                   rows="2"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-gray-500"
+                  className="w-full bg-white/5 border border-white/[0.06] rounded-lg px-4 py-2 text-white placeholder-gray-500"
                 />
               </div>
 
@@ -446,7 +445,7 @@ export default function ABTesting() {
                       className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                         formData.platforms.includes(platform)
                           ? 'bg-purple-600 text-white'
-                          : 'bg-white/5 text-gray-400 border border-white/10'
+                          : 'bg-white/5 text-[#a1a1aa] border border-white/[0.06]'
                       }`}
                     >
                       {platform}
@@ -464,7 +463,7 @@ export default function ABTesting() {
                   max="336"
                   value={formData.test_duration_hours}
                   onChange={(e) => setFormData({ ...formData, test_duration_hours: parseInt(e.target.value) })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white"
+                  className="w-full bg-white/5 border border-white/[0.06] rounded-lg px-4 py-2 text-white"
                 />
               </div>
 
@@ -483,7 +482,7 @@ export default function ABTesting() {
                 </div>
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   {formData.variations.map((variation, idx) => (
-                    <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/10">
+                    <div key={idx} className="bg-white/5 rounded-lg p-3 border border-white/[0.06]">
                       <div className="flex items-start justify-between mb-2">
                         <span className="text-white font-semibold">Variation {String.fromCharCode(65 + idx)}</span>
                         {formData.variations.length > 2 && (
@@ -500,14 +499,14 @@ export default function ABTesting() {
                         onChange={(e) => updateVariation(idx, 'caption', e.target.value)}
                         placeholder="Caption text"
                         rows="2"
-                        className="w-full bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-gray-500 text-sm mb-2"
+                        className="w-full bg-white/10 border border-white/[0.08] rounded px-2 py-1 text-white placeholder-gray-500 text-sm mb-2"
                       />
                       <input
                         type="text"
                         value={variation.hashtags}
                         onChange={(e) => updateVariation(idx, 'hashtags', e.target.value)}
                         placeholder="Hashtags (comma-separated)"
-                        className="w-full bg-white/10 border border-white/20 rounded px-2 py-1 text-white placeholder-gray-500 text-sm"
+                        className="w-full bg-white/10 border border-white/[0.08] rounded px-2 py-1 text-white placeholder-gray-500 text-sm"
                       />
                     </div>
                   ))}

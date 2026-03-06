@@ -25,9 +25,7 @@ export default function Approvals() {
       }
     } catch (error) {
       console.error('Failed to load pending approvals:', error);
-      // Check if it's a permission error (403)
       if (error.response?.status === 403) {
-        console.log('ℹ️ User does not have permission to view approvals (Editor/Viewer role)');
         setPendingApprovals([]);
       } else {
         toast.error('Failed to load pending approvals');
@@ -39,7 +37,6 @@ export default function Approvals() {
 
   const handleApprove = async (postId) => {
     if (!confirm('Approve this post?')) return;
-
     setActionLoading(true);
     try {
       const response = await api.post(`/posts/${postId}/approve`);
@@ -50,7 +47,6 @@ export default function Approvals() {
         loadPendingApprovals();
       }
     } catch (error) {
-      console.error('Failed to approve post:', error);
       toast.error(error.response?.data?.error || 'Failed to approve post');
     } finally {
       setActionLoading(false);
@@ -62,9 +58,7 @@ export default function Approvals() {
       toast.error('Please provide feedback before rejecting');
       return;
     }
-
     if (!confirm('Reject this post? The creator will be notified with your feedback.')) return;
-
     setActionLoading(true);
     try {
       const response = await api.post(`/posts/${postId}/reject`, { feedback });
@@ -76,7 +70,6 @@ export default function Approvals() {
         loadPendingApprovals();
       }
     } catch (error) {
-      console.error('Failed to reject post:', error);
       toast.error(error.response?.data?.error || 'Failed to reject post');
     } finally {
       setActionLoading(false);
@@ -88,7 +81,6 @@ export default function Approvals() {
       toast.error('Please provide specific feedback for changes');
       return;
     }
-
     setActionLoading(true);
     try {
       const response = await api.post(`/posts/${postId}/request-changes`, { feedback });
@@ -100,7 +92,6 @@ export default function Approvals() {
         loadPendingApprovals();
       }
     } catch (error) {
-      console.error('Failed to request changes:', error);
       toast.error(error.response?.data?.error || 'Failed to request changes');
     } finally {
       setActionLoading(false);
@@ -121,68 +112,65 @@ export default function Approvals() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-10 h-10 border-2 border-white/[0.06] border-t-[#22d3ee] rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2">
-            Post Approvals
-          </h1>
-          <p className="text-gray-400">
-            {pendingApprovals.length} {pendingApprovals.length === 1 ? 'post' : 'posts'} awaiting your review
-          </p>
-        </div>
-
-        {/* Empty State */}
-        {pendingApprovals.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-800/50 backdrop-blur-xl border-2 border-gray-700/50 rounded-2xl p-12 text-center"
-          >
-            <div className="text-6xl mb-4">✅</div>
-            <h2 className="text-2xl font-bold text-white mb-2">All Clear!</h2>
-            <p className="text-gray-400">No posts pending approval</p>
-          </motion.div>
-        ) : (
-          /* Approval Cards Grid */
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {pendingApprovals.map((approval, index) => (
-              <ApprovalCard
-                key={approval.id}
-                approval={approval}
-                index={index}
-                onPreview={() => openPreview(approval)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Preview Modal */}
-        <PreviewModal
-          show={showPreview}
-          approval={selectedPost}
-          feedback={feedback}
-          setFeedback={setFeedback}
-          onClose={closePreview}
-          onApprove={() => handleApprove(selectedPost?.post_id)}
-          onReject={() => handleReject(selectedPost?.post_id)}
-          onRequestChanges={() => handleRequestChanges(selectedPost?.post_id)}
-          actionLoading={actionLoading}
-        />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="font-display text-3xl text-white mb-1">Post Approvals</h1>
+        <p className="text-sm text-[#a1a1aa]">
+          {pendingApprovals.length} {pendingApprovals.length === 1 ? 'post' : 'posts'} awaiting your review
+        </p>
       </div>
+
+      {/* Empty State */}
+      {pendingApprovals.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#111113] border border-white/[0.06] rounded-xl p-12 text-center"
+        >
+          <div className="w-12 h-12 rounded-xl bg-[#22d3ee]/10 border border-[#22d3ee]/20 flex items-center justify-center mx-auto mb-4">
+            <svg width="20" height="20" fill="none" stroke="#22d3ee" strokeWidth="2" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-semibold text-white mb-1">All Clear</h2>
+          <p className="text-sm text-[#a1a1aa]">No posts pending approval</p>
+        </motion.div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          {pendingApprovals.map((approval, index) => (
+            <ApprovalCard
+              key={approval.id}
+              approval={approval}
+              index={index}
+              onPreview={() => openPreview(approval)}
+            />
+          ))}
+        </div>
+      )}
+
+      <PreviewModal
+        show={showPreview}
+        approval={selectedPost}
+        feedback={feedback}
+        setFeedback={setFeedback}
+        onClose={closePreview}
+        onApprove={() => handleApprove(selectedPost?.post_id)}
+        onReject={() => handleReject(selectedPost?.post_id)}
+        onRequestChanges={() => handleRequestChanges(selectedPost?.post_id)}
+        actionLoading={actionLoading}
+      />
     </div>
   );
 }
 
-// Approval Card Component
 function ApprovalCard({ approval, index, onPreview }) {
   const post = approval.post;
   const submitter = approval.submitter;
@@ -190,70 +178,50 @@ function ApprovalCard({ approval, index, onPreview }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: index * 0.1 }}
-      className="bg-gray-800/50 backdrop-blur-xl border-2 border-yellow-500/30 rounded-xl p-6 shadow-xl hover:border-yellow-500/60 transition-all cursor-pointer"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06 }}
+      className="bg-[#111113] border border-white/[0.06] rounded-xl p-5 hover:border-white/[0.12] transition-colors cursor-pointer"
       onClick={onPreview}
     >
-      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+          <div className="w-8 h-8 rounded-lg bg-[#22d3ee]/10 border border-[#22d3ee]/20 flex items-center justify-center text-[#22d3ee] text-xs font-bold flex-shrink-0">
             {submitter.name?.[0]?.toUpperCase() || '?'}
           </div>
           <div>
-            <p className="text-white font-semibold">{submitter.name}</p>
-            <p className="text-gray-400 text-xs">{submitter.email}</p>
+            <p className="text-sm text-white font-medium">{submitter.name}</p>
+            <p className="text-xs text-[#52525b]">{submitter.email}</p>
           </div>
         </div>
-        <div className="bg-yellow-500/20 px-3 py-1 rounded-full">
-          <span className="text-yellow-300 text-xs font-bold">⏳ PENDING</span>
-        </div>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 px-2 py-0.5 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
+          Pending
+        </span>
       </div>
 
-      {/* Caption Preview */}
-      <div className="mb-4">
-        <p className="text-gray-300 text-sm line-clamp-4">
-          {post.text || 'No caption'}
-        </p>
-      </div>
+      <p className="text-sm text-[#a1a1aa] line-clamp-3 mb-4">{post.text || 'No caption'}</p>
 
-      {/* Platforms */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-1.5 mb-4">
         {platforms && platforms.map((platform) => (
           <span
             key={platform}
-            className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/30"
+            className="px-2 py-0.5 bg-[#22d3ee]/10 text-[#22d3ee] text-[11px] font-semibold rounded-full border border-[#22d3ee]/20"
           >
             {platform.toUpperCase()}
           </span>
         ))}
       </div>
 
-      {/* Metadata */}
-      <div className="flex items-center justify-between text-xs text-gray-500">
-        <span>
-          Submitted {formatTimestamp(new Date(approval.submitted_at))}
-        </span>
-        <span className="text-purple-400 font-semibold">Click to review →</span>
+      <div className="flex items-center justify-between text-xs text-[#52525b]">
+        <span>Submitted {formatTimestamp(new Date(approval.submitted_at))}</span>
+        <span className="text-[#22d3ee]">Review →</span>
       </div>
     </motion.div>
   );
 }
 
-// Preview Modal Component
-function PreviewModal({
-  show,
-  approval,
-  feedback,
-  setFeedback,
-  onClose,
-  onApprove,
-  onReject,
-  onRequestChanges,
-  actionLoading
-}) {
+function PreviewModal({ show, approval, feedback, setFeedback, onClose, onApprove, onReject, onRequestChanges, actionLoading }) {
   if (!show || !approval) return null;
 
   const post = approval.post;
@@ -267,45 +235,41 @@ function PreviewModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
+          exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e) => e.stopPropagation()}
-          className="bg-gray-800 border-2 border-purple-500/30 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+          className="bg-[#111113] border border-white/[0.08] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
         >
-          {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 flex items-center justify-between z-10">
+          {/* Modal Header */}
+          <div className="sticky top-0 bg-[#111113] border-b border-white/[0.06] px-6 py-4 flex items-center justify-between z-10">
             <div>
-              <h2 className="text-2xl font-bold text-white">Review Post</h2>
-              <p className="text-purple-100 text-sm mt-1">
-                Submitted by {submitter.name} • {formatTimestamp(new Date(approval.submitted_at))}
+              <h2 className="font-display text-xl text-white">Review Post</h2>
+              <p className="text-xs text-[#a1a1aa] mt-0.5">
+                Submitted by {submitter.name} · {formatTimestamp(new Date(approval.submitted_at))}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:bg-white/10 rounded-lg p-2 transition"
+              className="p-2 rounded-lg text-[#a1a1aa] hover:text-white hover:bg-white/[0.06] transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>
 
-          {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-5">
             {/* Platforms */}
             <div>
-              <h3 className="text-sm font-bold text-gray-400 mb-2">PLATFORMS</h3>
+              <p className="text-xs font-medium text-[#52525b] uppercase tracking-wider mb-2">Platforms</p>
               <div className="flex flex-wrap gap-2">
                 {platforms && platforms.map((platform) => (
-                  <span
-                    key={platform}
-                    className="px-3 py-1.5 bg-blue-500/20 text-blue-300 text-sm font-semibold rounded-lg border border-blue-500/30"
-                  >
+                  <span key={platform} className="px-2.5 py-1 bg-[#22d3ee]/10 text-[#22d3ee] text-xs font-semibold rounded-lg border border-[#22d3ee]/20">
                     {platform.toUpperCase()}
                   </span>
                 ))}
@@ -314,25 +278,23 @@ function PreviewModal({
 
             {/* Caption */}
             <div>
-              <h3 className="text-sm font-bold text-gray-400 mb-2">CAPTION</h3>
-              <div className="bg-gray-900/50 border-2 border-gray-700 rounded-lg p-4">
-                <p className="text-white whitespace-pre-wrap">{post.text || 'No caption'}</p>
+              <p className="text-xs font-medium text-[#52525b] uppercase tracking-wider mb-2">Caption</p>
+              <div className="bg-[#18181b] border border-white/[0.06] rounded-lg p-4">
+                <p className="text-sm text-[#a1a1aa] whitespace-pre-wrap">{post.text || 'No caption'}</p>
               </div>
             </div>
 
-            {/* Variations (if any) */}
+            {/* Variations */}
             {variations && Object.keys(variations).length > 0 && (
               <div>
-                <h3 className="text-sm font-bold text-gray-400 mb-2">PLATFORM-SPECIFIC VARIATIONS</h3>
+                <p className="text-xs font-medium text-[#52525b] uppercase tracking-wider mb-2">Platform Variations</p>
                 <div className="space-y-3">
                   {Object.entries(variations).map(([platform, text]) => (
-                    <div key={platform} className="bg-gray-900/50 border-2 border-gray-700 rounded-lg p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-semibold rounded">
-                          {platform.toUpperCase()}
-                        </span>
-                      </div>
-                      <p className="text-white text-sm whitespace-pre-wrap">{text}</p>
+                    <div key={platform} className="bg-[#18181b] border border-white/[0.06] rounded-lg p-4">
+                      <span className="inline-flex items-center px-2 py-0.5 bg-[#22d3ee]/10 text-[#22d3ee] text-xs font-semibold rounded border border-[#22d3ee]/20 mb-2">
+                        {platform.toUpperCase()}
+                      </span>
+                      <p className="text-sm text-[#a1a1aa] whitespace-pre-wrap">{text}</p>
                     </div>
                   ))}
                 </div>
@@ -342,70 +304,58 @@ function PreviewModal({
             {/* Schedule Time */}
             {post.schedule_time && (
               <div>
-                <h3 className="text-sm font-bold text-gray-400 mb-2">SCHEDULED FOR</h3>
-                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
-                  <p className="text-purple-300 font-semibold">
-                    📅 {new Date(post.schedule_time).toLocaleString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
+                <p className="text-xs font-medium text-[#52525b] uppercase tracking-wider mb-2">Scheduled For</p>
+                <div className="bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3">
+                  <p className="text-sm text-[#a1a1aa]">
+                    {new Date(post.schedule_time).toLocaleString('en-US', {
+                      weekday: 'long', year: 'numeric', month: 'long',
+                      day: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Feedback Section */}
+            {/* Feedback */}
             <div>
-              <h3 className="text-sm font-bold text-gray-400 mb-2">FEEDBACK (Optional for approval, required for rejection/changes)</h3>
+              <p className="text-xs font-medium text-[#52525b] uppercase tracking-wider mb-2">
+                Feedback <span className="normal-case">(required for rejection/changes)</span>
+              </p>
               <textarea
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Add feedback for the creator..."
                 rows={4}
-                className="w-full bg-gray-900/50 border-2 border-gray-700 text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white text-sm px-4 py-3 rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none placeholder:text-[#52525b]"
               />
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-              <motion.button
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+              <button
                 onClick={onApprove}
                 disabled={actionLoading}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:shadow-green-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-3 bg-[#22d3ee] text-[#0a0a0b] font-semibold rounded-lg hover:bg-[#06b6d4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                {actionLoading ? 'Processing...' : '✅ Approve Post'}
-              </motion.button>
-
-              <motion.button
+                {actionLoading ? 'Processing...' : 'Approve Post'}
+              </button>
+              <button
                 onClick={onRequestChanges}
                 disabled={actionLoading || !feedback}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold rounded-lg shadow-lg hover:shadow-yellow-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-3 bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 font-semibold rounded-lg hover:bg-yellow-400/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                {actionLoading ? 'Processing...' : '⚠️ Request Changes'}
-              </motion.button>
-
-              <motion.button
+                {actionLoading ? 'Processing...' : 'Request Changes'}
+              </button>
+              <button
                 onClick={onReject}
                 disabled={actionLoading || !feedback}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-4 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold rounded-lg shadow-lg hover:shadow-red-500/50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-400 font-semibold rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                {actionLoading ? 'Processing...' : '❌ Reject Post'}
-              </motion.button>
+                {actionLoading ? 'Processing...' : 'Reject Post'}
+              </button>
             </div>
 
-            <p className="text-gray-500 text-xs text-center mt-4">
-              * Feedback is required when rejecting or requesting changes
-            </p>
+            <p className="text-xs text-[#52525b] text-center">Feedback is required when rejecting or requesting changes</p>
           </div>
         </motion.div>
       </motion.div>
@@ -413,21 +363,12 @@ function PreviewModal({
   );
 }
 
-// Helper function
 function formatTimestamp(date) {
   const now = new Date();
   const diff = Math.floor((now - date) / 1000);
-
   if (diff < 60) return 'just now';
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
-

@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { showSuccess, showError } from '../components/ui/Toast';
-import AnimatedBackground from '../components/ui/AnimatedBackground';
 
 export default function BulkUpload() {
   const navigate = useNavigate();
@@ -200,7 +199,7 @@ export default function BulkUpload() {
 
   return (
     <div className="min-h-screen relative">
-      <AnimatedBackground />
+      
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
@@ -213,7 +212,7 @@ export default function BulkUpload() {
             <span className="text-5xl">📤</span>
             Bulk CSV Upload
           </h1>
-          <p className="text-gray-300 text-lg">Schedule hundreds of posts at once from a CSV file</p>
+          <p className="text-[#a1a1aa] text-lg">Schedule hundreds of posts at once from a CSV file</p>
         </motion.div>
 
         {/* Template Download Button */}
@@ -224,7 +223,7 @@ export default function BulkUpload() {
         >
           <button
             onClick={downloadTemplate}
-            className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition shadow-lg flex items-center gap-2"
+            className="bg-[#22d3ee] text-[#0a0a0b] px-6 py-3 rounded-xl font-bold hover:opacity-90 transition flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -238,13 +237,13 @@ export default function BulkUpload() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-12 shadow-2xl shadow-blue-500/20 overflow-hidden mb-8"
+            className="group relative bg-[#111113] border border-[#22d3ee]/20 rounded-xl p-12  overflow-hidden mb-8"
             onDragEnter={handleDragEnter}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
             
             <input
               type="file"
@@ -264,7 +263,7 @@ export default function BulkUpload() {
                 dragging 
                   ? 'bg-gradient-to-br from-blue-500 to-purple-500' 
                   : 'bg-gradient-to-br from-blue-600/50 to-purple-600/50'
-              } backdrop-blur-xl border-2 border-blue-400/60 shadow-2xl`}>
+              } border-2 border-blue-400/60`}>
                 {uploading ? (
                   <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
@@ -277,10 +276,10 @@ export default function BulkUpload() {
               <h3 className="text-2xl font-bold text-white mb-2">
                 {dragging ? 'Drop your CSV file here' : uploading ? 'Processing...' : 'Upload CSV File'}
               </h3>
-              <p className="text-gray-300 mb-4">
+              <p className="text-[#a1a1aa] mb-4">
                 Drag and drop your CSV file here, or click to browse
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[#a1a1aa]">
                 Maximum file size: 10MB • Supported format: CSV
               </p>
             </label>
@@ -292,7 +291,7 @@ export default function BulkUpload() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-2xl border-2 border-white/20 rounded-2xl p-6 shadow-2xl mb-6"
+            className="bg-[#111113] border border-white/[0.08] rounded-xl p-6 mb-6"
           >
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <span>📊</span>
@@ -300,22 +299,22 @@ export default function BulkUpload() {
             </h3>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-blue-900/30 backdrop-blur-xl border border-blue-400/30 rounded-xl p-4">
-                <p className="text-blue-300 text-sm font-semibold mb-1">Total Posts</p>
+              <div className="bg-blue-900/30 border border-blue-400/30 rounded-xl p-4">
+                <p className="text-[#22d3ee] text-sm font-semibold mb-1">Total Posts</p>
                 <p className="text-3xl font-black text-white">{summary.total}</p>
               </div>
               
-              <div className="bg-green-900/30 backdrop-blur-xl border border-green-400/30 rounded-xl p-4">
+              <div className="bg-green-900/30 border border-green-400/30 rounded-xl p-4">
                 <p className="text-green-300 text-sm font-semibold mb-1">Valid Posts</p>
                 <p className="text-3xl font-black text-white">{summary.valid}</p>
               </div>
               
-              <div className="bg-red-900/30 backdrop-blur-xl border border-red-400/30 rounded-xl p-4">
+              <div className="bg-red-900/30 border border-red-400/30 rounded-xl p-4">
                 <p className="text-red-300 text-sm font-semibold mb-1">Errors</p>
                 <p className="text-3xl font-black text-white">{summary.invalid}</p>
               </div>
               
-              <div className="bg-yellow-900/30 backdrop-blur-xl border border-yellow-400/30 rounded-xl p-4">
+              <div className="bg-yellow-900/30 border border-yellow-400/30 rounded-xl p-4">
                 <p className="text-yellow-300 text-sm font-semibold mb-1">Warnings</p>
                 <p className="text-3xl font-black text-white">{summary.withWarnings}</p>
               </div>
@@ -324,15 +323,15 @@ export default function BulkUpload() {
             {/* Progress Bar */}
             {scheduling && (
               <div className="mt-6">
-                <div className="flex justify-between text-sm text-gray-300 mb-2">
+                <div className="flex justify-between text-sm text-[#a1a1aa] mb-2">
                   <span>Scheduling posts...</span>
                   <span>{progress}%</span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
+                <div className="w-full bg-[#18181b] rounded-full h-4 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
-                    className="h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"
+                    className="h-full bg-[#22d3ee] rounded-full"
                   />
                 </div>
               </div>
@@ -350,7 +349,7 @@ export default function BulkUpload() {
             <button
               onClick={handleScheduleAll}
               disabled={scheduling || summary.valid === 0}
-              className="bg-[#22d3ee] text-[#0a0a0b] px-8 py-4 rounded-xl font-black text-lg hover:opacity-90 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-[#22d3ee] text-[#0a0a0b] px-8 py-4 rounded-xl font-black text-lg hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {scheduling ? (
                 <>
@@ -366,7 +365,7 @@ export default function BulkUpload() {
 
             <button
               onClick={handleReset}
-              className="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition shadow-lg"
+              className="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-4 rounded-xl font-bold hover:opacity-90 transition"
             >
               ❌ Cancel & Upload New
             </button>
@@ -378,7 +377,7 @@ export default function BulkUpload() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-2xl border-2 border-white/20 rounded-2xl p-6 shadow-2xl overflow-hidden"
+            className="bg-[#111113] border border-white/[0.08] rounded-xl p-6 overflow-hidden"
           >
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <span>📋</span>
@@ -401,7 +400,7 @@ export default function BulkUpload() {
                   {parsedData.map((row) => (
                     <tr
                       key={row.rowNumber}
-                      className={`border-b border-white/10 ${
+                      className={`border-b border-white/[0.06] ${
                         row.isValid ? 'bg-green-900/10' : 'bg-red-900/10'
                       }`}
                     >
@@ -417,17 +416,17 @@ export default function BulkUpload() {
                           </span>
                         )}
                       </td>
-                      <td className="p-3 text-gray-300 text-sm">
+                      <td className="p-3 text-[#a1a1aa] text-sm">
                         {row.parsed.schedule_datetime 
                           ? new Date(row.parsed.schedule_datetime).toLocaleString()
                           : <span className="text-red-400">Invalid</span>}
                       </td>
-                      <td className="p-3 text-gray-300 text-sm max-w-md">
+                      <td className="p-3 text-[#a1a1aa] text-sm max-w-md">
                         {editingRow === row.rowNumber ? (
                           <textarea
                             value={editData.caption}
                             onChange={(e) => setEditData({ ...editData, caption: e.target.value })}
-                            className="w-full bg-gray-800 border border-gray-600 text-white rounded p-2 text-sm"
+                            className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded p-2 text-sm"
                             rows={2}
                           />
                         ) : (
@@ -457,7 +456,7 @@ export default function BulkUpload() {
                             </button>
                             <button
                               onClick={handleCancelEdit}
-                              className="bg-gray-600 text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
+                              className="bg-[#18181b] text-white px-3 py-1 rounded text-sm font-bold hover:opacity-90"
                             >
                               Cancel
                             </button>

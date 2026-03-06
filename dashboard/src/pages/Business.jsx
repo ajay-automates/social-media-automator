@@ -348,7 +348,7 @@ export default function Business() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">Business Profile</h1>
-        <p className="text-gray-300">Set up your business information for personalized AI content generation</p>
+        <p className="text-[#a1a1aa]">Set up your business information for personalized AI content generation</p>
       </div>
 
       {/* Section Navigation */}
@@ -360,7 +360,7 @@ export default function Business() {
             className={`px-4 py-2 rounded-lg font-medium transition-all ${
               activeSection === section.id
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
+                : 'bg-[#18181b] text-[#a1a1aa] hover:bg-[#18181b]'
             }`}
           >
             <span className="mr-2">{section.icon}</span>
@@ -374,7 +374,7 @@ export default function Business() {
         key={activeSection}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-[#111113] border border-white/[0.06] rounded-xl shadow-lg p-6 mb-6"
+        className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 mb-6"
       >
         {/* Basic Information */}
         {activeSection === 'basic' && (
@@ -384,12 +384,12 @@ export default function Business() {
             </div>
 
             {/* Auto-fill from Website */}
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-2 border-blue-500/30 rounded-xl p-5 mb-6">
+            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-2 border-[#22d3ee]/30 rounded-xl p-5 mb-6">
               <div className="flex items-start gap-3 mb-4">
                 <span className="text-2xl">✨</span>
                 <div className="flex-1">
                   <h3 className="text-white font-semibold mb-1">Auto-fill from Website</h3>
-                  <p className="text-gray-300 text-sm mb-4">
+                  <p className="text-[#a1a1aa] text-sm mb-4">
                     Enter your company website URL and we'll automatically extract business information using AI
                   </p>
                   <div className="flex gap-2">
@@ -399,13 +399,13 @@ export default function Business() {
                       onChange={(e) => setAutofillUrl(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleAutofill()}
                       placeholder="https://yourcompany.com"
-                      className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                      className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                       disabled={autofilling}
                     />
                     <button
                       onClick={handleAutofill}
                       disabled={autofilling || !autofillUrl.trim()}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="px-6 py-3 bg-[#22d3ee] hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {autofilling ? (
                         <>
@@ -421,7 +421,7 @@ export default function Business() {
                     </button>
                   </div>
                   {formData.website_url && (
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-[#a1a1aa] mt-2">
                       Current website: {formData.website_url}
                     </p>
                   )}
@@ -430,7 +430,7 @@ export default function Business() {
             </div>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">
                 Business Name <span className="text-red-400">*</span>
                 {autofilledFields.includes('business_name') && (
                   <span className="ml-2 text-xs text-green-400">✨ Auto-filled</span>
@@ -440,10 +440,10 @@ export default function Business() {
                 type="text"
                 value={formData.business_name}
                 onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                className={`w-full bg-gray-800/60 backdrop-blur-lg border-2 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all ${
+                className={`w-full bg-[#18181b] border text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors  ${
                   autofilledFields.includes('business_name') 
                     ? 'border-green-500/50 bg-green-500/10' 
-                    : 'border-gray-600/50'
+                    : 'border-white/[0.06]/50'
                 }`}
                 placeholder="Your Company Name"
               />
@@ -451,11 +451,11 @@ export default function Business() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Business Type</label>
+                <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Business Type</label>
                 <select
                   value={formData.business_type}
                   onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
-                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                 >
                   {BUSINESS_TYPES.map(type => (
                     <option key={type.value} value={type.value}>
@@ -466,11 +466,11 @@ export default function Business() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Industry</label>
+                <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Industry</label>
                 <select
                   value={formData.industry}
                   onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                 >
                   <option value="">Select Industry</option>
                   {INDUSTRIES.map(industry => (
@@ -483,12 +483,12 @@ export default function Business() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Description</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors  resize-none"
                 placeholder="Describe what your business does..."
               />
             </div>
@@ -502,82 +502,82 @@ export default function Business() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Website URL</label>
+                <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Website URL</label>
                 <input
                   type="url"
                   value={formData.website_url}
                   onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="https://yourwebsite.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Email</label>
+                <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Email</label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="contact@yourbusiness.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">Phone</label>
+                <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Phone</label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="+1 (555) 123-4567"
                 />
               </div>
             </div>
 
-            <div className="border-t border-gray-700 pt-6 mt-6">
+            <div className="border-t border-white/[0.06] pt-6 mt-6">
               <h3 className="text-lg font-semibold text-white mb-4">Social Media Handles</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">LinkedIn URL</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">LinkedIn URL</label>
                   <input
                     type="url"
                     value={formData.linkedin_url}
                     onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                     placeholder="https://linkedin.com/company/yourcompany"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">Twitter Handle</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Twitter Handle</label>
                   <input
                     type="text"
                     value={formData.twitter_handle}
                     onChange={(e) => setFormData({ ...formData, twitter_handle: e.target.value.replace('@', '') })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                     placeholder="@yourhandle"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">YouTube URL</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">YouTube URL</label>
                   <input
                     type="url"
                     value={formData.youtube_url}
                     onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                     placeholder="https://youtube.com/@yourchannel"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">TikTok Handle</label>
+                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">TikTok Handle</label>
                   <input
                     type="text"
                     value={formData.tiktok_handle}
                     onChange={(e) => setFormData({ ...formData, tiktok_handle: e.target.value.replace('@', '') })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                     placeholder="@yourhandle"
                   />
                 </div>
@@ -592,47 +592,47 @@ export default function Business() {
             <h2 className="text-2xl font-bold text-white mb-6">Business Details</h2>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Tagline</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Tagline</label>
               <input
                 type="text"
                 value={formData.tagline}
                 onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                 placeholder="Your catchy tagline or slogan"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Value Proposition</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Value Proposition</label>
               <textarea
                 value={formData.value_proposition}
                 onChange={(e) => setFormData({ ...formData, value_proposition: e.target.value })}
                 rows={3}
-                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors  resize-none"
                 placeholder="What makes your business unique?"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Target Audience</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Target Audience</label>
               <textarea
                 value={formData.target_audience}
                 onChange={(e) => setFormData({ ...formData, target_audience: e.target.value })}
                 rows={2}
-                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors  resize-none"
                 placeholder="Who do you serve? (e.g., Small business owners, Tech startups, etc.)"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Key Products/Services</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Key Products/Services</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={productServiceInput}
                   onChange={(e) => setProductServiceInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addProductService()}
-                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="Add a product or service"
                 />
                 <button
@@ -646,7 +646,7 @@ export default function Business() {
                 {formData.key_products_services.map((item, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/20 text-blue-300 rounded-lg text-sm"
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/20 text-[#22d3ee] rounded-lg text-sm"
                   >
                     {item}
                     <button
@@ -661,14 +661,14 @@ export default function Business() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Key Features/Benefits</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Key Features/Benefits</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={featureBenefitInput}
                   onChange={(e) => setFeatureBenefitInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addFeatureBenefit()}
-                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="Add a key feature or benefit"
                 />
                 <button
@@ -682,7 +682,7 @@ export default function Business() {
                 {formData.key_features_benefits.map((item, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-2 px-3 py-1 bg-purple-600/20 text-purple-300 rounded-lg text-sm"
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-purple-600/20 text-[#a1a1aa] rounded-lg text-sm"
                   >
                     {item}
                     <button
@@ -704,8 +704,8 @@ export default function Business() {
             <h2 className="text-2xl font-bold text-white mb-6">Content Preferences</h2>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Content Themes</label>
-              <p className="text-sm text-gray-400 mb-4">Select the types of content you want to post about</p>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Content Themes</label>
+              <p className="text-sm text-[#a1a1aa] mb-4">Select the types of content you want to post about</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {CONTENT_THEMES.map((theme) => (
                   <button
@@ -713,8 +713,8 @@ export default function Business() {
                     onClick={() => toggleContentTheme(theme.value)}
                     className={`p-3 rounded-lg border-2 transition-all text-left ${
                       formData.content_themes.includes(theme.value)
-                        ? 'border-blue-500 bg-blue-600/20 text-white'
-                        : 'border-gray-600 bg-gray-800/40 text-gray-300 hover:border-gray-500'
+                        ? 'border-[#22d3ee] bg-blue-600/20 text-white'
+                        : 'border-white/[0.06] bg-[#18181b] text-[#a1a1aa] hover:border-white/[0.12]'
                     }`}
                   >
                     <span className="text-xl mr-2">{theme.icon}</span>
@@ -725,11 +725,11 @@ export default function Business() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Brand Voice</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Brand Voice</label>
               <select
                 value={formData.brand_voice}
                 onChange={(e) => setFormData({ ...formData, brand_voice: e.target.value })}
-                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
               >
                 {BRAND_VOICES.map(voice => (
                   <option key={voice.value} value={voice.value}>
@@ -740,18 +740,18 @@ export default function Business() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Tone Description</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Tone Description</label>
               <textarea
                 value={formData.tone_description}
                 onChange={(e) => setFormData({ ...formData, tone_description: e.target.value })}
                 rows={3}
-                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors  resize-none"
                 placeholder="Describe your brand's tone in more detail (optional)"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Brand Colors</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Brand Colors</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="color"
@@ -763,7 +763,7 @@ export default function Business() {
                   type="text"
                   value={colorInput}
                   onChange={(e) => setColorInput(e.target.value)}
-                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="#3B82F6"
                 />
                 <button
@@ -803,15 +803,15 @@ export default function Business() {
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white mb-6">Content Generation Settings</h2>
             
-            <div className="flex items-center justify-between p-4 bg-gray-800/40 rounded-xl">
+            <div className="flex items-center justify-between p-4 bg-[#18181b] rounded-xl">
               <div>
                 <h3 className="font-semibold text-white mb-1">Auto-include Call-to-Action</h3>
-                <p className="text-sm text-gray-400">Automatically add a CTA to generated posts</p>
+                <p className="text-sm text-[#a1a1aa]">Automatically add a CTA to generated posts</p>
               </div>
               <button
                 onClick={() => setFormData({ ...formData, auto_include_cta: !formData.auto_include_cta })}
                 className={`relative w-14 h-7 rounded-full transition-colors ${
-                  formData.auto_include_cta ? 'bg-blue-600' : 'bg-gray-600'
+                  formData.auto_include_cta ? 'bg-blue-600' : 'bg-[#18181b]'
                 }`}
               >
                 <div
@@ -824,26 +824,26 @@ export default function Business() {
 
             {formData.auto_include_cta && (
               <div>
-                <label className="block text-sm font-semibold text-gray-200 mb-2">CTA Text</label>
+                <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">CTA Text</label>
                 <input
                   type="text"
                   value={formData.cta_text}
                   onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="Learn more"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Preferred Hashtags</label>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Preferred Hashtags</label>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={hashtagInput}
                   onChange={(e) => setHashtagInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addHashtag()}
-                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="Add hashtag (with or without #)"
                 />
                 <button
@@ -872,15 +872,15 @@ export default function Business() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-200 mb-2">Words to Avoid</label>
-              <p className="text-sm text-gray-400 mb-2">Words or phrases that should never appear in generated content</p>
+              <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">Words to Avoid</label>
+              <p className="text-sm text-[#a1a1aa] mb-2">Words or phrases that should never appear in generated content</p>
               <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   value={avoidWordInput}
                   onChange={(e) => setAvoidWordInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addAvoidWord()}
-                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
                   placeholder="Add word or phrase to avoid"
                 />
                 <button
@@ -916,7 +916,7 @@ export default function Business() {
         <button
           onClick={handleSave}
           disabled={saving || !formData.business_name.trim()}
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          className="px-6 py-3 bg-[#22d3ee] hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving...' : 'Save Business Profile'}
         </button>
