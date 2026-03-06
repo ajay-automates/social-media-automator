@@ -430,7 +430,7 @@ export default function Analytics() {
                   alert('Failed to export analytics. Make sure you have posts to export.');
                 });
             }}
-            className="group relative bg-gradient-to-r from-green-600/30 to-emerald-600/30 backdrop-blur-md border-2 border-green-400/30 text-white px-6 py-3 rounded-xl hover:from-green-600/40 hover:to-emerald-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-green-500/30 overflow-hidden"
+            className="group relative bg-white/[0.06] border border-white/[0.08] text-white text-sm px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2"
             title="Export your analytics data as CSV"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
@@ -447,7 +447,7 @@ export default function Analytics() {
               loadAnalytics();
               loadHistory();
             }}
-            className="group relative bg-blue-600/30 backdrop-blur-md border-2 border-blue-400/30 text-white px-6 py-3 rounded-xl hover:bg-blue-600/40 transition-all flex items-center gap-2 shadow-lg hover:shadow-blue-500/30 overflow-hidden"
+            className="group relative bg-white/[0.06] border border-white/[0.08] text-white text-sm px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2"
             title="Refresh analytics data now"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>

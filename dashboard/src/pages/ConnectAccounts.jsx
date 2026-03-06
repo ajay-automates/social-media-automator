@@ -516,7 +516,7 @@ export default function ConnectAccounts() {
       </div>
 
       {/* Connected Accounts Section */}
-      <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-6 mb-8">
+      <div className="bg-[#111113] border border-white/[0.06] rounded-xl shadow-2xl p-6 mb-8">
         <h2 className="text-2xl font-bold text-gray-100 mb-4">Connected Accounts</h2>
 
         {loading ? (
@@ -604,7 +604,7 @@ export default function ConnectAccounts() {
                               type="text"
                               value={editLabel}
                               onChange={(e) => setEditLabel(e.target.value)}
-                              className="bg-gray-800/70 border border-gray-600 text-white px-3 py-1.5 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="bg-gray-800/70 border border-gray-600 text-white px-3 py-1.5 rounded-lg text-sm focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-500"
                               placeholder="Account label"
                               autoFocus
                             />
@@ -838,7 +838,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4">Connect Telegram</h3>
             <div className="space-y-4 mb-6">
@@ -891,7 +891,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4">Connect Slack</h3>
             <div className="space-y-4 mb-6">
@@ -944,7 +944,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4">Connect Discord</h3>
             <div className="space-y-4 mb-6">
@@ -997,7 +997,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <FaMedium className="text-2xl" />
@@ -1044,7 +1044,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <SiMastodon className="text-2xl text-purple-400" />
@@ -1106,7 +1106,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-6 max-w-md w-full"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 max-w-md w-full"
           >
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <SiBluesky className="text-2xl text-blue-400" />
@@ -1122,7 +1122,7 @@ export default function ConnectAccounts() {
                   value={blueskyHandle}
                   onChange={(e) => setBlueskyHandle(e.target.value)}
                   placeholder="username.bsky.social"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   Your Bluesky handle (e.g., ajay.bsky.social)
@@ -1137,7 +1137,7 @@ export default function ConnectAccounts() {
                   value={blueskyAppPassword}
                   onChange={(e) => setBlueskyAppPassword(e.target.value)}
                   placeholder="xxxx-xxxx-xxxx-xxxx"
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   Create at: <a href="https://bsky.app/settings/app-passwords" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Settings → App Passwords</a>
@@ -1168,7 +1168,7 @@ export default function ConnectAccounts() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl p-8 max-w-md w-full text-center"
+            className="bg-[#111113] border border-white/[0.06] rounded-xl p-8 max-w-md w-full text-center"
           >
             <div className="text-6xl mb-4">🚧</div>
             <h3 className="text-2xl font-bold text-white mb-2">{comingSoonPlatform} Integration</h3>

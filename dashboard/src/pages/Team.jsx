@@ -201,7 +201,7 @@ export default function Team() {
             {canInvite && (
               <motion.button
                 onClick={() => setShowInviteModal(true)}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all"
+                className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white font-bold rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -577,7 +577,7 @@ function InviteModal({ show, onClose, inviteEmail, setInviteEmail, inviteRole, s
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
                 disabled={inviting}
               >
                 {inviting ? 'Sending...' : 'Send Invitation'}

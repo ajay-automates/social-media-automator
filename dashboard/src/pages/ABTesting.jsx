@@ -219,7 +219,7 @@ export default function ABTesting() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateModal(true)}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/50 transition-all"
+            className="px-6 py-3 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg font-semibold flex items-center gap-2 hover:shadow-lg hover:shadow-purple-500/50 transition-all"
           >
             <FaPlus /> Create Test
           </motion.button>
@@ -266,7 +266,7 @@ export default function ABTesting() {
             <p className="text-gray-400 mb-6">Create your first test to start comparing content variations</p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold inline-flex items-center gap-2"
+              className="px-6 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg font-semibold inline-flex items-center gap-2"
             >
               <FaPlus /> Create Test
             </button>
@@ -524,7 +524,7 @@ export default function ABTesting() {
                 </button>
                 <button
                   onClick={handleCreate}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50"
+                  className="flex-1 px-4 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50"
                 >
                   Create Test
                 </button>

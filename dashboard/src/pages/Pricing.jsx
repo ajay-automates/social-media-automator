@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const plans = {
   free: {
     name: 'Free',
+    description: 'Get started at no cost',
     price: 0,
     annual: 0,
     features: [
@@ -25,6 +26,7 @@ const plans = {
   },
   pro: {
     name: 'Pro',
+    description: 'For growing creators',
     price: 1000,
     annual: 10000,
     features: [
@@ -39,10 +41,11 @@ const plans = {
     features_excluded: [
       'API access',
       'White-label options',
-    ]
+    ],
   },
   business: {
     name: 'Business',
+    description: 'For agencies and teams',
     price: 5000,
     annual: 50000,
     features: [
@@ -73,9 +76,7 @@ export default function Pricing() {
   const loadCurrentPlan = async () => {
     try {
       const response = await api.get('/billing/usage');
-      if (response.data?.plan) {
-        setCurrentPlan(response.data.plan.name);
-      }
+      if (response.data?.plan) setCurrentPlan(response.data.plan.name);
     } catch (err) {
       console.error('Error loading current plan:', err);
     } finally {
@@ -83,37 +84,23 @@ export default function Pricing() {
     }
   };
 
-  const loadRazorpay = () => {
-    return new Promise((resolve) => {
+  const loadRazorpay = () =>
+    new Promise((resolve) => {
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
-  };
 
   const handleUpgrade = async (planName) => {
-    if (planName === 'free') {
-      navigate('/dashboard');
-      return;
-    }
-
-    if (currentPlan === planName) {
-      showError('You are already on this plan');
-      return;
-    }
+    if (planName === 'free') { navigate('/dashboard'); return; }
+    if (currentPlan === planName) { showError('You are already on this plan'); return; }
 
     setLoading(true);
-
     try {
-      // Create Subscription
-      const response = await api.post('/billing/subscription', {
-        plan: planName,
-        billingCycle,
-      });
+      const response = await api.post('/billing/subscription', { plan: planName, billingCycle });
 
-      // Handle free upgrade
       if (response.data.free) {
         showSuccess(`Upgraded to ${planName} plan successfully!`);
         navigate('/success');
@@ -121,51 +108,35 @@ export default function Pricing() {
       }
 
       const res = await loadRazorpay();
-      if (!res) {
-        showError('Razorpay SDK failed to load');
-        return;
-      }
+      if (!res) { showError('Razorpay SDK failed to load'); return; }
 
       const { subscriptionId, keyId } = response.data;
-
       const options = {
         key: keyId,
         subscription_id: subscriptionId,
-        name: "Social Media Automator",
+        name: 'Social Media Automator',
         description: `${planName.charAt(0).toUpperCase() + planName.slice(1)} Plan Subscription`,
-        currency: "INR", // Set currency to INR
-        handler: async function (response) {
+        currency: 'INR',
+        handler: async (resp) => {
           try {
-            // Verify Payment
             await api.post('/billing/verify', {
               paymentData: {
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_subscription_id: response.razorpay_subscription_id,
-                razorpay_signature: response.razorpay_signature
+                razorpay_payment_id: resp.razorpay_payment_id,
+                razorpay_subscription_id: resp.razorpay_subscription_id,
+                razorpay_signature: resp.razorpay_signature,
               },
-              plan: planName
+              plan: planName,
             });
-
             showSuccess('Subscription activated successfully!');
             navigate('/success');
-          } catch (err) {
-            console.error('Verification error:', err);
+          } catch {
             showError('Payment verification failed');
           }
         },
-        theme: {
-          color: "#3B82F6"
-        },
-        prefill: {
-          // Optional: prefill customer details
-        }
+        theme: { color: '#22d3ee' },
       };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-
+      new window.Razorpay(options).open();
     } catch (err) {
-      console.error('Checkout error:', err);
       showError(err.response?.data?.error || 'Failed to start checkout');
     } finally {
       setLoading(false);
@@ -173,163 +144,163 @@ export default function Pricing() {
   };
 
   const handleManageSubscription = async () => {
-    if (window.confirm('Are you sure you want to cancel your subscription? You will be downgraded to the Free plan immediately.')) {
+    if (window.confirm('Cancel your subscription? You will be downgraded to the Free plan immediately.')) {
       try {
         await api.post('/billing/cancel');
         showSuccess('Subscription cancelled successfully');
         loadCurrentPlan();
-      } catch (err) {
-        console.error('Cancellation error:', err);
+      } catch {
         showError('Failed to cancel subscription');
       }
     }
   };
 
-  const getPrice = (plan) => {
-    return billingCycle === 'monthly' ? plan.price : Math.round(plan.annual / 12);
-  };
-
-  const getAnnualSavings = (plan) => {
-    if (plan.price === 0) return 0;
-    return plan.price * 12 - plan.annual;
-  };
+  const getPrice = (plan) => billingCycle === 'monthly' ? plan.price : Math.round(plan.annual / 12);
+  const getAnnualSavings = (plan) => plan.price === 0 ? 0 : plan.price * 12 - plan.annual;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-20 pt-32 overflow-x-hidden">
-      <div className="container mx-auto px-6 max-w-7xl overflow-visible">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            Simple, Transparent Pricing
-          </h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Choose the plan that fits your needs. No hidden fees.
-          </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Page header */}
+      <div className="text-center mb-10">
+        <h1 className="font-display text-3xl text-white mb-2">Simple, Transparent Pricing</h1>
+        <p className="text-[#a1a1aa] text-sm">Choose the plan that fits your needs. No hidden fees.</p>
 
-          {/* Billing Toggle */}
-          <div className="inline-flex items-center gap-4 bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl p-2 shadow-xl">
-            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'monthly' ? 'text-white font-semibold bg-blue-500/30 backdrop-blur-sm border border-blue-400/30' : 'text-gray-400'}`}>
-              Monthly
+        {/* Billing toggle */}
+        <div className="inline-flex items-center gap-3 mt-6 bg-[#111113] border border-white/[0.06] rounded-xl p-1.5">
+          <button
+            onClick={() => setBillingCycle('monthly')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              billingCycle === 'monthly'
+                ? 'bg-white/[0.08] text-white'
+                : 'text-[#52525b] hover:text-[#a1a1aa]'
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBillingCycle('annual')}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+              billingCycle === 'annual'
+                ? 'bg-white/[0.08] text-white'
+                : 'text-[#52525b] hover:text-[#a1a1aa]'
+            }`}
+          >
+            Yearly
+            <span className="text-[10px] font-bold text-[#22d3ee] bg-[#22d3ee]/10 border border-[#22d3ee]/20 px-1.5 py-0.5 rounded-full">
+              Save 17%
             </span>
-            <button
-              onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
-              className="relative inline-flex h-8 w-14 items-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
-            >
-              <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${billingCycle === 'annual' ? 'translate-x-7' : 'translate-x-1'
-                  }`}
-              />
-            </button>
-            <span className={`text-lg px-4 py-2 rounded-xl transition-all ${billingCycle === 'annual' ? 'text-white font-semibold bg-purple-500/30 backdrop-blur-sm border border-purple-400/30' : 'text-gray-400'}`}>
-              Annual
-              <span className="ml-2 text-sm bg-green-500/80 backdrop-blur-sm text-white px-2 py-1 rounded-lg border border-green-400/30">
-                Save 17%
-              </span>
-            </span>
-          </div>
-        </div>
-
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mt-20 overflow-visible">
-          {Object.entries(plans).map(([key, plan], index) => {
-            const isPopular = key === 'pro';
-            const isCurrent = currentPlan === key;
-            const isFree = key === 'free';
-
-            return (
-              <motion.div
-                key={key}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className={`group relative overflow-visible ${isPopular
-                  ? 'bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-xl border-2 border-blue-400/50 transform scale-105 shadow-2xl shadow-blue-500/30'
-                  : 'bg-gray-900/30 backdrop-blur-xl border-2 border-white/10 shadow-xl'
-                  } p-8 rounded-2xl flex flex-col relative`}
-              >
-                {/* Glossy shine overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-
-                {/* Popular Badge */}
-                {isPopular && (
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-yellow-400/50 z-50">
-                    ⭐ MOST POPULAR
-                  </div>
-                )}
-
-                {/* Current Plan Badge */}
-                {isCurrent && !isPopular && (
-                  <div className="absolute -top-6 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-blue-500/50 backdrop-blur-sm border border-blue-400/30 z-50">
-                    ✓ Current Plan
-                  </div>
-                )}
-
-                <div className="relative mb-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                  <div className={`text-5xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-white'}`}>
-                    {isFree ? 'Free' : `₹${getPrice(plan)}`}
-                    <span className={`text-lg ml-2 ${isPopular ? 'text-blue-200' : 'text-gray-300'}`}>
-                      {isFree ? '/ forever' : '/ mo'}
-                    </span>
-                  </div>
-                  {isFree && <p className="text-gray-300">Forever free plan</p>}
-                  {!isFree && billingCycle === 'annual' && (
-                    <p className="text-green-400 text-sm">
-                      Save ₹${getAnnualSavings(plan)} per year
-                    </p>
-                  )}
-                </div>
-
-                <ul className="relative space-y-3 mb-8 flex-grow">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className={`text-xl ${isPopular ? 'text-green-300' : 'text-green-400'}`}>✓</span>
-                      <span className={isPopular ? 'text-white' : 'text-gray-200'}>{feature}</span>
-                    </li>
-                  ))}
-                  {plan.features_excluded?.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <span className="text-red-400 text-xl">✗</span>
-                      <span className="text-gray-400 line-through">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {isCurrent ? (
-                  <button
-                    onClick={handleManageSubscription}
-                    disabled={isFree}
-                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all ${isFree
-                      ? 'bg-gray-800/50 backdrop-blur-sm border-2 border-gray-600 text-gray-400 cursor-not-allowed'
-                      : 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-xl hover:shadow-blue-500/30 border-2 border-white/50'
-                      }`}
-                  >
-                    {isFree ? 'Current Plan' : 'Manage Subscription'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleUpgrade(key)}
-                    disabled={loading}
-                    className={`relative overflow-hidden w-full py-4 rounded-xl font-bold transition-all group/btn ${isPopular
-                      ? 'bg-white/90 backdrop-blur-sm text-blue-600 hover:bg-white hover:shadow-2xl hover:shadow-white/30 border-2 border-white/50'
-                      : 'bg-gray-800/50 backdrop-blur-sm text-white hover:bg-gray-700/50 border-2 border-white/20 hover:border-white/30'
-                      } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
-                    <span className="relative">{loading ? 'Processing...' : isFree ? 'Get Started' : 'Start Free Trial'}</span>
-                  </button>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Footer */}
-        <div className="text-center mt-16 text-gray-400">
-          <p>✓ No credit card required • ✓ 14-day free trial • ✓ Cancel anytime</p>
+          </button>
         </div>
       </div>
+
+      {/* Plan cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+        {Object.entries(plans).map(([key, plan], index) => {
+          const isPopular = key === 'pro';
+          const isCurrent = currentPlan === key;
+          const isFree = key === 'free';
+
+          return (
+            <motion.div
+              key={key}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.08 }}
+              className={`relative flex flex-col rounded-xl p-6 ${
+                isPopular
+                  ? 'bg-[#111113] border border-[#22d3ee]/30 ring-1 ring-[#22d3ee]/10'
+                  : 'bg-[#111113] border border-white/[0.06]'
+              }`}
+            >
+              {/* Popular badge */}
+              {isPopular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#22d3ee] text-[#0a0a0b] text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                  Most Popular
+                </div>
+              )}
+
+              {/* Current plan badge */}
+              {isCurrent && (
+                <div className="absolute top-4 right-4 text-[10px] font-semibold text-[#22d3ee] bg-[#22d3ee]/10 border border-[#22d3ee]/20 px-2 py-0.5 rounded-full">
+                  Current
+                </div>
+              )}
+
+              {/* Plan name & price */}
+              <div className="mb-5">
+                <h3 className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-wider mb-1">{plan.name}</h3>
+                <p className="text-xs text-[#52525b] mb-4">{plan.description}</p>
+                <div className="flex items-baseline gap-1">
+                  {isFree ? (
+                    <span className="text-3xl font-bold text-white">Free</span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-bold text-white">₹{getPrice(plan).toLocaleString()}</span>
+                      <span className="text-sm text-[#52525b]">/mo</span>
+                    </>
+                  )}
+                </div>
+                {!isFree && billingCycle === 'annual' && (
+                  <p className="text-xs text-[#22d3ee] mt-1">Save ₹{getAnnualSavings(plan).toLocaleString()} per year</p>
+                )}
+                {isFree && <p className="text-xs text-[#52525b] mt-1">Forever free</p>}
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-2.5 mb-6 flex-grow">
+                {plan.features.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <svg width="14" height="14" fill="none" stroke="#22d3ee" strokeWidth="2.5" viewBox="0 0 24 24" className="flex-shrink-0 mt-0.5">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span className="text-[#a1a1aa]">{f}</span>
+                  </li>
+                ))}
+                {plan.features_excluded?.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm">
+                    <svg width="14" height="14" fill="none" stroke="#52525b" strokeWidth="2.5" viewBox="0 0 24 24" className="flex-shrink-0 mt-0.5">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    <span className="text-[#52525b] line-through">{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA button */}
+              {isCurrent ? (
+                <button
+                  onClick={isFree ? undefined : handleManageSubscription}
+                  disabled={isFree}
+                  className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                    isFree
+                      ? 'bg-white/[0.04] text-[#52525b] cursor-default border border-white/[0.06]'
+                      : 'bg-white/[0.06] border border-white/[0.1] text-white hover:bg-white/[0.1]'
+                  }`}
+                >
+                  {isFree ? 'Current plan' : 'Manage subscription'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleUpgrade(key)}
+                  disabled={loading}
+                  className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    isPopular
+                      ? 'bg-[#22d3ee] text-[#0a0a0b] hover:bg-[#06b6d4]'
+                      : 'bg-white/[0.06] border border-white/[0.1] text-white hover:bg-white/[0.1]'
+                  }`}
+                >
+                  {loading ? 'Processing...' : isFree ? 'Get started' : 'Start free trial'}
+                </button>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Footer note */}
+      <p className="text-center text-xs text-[#52525b] mt-8">
+        No credit card required &nbsp;·&nbsp; 14-day free trial &nbsp;·&nbsp; Cancel anytime
+      </p>
     </div>
   );
 }

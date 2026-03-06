@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import { motion } from 'framer-motion';
 import { celebrateBigWin } from '../utils/animations';
 
@@ -10,96 +9,83 @@ export default function PaymentSuccess() {
   const [countdown, setCountdown] = useState(5);
 
   useEffect(() => {
-    // Trigger confetti
     celebrateBigWin();
-
-    // Countdown timer
     const timer = setInterval(() => {
       setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate('/dashboard');
-          return 0;
-        }
+        if (prev <= 1) { clearInterval(timer); navigate('/dashboard'); return 0; }
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, [navigate]);
 
   const sessionId = searchParams.get('session_id');
-  const plan = sessionId ? 'Pro' : 'your new plan'; // This would come from the session
+  const plan = sessionId ? 'Pro' : 'your new plan';
+
+  const benefits = [
+    'Unlimited posts',
+    '3 social accounts',
+    '100 AI generations/month',
+    'CSV bulk upload',
+    'Email support',
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-56px)] flex items-center justify-center p-6">
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-[#111113] border border-white/[0.06] rounded-2xl max-w-md w-full p-8 text-center"
       >
         {/* Icon */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring' }}
+          transition={{ delay: 0.15, type: 'spring', stiffness: 200 }}
+          className="w-16 h-16 rounded-full bg-[#22d3ee]/10 border border-[#22d3ee]/20 flex items-center justify-center mx-auto mb-6"
         >
-          <CheckCircleIcon className="w-24 h-24 text-green-600 mx-auto mb-6" />
+          <svg width="28" height="28" fill="none" stroke="#22d3ee" strokeWidth="2.5" viewBox="0 0 24 24">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
         </motion.div>
 
-        {/* Title */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          🎉 Payment Successful!
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Welcome to {plan}! Your subscription is now active.
-        </p>
+        <h1 className="font-display text-2xl text-white mb-2">Payment successful!</h1>
+        <p className="text-[#a1a1aa] text-sm mb-6">Welcome to {plan}. Your subscription is now active.</p>
 
-        {/* Trial Notice */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-sm text-blue-900">
-            📅 <strong>14-day free trial</strong> • You won't be charged until{' '}
+        {/* Trial notice */}
+        <div className="flex items-start gap-2.5 p-3.5 bg-[#22d3ee]/[0.04] border border-[#22d3ee]/[0.12] rounded-xl mb-5 text-left">
+          <svg width="14" height="14" fill="none" stroke="#22d3ee" strokeWidth="2" viewBox="0 0 24 24" className="flex-shrink-0 mt-0.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          <p className="text-xs text-[#a1a1aa]">
+            <span className="text-white font-semibold">14-day free trial</span> — you won't be charged until{' '}
             {new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString()}
           </p>
         </div>
 
         {/* Benefits */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-          <h3 className="font-semibold text-gray-900 mb-2">You now have access to:</h3>
-          <ul className="space-y-2 text-sm text-gray-700">
-            {[
-              'Unlimited posts',
-              '3 social accounts',
-              '100 AI generations/month',
-              'CSV bulk upload',
-              'Email support',
-            ].map((benefit, i) => (
-              <li key={i} className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
+        <div className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4 mb-6 text-left">
+          <p className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider mb-3">You now have access to</p>
+          <ul className="space-y-2">
+            {benefits.map((b, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm text-[#a1a1aa]">
+                <svg width="13" height="13" fill="none" stroke="#22d3ee" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12"/>
                 </svg>
-                {benefit}
+                {b}
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Button */}
         <button
           onClick={() => navigate('/dashboard')}
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-lg hover:shadow-lg transition transform hover:scale-105 mb-4"
+          className="w-full bg-[#22d3ee] text-[#0a0a0b] font-semibold py-2.5 rounded-lg hover:bg-[#06b6d4] transition-colors text-sm mb-3"
         >
-          Go to Dashboard
+          Go to dashboard
         </button>
 
-        {/* Countdown */}
-        <p className="text-xs text-gray-500">
-          Redirecting to dashboard in {countdown} seconds...
-        </p>
+        <p className="text-xs text-[#52525b]">Redirecting in {countdown}s...</p>
       </motion.div>
     </div>
   );

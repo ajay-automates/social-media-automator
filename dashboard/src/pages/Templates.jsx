@@ -426,7 +426,7 @@ export default function Templates() {
                 placeholder="🔍 Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-5 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 placeholder:text-gray-400 transition-all shadow-lg"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-5 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 placeholder:text-gray-400 transition-all shadow-lg"
               />
             </div>
 
@@ -585,7 +585,7 @@ export default function Templates() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
                     placeholder="e.g., Welcome Message"
                   />
                 </div>
@@ -597,7 +597,7 @@ export default function Templates() {
                     type="text"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
                     placeholder="Optional description"
                   />
                 </div>
@@ -608,7 +608,7 @@ export default function Templates() {
                   <textarea
                     value={formData.text}
                     onChange={(e) => setFormData({ ...formData, text: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 h-32 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg resize-none"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 h-32 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg resize-none"
                     placeholder="Template content... Use {{variable}} for dynamic values"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -638,7 +638,7 @@ export default function Templates() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
                   >
                     {CATEGORIES.filter(c => c.id !== 'all').map(cat => (
                       <option key={cat.id} value={cat.id}>
@@ -661,7 +661,7 @@ export default function Templates() {
                         .filter(tag => tag.length > 0);
                       setFormData({ ...formData, tags: tagsArray });
                     }}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
                     placeholder="e.g., sales, promotion, engagement"
                   />
                   {formData.tags && formData.tags.length > 0 && (
@@ -695,7 +695,7 @@ export default function Templates() {
                     type="url"
                     value={formData.image_url}
                     onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all shadow-lg"
                     placeholder="https://..."
                   />
                 </div>

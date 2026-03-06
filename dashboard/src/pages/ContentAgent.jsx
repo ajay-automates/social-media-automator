@@ -1548,7 +1548,7 @@ export default function ContentAgent() {
                     <textarea
                       value={editingCaption}
                       onChange={(e) => setEditingCaption(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none"
                       rows="6"
                       placeholder="Edit your post caption..."
                     />
@@ -1565,7 +1565,7 @@ export default function ContentAgent() {
                     <textarea
                       value={editingHashtags}
                       onChange={(e) => setEditingHashtags(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors resize-none"
                       rows="3"
                       placeholder="e.g., #AI, #Technology, #Innovation"
                     />

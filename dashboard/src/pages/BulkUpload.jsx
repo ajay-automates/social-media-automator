@@ -350,7 +350,7 @@ export default function BulkUpload() {
             <button
               onClick={handleScheduleAll}
               disabled={scheduling || summary.valid === 0}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-black text-lg hover:opacity-90 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-[#22d3ee] text-[#0a0a0b] px-8 py-4 rounded-xl font-black text-lg hover:opacity-90 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {scheduling ? (
                 <>

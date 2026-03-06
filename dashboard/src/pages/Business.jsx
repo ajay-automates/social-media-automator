@@ -374,7 +374,7 @@ export default function Business() {
         key={activeSection}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mb-6"
+        className="bg-[#111113] border border-white/[0.06] rounded-xl shadow-lg p-6 mb-6"
       >
         {/* Basic Information */}
         {activeSection === 'basic' && (
@@ -399,7 +399,7 @@ export default function Business() {
                       onChange={(e) => setAutofillUrl(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleAutofill()}
                       placeholder="https://yourcompany.com"
-                      className="flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                      className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                       disabled={autofilling}
                     />
                     <button
@@ -440,7 +440,7 @@ export default function Business() {
                 type="text"
                 value={formData.business_name}
                 onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                className={`w-full bg-gray-800/60 backdrop-blur-lg border-2 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all ${
+                className={`w-full bg-gray-800/60 backdrop-blur-lg border-2 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all ${
                   autofilledFields.includes('business_name') 
                     ? 'border-green-500/50 bg-green-500/10' 
                     : 'border-gray-600/50'
@@ -455,7 +455,7 @@ export default function Business() {
                 <select
                   value={formData.business_type}
                   onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
-                  className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                 >
                   {BUSINESS_TYPES.map(type => (
                     <option key={type.value} value={type.value}>
@@ -470,7 +470,7 @@ export default function Business() {
                 <select
                   value={formData.industry}
                   onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                  className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                 >
                   <option value="">Select Industry</option>
                   {INDUSTRIES.map(industry => (
@@ -488,7 +488,7 @@ export default function Business() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
                 placeholder="Describe what your business does..."
               />
             </div>
@@ -507,7 +507,7 @@ export default function Business() {
                   type="url"
                   value={formData.website_url}
                   onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                  className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="https://yourwebsite.com"
                 />
               </div>
@@ -518,7 +518,7 @@ export default function Business() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="contact@yourbusiness.com"
                 />
               </div>
@@ -529,7 +529,7 @@ export default function Business() {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="+1 (555) 123-4567"
                 />
               </div>
@@ -544,7 +544,7 @@ export default function Business() {
                     type="url"
                     value={formData.linkedin_url}
                     onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="https://linkedin.com/company/yourcompany"
                   />
                 </div>
@@ -555,7 +555,7 @@ export default function Business() {
                     type="text"
                     value={formData.twitter_handle}
                     onChange={(e) => setFormData({ ...formData, twitter_handle: e.target.value.replace('@', '') })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="@yourhandle"
                   />
                 </div>
@@ -566,7 +566,7 @@ export default function Business() {
                     type="url"
                     value={formData.youtube_url}
                     onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="https://youtube.com/@yourchannel"
                   />
                 </div>
@@ -577,7 +577,7 @@ export default function Business() {
                     type="text"
                     value={formData.tiktok_handle}
                     onChange={(e) => setFormData({ ...formData, tiktok_handle: e.target.value.replace('@', '') })}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                     placeholder="@yourhandle"
                   />
                 </div>
@@ -597,7 +597,7 @@ export default function Business() {
                 type="text"
                 value={formData.tagline}
                 onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                 placeholder="Your catchy tagline or slogan"
               />
             </div>
@@ -608,7 +608,7 @@ export default function Business() {
                 value={formData.value_proposition}
                 onChange={(e) => setFormData({ ...formData, value_proposition: e.target.value })}
                 rows={3}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
                 placeholder="What makes your business unique?"
               />
             </div>
@@ -619,7 +619,7 @@ export default function Business() {
                 value={formData.target_audience}
                 onChange={(e) => setFormData({ ...formData, target_audience: e.target.value })}
                 rows={2}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
                 placeholder="Who do you serve? (e.g., Small business owners, Tech startups, etc.)"
               />
             </div>
@@ -632,7 +632,7 @@ export default function Business() {
                   value={productServiceInput}
                   onChange={(e) => setProductServiceInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addProductService()}
-                  className="flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="Add a product or service"
                 />
                 <button
@@ -668,7 +668,7 @@ export default function Business() {
                   value={featureBenefitInput}
                   onChange={(e) => setFeatureBenefitInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addFeatureBenefit()}
-                  className="flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="Add a key feature or benefit"
                 />
                 <button
@@ -729,7 +729,7 @@ export default function Business() {
               <select
                 value={formData.brand_voice}
                 onChange={(e) => setFormData({ ...formData, brand_voice: e.target.value })}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
               >
                 {BRAND_VOICES.map(voice => (
                   <option key={voice.value} value={voice.value}>
@@ -745,7 +745,7 @@ export default function Business() {
                 value={formData.tone_description}
                 onChange={(e) => setFormData({ ...formData, tone_description: e.target.value })}
                 rows={3}
-                className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all resize-none"
+                className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all resize-none"
                 placeholder="Describe your brand's tone in more detail (optional)"
               />
             </div>
@@ -763,7 +763,7 @@ export default function Business() {
                   type="text"
                   value={colorInput}
                   onChange={(e) => setColorInput(e.target.value)}
-                  className="flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="#3B82F6"
                 />
                 <button
@@ -829,7 +829,7 @@ export default function Business() {
                   type="text"
                   value={formData.cta_text}
                   onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                  className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="Learn more"
                 />
               </div>
@@ -843,7 +843,7 @@ export default function Business() {
                   value={hashtagInput}
                   onChange={(e) => setHashtagInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addHashtag()}
-                  className="flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="Add hashtag (with or without #)"
                 />
                 <button
@@ -880,7 +880,7 @@ export default function Business() {
                   value={avoidWordInput}
                   onChange={(e) => setAvoidWordInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && addAvoidWord()}
-                  className="flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all"
+                  className="flex-1 bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-2 placeholder:text-gray-400 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors focus:border-blue-400/50 transition-all"
                   placeholder="Add word or phrase to avoid"
                 />
                 <button

@@ -1032,22 +1032,14 @@ export default function CreatePost() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-5xl mx-auto px-6 py-8"
+        className="relative w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
       >
-        {/* Animated Background */}
-        <AnimatedBackground variant="purple" />
-
-        <div className="mb-8 relative z-10">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent"
-          >
-            Create Post
-          </motion.h1>
+        <div className="mb-6">
+          <h1 className="font-display text-3xl text-white mb-1">Create Post</h1>
+          <p className="text-sm text-[#a1a1aa]">Publish to multiple platforms at once</p>
         </div>
 
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
+        <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 space-y-6">
           {/* Advanced Options - Reddit Settings & Templates */}
           {showAdvanced && (
             <motion.div
@@ -1057,14 +1049,14 @@ export default function CreatePost() {
             >
               {/* Pinterest-Specific Fields */}
               {platforms.includes('pinterest') && (
-                <div className="space-y-4 bg-red-900/20 backdrop-blur-sm border border-red-500/30 rounded-lg p-4">
+                <div className="space-y-4 bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
                   <div className="flex items-center gap-2 text-red-300 font-semibold">
                     <span>📌</span>
                     <span>Pinterest Settings</span>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                       Pin Title <span className="text-gray-500">(Optional)</span>
                     </label>
                     <input
@@ -1073,22 +1065,22 @@ export default function CreatePost() {
                       onChange={(e) => setPinterestTitle(e.target.value)}
                       placeholder="Enter pin title (max 100 chars)"
                       maxLength={100}
-                      className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent placeholder:text-gray-400"
+                      className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors placeholder:text-[#52525b]"
                     />
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-[#52525b] mt-1">
                       {pinterestTitle.length}/100 characters
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                       Board <span className="text-red-400">*</span>
                     </label>
                     {pinterestBoards.length > 0 ? (
                       <select
                         value={selectedBoard}
                         onChange={(e) => setSelectedBoard(e.target.value)}
-                        className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 transition-colors"
                       >
                         {pinterestBoards.map(board => (
                           <option key={board.id} value={board.id}>
@@ -1097,7 +1089,7 @@ export default function CreatePost() {
                         ))}
                       </select>
                     ) : (
-                      <div className="text-sm text-gray-300 bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded p-3">
+                      <div className="text-sm text-gray-300 bg-[#18181b] border border-yellow-500/20 rounded-lg p-3">
                         ⚠️ No boards found. Please create a board on Pinterest first.
                       </div>
                     )}
@@ -1107,14 +1099,14 @@ export default function CreatePost() {
 
               {/* Reddit-Specific Fields */}
               {platforms.includes('reddit') && (
-                <div className="space-y-4 bg-orange-900/20 backdrop-blur-sm border border-orange-500/30 rounded-lg p-4">
+                <div className="space-y-4 bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
                   <div className="flex items-center gap-2 text-orange-300 font-semibold">
                     <span>🔴</span>
                     <span>Reddit Settings</span>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                       Post Title <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -1123,22 +1115,22 @@ export default function CreatePost() {
                       onChange={(e) => setRedditTitle(e.target.value)}
                       placeholder="Enter post title (required for Reddit, max 300 chars)"
                       maxLength={300}
-                      className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder:text-gray-400"
+                      className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors placeholder:text-[#52525b]"
                     />
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-[#52525b] mt-1">
                       {redditTitle.length}/300 characters
                     </p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                       Subreddit <span className="text-red-400">*</span>
                     </label>
                     {moderatedSubreddits.length > 0 ? (
                       <select
                         value={redditSubreddit}
                         onChange={(e) => setRedditSubreddit(e.target.value)}
-                        className="w-full px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                        className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 transition-colors"
                       >
                         {moderatedSubreddits.map(sub => (
                           <option key={sub} value={sub}>
@@ -1147,7 +1139,7 @@ export default function CreatePost() {
                         ))}
                       </select>
                     ) : (
-                      <div className="text-sm text-gray-300 bg-yellow-900/20 backdrop-blur-sm border border-yellow-500/30 rounded p-3">
+                      <div className="text-sm text-gray-300 bg-[#18181b] border border-yellow-500/20 rounded-lg p-3">
                         ⚠️ No moderated subreddits found. You can only post to subreddits where you're a moderator.
                       </div>
                     )}
@@ -1161,7 +1153,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowTemplateModal(true)}
-                  className="group relative bg-purple-600/30 backdrop-blur-lg border-2 border-purple-400/30 text-white px-5 py-2.5 rounded-xl hover:bg-purple-600/40 font-medium transition-all shadow-lg hover:shadow-purple-500/30 overflow-hidden"
+                  className="group relative bg-white/[0.06] border border-white/[0.08] text-white px-5 py-2.5 rounded-xl hover:bg-purple-600/40 font-medium transition-all shadow-lg hover:shadow-purple-500/30 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                   <span className="relative flex items-center gap-2">
@@ -1179,11 +1171,10 @@ export default function CreatePost() {
         </div>
 
         {/* Caption Input Section */}
-        <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+        <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 mt-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">✍️</span>
-              <h3 className="text-xl font-bold text-white">Write Your Post</h3>
+              <h3 className="text-base font-semibold text-white">Write your post</h3>
             </div>
             {!caption.trim() && (
               <button
@@ -1200,7 +1191,7 @@ export default function CreatePost() {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="What's on your mind?"
-            className="w-full p-4 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder:text-gray-400"
+            className="w-full p-4 bg-[#18181b] border border-white/[0.06] text-white rounded-lg resize-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors placeholder:text-[#52525b]"
             rows={6}
           />
           {/* Character Counter - Multi-Platform */}
@@ -1268,7 +1259,7 @@ export default function CreatePost() {
                     whileTap={{ scale: 0.95 }}
                     onClick={generateVariations}
                     disabled={generatingVariations}
-                    className="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 shadow-lg"
+                    className="bg-white/[0.08] border border-white/[0.1] text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2 shadow-lg"
                   >
                     {generatingVariations ? (
                       <>
@@ -1290,7 +1281,7 @@ export default function CreatePost() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setShowCaptionImprover(true)}
-                      className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm flex items-center gap-2 shadow-lg"
+                      className="bg-[#22d3ee]/[0.1] border border-[#22d3ee]/20 text-[#22d3ee] px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition text-sm flex items-center gap-2 shadow-lg"
                     >
                       ✨ Improve Caption
                     </motion.button>
@@ -1302,7 +1293,7 @@ export default function CreatePost() {
                       whileTap={{ scale: 0.95 }}
                       onClick={generateAIHashtags}
                       disabled={generatingHashtags}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                      className="bg-white/[0.06] border border-white/[0.08] text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
                     >
                       {generatingHashtags ? (
                         <>
@@ -1327,7 +1318,7 @@ export default function CreatePost() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden"
+            className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
 
@@ -1355,7 +1346,7 @@ export default function CreatePost() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => addHashtagToCaption(hashtag)}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
+                    className="bg-white/[0.06] border border-white/[0.08] text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg"
                   >
                     {hashtag}
                   </motion.button>
@@ -1366,7 +1357,7 @@ export default function CreatePost() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={addAllHashtags}
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
+                className="w-full bg-white/[0.06] border border-white/[0.08] text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 transition shadow-lg"
               >
                 ✨ Add All Hashtags to Caption
               </motion.button>
@@ -1478,7 +1469,7 @@ export default function CreatePost() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowAIModal(true)}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                className="bg-white/[0.06] border border-white/[0.08] text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
                 ✨ Generate with AI
               </motion.button>
@@ -1502,12 +1493,12 @@ export default function CreatePost() {
                 className="space-y-6"
               >
                 {/* AI Image Generation */}
-                <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
+                <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 relative z-10">
                   <h3 className="text-xl font-bold text-white mb-4">✨ AI Image Generator</h3>
 
                   {/* Example Prompts */}
                   <div className="mb-4">
-                    <p className="text-sm text-gray-300 mb-2">Quick examples:</p>
+                    <p className="text-sm text-[#a1a1aa] mb-2">Quick examples:</p>
                     <div className="flex flex-wrap gap-2">
                       {['city skyline at night', 'modern workspace setup', 'abstract tech design', 'coffee cup on desk'].map((example, idx) => (
                         <motion.button
@@ -1528,7 +1519,7 @@ export default function CreatePost() {
                     value={aiImagePrompt}
                     onChange={(e) => setAiImagePrompt(e.target.value)}
                     placeholder="Describe the image you want to create..."
-                    className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4 placeholder:text-gray-400"
+                    className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-purple-500 mb-4 placeholder:text-[#52525b]"
                     rows={3}
                   />
 
@@ -1538,7 +1529,7 @@ export default function CreatePost() {
                     whileTap={{ scale: 0.98 }}
                     onClick={generateImage}
                     disabled={generatingImage || !aiImagePrompt.trim()}
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    className="bg-white/[0.06] border border-white/[0.08] text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                   >
                     {generatingImage ? 'Generating...' : '🎨 Generate Image'}
                   </motion.button>
@@ -1591,7 +1582,7 @@ export default function CreatePost() {
                 </div>
 
                 {/* Stock Video Library */}
-                <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 relative z-10">
+                <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 relative z-10">
                   <h3 className="text-xl font-bold text-white mb-4">🎬 Stock Video Library</h3>
 
                   <p className="text-gray-300 text-sm mb-4">
@@ -1641,7 +1632,7 @@ export default function CreatePost() {
                       value={aiVideoPrompt}
                       onChange={(e) => setAiVideoPrompt(e.target.value)}
                       placeholder="Describe the video you want to create... (5-10 seconds, 16:9 aspect ratio)"
-                      className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 mb-4 placeholder:text-gray-400"
+                      className="w-full p-4 bg-gray-700/50 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-blue-500 mb-4 placeholder:text-[#52525b]"
                       rows={3}
                     />
 
@@ -1651,7 +1642,7 @@ export default function CreatePost() {
                       whileTap={{ scale: 0.98 }}
                       onClick={generateVideo}
                       disabled={generatingVideo || !aiVideoPrompt.trim()}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition w-full"
+                      className="bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition w-full"
                     >
                       {generatingVideo ? 'Generating...' : '🎬 Generate Video'}
                     </motion.button>
@@ -1707,7 +1698,7 @@ export default function CreatePost() {
             )}
 
             {/* Media Upload Section */}
-            <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+            <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 mt-6 relative z-10">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-2xl">📁</span>
                 <h3 className="text-xl font-bold text-white">Upload Media</h3>
@@ -1715,7 +1706,7 @@ export default function CreatePost() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                   Image or Video (Optional)
                 </label>
                 {image && (
@@ -1726,7 +1717,7 @@ export default function CreatePost() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setShowImageCaptionModal(true)}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg flex items-center gap-2"
+                        className="bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold hover:opacity-90 transition text-sm shadow-lg flex items-center gap-2"
                       >
                         🤖 Generate Caption from This Image
                       </motion.button>
@@ -1762,7 +1753,7 @@ export default function CreatePost() {
                       }
                     }
                   }}
-                  className="w-full p-3 bg-gray-800/50 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 transition-colors"
                 />
               </div>
 
@@ -1881,7 +1872,7 @@ export default function CreatePost() {
           </div>
 
           {/* Platform Selection with 3D Chips */}
-          <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+          <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 mt-6 relative z-10">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🎯</span>
@@ -1928,7 +1919,7 @@ export default function CreatePost() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/connect-accounts')}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-xl hover:shadow-blue-500/50 transition-all"
+                    className="bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold hover:shadow-xl hover:shadow-blue-500/50 transition-all"
                     title="Connect your social media accounts to start posting"
                   >
                     🚀 Connect Accounts
@@ -2050,7 +2041,7 @@ export default function CreatePost() {
                       whileTap={{ scale: 0.98 }}
                       onClick={loadBestTimes}
                       disabled={loadingBestTimes}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-xl font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-3 border-2 border-blue-400/30"
+                      className="w-full bg-[#22d3ee] text-[#0a0a0b] rounded-lg font-semibold hover:opacity-90 transition shadow-lg flex items-center justify-center gap-3 border-2 border-blue-400/30"
                     >
                       {loadingBestTimes ? (
                         <>
@@ -2073,7 +2064,7 @@ export default function CreatePost() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="group relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-2xl border-2 border-blue-400/40 rounded-2xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden mt-4"
+                    className="group relative bg-[#111113] border border-white/[0.06] rounded-xl p-6 shadow-2xl shadow-blue-500/20 overflow-hidden mt-4"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
 
@@ -2138,7 +2129,7 @@ export default function CreatePost() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-red-900/20 backdrop-blur-sm border border-red-500/30 rounded-lg p-4 mt-6"
+                className="bg-[#18181b] border border-white/[0.06] rounded-xl p-4 mt-6"
               >
                 <div className="flex items-start gap-3">
                   <span className="text-xl flex-shrink-0">🚫</span>
@@ -2173,7 +2164,7 @@ export default function CreatePost() {
             )}
 
             {/* Actions */}
-            <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mt-6 relative z-10">
+            <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 mt-6 relative z-10">
               <div className="flex gap-4">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -2253,7 +2244,7 @@ export default function CreatePost() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
+                className="bg-[#111113] border border-white/[0.06] rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
               >
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-white">AI Caption Generator</h2>
@@ -2367,7 +2358,7 @@ export default function CreatePost() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
+                className="bg-[#111113] border border-white/[0.06] rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4"
               >
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-white">🔗 Generate from URL</h2>
@@ -2430,7 +2421,7 @@ export default function CreatePost() {
                     </p>
 
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                         URL *
                       </label>
                       <input
@@ -2438,7 +2429,7 @@ export default function CreatePost() {
                         value={youtubeUrl}
                         onChange={(e) => setYoutubeUrl(e.target.value)}
                         placeholder="https://www.youtube.com/watch?v=... or any article URL"
-                        className="w-full p-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-gray-400"
+                        className="w-full p-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-[#52525b]"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         YouTube videos must have captions/transcripts enabled. Other URLs will be scraped for content.
@@ -2446,14 +2437,14 @@ export default function CreatePost() {
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                      <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
                         Special Instructions (Optional)
                       </label>
                       <textarea
                         value={youtubeInstructions}
                         onChange={(e) => setYoutubeInstructions(e.target.value)}
                         placeholder="E.g., Focus on the marketing tips, make it more casual, emphasize the key takeaways..."
-                        className="w-full p-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-gray-400"
+                        className="w-full p-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-[#52525b]"
                         rows={3}
                       />
                       <p className="text-xs text-gray-500 mt-1">
@@ -2623,7 +2614,7 @@ export default function CreatePost() {
                       value={templateSearch}
                       onChange={(e) => setTemplateSearch(e.target.value)}
                       placeholder="Search templates..."
-                      className="flex-1 px-4 py-2 bg-gray-800/50 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder:text-gray-400"
+                      className="flex-1 px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors placeholder:text-[#52525b]"
                     />
                     <select
                       value={templateCategory}
@@ -2754,7 +2745,7 @@ export default function CreatePost() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4"
+                className="bg-[#111113] border border-white/[0.06] rounded-xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4"
               >
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
@@ -2914,7 +2905,7 @@ export default function CreatePost() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowDraftScore(false)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition"
+                  className="w-full bg-white/[0.06] border border-white/[0.08] text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition"
                 >
                   Close & Keep Editing
                 </motion.button>

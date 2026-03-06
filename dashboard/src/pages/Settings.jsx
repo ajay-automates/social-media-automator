@@ -19,7 +19,6 @@ export default function Settings() {
     try {
       const response = await api.get('/user/profile');
       const user = response.data?.user || response.data;
-
       setEmailReportsEnabled(user.email_reports_enabled || false);
       setReportEmail(user.report_email || user.email || '');
       setReportFrequency(user.report_frequency || 'weekly');
@@ -34,9 +33,8 @@ export default function Settings() {
       await api.put('/user/email-preferences', {
         email_reports_enabled: emailReportsEnabled,
         report_email: reportEmail,
-        report_frequency: reportFrequency
+        report_frequency: reportFrequency,
       });
-
       showSuccess('Email report settings saved!');
     } catch (err) {
       console.error('Error saving settings:', err);
@@ -51,15 +49,13 @@ export default function Settings() {
       showError('Please enter a valid email address');
       return;
     }
-
     setSendingTest(true);
     try {
       await api.post('/reports/test-email', { email: reportEmail });
       showSuccess(`Test email sent to ${reportEmail}! Check your inbox.`);
     } catch (err) {
       console.error('Error sending test:', err);
-      const errorMsg = err.response?.data?.error || 'Failed to send test email';
-      showError(errorMsg);
+      showError(err.response?.data?.error || 'Failed to send test email');
     } finally {
       setSendingTest(false);
     }
@@ -67,45 +63,50 @@ export default function Settings() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
+      {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
-        <p className="text-gray-300">Manage your billing and usage</p>
+        <h1 className="font-display text-3xl text-white mb-1">Settings</h1>
+        <p className="text-[#a1a1aa] text-sm">Manage your account preferences and billing</p>
       </div>
 
-      {/* Billing Section */}
-      <div className="bg-gray-900/30 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-6 mb-6">
-        <BillingSettings />
-      </div>
+      <div className="space-y-4">
+        {/* Billing Section */}
+        <section className="bg-[#111113] border border-white/[0.06] rounded-xl p-6">
+          <BillingSettings />
+        </section>
 
-      {/* Email Reports Section */}
-      <div className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-lg border-2 border-white/20 rounded-2xl shadow-2xl p-8 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">📧</span>
+        {/* Email Reports Section */}
+        <section className="bg-[#111113] border border-white/[0.06] rounded-xl p-6">
+          <div className="flex items-start gap-3 mb-6">
+            <div className="w-8 h-8 rounded-lg bg-[#22d3ee]/10 border border-[#22d3ee]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="14" height="14" fill="none" stroke="#22d3ee" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">Email Reports</h2>
-              <p className="text-gray-300">Get weekly analytics summaries delivered to your inbox</p>
+              <h2 className="text-base font-semibold text-white">Email Reports</h2>
+              <p className="text-sm text-[#a1a1aa]">Receive analytics summaries delivered to your inbox</p>
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Enable/Disable Toggle */}
-            <div className="flex items-center justify-between p-4 bg-gray-800/40 backdrop-blur-sm border border-white/10 rounded-xl">
+          <div className="space-y-4">
+            {/* Toggle row */}
+            <div className="flex items-center justify-between p-4 bg-[#18181b] border border-white/[0.06] rounded-xl">
               <div>
-                <h3 className="font-semibold text-white mb-1">Enable Weekly Reports</h3>
-                <p className="text-sm text-gray-400">Receive email summaries of your posting activity</p>
+                <p className="text-sm font-medium text-white">Enable weekly reports</p>
+                <p className="text-xs text-[#52525b] mt-0.5">Receive email summaries of your posting activity</p>
               </div>
               <button
                 onClick={() => setEmailReportsEnabled(!emailReportsEnabled)}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${emailReportsEnabled ? 'bg-blue-600' : 'bg-gray-600'
-                  }`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                  emailReportsEnabled ? 'bg-[#22d3ee]' : 'bg-white/10'
+                }`}
               >
                 <span
-                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${emailReportsEnabled ? 'translate-x-7' : 'translate-x-1'
-                    }`}
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                    emailReportsEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
                 />
               </button>
             </div>
@@ -114,31 +115,28 @@ export default function Settings() {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="space-y-5"
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-4 overflow-hidden"
               >
-                {/* Email Address */}
+                {/* Email input */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">
-                    Email Address *
-                  </label>
+                  <label className="block text-xs font-medium text-[#a1a1aa] mb-1.5">Email address</label>
                   <input
                     type="email"
                     value={reportEmail}
                     onChange={(e) => setReportEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    placeholder="you@example.com"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white text-sm rounded-lg px-3 py-2.5 placeholder:text-[#52525b] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
                   />
                 </div>
 
-                {/* Frequency */}
+                {/* Frequency select */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-200 mb-2">
-                    Report Frequency
-                  </label>
+                  <label className="block text-xs font-medium text-[#a1a1aa] mb-1.5">Report frequency</label>
                   <select
                     value={reportFrequency}
                     onChange={(e) => setReportFrequency(e.target.value)}
-                    className="w-full bg-gray-800/60 backdrop-blur-lg border-2 border-gray-600/50 text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-400/50 transition-all shadow-lg"
+                    className="w-full bg-[#18181b] border border-white/[0.06] text-white text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors"
                   >
                     <option value="weekly">Weekly (Every Monday)</option>
                     <option value="biweekly">Bi-weekly (Every 2 weeks)</option>
@@ -146,50 +144,37 @@ export default function Settings() {
                   </select>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={saveEmailSettings}
-                    disabled={saving}
-                    className="group/btn relative flex-1 bg-gradient-to-r from-blue-600/40 to-purple-600/40 backdrop-blur-xl border-2 border-blue-400/40 text-white px-6 py-3 rounded-xl hover:from-blue-600/50 hover:to-purple-600/50 font-semibold transition-all shadow-xl hover:shadow-blue-500/40 overflow-hidden disabled:opacity-50"
-                    title="Save your email report preferences"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                    <span className="relative">
-                      {saving ? 'Saving...' : '💾 Save Settings'}
-                    </span>
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={sendTestReport}
-                    disabled={sendingTest || !reportEmail}
-                    className="group/btn relative flex-1 bg-gray-800/60 backdrop-blur-lg border-2 border-white/20 text-gray-200 px-6 py-3 rounded-xl hover:bg-gray-700/60 font-semibold transition-all shadow-lg overflow-hidden disabled:opacity-50"
-                    title="Send a test email to verify your settings"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                    <span className="relative">
-                      {sendingTest ? 'Sending...' : '✉️ Send Test Email'}
-                    </span>
-                  </motion.button>
+                {/* Info box */}
+                <div className="flex items-start gap-2.5 p-3.5 bg-[#22d3ee]/[0.04] border border-[#22d3ee]/[0.12] rounded-lg">
+                  <svg width="14" height="14" fill="none" stroke="#22d3ee" strokeWidth="2" viewBox="0 0 24 24" className="flex-shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <p className="text-xs text-[#a1a1aa] leading-relaxed">
+                    You'll receive a weekly summary with your posting stats, success rates, and top-performing platforms — sent every Monday at 9 AM.
+                  </p>
                 </div>
 
-                {/* Info Box */}
-                <div className="bg-blue-900/20 backdrop-blur-sm border border-blue-500/30 rounded-lg p-4">
-                  <p className="text-sm text-blue-200 flex items-start gap-2">
-                    <span className="text-lg">💡</span>
-                    <span>
-                      <strong>What you'll receive:</strong> A beautiful HTML email with your weekly stats, success rates, and top performing platforms. Reports are sent every Monday at 9 AM.
-                    </span>
-                  </p>
+                {/* Action buttons */}
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={saveEmailSettings}
+                    disabled={saving}
+                    className="flex-1 bg-[#22d3ee] text-[#0a0a0b] text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-[#06b6d4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {saving ? 'Saving...' : 'Save settings'}
+                  </button>
+                  <button
+                    onClick={sendTestReport}
+                    disabled={sendingTest || !reportEmail}
+                    className="flex-1 bg-white/[0.06] border border-white/[0.08] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-white/[0.1] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {sendingTest ? 'Sending...' : 'Send test email'}
+                  </button>
                 </div>
               </motion.div>
             )}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
