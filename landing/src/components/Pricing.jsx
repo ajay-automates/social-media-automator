@@ -1,194 +1,144 @@
-import { motion } from 'framer-motion';
 import { useState } from 'react';
 
-export default function Pricing() {
-  const [isYearly, setIsYearly] = useState(false);
+const AUTH_URL = window.location.hostname === 'localhost' ? 'http://localhost:5001' : '';
 
-  const plans = [
-    {
-      name: 'Free',
-      price: { monthly: 0, yearly: 0 },
-      description: 'Zero cost, essential features',
-      features: [
-        { text: '5 specific accounts', included: true },
-        { text: '10 posts/month', included: true },
-        { text: '5 AI post gen', included: true },
-        { text: '5 Images/month', included: true },
-        { text: 'Videos', included: false },
-        { text: 'Voice gen', included: false },
-        { text: 'Team members', included: false },
-        { text: 'API & White-label', included: false },
-      ],
-      cta: 'Start Free',
-      popular: false,
-    },
-    {
-      name: 'Pro',
-      price: { monthly: 1000, yearly: 10000 },
-      description: 'For growing creators',
-      features: [
-        { text: 'All 20+ accounts', included: true },
-        { text: '100 posts/month', included: true, highlight: true },
-        { text: 'Unlimited AI post gen', included: true, highlight: true },
-        { text: '50 Images/month', included: true },
-        { text: '20 Videos', included: true },
-        { text: '10 Voice generations', included: true },
-        { text: '1 Team member', included: true },
-        { text: 'API & White-label', included: false },
-      ],
-      cta: 'Start Free Trial',
-      popular: true,
-    },
-    {
-      name: 'Business',
-      price: { monthly: 5000, yearly: 50000 },
-      description: 'For agencies & teams',
-      features: [
-        { text: 'All 20+ accounts', included: true },
-        { text: 'Unlimited posts', included: true, highlight: true },
-        { text: 'Unlimited AI post gen', included: true },
-        { text: 'Unlimited Images', included: true },
-        { text: 'Unlimited Videos', included: true, highlight: true },
-        { text: 'Unlimited Voice gen', included: true },
-        { text: '5 Team members', included: true },
-        { text: 'API & White-label', included: true, highlight: true },
-      ],
-      cta: 'Start Business',
-      popular: false,
-    },
-  ];
+const plans = [
+  {
+    name: 'Free',
+    monthly: 0,
+    annual: 0,
+    desc: 'Get started with the essentials.',
+    features: [
+      '10 posts per month',
+      '5 social accounts',
+      '5 AI generations',
+      'LinkedIn, Twitter, YouTube',
+      'Basic scheduling',
+    ],
+    cta: 'Start Free',
+    highlighted: false,
+  },
+  {
+    name: 'Pro',
+    monthly: 1000,
+    annual: 10000,
+    desc: 'For creators and businesses who post regularly.',
+    features: [
+      '100 posts per month',
+      '20 social accounts',
+      'Unlimited AI generations',
+      'All 16 platforms',
+      'Brand voice learning',
+      'Smart scheduling',
+      'Analytics dashboard',
+      'AI image generation',
+      'Email support',
+    ],
+    cta: 'Upgrade to Pro',
+    highlighted: true,
+  },
+];
+
+export default function Pricing() {
+  const [annual, setAnnual] = useState(false);
 
   return (
-    <section id="pricing" className="relative py-32 bg-white">
-      <div className="container mx-auto px-6">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block mb-4"
+    <section id="pricing" className="py-32 px-6">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="font-display text-4xl sm:text-5xl text-center mb-4">
+          Simple pricing
+        </h2>
+        <p className="text-txt-secondary text-center text-lg mb-12">No surprises. Cancel anytime.</p>
+
+        {/* Toggle */}
+        <div className="flex items-center justify-center gap-3 mb-16">
+          <span className={`text-sm ${!annual ? 'text-txt-primary' : 'text-txt-muted'}`}>Monthly</span>
+          <button
+            onClick={() => setAnnual(!annual)}
+            className="relative w-12 h-6 rounded-full bg-base-elevated border border-border transition-colors"
+            aria-label="Toggle annual billing"
           >
-            <span className="text-netflix-red font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50 font-netflix">
-              💰 Pricing
-            </span>
-          </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-netflix-red mb-6 font-netflix">
-            Simple, Transparent{' '}
-            <span className="text-netflix-red">Pricing</span>
-          </h2>
-          <p className="text-xl text-netflix-red max-w-2xl mx-auto mb-8 font-netflix">
-            Choose the perfect plan for your needs
-          </p>
-
-          {/* Toggle */}
-          <div className="flex items-center justify-center gap-4">
-            <span className={`text-lg ${!isYearly ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}>
-              Monthly
-            </span>
-            <motion.button
-              onClick={() => setIsYearly(!isYearly)}
-              className="relative w-16 h-8 bg-netflix-red rounded-full p-1"
-              whileTap={{ scale: 0.95 }}
-            >
-              <motion.div
-                className="w-6 h-6 bg-white rounded-full shadow-lg"
-                animate={{ x: isYearly ? 28 : 0 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              />
-            </motion.button>
-            <span className={`text-lg ${isYearly ? 'text-gray-900 font-semibold' : 'text-gray-600'}`}>
-              Yearly
-              <span className="ml-2 text-sm text-green-600">(Save 20%)</span>
-            </span>
-          </div>
-        </motion.div>
-
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
-            <motion.div
-              key={plan.name}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className={`relative bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-2xl p-8 shadow-lg ${plan.popular ? 'ring-2 ring-netflix-red scale-105' : ''
-                }`}
-            >
-              {plan.popular && (
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute -top-4 left-1/2 -translate-x-1/2 bg-netflix-red text-white px-4 py-1 rounded-full text-sm font-bold font-netflix"
-                >
-                  MOST POPULAR
-                </motion.div>
-              )}
-
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-netflix-red mb-2 font-netflix">{plan.name}</h3>
-                <p className="text-gray-600 text-sm mb-4">{plan.description}</p>
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-5xl font-bold text-netflix-red font-netflix">
-                    {plan.name === 'Free' ? '' : '₹'}{isYearly ? plan.price.yearly : plan.price.monthly}
-                  </span>
-                  <span className="text-gray-600">
-                    /{isYearly ? 'year' : 'month'}
-                  </span>
-                </div>
-                {isYearly && plan.price.yearly > 0 && (
-                  <p className="text-sm text-green-600 mt-2">
-                    Save ₹{plan.price.monthly * 12 - plan.price.yearly}
-                  </p>
-                )}
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className={`text-xl mt-0.5 ${feature.included ? 'text-green-600' : 'text-red-600'}`}>
-                      {feature.included ? '✓' : '✗'}
-                    </span>
-                    <span className={`${feature.highlight ? 'font-semibold text-gray-900' : 'text-gray-700'} ${!feature.included && 'text-gray-400'}`}>
-                      {feature.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <motion.a
-                href="/auth"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`block w-full text-center py-4 rounded-xl font-bold transition-all ${plan.popular
-                  ? 'bg-netflix-red hover:bg-netflix-red-dark text-white hover:shadow-2xl hover:shadow-red-500/50 font-netflix'
-                  : 'bg-white/80 backdrop-blur-md border border-gray-200/50 hover:bg-white/90 text-gray-900'
-                  }`}
-              >
-                {plan.cta}
-              </motion.a>
-            </motion.div>
-          ))}
+            <div
+              className={`absolute top-0.5 w-5 h-5 rounded-full bg-accent transition-transform duration-200 ${
+                annual ? 'translate-x-6' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+          <span className={`text-sm ${annual ? 'text-txt-primary' : 'text-txt-muted'}`}>
+            Annual
+            <span className="ml-2 text-xs font-medium text-accent bg-accent-muted px-2 py-0.5 rounded-full">Save 17%</span>
+          </span>
         </div>
 
-        {/* Trust Indicators */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center text-gray-600 mt-12"
-        >
-          ✓ No credit card required • ✓ 14-day free trial • ✓ Cancel anytime
-        </motion.p>
+        {/* Cards */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {plans.map((plan) => {
+            const price = annual ? Math.round(plan.annual / 12) : plan.monthly;
+            const isHighlighted = plan.highlighted;
+
+            return (
+              <div
+                key={plan.name}
+                className={`relative p-8 rounded-2xl border transition-all ${
+                  isHighlighted
+                    ? 'bg-base-elevated border-accent/30 ring-1 ring-accent/10'
+                    : 'bg-base-secondary border-border hover:border-border-hover'
+                }`}
+              >
+                {isHighlighted && (
+                  <div className="absolute -top-3 left-8 px-3 py-1 text-xs font-semibold bg-accent text-base rounded-full">
+                    Most Popular
+                  </div>
+                )}
+
+                <h3 className="font-body text-lg font-semibold mb-1">{plan.name}</h3>
+                <p className="text-sm text-txt-muted mb-6">{plan.desc}</p>
+
+                <div className="flex items-baseline gap-1 mb-8">
+                  {price === 0 ? (
+                    <span className="text-4xl font-semibold">₹0</span>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-semibold">₹{price.toLocaleString('en-IN')}</span>
+                      <span className="text-txt-muted text-sm">/ month</span>
+                    </>
+                  )}
+                  {annual && plan.annual > 0 && (
+                    <span className="text-xs text-txt-muted ml-2">(₹{plan.annual.toLocaleString('en-IN')}/yr)</span>
+                  )}
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-3 text-sm text-txt-secondary">
+                      <svg className="w-4 h-4 mt-0.5 text-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href={`${AUTH_URL}/auth`}
+                  className={`block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all ${
+                    isHighlighted
+                      ? 'bg-accent text-base hover:bg-accent-hover hover:shadow-[0_0_20px_rgba(34,211,238,0.15)]'
+                      : 'bg-base-hover border border-border text-txt-primary hover:border-border-hover'
+                  }`}
+                  style={isHighlighted ? { color: '#0a0a0b' } : {}}
+                >
+                  {plan.cta}
+                </a>
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="text-center text-sm text-txt-muted mt-8">
+          Need more? <a href="mailto:ajay@example.com" className="text-accent hover:underline">Contact us</a> for custom plans.
+        </p>
       </div>
     </section>
   );
 }
-

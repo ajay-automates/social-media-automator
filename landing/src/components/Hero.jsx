@@ -1,257 +1,64 @@
-import { motion } from 'framer-motion';
-import { allPlatforms } from '../data/features';
-
-// Show ALL platforms
-const platformsToShow = allPlatforms;
-
-// Position configuration for floating platform icons - distributed across the entire area
-const platformPositions = [
-  { top: '2%', left: '2%' },      // 1. LinkedIn
-  { top: '5%', right: '3%' },      // 2. Twitter/X
-  { top: '10%', left: '10%' },     // 3. Telegram
-  { top: '13%', right: '10%' },    // 4. Slack
-  { top: '18%', left: '3%' },      // 5. Discord
-  { top: '21%', right: '6%' },     // 6. Reddit
-  { top: '26%', left: '15%' },     // 7. Dev.to
-  { top: '29%', right: '2%' },     // 8. Tumblr
-  { top: '34%', left: '22%' },     // 9. Mastodon
-  { top: '37%', right: '15%' },    // 10. Bluesky
-  { top: '42%', left: '6%' },      // 11. YouTube
-  { top: '45%', right: '20%' },    // 12.
-  { top: '50%', left: '18%' },     // 13.
-  { top: '53%', right: '5%' },     // 14.
-  { top: '58%', left: '26%' },     // 15.
-  { top: '61%', right: '12%' },    // 16.
-  { top: '66%', left: '11%' },     // 17.
-  { top: '69%', right: '22%' },    // 18.
-  { top: '74%', left: '4%' },      // 19.
-  { top: '77%', right: '8%' },     // 20.
-];
+const AUTH_URL = window.location.hostname === 'localhost' ? 'http://localhost:5001' : '';
 
 export default function Hero() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.8, ease: "easeOut" },
-    },
-  };
-
-  const iconVariants = {
-    hidden: { scale: 0, opacity: 0, rotate: -10 },
-    visible: (i) => ({
-      scale: 1,
-      opacity: 1,
-      rotate: 0,
-      transition: {
-        delay: i * 0.08 + 0.3,
-        duration: 0.6,
-        ease: "backOut",
-      },
-    }),
-  };
-
-  const floatAnimation = {
-    y: [0, -15, 0],
-    transition: {
-      duration: 3 + Math.random() * 2, // Random duration between 3-5s for variety
-      repeat: Infinity,
-      ease: "easeInOut",
-    },
-  };
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white pt-20">
-      {/* Soft gradient background overlay */}
-
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(circle_at_1px_1px,rgb(0,0,0)_1px,transparent_0)] bg-[length:32px_32px]" />
-
-      <div className="container mx-auto px-6 lg:px-12 relative z-10 max-w-7xl">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-12 lg:gap-16 items-center"
-        >
-          {/* LEFT SIDE: Static Platform Icons (60%) */}
-          <div
-            className="relative h-[500px] lg:h-[700px] overflow-visible"
-          >
-            {platformsToShow.map((platform, i) => {
-              const PlatformIcon = platform.Icon;
-              const position = platformPositions[i] || platformPositions[i % platformPositions.length];
-
-              if (!PlatformIcon) {
-                console.warn(`Missing icon for platform: ${platform.name}`);
-                return null;
-              }
-
-              return (
-                <div
-                  key={`${platform.name}-${i}`}
-                  style={{
-                    position: 'absolute',
-                    ...position,
-                  }}
-                  className={`w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br ${platform.color} shadow-xl cursor-pointer group flex items-center justify-center border-2 border-white/20`}
-                >
-                  <PlatformIcon
-                    className="text-3xl lg:text-4xl text-white drop-shadow-lg"
-                  />
-                  {/* Tooltip on hover */}
-                  <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                    <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap shadow-lg">
-                      {platform.name}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Decorative elements */}
-          </div>
-
-          {/* RIGHT SIDE: Content (40%) */}
-          <motion.div variants={itemVariants} className="space-y-8 text-center lg:text-left">
-            {/* Tagline */}
-            <motion.p
-              variants={itemVariants}
-              className="text-sm md:text-base text-gray-600 font-medium uppercase tracking-wider"
-            >
-              Not a tool. Not a platform. A <em className="not-italic font-bold text-netflix-red font-netflix">solution</em>.
-            </motion.p>
-
-            {/* Main Headline with Emphasis */}
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-netflix-red font-netflix"
-            >
-              Finally, a place to{' '}
-              <em className="not-italic text-netflix-red font-bold font-netflix">
-                automate
-              </em>{' '}
-              your social media
-            </motion.h1>
-
-            {/* Subheadline */}
-            <motion.p
-              variants={itemVariants}
-              className="text-lg md:text-xl text-black leading-relaxed max-w-xl mx-auto lg:mx-0 font-netflix"
-            >
-              Post to <strong className="text-black font-netflix">20+ platforms</strong> at once.{' '}
-              Generate <strong className="text-black font-netflix">AI captions & images</strong> with Claude & Stability AI.{' '}
-              Schedule weeks in advance. Save <strong className="text-black font-netflix">20+ hours</strong> per week.
-            </motion.p>
-
-            {/* CTA Section */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4"
-            >
-              {/* Primary CTA */}
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <a
-                  href="/auth"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-netflix-red text-white rounded font-semibold text-lg hover:bg-netflix-red-dark transition-all shadow-lg hover:shadow-xl font-netflix"
-                >
-                  Join 3,000+ creators
-                  <motion.span
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    →
-                  </motion.span>
-                </a>
-              </motion.div>
-
-              {/* Secondary CTA */}
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <a
-                  href="#features"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-white text-gray-900 rounded-full font-semibold text-lg border-2 border-gray-200 hover:border-gray-300 transition-all shadow-md hover:shadow-lg"
-                >
-                  See how it works
-                </a>
-              </motion.div>
-            </motion.div>
-
-            {/* Trust Indicators */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500 pt-4"
-            >
-              {['No credit card required', '14-day free trial', 'Cancel anytime'].map((text, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="text-green-500 text-lg">✓</span>
-                  <span>{text}</span>
-                </div>
-              ))}
-            </motion.div>
-
-            {/* Social Proof */}
-            <motion.div
-              variants={itemVariants}
-              className="pt-6 text-sm text-gray-500"
-            >
-              <p>Your automation is your own space on the internet.</p>
-            </motion.div>
-          </motion.div>
-
-          {/* Mobile: Show platform icons grid */}
-          <div
-            className="lg:hidden relative min-h-[400px] flex items-center justify-center py-8"
-          >
-            <div className="grid grid-cols-4 gap-3 w-full max-w-sm">
-              {platformsToShow.map((platform, i) => {
-                const PlatformIcon = platform.Icon;
-                return (
-                  <div
-                    key={platform.name}
-                    className={`w-14 h-14 rounded-xl bg-gradient-to-br ${platform.color} shadow-lg flex items-center justify-center border-2 border-white/20`}
-                  >
-                    <PlatformIcon
-                      className="text-xl text-white drop-shadow-lg"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
+    <section className="relative min-h-screen flex items-center justify-center px-6 pt-16 overflow-hidden">
+      {/* Subtle radial glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-accent/[0.04] rounded-full blur-[120px]" />
       </div>
 
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-gray-400 rounded-full flex items-start justify-center p-2"
-        >
-          <motion.div
-            animate={{ y: [0, 12, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-1.5 h-1.5 bg-gray-400 rounded-full"
-          />
-        </motion.div>
-      </motion.div>
+      <div className="relative max-w-4xl mx-auto text-center">
+        {/* Badge */}
+        <div className="opacity-0 animate-fade-up inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-base-elevated text-xs font-mono font-medium text-txt-secondary tracking-widest uppercase mb-8">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          AI-Powered &middot; 16 Platforms &middot; Free to Start
+        </div>
+
+        {/* Headline */}
+        <h1 className="opacity-0 animate-fade-up-delay-1 font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.1] tracking-tight mb-6 text-balance">
+          Your AI Social Media Manager.
+          <br />
+          <span className="text-txt-secondary">It writes. It learns your voice.</span>
+          <br />
+          <span className="relative inline-block">
+            <span className="italic">It publishes </span>
+            <span className="relative italic">
+              automatically
+              <span className="absolute -bottom-1 left-0 h-[3px] bg-accent rounded-full animate-underline-grow" style={{ width: 0 }} />
+            </span>
+            <span className="italic">.</span>
+          </span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="opacity-0 animate-fade-up-delay-2 text-lg sm:text-xl text-txt-secondary max-w-2xl mx-auto mb-10 text-balance">
+          One tool replaces Buffer, Hootsuite, and a content writer.
+          Generate 30 days of posts in 60 seconds.
+        </p>
+
+        {/* CTAs */}
+        <div className="opacity-0 animate-fade-up-delay-3 flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+          <a
+            href={`${AUTH_URL}/auth`}
+            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-accent text-base font-semibold text-base hover:bg-accent-hover transition-all hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] text-center"
+            style={{ color: '#0a0a0b' }}
+          >
+            Start Free — No Credit Card
+          </a>
+          <a
+            href="#features"
+            className="w-full sm:w-auto px-8 py-4 rounded-xl border border-border text-txt-secondary font-medium hover:border-border-hover hover:text-txt-primary transition-all text-center"
+          >
+            See How It Works ↓
+          </a>
+        </div>
+
+        {/* Trust line */}
+        <p className="text-sm text-txt-muted">
+          ✓ Free forever plan &nbsp;&nbsp; ✓ No credit card &nbsp;&nbsp; ✓ 2-minute setup
+        </p>
+      </div>
     </section>
   );
 }

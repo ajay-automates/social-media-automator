@@ -1,110 +1,79 @@
-import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+
+const faqs = [
+  {
+    q: 'How does the AI learn my brand voice?',
+    a: 'It analyzes your past posts and writing style — tone, vocabulary, emoji usage, sentence structure. Every generated post sounds like you wrote it, not a robot.',
+  },
+  {
+    q: 'Which platforms are supported?',
+    a: 'LinkedIn, Twitter/X, Instagram, Facebook, YouTube, Reddit, Medium, Pinterest, Telegram, Discord, Slack, Bluesky, Mastodon, Dev.to, and Tumblr. 16 platforms total.',
+  },
+  {
+    q: 'Can I edit posts before they go live?',
+    a: 'Absolutely. Every AI-generated post goes through you first. Review, edit, and approve in the calendar view. Nothing publishes without your approval.',
+  },
+  {
+    q: 'Is my data safe?',
+    a: 'Your social media credentials are encrypted with AES-256 and stored securely in our database. We never post without your explicit approval. You can disconnect any account at any time.',
+  },
+  {
+    q: 'What happens when I hit the free limit?',
+    a: 'You will see a friendly upgrade prompt. Your already-scheduled posts continue as planned. No surprises, no sudden cutoffs.',
+  },
+  {
+    q: 'Can I cancel anytime?',
+    a: 'Yes. Cancel from your dashboard with one click. No lock-in contracts, no hidden fees. Your scheduled posts will continue until the end of your billing period.',
+  },
+];
+
+function AccordionItem({ item, isOpen, toggle }) {
+  return (
+    <div className="border-b border-border">
+      <button
+        onClick={toggle}
+        className="w-full flex items-center justify-between py-5 text-left group"
+        aria-expanded={isOpen}
+      >
+        <span className="font-body font-medium text-txt-primary group-hover:text-accent transition-colors pr-4">
+          {item.q}
+        </span>
+        <span className={`text-txt-muted transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-45' : ''}`}>
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M10 4v12M4 10h12" />
+          </svg>
+        </span>
+      </button>
+      <div
+        className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-48 pb-5' : 'max-h-0'}`}
+      >
+        <p className="text-sm text-txt-secondary leading-relaxed pr-12">{item.a}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
 
-  const faqs = [
-    {
-      question: 'How does the free trial work?',
-      answer: 'You get full access to all Pro features for 14 days, no credit card required. After the trial, you can choose to upgrade or continue with the free plan.',
-    },
-    {
-      question: 'Can I cancel anytime?',
-      answer: 'Absolutely! You can cancel your subscription at any time from your account settings. No questions asked, no hidden fees.',
-    },
-    {
-      question: 'Which platforms do you support?',
-      answer: 'We support LinkedIn, Twitter/X, YouTube, TikTok, Reddit, Telegram, Discord, Slack, and more. New platforms are added regularly based on user requests.',
-    },
-    {
-      question: 'How does the AI caption generation work?',
-      answer: 'We use Claude AI (Anthropic) to generate platform-specific captions tailored to your content and brand voice. You get 3 variations to choose from for each post.',
-    },
-    {
-      question: 'Is my data secure?',
-      answer: 'Yes! We use industry-standard OAuth for account connections, meaning we never store your passwords. All data is encrypted and isolated per user with our multi-tenant architecture.',
-    },
-    {
-      question: 'Can I schedule posts in advance?',
-      answer: 'Yes! You can schedule posts weeks or months in advance. Our cron-based automation ensures your posts go live at the perfect time, even when you\'re offline.',
-    },
-  ];
-
   return (
-    <section className="relative py-32 bg-white">
-      <div className="container mx-auto px-6 max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block mb-4"
-          >
-            <span className="text-netflix-red font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200/50 font-netflix">
-              ❓ FAQ
-            </span>
-          </motion.div>
-          <h2 className="text-5xl md:text-6xl font-bold text-netflix-red mb-6 font-netflix">
-            Frequently Asked{' '}
-            <span className="text-netflix-red">Questions</span>
-          </h2>
-          <p className="text-xl text-netflix-red font-netflix">
-            Everything you need to know about the platform
-          </p>
-        </motion.div>
+    <section id="faq" className="py-32 px-6">
+      <div className="max-w-2xl mx-auto">
+        <h2 className="font-display text-4xl sm:text-5xl text-center mb-16">
+          Frequently asked questions
+        </h2>
 
-        <div className="space-y-4">
-          {faqs.map((faq, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-              className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-xl overflow-hidden hover:bg-white/90 transition-colors shadow-lg"
-            >
-              <button
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex items-center justify-between p-6 text-left"
-              >
-                <span className="text-lg font-semibold text-gray-900 pr-8">
-                  {faq.question}
-                </span>
-                <motion.span
-                  animate={{ rotate: openIndex === index ? 45 : 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-2xl text-netflix-red flex-shrink-0"
-                >
-                  +
-                </motion.span>
-              </button>
-
-              <AnimatePresence>
-                {openIndex === index && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-6 pb-6 text-gray-700 leading-relaxed">
-                      {faq.answer}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+        <div>
+          {faqs.map((item, i) => (
+            <AccordionItem
+              key={i}
+              item={item}
+              isOpen={openIndex === i}
+              toggle={() => setOpenIndex(openIndex === i ? null : i)}
+            />
           ))}
         </div>
       </div>
     </section>
   );
 }
-

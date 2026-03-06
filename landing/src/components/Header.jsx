@@ -1,104 +1,105 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+
+const AUTH_URL = window.location.hostname === 'localhost' ? 'http://localhost:5001' : '';
 
 export default function Header() {
+  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const navLinks = [
+    { label: 'Features', href: '#features' },
+    { label: 'Pricing', href: '#pricing' },
+    { label: 'FAQ', href: '#faq' },
+  ];
+
   return (
-    <motion.header
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200/50"
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-base/80 backdrop-blur-xl border-b border-border'
+          : 'bg-transparent'
+      }`}
     >
-      <nav className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-netflix-red flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-              <span className="text-white font-bold text-lg font-netflix">S</span>
-            </div>
-            <span className="text-xl font-bold text-netflix-red font-netflix">Social Media Automator</span>
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
-              Features
-            </a>
-            <a href="#pricing" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
-              Pricing
-            </a>
-            <a href="#faq" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
-              FAQ
-            </a>
-            <a
-              href="/auth"
-              className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix"
-            >
-              Login
-            </a>
-            <a
-              href="/auth"
-              className="px-6 py-2 rounded bg-netflix-red text-white font-semibold hover:bg-netflix-red-dark hover:shadow-lg hover:scale-105 transition-all font-netflix"
-            >
-              Sign up
-            </a>
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <a href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-accent">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
           </div>
+          <span className="font-display text-xl text-txt-primary">Social Media Automator</span>
+        </a>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 text-gray-700"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-8">
+          {navLinks.map(link => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-sm text-txt-secondary hover:text-txt-primary transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        {/* Desktop CTA */}
+        <div className="hidden md:flex items-center gap-4">
+          <a
+            href={`${AUTH_URL}/auth`}
+            className="text-sm text-txt-secondary hover:text-txt-primary transition-colors"
           >
-            {mobileOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+            Log in
+          </a>
+          <a
+            href={`${AUTH_URL}/auth`}
+            className="text-sm font-semibold px-5 py-2.5 rounded-lg bg-accent text-base hover:bg-accent-hover transition-colors"
+          >
+            Start Free
+          </a>
         </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden overflow-hidden"
-            >
-              <div className="flex flex-col gap-4 py-4 border-t border-gray-200/50 mt-4">
-                <a href="#features" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
-                  Features
-                </a>
-                <a href="#pricing" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
-                  Pricing
-                </a>
-                <a href="#faq" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
-                  FAQ
-                </a>
-                <a href="/auth" className="text-gray-700 hover:text-gray-900 transition-colors font-medium font-netflix">
-                  Login
-                </a>
-                <a
-                  href="/auth"
-                  className="inline-block text-center px-6 py-2 rounded bg-netflix-red text-white font-semibold hover:bg-netflix-red-dark transition-all font-netflix"
-                >
-                  Sign up
-                </a>
-              </div>
-            </motion.div>
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="md:hidden p-2 text-txt-secondary hover:text-txt-primary"
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? (
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          ) : (
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
           )}
-        </AnimatePresence>
-      </nav>
-    </motion.header>
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-base-secondary border-t border-border">
+          <div className="px-6 py-4 flex flex-col gap-4">
+            {navLinks.map(link => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="text-txt-secondary hover:text-txt-primary transition-colors py-2"
+              >
+                {link.label}
+              </a>
+            ))}
+            <hr className="border-border" />
+            <a href={`${AUTH_URL}/auth`} className="text-txt-secondary hover:text-txt-primary py-2">Log in</a>
+            <a href={`${AUTH_URL}/auth`} className="text-center font-semibold px-5 py-3 rounded-lg bg-accent text-base hover:bg-accent-hover transition-colors">Start Free</a>
+          </div>
+        </div>
+      )}
+    </header>
   );
 }
