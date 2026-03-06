@@ -30,6 +30,30 @@ import {
 } from 'react-icons/fa';
 import { SiMastodon, SiBluesky } from 'react-icons/si';
 
+const PLATFORM_META = {
+  youtube:   { label: 'YouTube',    color: '#FF0033', icon: '▶' },
+  twitter:   { label: 'Twitter/X',  color: '#1DA1F2', icon: '𝕏' },
+  linkedin:  { label: 'LinkedIn',   color: '#0A66C2', icon: 'in' },
+  instagram: { label: 'Instagram',  color: '#E4405F', icon: '📷' },
+  substack:  { label: 'Substack',   color: '#FF6719', icon: '✉' },
+};
+
+function formatNum(n) {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+  return (n || 0).toLocaleString();
+}
+
+function Delta({ value }) {
+  if (!value) return null;
+  const positive = value > 0;
+  return (
+    <span className={`text-xs font-mono ml-1 ${positive ? 'text-green-400' : 'text-red-400'}`}>
+      {positive ? '+' : ''}{formatNum(value)}
+    </span>
+  );
+}
+
 export default function Analytics() {
   const [analytics, setAnalytics] = useState(null);
   const [history, setHistory] = useState([]);
@@ -39,10 +63,16 @@ export default function Analytics() {
   const [insightsStats, setInsightsStats] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
+  // Platform Reach state
+  const [reachSnapshots, setReachSnapshots] = useState([]);
+  const [reachHistory, setReachHistory] = useState([]);
+  const [reachPosts, setReachPosts] = useState([]);
+  const [reachSyncing, setReachSyncing] = useState(false);
 
   useEffect(() => {
     loadAnalytics();
     loadHistory();
+    loadPlatformReach();
 
     // Auto-refresh every 5 minutes (was 30s — too aggressive, caused rate-limit hits)
     const interval = setInterval(() => {
@@ -203,6 +233,34 @@ export default function Analytics() {
       bestPlatform,
       totalPatterns: patterns.length
     });
+  };
+
+  const loadPlatformReach = async () => {
+    try {
+      const [snapsRes, histRes, postsRes] = await Promise.all([
+        api.get('/platform-analytics/snapshots').catch(() => ({ data: { snapshots: [] } })),
+        api.get('/platform-analytics/history').catch(() => ({ data: { history: [] } })),
+        api.get('/platform-analytics/posts').catch(() => ({ data: { posts: [] } })),
+      ]);
+      setReachSnapshots(snapsRes.data?.snapshots || []);
+      setReachHistory(histRes.data?.history || []);
+      setReachPosts(postsRes.data?.posts || []);
+    } catch (err) {
+      console.error('Error loading platform reach:', err);
+    }
+  };
+
+  const handleReachSync = async () => {
+    setReachSyncing(true);
+    try {
+      await api.post('/platform-analytics/sync');
+      showSuccess('Platform data synced!');
+      await loadPlatformReach();
+    } catch (err) {
+      showError('Sync failed — check your connected accounts');
+    } finally {
+      setReachSyncing(false);
+    }
   };
 
   const handleAnalyze = async () => {
@@ -437,6 +495,169 @@ export default function Analytics() {
             <div className="text-purple-200 mt-1">Active Platforms</div>
           </div>
         </motion.div>
+      </div>
+
+      {/* ── Platform Reach ─────────────────────────────────────────────── */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white">Platform Reach</h2>
+          <button
+            onClick={handleReachSync}
+            disabled={reachSyncing}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600/20 border border-purple-400/30 text-purple-200 hover:bg-purple-600/30 transition-all text-sm disabled:opacity-50"
+          >
+            <FaSync className={reachSyncing ? 'animate-spin' : ''} />
+            {reachSyncing ? 'Syncing…' : 'Sync Now'}
+          </button>
+        </div>
+
+        {reachSnapshots.length === 0 ? (
+          <div className="bg-gray-900/30 border border-white/10 rounded-xl p-8 text-center text-gray-400">
+            <p className="mb-2">No platform data yet.</p>
+            <p className="text-sm">Click <span className="text-purple-300 font-medium">Sync Now</span> to pull followers, views, and engagement from your connected accounts.</p>
+          </div>
+        ) : (
+          <>
+            {/* Aggregate stat cards */}
+            {(() => {
+              const totals = reachSnapshots.reduce((acc, s) => ({
+                followers: acc.followers + (s.followers || 0),
+                followersDelta: acc.followersDelta + (s.followers_delta || 0),
+                views: acc.views + (s.total_views || 0),
+                viewsDelta: acc.viewsDelta + (s.views_delta || 0),
+                likes: acc.likes + (s.total_likes || 0),
+                likesDelta: acc.likesDelta + (s.likes_delta || 0),
+                comments: acc.comments + (s.total_comments || 0),
+                commentsDelta: acc.commentsDelta + (s.comments_delta || 0),
+              }), { followers: 0, followersDelta: 0, views: 0, viewsDelta: 0, likes: 0, likesDelta: 0, comments: 0, commentsDelta: 0 });
+
+              return (
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  {[
+                    { label: 'Total Followers', value: totals.followers, delta: totals.followersDelta, color: 'from-green-600/20 to-emerald-600/20 border-green-400/30' },
+                    { label: 'Total Views', value: totals.views, delta: totals.viewsDelta, color: 'from-blue-600/20 to-blue-700/20 border-blue-400/30' },
+                    { label: 'Total Likes', value: totals.likes, delta: totals.likesDelta, color: 'from-red-600/20 to-rose-600/20 border-red-400/30' },
+                    { label: 'Total Comments', value: totals.comments, delta: totals.commentsDelta, color: 'from-yellow-600/20 to-amber-600/20 border-yellow-400/30' },
+                  ].map(stat => (
+                    <motion.div key={stat.label} whileHover={{ y: -3 }}
+                      className={`bg-gradient-to-br ${stat.color} backdrop-blur-md border-2 rounded-xl p-5 text-white`}>
+                      <p className="text-xs font-mono text-gray-400 uppercase tracking-wider mb-1">{stat.label}</p>
+                      <p className="text-2xl font-bold">{formatNum(stat.value)}<Delta value={stat.delta} /></p>
+                    </motion.div>
+                  ))}
+                </div>
+              );
+            })()}
+
+            {/* Per-platform cards with sparklines */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+              {reachSnapshots.map(snap => {
+                const meta = PLATFORM_META[snap.platform] || { label: snap.platform, color: '#888', icon: '●' };
+                const platformHistory = reachHistory
+                  .filter(h => h.platform === snap.platform)
+                  .slice(-14);
+                const maxFollowers = Math.max(...platformHistory.map(h => h.followers), 1);
+                const minFollowers = Math.min(...platformHistory.map(h => h.followers), 0);
+                const range = maxFollowers - minFollowers || 1;
+
+                return (
+                  <motion.div key={snap.platform} whileHover={{ y: -3 }}
+                    className="bg-gray-900/40 border border-white/10 rounded-xl overflow-hidden">
+                    <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${meta.color}22` }}>
+                      <div className="flex items-center gap-2">
+                        <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold"
+                          style={{ background: `${meta.color}22`, color: meta.color }}>{meta.icon}</span>
+                        <span className="font-semibold text-sm text-white">{meta.label}</span>
+                      </div>
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: meta.color }} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-px bg-white/5 p-px">
+                      {[
+                        { label: 'Followers', value: snap.followers, delta: snap.followers_delta },
+                        { label: 'Views', value: snap.total_views, delta: snap.views_delta },
+                        { label: 'Likes', value: snap.total_likes, delta: snap.likes_delta },
+                        { label: 'Comments', value: snap.total_comments, delta: snap.comments_delta },
+                      ].map(m => (
+                        <div key={m.label} className="bg-gray-900/60 px-3 py-2">
+                          <p className="text-[10px] font-mono text-gray-500 uppercase">{m.label}</p>
+                          <p className="text-base font-bold text-white">{formatNum(m.value)}<Delta value={m.delta} /></p>
+                        </div>
+                      ))}
+                    </div>
+                    {platformHistory.length > 1 && (
+                      <div className="px-4 py-3 border-t border-white/5">
+                        <p className="text-[10px] font-mono text-gray-500 mb-1">FOLLOWER TREND</p>
+                        <div className="flex items-end gap-0.5 h-8">
+                          {platformHistory.map((h, i) => {
+                            const height = Math.max(((h.followers - minFollowers) / range) * 100, 5);
+                            return (
+                              <div key={i} className="flex-1 rounded-sm"
+                                style={{ height: `${height}%`, background: meta.color, opacity: 0.3 + (i / 14) * 0.7 }} />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Top Posts table */}
+            {reachPosts.length > 0 && (
+              <div className="bg-gray-900/30 border border-white/10 rounded-xl overflow-hidden">
+                <div className="px-5 py-3 border-b border-white/10">
+                  <h3 className="font-semibold text-white">Top Performing Posts</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-white/5 text-[10px] font-mono text-gray-500 uppercase tracking-wider">
+                        <th className="text-left px-5 py-2">Post</th>
+                        <th className="text-left px-5 py-2">Platform</th>
+                        <th className="text-right px-5 py-2">Views</th>
+                        <th className="text-right px-5 py-2">Likes</th>
+                        <th className="text-right px-5 py-2">Comments</th>
+                        <th className="text-right px-5 py-2">Published</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...reachPosts]
+                        .sort((a, b) => (b.views + b.likes * 10) - (a.views + a.likes * 10))
+                        .slice(0, 20)
+                        .map(post => {
+                          const meta = PLATFORM_META[post.platform] || { label: post.platform, color: '#888' };
+                          return (
+                            <tr key={post.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                              <td className="px-5 py-3">
+                                <a href={post.post_url || '#'} target="_blank" rel="noopener noreferrer"
+                                  className="flex items-center gap-2 hover:text-white text-gray-300 transition-colors">
+                                  {post.thumbnail_url && (
+                                    <img src={post.thumbnail_url} alt="" className="w-8 h-8 rounded object-cover flex-shrink-0" />
+                                  )}
+                                  <span className="truncate max-w-[180px]">{post.title || 'Untitled'}</span>
+                                </a>
+                              </td>
+                              <td className="px-5 py-3">
+                                <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                                  style={{ background: `${meta.color}22`, color: meta.color }}>{meta.label}</span>
+                              </td>
+                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-300">{formatNum(post.views)}</td>
+                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-300">{formatNum(post.likes)}</td>
+                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-300">{formatNum(post.comments)}</td>
+                              <td className="px-5 py-3 text-right font-mono text-xs text-gray-400">
+                                {post.published_at ? new Date(post.published_at).toLocaleDateString() : '—'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Charts Grid */}

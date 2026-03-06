@@ -2023,6 +2023,95 @@ app.get('/api/analytics/export', verifyAuth, async (req, res) => {
   }
 });
 
+// =============================================================================
+// Platform Analytics Routes — real followers/views/likes/comments from platform APIs
+// =============================================================================
+const { syncUserAnalytics } = require('./services/platformAnalytics');
+
+/**
+ * POST /api/platform-analytics/sync
+ * Manually trigger a data refresh for the current user
+ */
+app.post('/api/platform-analytics/sync', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const result = await syncUserAnalytics(userId);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error in /api/platform-analytics/sync:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/platform-analytics/snapshots
+ * Latest snapshot per platform for the current user
+ */
+app.get('/api/platform-analytics/snapshots', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { data, error } = await supabaseAdmin
+      .from('platform_daily_snapshots')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    // Return only the latest snapshot per platform
+    const latest = {};
+    for (const row of data || []) {
+      if (!latest[row.platform]) latest[row.platform] = row;
+    }
+    res.json({ success: true, snapshots: Object.values(latest) });
+  } catch (error) {
+    console.error('Error in /api/platform-analytics/snapshots:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/platform-analytics/history
+ * Last 30 days of snapshots per platform (for sparklines)
+ */
+app.get('/api/platform-analytics/history', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const { data, error } = await supabaseAdmin
+      .from('platform_daily_snapshots')
+      .select('platform, date, followers, total_views, total_likes, total_comments')
+      .eq('user_id', userId)
+      .gte('date', thirtyDaysAgo)
+      .order('date', { ascending: true });
+    if (error) throw error;
+    res.json({ success: true, history: data || [] });
+  } catch (error) {
+    console.error('Error in /api/platform-analytics/history:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * GET /api/platform-analytics/posts
+ * Top posts across all platforms for the current user
+ */
+app.get('/api/platform-analytics/posts', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { data, error } = await supabaseAdmin
+      .from('platform_post_metrics')
+      .select('*')
+      .eq('user_id', userId)
+      .order('published_at', { ascending: false })
+      .limit(100);
+    if (error) throw error;
+    res.json({ success: true, posts: data || [] });
+  } catch (error) {
+    console.error('Error in /api/platform-analytics/posts:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 /**
  * POST /api/upload/image
  * Upload image file to Cloudinary (protected)
