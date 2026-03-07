@@ -4590,9 +4590,15 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     // correct domain (e.g. socialmediaautomator.com vs railway URL).
     const frontendUrl = req.headers.origin || (req.protocol + '://' + req.get('host'));
 
+    // Build the redirect URI once here and store it in PKCE data so the
+    // token exchange in the callback uses the EXACT same URI. Mismatch
+    // between auth URL redirectUri and token exchange redirectUri is the
+    // most common cause of Twitter token exchange failure.
+    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
+
     // Store code_verifier temporarily (expires in 30 minutes)
     // Store in both in-memory and session stores for redundancy
-    const pkceData = { codeVerifier, userId, frontendUrl, timestamp: Date.now() };
+    const pkceData = { codeVerifier, userId, frontendUrl, redirectUri, timestamp: Date.now() };
     pkceStore.set(state, pkceData);
     sessionPkceStore.set(state, pkceData);
 
@@ -4616,8 +4622,6 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
       pkceStore.delete(state);
       sessionPkceStore.delete(state);
     }, 30 * 60 * 1000);
-
-    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
     const scope = 'tweet.read tweet.write users.read offline.access tweet.moderate.write';
 
     console.log('🐦 Twitter OAuth URL generation:');
@@ -4724,23 +4728,20 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.error('  - State expired or invalid');
       console.error('  - Looking for state:', state.substring(0, 20) + '...');
       console.error('  - Server may have restarted - PKCE state lost');
-      console.error('  - Try connecting again within 10 minutes of deployment');
-      return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_expired`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=twitter_expired&message=Session+expired,+please+try+again`);
     }
 
-    const { codeVerifier, userId, frontendUrl: storedFrontendUrl } = pkceData;
+    const { codeVerifier, userId, frontendUrl: storedFrontendUrl, redirectUri: storedRedirectUri } = pkceData;
     const callbackFrontendUrl = storedFrontendUrl || getFrontendUrl();
+    // Use the exact redirectUri that was sent during auth URL generation.
+    // This MUST match or Twitter will reject the token exchange.
+    const redirectUri = storedRedirectUri || (process.env.APP_URL
+      ? `${process.env.APP_URL}/auth/twitter/callback`
+      : `${callbackFrontendUrl}/auth/twitter/callback`);
     console.log('  - User ID from PKCE:', userId);
     console.log('  - Frontend URL for redirect:', callbackFrontendUrl);
+    console.log('  - Token exchange redirect URI:', redirectUri);
     pkceStore.delete(state); // Clean up
-
-    // Exchange code for access token
-    // Use APP_URL if set, otherwise derive from the stored frontend URL so the
-    // redirect_uri matches exactly what was sent during auth URL generation.
-    const redirectUri = process.env.APP_URL
-      ? `${process.env.APP_URL}/auth/twitter/callback`
-      : `${callbackFrontendUrl}/auth/twitter/callback`;
-    console.log('  - Token exchange starting with redirect URI:', redirectUri);
 
     let tokenResponse;
     try {
@@ -4759,8 +4760,13 @@ app.get('/auth/twitter/callback', async (req, res) => {
       });
       console.log('  - Token exchange successful');
     } catch (tokenError) {
-      console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
-      return res.redirect(`${callbackFrontendUrl}/dashboard?error=twitter_token_exchange_failed`);
+      const twitterError = tokenError.response?.data;
+      console.error('Token exchange error:', twitterError || tokenError.message);
+      console.error('  - redirect_uri used:', redirectUri);
+      console.error('  - Twitter error code:', twitterError?.error);
+      console.error('  - Twitter error description:', twitterError?.error_description);
+      const msg = twitterError?.error_description || twitterError?.error || 'Token exchange failed';
+      return res.redirect(`${callbackFrontendUrl}/connect-accounts?error=twitter_token_exchange_failed&message=${encodeURIComponent(msg)}`);
     }
 
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
@@ -4855,7 +4861,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
     res.redirect(`${callbackFrontendUrl}/connect-accounts?connected=twitter&success=true`);
   } catch (error) {
     console.error('Error in Twitter callback:', error.message);
-    res.redirect(`${callbackFrontendUrl || getFrontendUrl()}/dashboard?error=twitter_failed`);
+    res.redirect(`${callbackFrontendUrl || getFrontendUrl()}/connect-accounts?error=twitter_failed&message=${encodeURIComponent(error.message)}`);
   }
 });
 
