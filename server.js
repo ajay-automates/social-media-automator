@@ -4801,18 +4801,29 @@ app.get('/auth/twitter/callback', async (req, res) => {
       .eq('user_id', userId)
       .eq('platform', 'twitter');
 
-    // Preserve OAuth 1.0a credentials if they exist in ANY Twitter account
+    // Combine OAuth 2.0 refresh token with any existing OAuth 1.0a credentials
+    // Storage format: oauth2_refresh_token:oauth1_access_token:oauth1_access_secret
     let finalRefreshToken = refresh_token;
     if (existingAccounts && existingAccounts.length > 0) {
       for (const account of existingAccounts) {
-        if (account.refresh_token) {
-          const isOAuth1Format = /^\d+-\w/.test(account.refresh_token);
-          if (isOAuth1Format) {
-            console.log(`   🔒 Preserving OAuth 1.0a credentials from account: ${account.platform_username}`);
-            finalRefreshToken = account.refresh_token; // Keep OAuth 1.0a credentials
-            break; // Use first OAuth 1.0a credentials found
-          }
+        const existingToken = account.refresh_token;
+        if (!existingToken) continue;
+
+        const parts = existingToken.split(':');
+        const firstPartIsOAuth1 = /^\d+-\w/.test(parts[0]);
+
+        if (firstPartIsOAuth1) {
+          // Existing is OAuth 1.0a only — combine with new OAuth 2.0 refresh token
+          finalRefreshToken = `${refresh_token}:${existingToken}`;
+          console.log(`   🔒 Combined OAuth 2.0 refresh token + OAuth 1.0a credentials for: ${account.platform_username}`);
+        } else if (parts.length >= 3 && /^\d+-\w/.test(parts[1])) {
+          // Existing is combined format — update OAuth 2.0 portion, keep OAuth 1.0a portion
+          const oauth1Part = parts.slice(1).join(':');
+          finalRefreshToken = `${refresh_token}:${oauth1Part}`;
+          console.log(`   🔒 Updated OAuth 2.0 refresh token, preserved OAuth 1.0a credentials for: ${account.platform_username}`);
         }
+        // else: OAuth 2.0 only existing token — just use new refresh token
+        break;
       }
     }
 

@@ -716,14 +716,21 @@ async function getUserCredentialsForPosting(userId) {
             const isOAuth1Format = /^\d+-\w/.test(firstPart); // Matches pattern like "1981568508711579648-abc123..."
 
             if (isOAuth1Format && parts.length >= 2) {
-              // This is OAuth 1.0a format: access_token:access_secret
+              // OAuth 1.0a only format: access_token:access_secret
               const oauth1AccessToken = parts[0];
-              const oauth1AccessSecret = parts.slice(1).join(':'); // Join in case secret contains ':'
+              const oauth1AccessSecret = parts.slice(1).join(':');
               twitterCreds.accessTokenOAuth1 = oauth1AccessToken;
               twitterCreds.accessSecret = oauth1AccessSecret;
               console.log('   ✅ OAuth 1.0a access token found in refresh_token');
+            } else if (!isOAuth1Format && parts.length >= 3 && /^\d+-\w/.test(parts[1])) {
+              // Combined format: oauth2_refresh_token:oauth1_access_token:oauth1_access_secret
+              const oauth1AccessToken = parts[1];
+              const oauth1AccessSecret = parts.slice(2).join(':');
+              twitterCreds.accessTokenOAuth1 = oauth1AccessToken;
+              twitterCreds.accessSecret = oauth1AccessSecret;
+              console.log('   ✅ OAuth 1.0a access token found in combined refresh_token');
             } else {
-              console.log('   ⚠️  Refresh token contains OAuth 2.0 token, not OAuth 1.0a');
+              console.log('   ⚠️  Refresh token contains OAuth 2.0 token only, no OAuth 1.0a');
             }
           } catch (e) {
             console.log('   ⚠️  Failed to parse OAuth 1.0a tokens from refresh_token:', e.message);
