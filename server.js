@@ -4612,6 +4612,7 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
           user_id: userId,
           platform: 'twitter',
           frontend_url: frontendUrl,
+          redirect_uri: redirectUri,
           expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
         });
     } catch (dbError) {
@@ -4709,6 +4710,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
             codeVerifier: dbState.code_verifier,
             userId: dbState.user_id,
             frontendUrl: dbState.frontend_url || null,
+            redirectUri: dbState.redirect_uri || null,
             timestamp: Date.now()
           };
           // Clean up from database
@@ -4745,14 +4747,20 @@ app.get('/auth/twitter/callback', async (req, res) => {
 
     let tokenResponse;
     try {
-      tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token',
-        new URLSearchParams({
-          grant_type: 'authorization_code',
-          code,
-          client_id: process.env.TWITTER_CLIENT_ID,
-          redirect_uri: redirectUri,
-          code_verifier: codeVerifier
-        }), {
+      const tokenParams = new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: redirectUri,
+        code_verifier: codeVerifier
+      });
+      console.log('  - Token exchange params:', {
+        grant_type: 'authorization_code',
+        code: code ? code.substring(0, 20) + '...' : 'missing',
+        redirect_uri: redirectUri,
+        code_verifier: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'missing',
+        client_id_in_basic_auth: process.env.TWITTER_CLIENT_ID ? 'yes' : 'missing'
+      });
+      tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token', tokenParams, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
