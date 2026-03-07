@@ -422,6 +422,10 @@ app.use(cors());
 
 // Security headers with Helmet
 app.use(helmet({
+  // Chrome enforces COOP strictly; 'same-origin-allow-popups' is required
+  // for redirect-based OAuth (window.location.href) to work in Chrome.
+  // Default 'same-origin' breaks Twitter/LinkedIn OAuth callbacks in Chrome.
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -429,9 +433,9 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "blob:", "https:", "*"], // Allow all external images for news feed
-      connectSrc: ["'self'", "https://*.supabase.co", "https://gzchblilbthkfuxqhoyo.supabase.co", "https://api.razorpay.com", "https://lumberjack-cx.razorpay.com", "https://*.bing.net"],
+      connectSrc: ["'self'", "https://*.supabase.co", "https://gzchblilbthkfuxqhoyo.supabase.co", "https://api.razorpay.com", "https://lumberjack-cx.razorpay.com", "https://*.bing.net", "https://api.twitter.com", "https://twitter.com", "https://x.com"],
       frameSrc: ["'self'", "https://api.razorpay.com"],
-      upgradeInsecureRequests: [], // Allow mixed content if necessary (though prod should be https)
+      upgradeInsecureRequests: [],
     },
   }
 }));
