@@ -75,7 +75,7 @@ export default function Card3D({
           style={{
             transform: hover3D ? "translateZ(20px)" : "translateZ(0px)",
           }}
-          className={`relative bg-[#111113] ${gradient} rounded-2xl border border-white/[0.08] overflow-hidden will-change-transform`}
+          className={`relative bg-[#111113] rounded-2xl border border-white/[0.08] overflow-hidden will-change-transform`}
         >
           {/* Static gradient overlay instead of animated for performance */}
           <div

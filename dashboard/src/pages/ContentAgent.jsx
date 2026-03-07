@@ -5,7 +5,6 @@ import api from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { showSuccess, showError } from '../components/ui/Toast';
 import { staggerContainer } from '../utils/animations';
-import Card3D from '../components/ui/Card3D';
 import PlatformChip from '../components/ui/PlatformChip';
 import {
   FaRobot,
@@ -596,12 +595,13 @@ export default function ContentAgent() {
         {/* Header */}
         <motion.div className="mb-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-[#22d3ee]/10 rounded-xl">
-                <FaRobot className="w-8 h-8 text-white" />
+            <div className="flex items-center gap-4">
+              <div className="relative p-3 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/20 shadow-lg shadow-cyan-500/10">
+                <FaRobot className="w-8 h-8 text-cyan-400" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#0a0a0b] animate-pulse" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-[#22d3ee] mb-2">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-1">
                   Content Creation Agent
                 </h1>
                 <p className="text-[#a1a1aa]">AI-powered content generation for your social media</p>
@@ -613,45 +613,53 @@ export default function ContentAgent() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
+            <div className="bg-[#111113] border border-white/[0.08] rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Posts Generated</p>
                   <p className="text-3xl font-bold text-white">{stats.postsGenerated}</p>
                 </div>
-                <FaMagic className="w-8 h-8 text-[#a1a1aa]" />
+                <div className="p-2.5 rounded-xl bg-purple-500/10">
+                  <FaMagic className="w-6 h-6 text-purple-400" />
+                </div>
               </div>
-            </Card3D>
+            </div>
 
-            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
+            <div className="bg-[#111113] border border-white/[0.08] rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Avg Quality Score</p>
                   <p className="text-3xl font-bold text-white">{stats.avgQualityScore}/100</p>
                 </div>
-                <FaChartLine className="w-8 h-8 text-[#a1a1aa]" />
+                <div className="p-2.5 rounded-xl bg-emerald-500/10">
+                  <FaChartLine className="w-6 h-6 text-emerald-400" />
+                </div>
               </div>
-            </Card3D>
+            </div>
 
-            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
+            <div className="bg-[#111113] border border-white/[0.08] rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Generation Time</p>
                   <p className="text-3xl font-bold text-white">{stats.generationTime}s</p>
                 </div>
-                <FaClock className="w-8 h-8 text-[#a1a1aa]" />
+                <div className="p-2.5 rounded-xl bg-amber-500/10">
+                  <FaClock className="w-6 h-6 text-amber-400" />
+                </div>
               </div>
-            </Card3D>
+            </div>
 
-            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
+            <div className="bg-[#111113] border border-white/[0.08] rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[#a1a1aa] text-sm">Trends Used</p>
                   <p className="text-3xl font-bold text-white">{stats.trendingTopicsUsed}</p>
                 </div>
-                <FaFire className="w-8 h-8 text-[#a1a1aa]" />
+                <div className="p-2.5 rounded-xl bg-orange-500/10">
+                  <FaFire className="w-6 h-6 text-orange-400" />
+                </div>
               </div>
-            </Card3D>
+            </div>
           </div>
         )}
 
@@ -662,9 +670,9 @@ export default function ContentAgent() {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Generator Card */}
-            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
+            <div className="bg-[#111113] border border-white/[0.08] rounded-xl p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <FaMagic className="text-[#a1a1aa]" />
+                <FaMagic className="text-purple-400" />
                 Generate Content Calendar
               </h2>
 
@@ -679,10 +687,10 @@ export default function ContentAgent() {
                       <button
                         key={d}
                         onClick={() => setDays(d)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
                           days === d
-                            ? 'bg-[#22d3ee] text-white'
-                            : 'bg-[#18181b] text-[#a1a1aa] hover:bg-[#111113]'
+                            ? 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-md shadow-purple-500/20'
+                            : 'bg-[#18181b] border border-white/[0.06] text-[#a1a1aa] hover:text-white hover:border-white/[0.12]'
                         }`}
                       >
                         {d} days
@@ -731,7 +739,8 @@ export default function ContentAgent() {
 
                 {/* Custom Keyword Input */}
                 <div className="border-t border-white/[0.06] pt-4">
-                  <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
+                  <label className="block text-sm font-medium text-[#a1a1aa] mb-2 flex items-center gap-1.5">
+                    <FaLightbulb className="text-amber-400" size={12} />
                     Or Generate from Keyword
                   </label>
                   <div className="flex gap-2">
@@ -740,13 +749,13 @@ export default function ContentAgent() {
                       value={customKeyword}
                       onChange={(e) => setCustomKeyword(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleGenerateFromKeyword()}
-                      className="flex-1 px-4 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-white placeholder-[#52525b] focus:outline-none focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20"
+                      className="flex-1 px-4 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-white placeholder-[#52525b] focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/20"
                       placeholder="e.g., cricket, technology, AI"
                     />
                     <button
                       onClick={handleGenerateFromKeyword}
                       disabled={keywordLoading || !customKeyword.trim()}
-                      className="px-4 py-2 bg-[#06b6d4] text-white rounded-lg hover:bg-[#06b6d4] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 bg-amber-500/20 border border-amber-500/30 text-amber-400 rounded-lg hover:bg-amber-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                     >
                       {keywordLoading ? 'Loading...' : 'Preview'}
                     </button>
@@ -760,7 +769,7 @@ export default function ContentAgent() {
                 <button
                   onClick={handleGenerate}
                   disabled={generating}
-                  className="w-full px-6 py-3 bg-[#22d3ee] text-white font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20"
                 >
                   {generating ? (
                     <>
@@ -775,19 +784,21 @@ export default function ContentAgent() {
                   )}
                 </button>
               </div>
-            </Card3D>
+            </div>
 
             {/* Generated Posts */}
-            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
+            <div className="bg-[#111113] border border-white/[0.08] rounded-xl p-6">
               <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <FaCalendar className="text-[#a1a1aa]" />
+                <FaCalendar className="text-cyan-400" />
                 Generated Posts ({generatedPosts.length})
               </h2>
 
               {generatedPosts.length === 0 ? (
                 <div className="text-center py-12">
-                  <FaLightbulb className="w-16 h-16 text-[#52525b] mx-auto mb-4" />
-                  <p className="text-[#a1a1aa] mb-2">No posts generated yet</p>
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4">
+                    <FaLightbulb className="w-7 h-7 text-purple-400" />
+                  </div>
+                  <p className="text-white font-medium mb-1">No posts generated yet</p>
                   <p className="text-sm text-[#52525b]">Click "Generate Calendar" to create AI-powered content</p>
                 </div>
               ) : (
@@ -848,14 +859,19 @@ export default function ContentAgent() {
                           />
                           <div className="flex-1">
                             <h3 className="text-white font-medium mb-1">{post.topic}</h3>
-                            <div className="flex items-center gap-2 text-sm text-[#a1a1aa]">
-                              <span>Quality: {post.quality_score}/100</span>
-                              <span>•</span>
-                              <span>Engagement: {post.engagement_prediction}/100</span>
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                post.quality_score >= 80 ? 'bg-emerald-500/20 text-emerald-400' :
+                                post.quality_score >= 60 ? 'bg-amber-500/20 text-amber-400' :
+                                'bg-red-500/20 text-red-400'
+                              }`}>Q: {post.quality_score}</span>
+                              <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-blue-500/20 text-blue-400">
+                                E: {post.engagement_prediction}
+                              </span>
                             </div>
                           </div>
                         </div>
-                        <span className="px-2 py-1 bg-[#111113] text-[#a1a1aa] text-xs rounded-full">
+                        <span className="px-2 py-1 bg-blue-500/10 text-blue-400 text-xs rounded-full border border-blue-500/20 capitalize">
                           {post.content_type}
                         </span>
                       </div>
@@ -869,7 +885,7 @@ export default function ContentAgent() {
                       {post.hashtags && post.hashtags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-3 ml-7">
                           {post.hashtags.slice(0, 5).map((tag, i) => (
-                            <span key={i} className="text-xs text-[#a1a1aa]">
+                            <span key={i} className="text-xs text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
                               {tag}
                             </span>
                           ))}
@@ -918,40 +934,42 @@ export default function ContentAgent() {
                 </div>
                 </>
               )}
-            </Card3D>
+            </div>
           </div>
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
 
             {/* Brand Voice */}
-            <Card3D hover3D={false} className="bg-[#111113] border border-white/[0.08] p-6">
+            <div className="bg-[#111113] border border-white/[0.08] rounded-xl p-6">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                <FaEdit className="text-[#a1a1aa]" />
+                <FaEdit className="text-emerald-400" />
                 Brand Voice
               </h2>
 
               {brandVoice ? (
                 <div className="space-y-3 text-sm">
-                  <div>
+                  <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                     <p className="text-[#a1a1aa]">Tone</p>
-                    <p className="text-white capitalize">{brandVoice.tone}</p>
+                    <p className="text-emerald-400 font-medium capitalize">{brandVoice.tone}</p>
                   </div>
-                  <div>
+                  <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                     <p className="text-[#a1a1aa]">Formality</p>
-                    <p className="text-white">{brandVoice.formality_level}/10</p>
+                    <p className="text-cyan-400 font-medium">{brandVoice.formality_level}/10</p>
                   </div>
-                  <div>
+                  <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                     <p className="text-[#a1a1aa]">Avg Length</p>
-                    <p className="text-white">{brandVoice.avg_caption_length} chars</p>
+                    <p className="text-purple-400 font-medium">{brandVoice.avg_caption_length} chars</p>
                   </div>
-                  <div>
+                  <div className="flex items-center justify-between py-2 border-b border-white/[0.04]">
                     <p className="text-[#a1a1aa]">Emoji Usage</p>
-                    <p className="text-white">{brandVoice.emoji_usage ? 'Yes' : 'No'}</p>
+                    <p className={`font-medium ${brandVoice.emoji_usage ? 'text-amber-400' : 'text-[#52525b]'}`}>
+                      {brandVoice.emoji_usage ? 'Yes' : 'No'}
+                    </p>
                   </div>
-                  <div>
+                  <div className="flex items-center justify-between py-2">
                     <p className="text-[#a1a1aa]">Posts Analyzed</p>
-                    <p className="text-white">{brandVoice.analyzed_post_count}</p>
+                    <p className="text-white font-bold">{brandVoice.analyzed_post_count}</p>
                   </div>
                 </div>
               ) : (
@@ -959,13 +977,13 @@ export default function ContentAgent() {
                   <p className="text-[#a1a1aa] text-sm mb-3">No brand voice analyzed yet</p>
                   <button
                     onClick={analyzeBrandVoice}
-                    className="px-4 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition-all"
+                    className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-sm rounded-lg hover:bg-emerald-500/30 transition-all font-medium"
                   >
                     Analyze Now
                   </button>
                 </div>
               )}
-            </Card3D>
+            </div>
 
           </div>
         </div>
@@ -1121,8 +1139,8 @@ export default function ContentAgent() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-3xl font-bold text-[#22d3ee]">
-                📰 Trending News Today
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                Trending News Today
               </h2>
               {newsLastRefreshed && (
                 <p className="text-sm text-[#52525b] mt-1">
@@ -1133,10 +1151,11 @@ export default function ContentAgent() {
             <button
               onClick={handleRefreshNews}
               disabled={newsLoading}
-              className="p-2 text-[#a1a1aa] hover:text-[#22d3ee] hover:bg-[#111113] rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/20 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
               title="Refresh for fresh news articles"
             >
-              <FaSync className={newsLoading ? 'animate-spin' : ''} size={20} />
+              <FaSync className={newsLoading ? 'animate-spin' : ''} size={14} />
+              Refresh
             </button>
           </div>
 
@@ -1146,7 +1165,7 @@ export default function ContentAgent() {
 
           {newsLoading ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 border-4 border-[#22d3ee]/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="w-16 h-16 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-[#a1a1aa]">Loading today's news...</p>
             </div>
           ) : Object.keys(news).length > 0 ? (
@@ -1163,49 +1182,51 @@ export default function ContentAgent() {
                   lifestyle: 'Lifestyle & Culture'
                 };
 
-                const categoryColors = {
-                  technology: 'bg-[#22d3ee]/10 border-[#22d3ee]/20',
-                  business: ' border-green-500/30',
-                  sports: ' border-orange-500/30',
-                  world: 'bg-[#22d3ee]/10 border-[#22d3ee]/30',
-                  lifestyle: ' border-pink-500/30'
+                const categoryStyles = {
+                  technology: { card: 'border-cyan-500/25 bg-gradient-to-b from-cyan-500/5 to-[#111113]', title: 'text-cyan-400', dot: 'bg-cyan-400' },
+                  business:   { card: 'border-emerald-500/25 bg-gradient-to-b from-emerald-500/5 to-[#111113]', title: 'text-emerald-400', dot: 'bg-emerald-400' },
+                  sports:     { card: 'border-orange-500/25 bg-gradient-to-b from-orange-500/5 to-[#111113]', title: 'text-orange-400', dot: 'bg-orange-400' },
+                  world:      { card: 'border-purple-500/25 bg-gradient-to-b from-purple-500/5 to-[#111113]', title: 'text-purple-400', dot: 'bg-purple-400' },
+                  lifestyle:  { card: 'border-pink-500/25 bg-gradient-to-b from-pink-500/5 to-[#111113]', title: 'text-pink-400', dot: 'bg-pink-400' },
                 };
+                const style = categoryStyles[category] || categoryStyles.technology;
 
                 return (
                   <motion.div
                     key={category}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`bg-[#111113] ${categoryColors[category] || categoryColors.technology} border rounded-xl p-6 space-y-4`}
+                    className={`${style.card} border rounded-xl p-6 space-y-4`}
                   >
-                    <h3 className="text-xl font-bold text-white">
+                    <h3 className={`text-xl font-bold flex items-center gap-2 ${style.title}`}>
+                      <span className={`w-2 h-2 rounded-full ${style.dot}`} />
                       {categoryLabels[category] || 'News'}
                     </h3>
 
                     <div className="space-y-3">
                       {articles.slice(0, 2).map((article, idx) => (
-                        <div key={idx} className="bg-[#18181b] rounded-lg p-3 border border-white/[0.06] hover:bg-[#111113] transition-colors">
-                          <h4 className="text-sm font-semibold text-white mb-2 line-clamp-2">
+                        <div key={idx} className="bg-[#0d0d0f] rounded-lg p-3 border border-white/[0.06] hover:border-white/[0.12] transition-all group">
+                          <h4 className="text-sm font-semibold text-white mb-1.5 line-clamp-2 group-hover:text-white/90">
                             {article.title}
                           </h4>
-                          <p className="text-xs text-[#a1a1aa] mb-3 line-clamp-2">
+                          <p className="text-xs text-[#52525b] mb-3 line-clamp-2">
                             {article.description || article.source}
                           </p>
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleOpenNewsLink(article.url)}
-                              className="flex-1 px-3 py-1.5 bg-[#22d3ee]/15 text-[#22d3ee] text-xs rounded hover:bg-blue-500/50 transition-all flex items-center justify-center gap-1"
+                              className="flex-1 px-3 py-1.5 bg-white/[0.04] border border-white/[0.08] text-[#a1a1aa] hover:text-white text-xs rounded-lg hover:bg-white/[0.08] transition-all flex items-center justify-center gap-1.5 font-medium"
                             >
-                              <span>🔗</span> Open
+                              Open Link
                             </button>
                             <button
                               onClick={() => handleUseNewsForContent(article)}
-                              className="flex-1 px-3 py-1.5 bg-cyan-500/30 text-[#22d3ee] text-xs rounded hover:bg-cyan-500/50 transition-all flex items-center justify-center gap-1"
+                              className={`flex-1 px-3 py-1.5 text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 font-medium ${style.dot === 'bg-cyan-400' ? 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30' : style.dot === 'bg-emerald-400' ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' : style.dot === 'bg-orange-400' ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30' : style.dot === 'bg-purple-400' ? 'bg-purple-500/20 text-purple-400 hover:bg-purple-500/30' : 'bg-pink-500/20 text-pink-400 hover:bg-pink-500/30'}`}
                             >
-                              <span>✨</span> Use
+                              <FaMagic size={10} /> Use This
                             </button>
                           </div>
-                          <p className="text-xs text-[#52525b] mt-2">
+                          <p className="text-[10px] text-[#3f3f46] mt-2 uppercase tracking-wide">
                             {article.source}
                           </p>
                         </div>
