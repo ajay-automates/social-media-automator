@@ -4586,9 +4586,13 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
 
     const state = encryptState(userId);
 
-    // Store code_verifier temporarily (expires in 10 minutes)
+    // Capture the frontend origin so the callback can redirect back to the
+    // correct domain (e.g. socialmediaautomator.com vs railway URL).
+    const frontendUrl = req.headers.origin || (req.protocol + '://' + req.get('host'));
+
+    // Store code_verifier temporarily (expires in 30 minutes)
     // Store in both in-memory and session stores for redundancy
-    const pkceData = { codeVerifier, userId, timestamp: Date.now() };
+    const pkceData = { codeVerifier, userId, frontendUrl, timestamp: Date.now() };
     pkceStore.set(state, pkceData);
     sessionPkceStore.set(state, pkceData);
 
@@ -4601,6 +4605,7 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
           code_verifier: codeVerifier,
           user_id: userId,
           platform: 'twitter',
+          frontend_url: frontendUrl,
           expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString()
         });
     } catch (dbError) {
@@ -4669,6 +4674,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
       return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_missing_params`);
     }
 
+
     // Get stored code_verifier - check both stores
     let pkceData = pkceStore.get(state);
     if (!pkceData) {
@@ -4698,6 +4704,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
           pkceData = {
             codeVerifier: dbState.code_verifier,
             userId: dbState.user_id,
+            frontendUrl: dbState.frontend_url || null,
             timestamp: Date.now()
           };
           // Clean up from database
@@ -4721,12 +4728,18 @@ app.get('/auth/twitter/callback', async (req, res) => {
       return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_expired`);
     }
 
-    const { codeVerifier, userId } = pkceData;
+    const { codeVerifier, userId, frontendUrl: storedFrontendUrl } = pkceData;
+    const callbackFrontendUrl = storedFrontendUrl || getFrontendUrl();
     console.log('  - User ID from PKCE:', userId);
+    console.log('  - Frontend URL for redirect:', callbackFrontendUrl);
     pkceStore.delete(state); // Clean up
 
     // Exchange code for access token
-    const redirectUri = `${process.env.APP_URL || req.protocol + '://' + req.get('host')}/auth/twitter/callback`;
+    // Use APP_URL if set, otherwise derive from the stored frontend URL so the
+    // redirect_uri matches exactly what was sent during auth URL generation.
+    const redirectUri = process.env.APP_URL
+      ? `${process.env.APP_URL}/auth/twitter/callback`
+      : `${callbackFrontendUrl}/auth/twitter/callback`;
     console.log('  - Token exchange starting with redirect URI:', redirectUri);
 
     let tokenResponse;
@@ -4747,7 +4760,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
       console.log('  - Token exchange successful');
     } catch (tokenError) {
       console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
-      return res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_token_exchange_failed`);
+      return res.redirect(`${callbackFrontendUrl}/dashboard?error=twitter_token_exchange_failed`);
     }
 
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
@@ -4839,10 +4852,10 @@ app.get('/auth/twitter/callback', async (req, res) => {
     }
 
     console.log(`✅ Twitter account connected for user ${userId}`);
-    res.redirect(`${getFrontendUrl()}/connect-accounts?connected=twitter&success=true`);
+    res.redirect(`${callbackFrontendUrl}/connect-accounts?connected=twitter&success=true`);
   } catch (error) {
     console.error('Error in Twitter callback:', error.message);
-    res.redirect(`${getFrontendUrl()}/dashboard?error=twitter_failed`);
+    res.redirect(`${callbackFrontendUrl || getFrontendUrl()}/dashboard?error=twitter_failed`);
   }
 });
 
