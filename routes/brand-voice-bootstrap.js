@@ -1,30 +1,110 @@
 /**
  * Brand Voice Bootstrap Routes
- * New API endpoints for bootstrapping brand voice from pasted posts
- * 
- * These routes need to be added to server.js:
- *   const brandVoiceBootstrapRoutes = require('./routes/brand-voice-bootstrap');
- *   brandVoiceBootstrapRoutes(app, verifyAuth);
+ * API endpoints for bootstrapping brand voice from pasted posts OR connected accounts
  */
 
 const { bootstrapBrandVoice, getBrandVoiceProfile, getSamplePosts, saveSamplePosts } = require('../services/brand-voice-analyzer');
+const { fetchUserPosts } = require('../services/fetch-user-posts');
 
 module.exports = function(app, verifyAuth) {
 
   /**
-   * POST /api/content-agent/brand-voice/bootstrap
-   * Bootstrap brand voice from pasted posts + identity info
+   * POST /api/content-agent/brand-voice/auto-bootstrap
+   * AUTO-FETCH posts from connected accounts (Twitter, internal) and bootstrap voice
+   * This is the one-click solution - no manual pasting needed!
    * 
-   * Body:
+   * Body (optional):
    * {
-   *   "samplePosts": ["post1 text", "post2 text", ...],  // min 3 required
    *   "identity": {
    *     "name": "Ajay Kumar Reddy",
-   *     "role": "Senior AI/ML Engineer building production AI systems",
-   *     "topics": ["AI engineering", "building in public", "shipping fast", "LLMs"],
-   *     "style_notes": "I share what I learn while building. Direct, technical but accessible. I celebrate shipping."
+   *     "role": "Senior AI/ML Engineer",
+   *     "topics": ["AI", "building in public"],
+   *     "style_notes": "Direct, technical, celebrates shipping"
    *   }
    * }
+   */
+  app.post('/api/content-agent/brand-voice/auto-bootstrap', verifyAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { identity } = req.body;
+
+      console.log(`\n\u{1F680} AUTO-BOOTSTRAP: Fetching posts from connected accounts for user ${userId}...`);
+
+      // Step 1: Fetch posts from all connected platforms
+      const fetchResult = await fetchUserPosts(userId);
+
+      if (fetchResult.totalFetched < 3) {
+        return res.status(400).json({
+          success: false,
+          error: `Only found ${fetchResult.totalFetched} posts across your connected accounts. Need at least 3. Try posting more through the app or paste your best posts manually using the /bootstrap endpoint.`,
+          sources: fetchResult.sources,
+          totalFetched: fetchResult.totalFetched,
+          suggestion: 'You can also paste your LinkedIn posts manually via POST /api/content-agent/brand-voice/bootstrap'
+        });
+      }
+
+      console.log(`   \u{1F4E5} Found ${fetchResult.totalFetched} posts. Bootstrapping voice...`);
+
+      // Step 2: Bootstrap brand voice from fetched posts
+      const result = await bootstrapBrandVoice(userId, fetchResult.posts, identity || {});
+
+      res.json({
+        success: result.success,
+        message: result.success
+          ? `Brand voice auto-bootstrapped from ${result.postsAnalyzed} posts pulled from your connected accounts!`
+          : result.message,
+        brandVoice: result.brandVoice || null,
+        postsAnalyzed: result.postsAnalyzed || 0,
+        samplePostsSaved: result.samplePostsSaved || 0,
+        sources: fetchResult.sources,
+        totalFetched: fetchResult.totalFetched
+      });
+
+    } catch (error) {
+      console.error('\u274C Error in auto-bootstrap:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to auto-bootstrap brand voice'
+      });
+    }
+  });
+
+  /**
+   * GET /api/content-agent/brand-voice/fetch-posts
+   * Preview: fetch posts from connected accounts WITHOUT bootstrapping
+   * Useful to see what posts are available before committing
+   */
+  app.get('/api/content-agent/brand-voice/fetch-posts', verifyAuth, async (req, res) => {
+    try {
+      const userId = req.user.id;
+
+      console.log(`\u{1F50D} Previewing available posts for user ${userId}...`);
+
+      const fetchResult = await fetchUserPosts(userId);
+
+      res.json({
+        success: true,
+        posts: fetchResult.posts.slice(0, 20), // Preview first 20
+        sources: fetchResult.sources,
+        totalFetched: fetchResult.totalFetched,
+        message: fetchResult.totalFetched >= 3
+          ? `Found ${fetchResult.totalFetched} posts. Ready to bootstrap your voice!`
+          : `Only found ${fetchResult.totalFetched} posts. Need at least 3 for voice analysis.`
+      });
+
+    } catch (error) {
+      console.error('\u274C Error fetching posts preview:', error);
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to fetch posts'
+      });
+    }
+  });
+
+  /**
+   * POST /api/content-agent/brand-voice/bootstrap
+   * Bootstrap brand voice from MANUALLY PASTED posts + identity info
+   * Use this when auto-fetch doesn't have enough posts (e.g., LinkedIn)
    */
   app.post('/api/content-agent/brand-voice/bootstrap', verifyAuth, async (req, res) => {
     try {
@@ -45,7 +125,6 @@ module.exports = function(app, verifyAuth) {
         });
       }
 
-      // Filter out empty posts
       const validPosts = samplePosts.filter(p => typeof p === 'string' && p.trim().length > 10);
 
       if (validPosts.length < 3) {
@@ -152,7 +231,7 @@ module.exports = function(app, verifyAuth) {
       if (!brandVoice) {
         return res.json({
           success: false,
-          message: 'No brand voice profile found. Use the bootstrap endpoint to create one by pasting your best posts.',
+          message: 'No brand voice profile found. Use auto-bootstrap to pull posts from your connected accounts, or paste your best posts manually.',
           hasProfile: false,
           hasSamples: samples.length > 0,
           sampleCount: samples.length
@@ -165,7 +244,7 @@ module.exports = function(app, verifyAuth) {
         hasSamples: samples.length > 0,
         sampleCount: samples.length,
         brandVoice,
-        samples: samples.slice(0, 5) // Return first 5 as preview
+        samples: samples.slice(0, 5)
       });
 
     } catch (error) {
