@@ -4623,7 +4623,7 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
       pkceStore.delete(state);
       sessionPkceStore.delete(state);
     }, 30 * 60 * 1000);
-    const scope = 'tweet.read tweet.write users.read offline.access tweet.moderate.write';
+    const scope = 'tweet.read tweet.write users.read offline.access';
 
     console.log('🐦 Twitter OAuth URL generation:');
     console.log('  - Client ID:', clientId ? 'exists' : 'missing');

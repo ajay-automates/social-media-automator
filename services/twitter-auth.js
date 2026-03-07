@@ -10,33 +10,35 @@ async function refreshTwitterToken(userId, platformUserId) {
   try {
     console.log('🔄 Refreshing Twitter OAuth 2.0 token...');
     
-    // Build query - filter by user and platform
+    // Build query - only active accounts, most recently connected first
     let query = supabaseAdmin
       .from('user_accounts')
       .select('id, refresh_token, platform_user_id')
       .eq('user_id', userId)
-      .eq('platform', 'twitter');
-    
+      .eq('platform', 'twitter')
+      .eq('status', 'active')
+      .order('connected_at', { ascending: false });
+
     // If platform_user_id is provided, filter by it (for multi-account support)
     if (platformUserId) {
       query = query.eq('platform_user_id', platformUserId);
     }
-    
+
     const { data: accounts, error } = await query;
-    
+
     if (error) {
       throw new Error(`Database error: ${error.message}`);
     }
-    
+
     if (!accounts || accounts.length === 0) {
       throw new Error('Twitter account not found');
     }
-    
-    // If multiple accounts found and no platform_user_id specified, use the first one
+
+    // Use the most recently connected active account
     const account = accounts[0];
-    
+
     if (accounts.length > 1 && !platformUserId) {
-      console.log(`⚠️  Multiple Twitter accounts found (${accounts.length}), using first one`);
+      console.log(`ℹ️  Multiple active Twitter accounts found (${accounts.length}), using most recent: ${account.id}`);
     }
     
     let oauth2RefreshToken = account.refresh_token;
