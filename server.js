@@ -4659,6 +4659,7 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
  * Handle Twitter OAuth callback
  */
 app.get('/auth/twitter/callback', async (req, res) => {
+  let callbackFrontendUrl = getFrontendUrl(); // default; overwritten once PKCE is resolved
   try {
     const { code, state, error } = req.query;
 
@@ -4734,7 +4735,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
     }
 
     const { codeVerifier, userId, frontendUrl: storedFrontendUrl, redirectUri: storedRedirectUri } = pkceData;
-    const callbackFrontendUrl = storedFrontendUrl || getFrontendUrl();
+    callbackFrontendUrl = storedFrontendUrl || getFrontendUrl();
     // Use the exact redirectUri that was sent during auth URL generation.
     // This MUST match or Twitter will reject the token exchange.
     const redirectUri = storedRedirectUri || (process.env.APP_URL
@@ -4780,13 +4781,18 @@ app.get('/auth/twitter/callback', async (req, res) => {
     const { access_token, refresh_token, expires_in } = tokenResponse.data;
 
     // Get user profile
-    const profileResponse = await axios.get('https://api.twitter.com/2/users/me', {
-      headers: {
-        'Authorization': `Bearer ${access_token}`
-      }
-    });
-
-    const profile = profileResponse.data.data;
+    let profile = { id: null, username: 'unknown' };
+    try {
+      const profileResponse = await axios.get('https://api.twitter.com/2/users/me', {
+        params: { 'user.fields': 'id,name,username' },
+        headers: { 'Authorization': `Bearer ${access_token}` }
+      });
+      profile = profileResponse.data.data;
+      console.log('  - Profile fetched:', profile.username);
+    } catch (profileError) {
+      console.error('  - Failed to fetch Twitter profile:', profileError.response?.status, JSON.stringify(profileError.response?.data));
+      console.warn('  - Proceeding with token storage despite profile fetch failure');
+    }
     const expiresAt = expires_in ? new Date(Date.now() + (expires_in * 1000)) : null;
 
     // Store in database using global supabaseAdmin (bypasses RLS)
