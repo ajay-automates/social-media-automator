@@ -6,9 +6,6 @@ import { showSuccess, showError } from './ui/Toast';
 import {
   FaLinkedin,
   FaTwitter,
-  FaReddit,
-  FaTiktok,
-  FaYoutube,
   FaLightbulb,
   FaRocket,
   FaChartLine,
@@ -31,9 +28,6 @@ export default function ContentIdeasModal({ isOpen, onClose }) {
   const platforms = [
     { id: 'linkedin', name: 'LinkedIn', Icon: FaLinkedin, color: 'bg-[#22d3ee]', glow: 'rgba(59, 130, 246, 0.5)' },
     { id: 'twitter', name: 'Twitter', Icon: FaTwitter, color: '', glow: 'rgba(14, 165, 233, 0.5)' },
-    { id: 'reddit', name: 'Reddit', Icon: FaReddit, color: '', glow: 'rgba(249, 115, 22, 0.5)' },
-    { id: 'tiktok', name: 'TikTok', Icon: FaTiktok, color: 'bg-[#18181b]', glow: 'rgba(107, 114, 128, 0.5)' },
-    { id: 'youtube', name: 'YouTube', Icon: FaYoutube, color: '', glow: 'rgba(220, 38, 38, 0.5)' }
   ];
 
   const getTypeIcon = (type) => {
@@ -408,4 +402,3 @@ export default function ContentIdeasModal({ isOpen, onClose }) {
     </AnimatePresence>
   );
 }
-

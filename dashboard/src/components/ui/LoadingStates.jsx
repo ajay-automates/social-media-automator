@@ -2,14 +2,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import {
   FaLinkedin,
-  FaTwitter,
-  FaTiktok,
-  FaYoutube,
-  FaReddit,
-  FaDiscord,
-  FaSlack,
-  FaTelegram,
-  FaPinterest
+  FaTwitter
 } from 'react-icons/fa';
 
 export const PostCardSkeleton = () => (
@@ -37,13 +30,6 @@ const PlatformIcon = ({ platform }) => {
   const icons = {
     twitter: FaTwitter,
     linkedin: FaLinkedin,
-    telegram: FaTelegram,
-    pinterest: FaPinterest,
-    youtube: FaYoutube,
-    reddit: FaReddit,
-    discord: FaDiscord,
-    slack: FaSlack,
-    tiktok: FaTiktok,
   };
   
   const IconComponent = icons[platform.toLowerCase()] || FaTwitter;
@@ -107,4 +93,3 @@ export const AnalyticsSkeleton = () => (
     </div>
   </div>
 );
-

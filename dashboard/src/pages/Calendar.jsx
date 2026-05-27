@@ -13,15 +13,6 @@ import AutoFillModal from '../components/calendar/AutoFillModal';
 import {
   FaLinkedin,
   FaTwitter,
-  FaTiktok,
-  FaYoutube,
-  FaReddit,
-  FaDiscord,
-  FaSlack,
-  FaTelegram,
-  FaPinterest,
-  FaMedium,
-  FaTumblr,
   FaFilter,
   FaDownload,
   FaSearch,
@@ -32,25 +23,14 @@ import {
   FaPlus,
   FaCheckSquare
 } from 'react-icons/fa';
-import { SiMastodon, SiBluesky } from 'react-icons/si';
 import '../styles/calendar-blaze.css';
 
 // Platform configuration with colors
 const PLATFORM_CONFIG = {
   linkedin: { Icon: FaLinkedin, color: '#0A66C2', name: 'LinkedIn' },
   twitter: { Icon: FaTwitter, color: '#1DA1F2', name: 'X' },
-  tiktok: { Icon: FaTiktok, color: '#FE2C55', name: 'TikTok' },
-  youtube: { Icon: FaYoutube, color: '#FF0000', name: 'YouTube' },
-  reddit: { Icon: FaReddit, color: '#FF4500', name: 'Reddit' },
-  discord: { Icon: FaDiscord, color: '#5865F2', name: 'Discord' },
-  slack: { Icon: FaSlack, color: '#4A154B', name: 'Slack' },
-  telegram: { Icon: FaTelegram, color: '#26A5E4', name: 'Telegram' },
-  pinterest: { Icon: FaPinterest, color: '#E60023', name: 'Pinterest' },
-  medium: { Icon: FaMedium, color: '#00AB6C', name: 'Medium' },
-  tumblr: { Icon: FaTumblr, color: '#36465D', name: 'Tumblr' },
-  mastodon: { Icon: SiMastodon, color: '#6364FF', name: 'Mastodon' },
-  bluesky: { Icon: SiBluesky, color: '#1185FE', name: 'Bluesky' },
 };
+const SUPPORTED_PLATFORMS = Object.keys(PLATFORM_CONFIG);
 
 export default function Calendar() {
   const [events, setEvents] = useState([]);
@@ -97,17 +77,24 @@ export default function Calendar() {
         const posts = response.data.posts || [];
         console.log(`📅 Found ${posts.length} scheduled posts`);
         
-        const formattedEvents = posts.map(post => {
-          // Ensure dates are properly parsed
-          const startDate = post.start ? new Date(post.start) : new Date();
-          const endDate = post.end ? new Date(post.end) : startDate;
-          
-          return {
-            ...post,
-            start: startDate,
-            end: endDate
-          };
-        });
+        const formattedEvents = posts
+          .map(post => {
+            const supportedPlatforms = (post.platforms || []).filter(platform => SUPPORTED_PLATFORMS.includes(platform));
+
+            if (supportedPlatforms.length === 0) return null;
+
+            // Ensure dates are properly parsed
+            const startDate = post.start ? new Date(post.start) : new Date();
+            const endDate = post.end ? new Date(post.end) : startDate;
+
+            return {
+              ...post,
+              platforms: supportedPlatforms,
+              start: startDate,
+              end: endDate
+            };
+          })
+          .filter(Boolean);
 
         console.log('📅 Formatted events:', formattedEvents.length);
         setEvents(formattedEvents);
@@ -406,17 +393,6 @@ export default function Calendar() {
     const priority = {
       linkedin: 3,      // 3 posts/week (Mon/Wed/Fri)
       twitter: 7,      // Daily posts
-      tiktok: 3,       // 3 posts/week
-      youtube: 2,      // 2 posts/week
-      reddit: 2,       // 2 posts/week
-      telegram: 7,     // Daily posts
-      discord: 3,      // 3 posts/week
-      slack: 2,        // 2 posts/week
-      pinterest: 2,    // 2 posts/week
-      medium: 2,       // 2 posts/week
-      mastodon: 3,     // 3 posts/week
-      bluesky: 3,      // 3 posts/week
-      tumblr: 2        // 2 posts/week
     };
 
     platforms.forEach(platform => {

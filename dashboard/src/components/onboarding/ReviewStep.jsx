@@ -7,29 +7,15 @@ import { showError } from '../ui/Toast';
 // Platform icons and names
 const platformIcons = {
   linkedin: '🔵',
-  twitter: '🐦',
-  telegram: '✈️',
-  slack: '💼',
-  discord: '💜',
-  reddit: '🔴',
-  devto: '👨‍💻',
-  tumblr: '🎨',
-  mastodon: '🐘',
-  bluesky: '🦋'
+  twitter: 'X'
 };
 
 const platformNames = {
   linkedin: 'LinkedIn',
-  twitter: 'Twitter',
-  telegram: 'Telegram',
-  slack: 'Slack',
-  discord: 'Discord',
-  reddit: 'Reddit',
-  devto: 'Dev.to',
-  tumblr: 'Tumblr',
-  mastodon: 'Mastodon',
-  bluesky: 'Bluesky'
+  twitter: 'X / Twitter'
 };
+
+const SUPPORTED_PLATFORMS = ['linkedin', 'twitter'];
 
 export default function ReviewStep() {
   const { prevStep, firstPostData, completeOnboarding, updateProgress } = useOnboarding();
@@ -60,7 +46,9 @@ export default function ReviewStep() {
       const response = await api.get('/accounts');
       // Handle different response formats
       const accountsData = response.data?.accounts || response.data || [];
-      const accounts = Array.isArray(accountsData) ? accountsData : [];
+      const accounts = Array.isArray(accountsData)
+        ? accountsData.filter(account => SUPPORTED_PLATFORMS.includes(account.platform))
+        : [];
       setConnectedAccounts(accounts);
       // Pre-select all connected platforms
       setSelectedPlatforms(accounts.map(acc => acc.platform));
@@ -363,4 +351,3 @@ export default function ReviewStep() {
     </motion.div>
   );
 }
-

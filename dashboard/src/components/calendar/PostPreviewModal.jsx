@@ -4,15 +4,6 @@ import { format } from 'date-fns';
 import {
   FaLinkedin,
   FaTwitter,
-  FaTiktok,
-  FaYoutube,
-  FaReddit,
-  FaDiscord,
-  FaSlack,
-  FaTelegram,
-  FaPinterest,
-  FaMedium,
-  FaTumblr,
   FaTimes,
   FaTrash,
   FaCopy,
@@ -20,24 +11,12 @@ import {
   FaArrowLeft,
   FaArrowRight
 } from 'react-icons/fa';
-import { SiMastodon, SiBluesky } from 'react-icons/si';
 import SocialPreview from './SocialPreview';
 
 // All platforms available for preview
 const PREVIEW_PLATFORMS = [
   { id: 'linkedin', Icon: FaLinkedin, color: '#0A66C2', name: 'LinkedIn' },
   { id: 'twitter', Icon: FaTwitter, color: '#1DA1F2', name: 'X' },
-  { id: 'tiktok', Icon: FaTiktok, color: '#FE2C55', name: 'TikTok' },
-  { id: 'youtube', Icon: FaYoutube, color: '#FF0000', name: 'YouTube' },
-  { id: 'reddit', Icon: FaReddit, color: '#FF4500', name: 'Reddit' },
-  { id: 'discord', Icon: FaDiscord, color: '#5865F2', name: 'Discord' },
-  { id: 'slack', Icon: FaSlack, color: '#4A154B', name: 'Slack' },
-  { id: 'telegram', Icon: FaTelegram, color: '#26A5E4', name: 'Telegram' },
-  { id: 'pinterest', Icon: FaPinterest, color: '#E60023', name: 'Pinterest' },
-  { id: 'medium', Icon: FaMedium, color: '#00AB6C', name: 'Medium' },
-  { id: 'tumblr', Icon: FaTumblr, color: '#36465D', name: 'Tumblr' },
-  { id: 'mastodon', Icon: SiMastodon, color: '#6364FF', name: 'Mastodon' },
-  { id: 'bluesky', Icon: SiBluesky, color: '#1185FE', name: 'Bluesky' },
 ];
 
 export default function PostPreviewModal({
@@ -332,4 +311,3 @@ export default function PostPreviewModal({
     </AnimatePresence>
   );
 }
-

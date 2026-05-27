@@ -122,11 +122,10 @@ export default function VideoPreview({ video, onRemove, onChangeVideo }) {
       {video.duration > 60 && (
         <div className="mt-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2">
           <p className="text-yellow-300 text-xs">
-            ⚠️ Video is {Math.round(video.duration)}s - Some platforms have shorter limits (TikTok: 60s)
+            ⚠️ Video is {Math.round(video.duration)}s. Shorter clips usually perform better.
           </p>
         </div>
       )}
     </motion.div>
   );
 }
-

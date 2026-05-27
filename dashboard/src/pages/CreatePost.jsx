@@ -16,6 +16,8 @@ import PostPreview from '../components/PostPreview';
 // Onboarding temporarily disabled
 // import { useOnboarding, OnboardingProvider } from '../contexts/OnboardingContext';
 
+const SUPPORTED_PLATFORMS = ['linkedin', 'twitter'];
+
 export default function CreatePost() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,18 +45,12 @@ export default function CreatePost() {
   const [billingInfo, setBillingInfo] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [pendingVideoFile, setPendingVideoFile] = useState(null);
-  const [redditSubreddit, setRedditSubreddit] = useState('');
-  const [redditTitle, setRedditTitle] = useState('');
-  const [moderatedSubreddits, setModeratedSubreddits] = useState([]);
-  const [pinterestBoards, setPinterestBoards] = useState([]);
-  const [selectedBoard, setSelectedBoard] = useState('');
-  const [pinterestTitle, setPinterestTitle] = useState('');
   const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
-  const [showYoutubeModal, setShowYoutubeModal] = useState(false);
-  const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [youtubeInstructions, setYoutubeInstructions] = useState('');
-  const [generatingFromYoutube, setGeneratingFromYoutube] = useState(false);
-  const [youtubeVariations, setYoutubeVariations] = useState([]);
+  const [showUrlModal, setShowUrlModal] = useState(false);
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [urlInstructions, setUrlInstructions] = useState('');
+  const [generatingFromUrl, setGeneratingFromUrl] = useState(false);
+  const [urlVariations, setUrlVariations] = useState([]);
   const [aiVideoPrompt, setAiVideoPrompt] = useState('');
   const [generatingVideo, setGeneratingVideo] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState(null);
@@ -94,14 +90,7 @@ export default function CreatePost() {
   // Character counter state
   const PLATFORM_LIMITS = {
     twitter: 280,
-    linkedin: 3000,
-    tiktok: 2200,
-    youtube: 5000,
-    reddit: 40000,
-    discord: 2000,
-    slack: 4000,
-    telegram: 4096,
-    pinterest: 500
+    linkedin: 3000
   };
 
   // Calculate character counts for selected platforms
@@ -204,52 +193,24 @@ export default function CreatePost() {
     try {
       const response = await api.get('/accounts');
       const accountsData = response.data?.accounts || response.data || [];
-      const accounts = Array.isArray(accountsData) ? accountsData : [];
+      const accounts = Array.isArray(accountsData)
+        ? accountsData.filter(account => SUPPORTED_PLATFORMS.includes(account.platform))
+        : [];
       setConnectedAccounts(accounts);
 
-      // Smart Default: Auto-select all connected platforms (except Reddit) if none are selected yet
+      // Smart default is disabled so users explicitly choose LinkedIn, X, or both.
       // Removed per user request - user must select platforms manually
       /*
       if (accounts.length > 0 && platforms.length === 0) {
         const allPlatforms = accounts
           .map(acc => acc.platform)
-          .filter(platform => platform !== 'reddit'); // Exclude Reddit from auto-selection
+          .filter(platform => SUPPORTED_PLATFORMS.includes(platform));
         setPlatforms(allPlatforms);
       }
       */
     } catch (err) {
       console.error('Error loading connected accounts:', err);
       setConnectedAccounts([]);
-    }
-  };
-
-  // Load moderated subreddits when Reddit is selected
-  useEffect(() => {
-    if (platforms.includes('reddit')) {
-      loadModeratedSubreddits();
-    }
-  }, [platforms]);
-
-  // Load Pinterest boards when Pinterest is selected
-  useEffect(() => {
-    if (platforms.includes('pinterest')) {
-      loadPinterestBoards();
-    }
-  }, [platforms]);
-
-  const loadPinterestBoards = async () => {
-    try {
-      const response = await api.get('/pinterest/boards');
-      if (response.data && response.data.boards) {
-        setPinterestBoards(response.data.boards);
-        // Auto-select first board if none selected
-        if (response.data.boards.length > 0 && !selectedBoard) {
-          setSelectedBoard(response.data.boards[0].id);
-        }
-      }
-    } catch (err) {
-      console.error('Error loading Pinterest boards:', err);
-      // Don't show error toast here to avoid spamming if not connected yet
     }
   };
 
@@ -261,22 +222,6 @@ export default function CreatePost() {
       setBillingInfo(response.data);
     } catch (err) {
       console.error('Error loading billing info:', err);
-    }
-  };
-
-  const loadModeratedSubreddits = async () => {
-    try {
-      const response = await api.get('/reddit/subreddits');
-      if (response.data?.success) {
-        setModeratedSubreddits(response.data.subreddits || []);
-        // Set first subreddit as default
-        if (response.data.subreddits && response.data.subreddits.length > 0) {
-          setRedditSubreddit(response.data.subreddits[0]);
-        }
-      }
-    } catch (err) {
-      console.error('Error loading Reddit subreddits:', err);
-      // Silently fail if Reddit not connected
     }
   };
 
@@ -297,7 +242,7 @@ export default function CreatePost() {
 
     // Load platforms (only select if they're connected)
     const connectedPlatforms = connectedAccounts.map(acc => acc.platform);
-    const validPlatforms = template.platforms.filter(p => connectedPlatforms.includes(p));
+    const validPlatforms = template.platforms.filter(p => connectedPlatforms.includes(p) && SUPPORTED_PLATFORMS.includes(p));
     setPlatforms(validPlatforms);
 
     // Load image if available
@@ -531,9 +476,7 @@ export default function CreatePost() {
         text: caption.trim(),
         platforms,
         imageUrl: image,
-        scheduleTime: scheduleDate.toISOString(),
-        redditTitle: platforms.includes('reddit') ? redditTitle : undefined,
-        redditSubreddit: platforms.includes('reddit') ? redditSubreddit : undefined
+        scheduleTime: scheduleDate.toISOString()
       };
 
       const response = await api.post('/post/schedule', requestData);
@@ -581,9 +524,7 @@ export default function CreatePost() {
         text: caption.trim(),
         platforms,
         imageUrl: image,
-        scheduleTime: new Date(scheduledDate).toISOString(),
-        redditTitle: platforms.includes('reddit') ? redditTitle : undefined,
-        redditSubreddit: platforms.includes('reddit') ? redditSubreddit : undefined
+        scheduleTime: new Date(scheduledDate).toISOString()
       };
 
       const response = await api.post('/post/schedule', requestData);
@@ -645,19 +586,19 @@ export default function CreatePost() {
     showSuccess('Caption added! ✨');
   };
 
-  const generateFromYoutube = async () => {
-    if (!youtubeUrl.trim()) {
+  const generateFromUrl = async () => {
+    if (!sourceUrl.trim()) {
       showError('Please enter a URL');
       return;
     }
 
-    setGeneratingFromYoutube(true);
-    setYoutubeVariations([]);
+    setGeneratingFromUrl(true);
+    setUrlVariations([]);
 
     try {
       const response = await api.post('/ai/youtube-caption', {
-        videoUrl: youtubeUrl,
-        instructions: youtubeInstructions,
+        videoUrl: sourceUrl,
+        instructions: urlInstructions,
         platform: platforms[0] || 'linkedin'
       });
 
@@ -668,23 +609,23 @@ export default function CreatePost() {
         return;
       }
 
-      setYoutubeVariations(variations);
+      setUrlVariations(variations);
       showSuccess('Generated 3 caption variations from URL! ✨');
     } catch (err) {
       const errorMessage = err.response?.data?.error || err.message || 'Failed to generate caption from URL';
       showError(errorMessage);
       console.error('URL caption error:', err);
     } finally {
-      setGeneratingFromYoutube(false);
+      setGeneratingFromUrl(false);
     }
   };
 
-  const selectYoutubeVariation = (variation) => {
+  const selectUrlVariation = (variation) => {
     setCaption(variation);
-    setShowYoutubeModal(false);
-    setYoutubeUrl('');
-    setYoutubeInstructions('');
-    setYoutubeVariations([]);
+    setShowUrlModal(false);
+    setSourceUrl('');
+    setUrlInstructions('');
+    setUrlVariations([]);
     showSuccess('Caption added! ✨');
   };
 
@@ -878,33 +819,6 @@ export default function CreatePost() {
       }
     };
 
-    // Validate Reddit-specific fields if Reddit is selected
-    if (platforms.includes('reddit')) {
-      if (!redditTitle.trim()) {
-        showError('Reddit requires a post title. Please enter one.');
-        return;
-      }
-      if (!redditSubreddit) {
-        showError('Please select a subreddit for Reddit');
-        stopLoading();
-        return;
-      }
-    }
-
-    if (platforms.includes('pinterest')) {
-      if (!image && !selectedVideo) {
-        showError('Pinterest requires an image or video');
-        stopLoading();
-        return;
-      }
-      if (!selectedBoard) {
-        showError('Please select a board for Pinterest');
-        stopLoading();
-        return;
-      }
-    }
-
-
     // Check usage limits
     if (billingInfo && billingInfo.usage && billingInfo.usage.posts) {
       const { usage, plan } = billingInfo;
@@ -924,16 +838,6 @@ export default function CreatePost() {
     try {
       // Prepare post metadata for platform-specific requirements
       const postMetadata = {};
-      if (platformsToPost.includes('reddit')) {
-        postMetadata.reddit_subreddit = redditSubreddit;
-        postMetadata.reddit_title = redditTitle;
-      }
-
-      if (platforms.includes('pinterest')) {
-        postMetadata.pinterestBoardId = selectedBoard;
-        postMetadata.pinterestTitle = pinterestTitle;
-      }
-
       const response = await api.post('/post/now', {
         text: useVariations && Object.keys(variations).length > 0 ? null : caption,
         variations: useVariations && Object.keys(variations).length > 0 ? variations : undefined,
@@ -1015,6 +919,8 @@ export default function CreatePost() {
   };
 
   const togglePlatform = (platform) => {
+    if (!SUPPORTED_PLATFORMS.includes(platform)) return;
+
     if (platforms.includes(platform)) {
       setPlatforms(platforms.filter(p => p !== platform));
     } else {
@@ -1035,117 +941,17 @@ export default function CreatePost() {
       >
         <div className="mb-6">
           <h1 className="font-display text-3xl text-white mb-1">Create Post</h1>
-          <p className="text-sm text-[#a1a1aa]">Publish to multiple platforms at once</p>
+          <p className="text-sm text-[#a1a1aa]">Create and schedule posts for LinkedIn and X.</p>
         </div>
 
         <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-6 space-y-6">
-          {/* Advanced Options - Reddit Settings & Templates */}
+          {/* Advanced Options */}
           {showAdvanced && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className="space-y-6"
             >
-              {/* Pinterest-Specific Fields */}
-              {platforms.includes('pinterest') && (
-                <div className="space-y-4 bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
-                  <div className="flex items-center gap-2 text-red-300 font-semibold">
-                    <span>📌</span>
-                    <span>Pinterest Settings</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
-                      Pin Title <span className="text-[#52525b]">(Optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={pinterestTitle}
-                      onChange={(e) => setPinterestTitle(e.target.value)}
-                      placeholder="Enter pin title (max 100 chars)"
-                      maxLength={100}
-                      className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors placeholder:text-[#52525b]"
-                    />
-                    <p className="text-xs text-[#52525b] mt-1">
-                      {pinterestTitle.length}/100 characters
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
-                      Board <span className="text-red-400">*</span>
-                    </label>
-                    {pinterestBoards.length > 0 ? (
-                      <select
-                        value={selectedBoard}
-                        onChange={(e) => setSelectedBoard(e.target.value)}
-                        className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 transition-colors"
-                      >
-                        {pinterestBoards.map(board => (
-                          <option key={board.id} value={board.id}>
-                            {board.name} ({board.privacy === 'PUBLIC' ? 'Public' : 'Secret'})
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div className="text-sm text-[#a1a1aa] bg-[#18181b] border border-yellow-500/20 rounded-lg p-3">
-                        ⚠️ No boards found. Please create a board on Pinterest first.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Reddit-Specific Fields */}
-              {platforms.includes('reddit') && (
-                <div className="space-y-4 bg-[#18181b] border border-white/[0.06] rounded-xl p-4">
-                  <div className="flex items-center gap-2 text-orange-300 font-semibold">
-                    <span>🔴</span>
-                    <span>Reddit Settings</span>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
-                      Post Title <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={redditTitle}
-                      onChange={(e) => setRedditTitle(e.target.value)}
-                      placeholder="Enter post title (required for Reddit, max 300 chars)"
-                      maxLength={300}
-                      className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors placeholder:text-[#52525b]"
-                    />
-                    <p className="text-xs text-[#52525b] mt-1">
-                      {redditTitle.length}/300 characters
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#a1a1aa] mb-2">
-                      Subreddit <span className="text-red-400">*</span>
-                    </label>
-                    {moderatedSubreddits.length > 0 ? (
-                      <select
-                        value={redditSubreddit}
-                        onChange={(e) => setRedditSubreddit(e.target.value)}
-                        className="w-full px-4 py-2 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:outline-none focus:border-[#22d3ee]/40 transition-colors"
-                      >
-                        {moderatedSubreddits.map(sub => (
-                          <option key={sub} value={sub}>
-                            r/{sub}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div className="text-sm text-[#a1a1aa] bg-[#18181b] border border-yellow-500/20 rounded-lg p-3">
-                        ⚠️ No moderated subreddits found. You can only post to subreddits where you're a moderator.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
               {/* Load from Template Button */}
               <div className="flex justify-end">
                 <motion.button
@@ -1421,10 +1227,7 @@ export default function CreatePost() {
                       <h5 className="text-white font-bold capitalize flex items-center gap-2">
                         <span className="text-lg">
                           {platform === 'linkedin' && '💼'}
-                          {platform === 'twitter' && '🐦'}
-                          {platform === 'reddit' && '🤖'}
-                          {platform === 'tiktok' && '🎵'}
-                          {platform === 'youtube' && '📹'}
+                          {platform === 'twitter' && 'X'}
                         </span>
                         {platform}
                       </h5>
@@ -1476,10 +1279,10 @@ export default function CreatePost() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setShowYoutubeModal(true)}
+                onClick={() => setShowUrlModal(true)}
                 className="bg-[#22d3ee] text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition"
               >
-                📺 Generate from URL
+                🔗 Generate from URL
               </motion.button>
             </div>
 
@@ -1998,17 +1801,6 @@ export default function CreatePost() {
               </div>
             )}
 
-            {/* TikTok Video Requirement Warning */}
-            {platforms.includes("tiktok") && !videoUrl && (
-              <div className="border border-amber-500/30 bg-amber-900/20 rounded-lg p-3 flex items-center gap-2 mt-4">
-                <span className="text-2xl">⚠️</span>
-                <div>
-                  <div className="font-semibold text-amber-300">Video Required for TikTok</div>
-                  <div className="text-sm text-amber-400">TikTok requires a video file. Please upload a video above to post to TikTok.</div>
-                </div>
-              </div>
-            )}
-
             {/* Post Usage Info */}
             {billingInfo && billingInfo.usage && billingInfo.usage.posts && (
               <div className={`border rounded-lg p-3 mt-4 ${billingInfo.usage.posts.used / billingInfo.usage.posts.limit >= 0.8 ? 'border-yellow-500/30 bg-yellow-900/20' : 'border-white/[0.06] bg-[#18181b]'}`}>
@@ -2351,8 +2143,8 @@ export default function CreatePost() {
             </div>
           )}
 
-          {/* YouTube Modal */}
-          {showYoutubeModal && (
+          {/* URL Modal */}
+          {showUrlModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -2363,10 +2155,10 @@ export default function CreatePost() {
                   <h2 className="text-2xl font-bold text-white">🔗 Generate from URL</h2>
                   <button
                     onClick={() => {
-                      setShowYoutubeModal(false);
-                      setYoutubeUrl('');
-                      setYoutubeInstructions('');
-                      setYoutubeVariations([]);
+                      setShowUrlModal(false);
+                      setSourceUrl('');
+                      setUrlInstructions('');
+                      setUrlVariations([]);
                     }}
                     className="text-[#a1a1aa] hover:text-[#52525b] text-2xl"
                   >
@@ -2375,11 +2167,11 @@ export default function CreatePost() {
                 </div>
 
                 {/* If variations exist, show them */}
-                {youtubeVariations.length > 0 ? (
+                {urlVariations.length > 0 ? (
                   <div>
                     <p className="text-[#a1a1aa] mb-4">Choose one of the generated captions:</p>
                     <div className="space-y-3 mb-6">
-                      {youtubeVariations.map((variation, index) => (
+                      {urlVariations.map((variation, index) => (
                         <motion.button
                           key={index}
                           initial={{ opacity: 0, y: 10 }}
@@ -2387,7 +2179,7 @@ export default function CreatePost() {
                           transition={{ delay: index * 0.1 }}
                           whileHover={{ scale: 1.02, x: 5 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => selectYoutubeVariation(variation)}
+                          onClick={() => selectUrlVariation(variation)}
                           className="w-full p-4 rounded-lg border-2 text-left transition border-white/[0.06] hover:border-red-400 bg-[#18181b]"
                         >
                           <div className="flex items-start gap-3">
@@ -2403,9 +2195,9 @@ export default function CreatePost() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
-                        setYoutubeVariations([]);
-                        setYoutubeUrl('');
-                        setYoutubeInstructions('');
+                        setUrlVariations([]);
+                        setSourceUrl('');
+                        setUrlInstructions('');
                       }}
                       className="w-full bg-white/[0.06] text-[#52525b] py-3 rounded-lg font-semibold hover:bg-white/[0.1] transition"
                     >
@@ -2416,7 +2208,7 @@ export default function CreatePost() {
                   /* If no variations, show the generation form */
                   <div>
                     <p className="text-[#a1a1aa] mb-4">
-                      Enter any URL to generate captions. YouTube videos will use transcripts, other URLs will be scraped for content.
+                      Enter an article, launch page, or news URL to generate captions.
                     </p>
 
                     <div className="mb-4">
@@ -2425,13 +2217,13 @@ export default function CreatePost() {
                       </label>
                       <input
                         type="text"
-                        value={youtubeUrl}
-                        onChange={(e) => setYoutubeUrl(e.target.value)}
-                        placeholder="https://www.youtube.com/watch?v=... or any article URL"
+                        value={sourceUrl}
+                        onChange={(e) => setSourceUrl(e.target.value)}
+                        placeholder="https://example.com/article"
                         className="w-full p-3 bg-[#18181b] border border-white/[0.06] text-white rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-[#52525b]"
                       />
                       <p className="text-xs text-[#52525b] mt-1">
-                        YouTube videos must have captions/transcripts enabled. Other URLs will be scraped for content.
+                        Best for AI news, product launches, essays, and announcement pages.
                       </p>
                     </div>
 
@@ -2440,8 +2232,8 @@ export default function CreatePost() {
                         Special Instructions (Optional)
                       </label>
                       <textarea
-                        value={youtubeInstructions}
-                        onChange={(e) => setYoutubeInstructions(e.target.value)}
+                        value={urlInstructions}
+                        onChange={(e) => setUrlInstructions(e.target.value)}
                         placeholder="E.g., Focus on the marketing tips, make it more casual, emphasize the key takeaways..."
                         className="w-full p-3 bg-[#18181b] border border-white/[0.06] text-white rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-[#52525b]"
                         rows={3}
@@ -2455,20 +2247,20 @@ export default function CreatePost() {
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={generateFromYoutube}
-                        disabled={generatingFromYoutube || !youtubeUrl.trim()}
+                        onClick={generateFromUrl}
+                        disabled={generatingFromUrl || !sourceUrl.trim()}
                         className="flex-1 bg-[#22d3ee] text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
                       >
-                        {generatingFromYoutube ? 'Generating...' : '🔗 Generate'}
+                        {generatingFromUrl ? 'Generating...' : '🔗 Generate'}
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
-                          setShowYoutubeModal(false);
-                          setYoutubeUrl('');
-                          setYoutubeInstructions('');
-                          setYoutubeVariations([]);
+                          setShowUrlModal(false);
+                          setSourceUrl('');
+                          setUrlInstructions('');
+                          setUrlVariations([]);
                         }}
                         className="bg-white/[0.06] text-[#52525b] px-6 py-3 rounded-lg font-semibold hover:bg-white/[0.1] transition"
                       >

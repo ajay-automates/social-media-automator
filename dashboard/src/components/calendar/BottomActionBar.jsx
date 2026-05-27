@@ -11,34 +11,13 @@ import {
   FaTimesCircle,
   FaCheckDouble,
   FaLinkedin,
-  FaTwitter,
-  FaTiktok,
-  FaYoutube,
-  FaReddit,
-  FaDiscord,
-  FaSlack,
-  FaTelegram,
-  FaPinterest,
-  FaMedium,
-  FaTumblr
+  FaTwitter
 } from 'react-icons/fa';
-import { SiMastodon, SiBluesky } from 'react-icons/si';
 
 // Platform configuration
 const PLATFORM_CONFIG = {
   linkedin: { Icon: FaLinkedin, color: '#0A66C2', name: 'LinkedIn' },
   twitter: { Icon: FaTwitter, color: '#1DA1F2', name: 'X' },
-  tiktok: { Icon: FaTiktok, color: '#FE2C55', name: 'TikTok' },
-  youtube: { Icon: FaYoutube, color: '#FF0000', name: 'YouTube' },
-  reddit: { Icon: FaReddit, color: '#FF4500', name: 'Reddit' },
-  discord: { Icon: FaDiscord, color: '#5865F2', name: 'Discord' },
-  slack: { Icon: FaSlack, color: '#4A154B', name: 'Slack' },
-  telegram: { Icon: FaTelegram, color: '#26A5E4', name: 'Telegram' },
-  pinterest: { Icon: FaPinterest, color: '#E60023', name: 'Pinterest' },
-  medium: { Icon: FaMedium, color: '#00AB6C', name: 'Medium' },
-  tumblr: { Icon: FaTumblr, color: '#36465D', name: 'Tumblr' },
-  mastodon: { Icon: SiMastodon, color: '#6364FF', name: 'Mastodon' },
-  bluesky: { Icon: SiBluesky, color: '#1185FE', name: 'Bluesky' },
 };
 
 export default function BottomActionBar({ 

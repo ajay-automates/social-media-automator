@@ -1,34 +1,12 @@
 import { motion } from 'framer-motion';
 import {
   FaLinkedin,
-  FaTwitter,
-  FaTiktok,
-  FaYoutube,
-  FaReddit,
-  FaDiscord,
-  FaSlack,
-  FaTelegram,
-  FaPinterest,
-  FaMedium,
-  FaTumblr
+  FaTwitter
 } from 'react-icons/fa';
-import { SiMastodon, SiBluesky } from 'react-icons/si';
 
 const platformConfig = {
   linkedin: { Icon: FaLinkedin, gradient: 'bg-[#22d3ee]', name: 'LinkedIn' },
   twitter: { Icon: FaTwitter, gradient: '', name: 'Twitter/X' },
-  tiktok: { Icon: FaTiktok, gradient: 'from-black', name: 'TikTok' },
-  youtube: { Icon: FaYoutube, gradient: '', name: 'YouTube' },
-  reddit: { Icon: FaReddit, gradient: '', name: 'Reddit' },
-  discord: { Icon: FaDiscord, gradient: '', name: 'Discord' },
-  slack: { Icon: FaSlack, gradient: 'bg-[#22d3ee]', name: 'Slack' },
-  telegram: { Icon: FaTelegram, gradient: '', name: 'Telegram' },
-  pinterest: { Icon: FaPinterest, gradient: '', name: 'Pinterest' },
-  medium: { Icon: FaMedium, gradient: 'bg-[#18181b]', name: 'Medium' },
-  devto: { Icon: FaMedium, gradient: ' to-black', name: 'Dev.to' },
-  tumblr: { Icon: FaTumblr, gradient: 'bg-[#22d3ee]', name: 'Tumblr' },
-  mastodon: { Icon: SiMastodon, gradient: 'bg-[#22d3ee]', name: 'Mastodon' },
-  bluesky: { Icon: SiBluesky, gradient: 'bg-[#22d3ee]', name: 'Bluesky' },
 };
 
 export default function PlatformChip({ 
@@ -112,4 +90,3 @@ export default function PlatformChip({
     </motion.button>
   );
 }
-

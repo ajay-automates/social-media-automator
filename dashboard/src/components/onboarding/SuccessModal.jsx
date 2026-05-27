@@ -5,28 +5,12 @@ import { celebrateSuccess } from '../../utils/animations';
 
 const platformIcons = {
   linkedin: '🔵',
-  twitter: '🐦',
-  telegram: '✈️',
-  slack: '💼',
-  discord: '💜',
-  reddit: '🔴',
-  devto: '👨‍💻',
-  tumblr: '🎨',
-  mastodon: '🐘',
-  bluesky: '🦋'
+  twitter: 'X'
 };
 
 const platformNames = {
   linkedin: 'LinkedIn',
-  twitter: 'Twitter',
-  telegram: 'Telegram',
-  slack: 'Slack',
-  discord: 'Discord',
-  reddit: 'Reddit',
-  devto: 'Dev.to',
-  tumblr: 'Tumblr',
-  mastodon: 'Mastodon',
-  bluesky: 'Bluesky'
+  twitter: 'X / Twitter'
 };
 
 const tips = [
@@ -43,7 +27,7 @@ const tips = [
   {
     icon: '📊',
     title: 'Track Your Analytics',
-    description: 'Monitor your post performance and engagement across all platforms'
+    description: 'Monitor post performance on LinkedIn and X'
   },
   {
     icon: '🎨',
@@ -54,11 +38,6 @@ const tips = [
     icon: '#️⃣',
     title: 'Use Hashtag Generator',
     description: 'Get trending hashtags to boost your content discoverability'
-  },
-  {
-    icon: '📤',
-    title: 'Bulk Upload Posts',
-    description: 'Upload multiple posts at once via CSV for maximum efficiency'
   }
 ];
 
@@ -67,6 +46,14 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
   const [timeSpent] = useState(Math.floor(Math.random() * 30) + 30); // 30-60 seconds
   const [showTips, setShowTips] = useState(false);
   const [countdown, setCountdown] = useState(10);
+  const resultList = Array.isArray(results)
+    ? results
+    : Object.entries(results || {}).flatMap(([platform, value]) => {
+        const platformResults = Array.isArray(value) ? value : [value];
+        return platformResults
+          .filter(result => result && typeof result === 'object')
+          .map(result => ({ platform: result.platform || platform, ...result }));
+      });
 
   useEffect(() => {
     // Trigger confetti celebration
@@ -109,8 +96,8 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
   };
 
   // Calculate success stats
-  const successfulPosts = results.filter(r => r.success).length;
-  const failedPosts = results.filter(r => !r.success).length;
+  const successfulPosts = resultList.filter(r => r.success).length;
+  const failedPosts = resultList.filter(r => !r.success).length;
 
   return (
     <motion.div
@@ -181,7 +168,7 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
         >
           <h3 className="text-sm font-semibold text-[#a1a1aa] mb-3">✅ PLATFORM STATUS</h3>
           <div className="space-y-2">
-            {results.map((result, index) => (
+            {resultList.map((result, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -291,4 +278,3 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
     </motion.div>
   );
 }
-

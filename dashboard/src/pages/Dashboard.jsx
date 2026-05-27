@@ -69,15 +69,13 @@ function DashboardContent() {
   const [billingInfo, setBillingInfo] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showContentIdeas, setShowContentIdeas] = useState(false);
-  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
   const [draftsCount, setDraftsCount] = useState(0);
-  const [userRole, setUserRole] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingCheckComplete, setOnboardingCheckComplete] = useState(false);
   const { restartOnboarding, goToStep, isNewUser } = useOnboarding();
 
   useEffect(() => {
-    Promise.all([loadDashboardData(), loadBillingInfo(), loadTeamData()])
+    Promise.all([loadDashboardData(), loadBillingInfo(), loadDraftsData()])
       .catch(err => console.error('Error loading dashboard data:', err));
   }, []);
 
@@ -147,15 +145,9 @@ function DashboardContent() {
     } catch { setBillingInfo(null); return null; }
   };
 
-  const loadTeamData = async () => {
+  const loadDraftsData = async () => {
     try {
-      const [workspaceRes, approvalsRes, draftsRes] = await Promise.all([
-        api.get('/workspace/info').catch(() => null),
-        api.get('/notifications/count').catch(() => null),
-        api.get('/posts/drafts').catch(() => null),
-      ]);
-      if (workspaceRes?.data?.success) setUserRole(workspaceRes.data.workspace.role);
-      if (approvalsRes?.data?.success) setPendingApprovalsCount(approvalsRes.data.count || 0);
+      const draftsRes = await api.get('/posts/drafts').catch(() => null);
       if (draftsRes?.data?.success) setDraftsCount(draftsRes.data.drafts?.length || 0);
     } catch { /* silent */ }
   };
@@ -333,16 +325,6 @@ function DashboardContent() {
               <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               Content ideas
             </button>
-            {(userRole === 'owner' || userRole === 'admin') && pendingApprovalsCount > 0 && (
-              <Link to="/approvals">
-                <button className="relative bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-sm font-medium px-4 py-2 rounded-lg hover:bg-yellow-500/20 transition-colors flex items-center gap-2">
-                  Pending approvals
-                  <span className="bg-yellow-500 text-[#0a0a0b] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {pendingApprovalsCount}
-                  </span>
-                </button>
-              </Link>
-            )}
             {draftsCount > 0 && (
               <Link to="/create">
                 <button className="bg-white/[0.06] border border-white/[0.08] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2">

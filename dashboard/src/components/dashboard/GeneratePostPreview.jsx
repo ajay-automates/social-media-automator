@@ -1,31 +1,16 @@
 import { motion } from 'framer-motion';
 import {
-    FaLinkedin, FaTwitter, FaTiktok, FaYoutube,
-    FaReddit, FaDiscord, FaSlack, FaTelegram, FaPinterest,
-    FaMedium, FaTumblr
+    FaLinkedin, FaTwitter
 } from 'react-icons/fa';
-import { SiMastodon, SiBluesky } from 'react-icons/si';
 
 // Reuse the platform config from Calendar.jsx layout
 const PLATFORM_CONFIG = {
     linkedin: { Icon: FaLinkedin, color: '#0A66C2' },
-    twitter: { Icon: FaTwitter, color: '#1DA1F2' },
-    telegram: { Icon: FaTelegram, color: '#26A5E4' },
-    slack: { Icon: FaSlack, color: '#4A154B' },
-    discord: { Icon: FaDiscord, color: '#5865F2' },
-    reddit: { Icon: FaReddit, color: '#FF4500' },
-    medium: { Icon: FaMedium, color: '#00AB6C' },
-    tumblr: { Icon: FaTumblr, color: '#36465D' },
-    mastodon: { Icon: SiMastodon, color: '#6364FF' },
-    bluesky: { Icon: SiBluesky, color: '#1185FE' },
-    youtube: { Icon: FaYoutube, color: '#FF0000' },
-    tiktok: { Icon: FaTiktok, color: '#FE2C55' },
-    pinterest: { Icon: FaPinterest, color: '#E60023' }
+    twitter: { Icon: FaTwitter, color: '#1DA1F2' }
 };
 
 const DISPLAY_PLATFORMS = [
-    'linkedin', 'twitter', 'telegram', 'slack', 'discord',
-    'reddit', 'medium', 'tumblr', 'mastodon', 'bluesky'
+    'linkedin', 'twitter'
 ];
 
 import { useState, useEffect } from 'react';

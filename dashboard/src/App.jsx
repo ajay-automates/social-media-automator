@@ -6,7 +6,6 @@ import { lazy, Suspense } from 'react';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import NotificationBell from './components/NotificationBell';
 import RouteLoadingFallback from './components/ui/RouteLoadingFallback';
 import api from './lib/api';
 
@@ -18,21 +17,12 @@ import CreatePost from './pages/CreatePost';
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const Templates = lazy(() => import('./pages/Templates'));
-const Team = lazy(() => import('./pages/Team'));
 const Settings = lazy(() => import('./pages/Settings'));
 const ConnectAccounts = lazy(() => import('./pages/ConnectAccounts'));
 const Pricing = lazy(() => import('./pages/Pricing'));
-const BulkUpload = lazy(() => import('./pages/BulkUpload'));
-const CreateCarousel = lazy(() => import('./pages/CreateCarousel'));
 const ContentAgent = lazy(() => import('./pages/ContentAgent'));
-const ContentRecycling = lazy(() => import('./pages/ContentRecycling'));
-const Webhooks = lazy(() => import('./pages/Webhooks'));
-const ABTesting = lazy(() => import('./pages/ABTesting'));
-const HashtagAnalytics = lazy(() => import('./pages/HashtagAnalytics'));
-const Approvals = lazy(() => import('./pages/Approvals'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentCancel = lazy(() => import('./pages/PaymentCancel'));
-const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
 const AdminUsers = lazy(() => import('./pages/AdminUsers'));
 const Business = lazy(() => import('./pages/Business'));
 
@@ -97,14 +87,6 @@ function Navigation() {
 
   const secondaryNav = [
     { path: '/templates', label: 'Templates' },
-    { path: '/bulk-upload', label: 'Bulk Upload' },
-    { path: '/carousel', label: 'Carousel' },
-    { path: '/content-recycling', label: 'Recycling' },
-    { path: '/ab-testing', label: 'A/B Testing' },
-    { path: '/hashtag-analytics', label: 'Hashtags' },
-    { path: '/webhooks', label: 'Webhooks' },
-    { path: '/approvals', label: 'Approvals' },
-    { path: '/team', label: 'Team' },
     { path: '/business', label: 'Business Profile' },
     { path: '/settings', label: 'Settings' },
     { path: '/pricing', label: 'Pricing' },
@@ -210,8 +192,6 @@ function Navigation() {
               </div>
             )}
 
-            <NotificationBell />
-
             {/* User avatar + dropdown — desktop */}
             <div className="hidden lg:flex items-center gap-3 pl-3 border-l border-white/[0.06]">
               <span className="text-[13px] text-zinc-400 max-w-[160px] truncate">{user?.email}</span>
@@ -288,19 +268,10 @@ function App() {
                 <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                 <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
                 <Route path="/content-agent" element={<ProtectedRoute><ContentAgent /></ProtectedRoute>} />
-                <Route path="/content-recycling" element={<ProtectedRoute><ContentRecycling /></ProtectedRoute>} />
-                <Route path="/webhooks" element={<ProtectedRoute><Webhooks /></ProtectedRoute>} />
-                <Route path="/carousel" element={<ProtectedRoute><CreateCarousel /></ProtectedRoute>} />
                 <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-                <Route path="/bulk-upload" element={<ProtectedRoute><BulkUpload /></ProtectedRoute>} />
                 <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-                <Route path="/approvals" element={<ProtectedRoute><Approvals /></ProtectedRoute>} />
-                <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
-                <Route path="/accept-invite" element={<ProtectedRoute><AcceptInvitation /></ProtectedRoute>} />
                 <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />
-                <Route path="/ab-testing" element={<ProtectedRoute><ABTesting /></ProtectedRoute>} />
-                <Route path="/hashtag-analytics" element={<ProtectedRoute><HashtagAnalytics /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
                 <Route path="/success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />

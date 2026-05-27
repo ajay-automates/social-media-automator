@@ -478,6 +478,65 @@ app.use('/auth', authLimiter);           // OAuth callbacks - strict (10/15min)
 app.use('/api', apiLimiter);             // General API - moderate (100/15min)
 app.use(publicLimiter);                  // Public routes - lenient (200/15min)
 
+const supportedCreatorPlatforms = new Set(['linkedin', 'twitter']);
+const removedFeaturePrefixes = [
+  '/api/ab-tests',
+  '/api/bulk',
+  '/api/carousel',
+  '/api/content-recycling',
+  '/api/team',
+  '/api/webhooks',
+  '/api/reddit',
+  '/api/pinterest',
+  '/api/tiktok',
+  '/api/posts/pending-approvals',
+  '/api/posts/submit-for-review',
+  '/api/auth/reddit',
+  '/api/auth/telegram',
+  '/api/auth/slack',
+  '/api/auth/discord',
+  '/api/auth/tiktok',
+  '/api/auth/youtube',
+  '/api/auth/pinterest',
+  '/api/auth/tumblr',
+  '/api/auth/mastodon',
+  '/api/auth/bluesky',
+  '/api/auth/devto',
+  '/api/auth/medium',
+  '/auth/reddit',
+  '/auth/tiktok',
+  '/auth/youtube',
+  '/auth/pinterest',
+  '/auth/tumblr',
+  '/auth/medium'
+];
+
+app.use((req, res, next) => {
+  const isRemovedFeature = removedFeaturePrefixes.some(prefix => req.path.startsWith(prefix));
+  const isApprovalAction = /^\/api\/posts\/[^/]+\/(approve|reject|request-changes)$/.test(req.path);
+
+  if (!isRemovedFeature && !isApprovalAction) return next();
+
+  return res.status(410).json({
+    success: false,
+    error: 'This feature has been removed while Social Media Automator focuses on LinkedIn and X.'
+  });
+});
+
+app.use(['/api/post/now', '/api/post/schedule'], (req, res, next) => {
+  const platforms = Array.isArray(req.body?.platforms) ? req.body.platforms : [];
+  const unsupported = platforms.filter(platform => !supportedCreatorPlatforms.has(platform));
+
+  if (unsupported.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: `Unsupported platform(s): ${unsupported.join(', ')}. Only LinkedIn and X are supported.`
+    });
+  }
+
+  return next();
+});
+
 
 // Redirect /auth.html to /auth to ensure env vars are injected (MUST be before static files)
 app.get('/auth.html', (req, res) => {
@@ -548,8 +607,13 @@ if (!require('fs').existsSync(uploadsDir)) {
   console.log('📁 Created uploads directory');
 }
 
-// Start the queue processor
-startScheduler();
+// Start the queue processor unless explicitly disabled for local debugging.
+const schedulerDisabled = process.env.DISABLE_SCHEDULER === 'true';
+if (schedulerDisabled) {
+  console.log('⏸️  Queue processor disabled via DISABLE_SCHEDULER=true');
+} else {
+  startScheduler();
+}
 
 // ============================================
 // PAGE ROUTES (Unprotected)
@@ -8734,7 +8798,7 @@ app.listen(PORT, async () => {
   console.log('🚀 SOCIAL MEDIA AUTOMATOR');
   console.log('='.repeat(50));
   console.log(`\n✅ Server running on http://localhost:${PORT}`);
-  console.log(`✅ Queue processor active`);
+  console.log(`${schedulerDisabled ? '⏸️' : '✅'} Queue processor ${schedulerDisabled ? 'disabled' : 'active'}`);
 
   // Check database connection
   const dbHealthy = await healthCheck();

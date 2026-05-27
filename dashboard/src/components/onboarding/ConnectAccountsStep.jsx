@@ -7,42 +7,15 @@ import PlatformChip from '../ui/PlatformChip';
 
 const platformNames = {
   linkedin: 'LinkedIn',
-  twitter: 'Twitter',
-  telegram: 'Telegram',
-  slack: 'Slack',
-  discord: 'Discord',
-  reddit: 'Reddit',
-  devto: 'Dev.to',
-  tumblr: 'Tumblr',
-  mastodon: 'Mastodon',
-  bluesky: 'Bluesky'
+  twitter: 'X / Twitter'
 };
 
-// Working platforms (10 total)
-const workingPlatforms = ['linkedin', 'twitter', 'telegram', 'slack', 'discord', 'reddit', 'devto', 'tumblr', 'mastodon', 'bluesky'];
+const workingPlatforms = ['linkedin', 'twitter'];
 
 export default function ConnectAccountsStep() {
   const { nextStep, prevStep, updateProgress } = useOnboarding();
   const [connectedAccounts, setConnectedAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Platform-specific modals
-  const [showTelegramModal, setShowTelegramModal] = useState(false);
-  const [showSlackModal, setShowSlackModal] = useState(false);
-  const [showDiscordModal, setShowDiscordModal] = useState(false);
-  const [showDevtoModal, setShowDevtoModal] = useState(false);
-  const [showMastodonModal, setShowMastodonModal] = useState(false);
-  const [showBlueskyModal, setShowBlueskyModal] = useState(false);
-
-  // Token inputs
-  const [telegramToken, setTelegramToken] = useState('');
-  const [slackWebhook, setSlackWebhook] = useState('');
-  const [discordWebhook, setDiscordWebhook] = useState('');
-  const [devtoToken, setDevtoToken] = useState('');
-  const [mastodonInstance, setMastodonInstance] = useState('');
-  const [mastodonToken, setMastodonToken] = useState('');
-  const [blueskyHandle, setBlueskyHandle] = useState('');
-  const [blueskyPassword, setBlueskyPassword] = useState('');
 
   useEffect(() => {
     fetchAccounts();
@@ -53,7 +26,9 @@ export default function ConnectAccountsStep() {
       const response = await api.get('/accounts');
       // Handle different response formats
       const accountsData = response.data?.accounts || response.data || [];
-      const accounts = Array.isArray(accountsData) ? accountsData : [];
+      const accounts = Array.isArray(accountsData)
+        ? accountsData.filter(account => workingPlatforms.includes(account.platform))
+        : [];
       setConnectedAccounts(accounts);
       
       // Update onboarding progress
@@ -86,41 +61,12 @@ export default function ConnectAccountsStep() {
     }
   };
 
-  const handleTokenConnect = async (platform, data) => {
-    try {
-      await api.post(`/auth/${platform}/connect`, data);
-      showSuccess(`${platformNames[platform]} connected successfully!`);
-      
-      // Close modals
-      setShowTelegramModal(false);
-      setShowSlackModal(false);
-      setShowDiscordModal(false);
-      setShowDevtoModal(false);
-      setShowMastodonModal(false);
-      setShowBlueskyModal(false);
-      
-      // Refresh accounts
-      fetchAccounts();
-    } catch (error) {
-      showError(`Failed to connect ${platformNames[platform]}`);
-      console.error(error);
-    }
-  };
-
   const handlePlatformClick = (platform) => {
     if (isPlatformConnected(platform)) return;
 
-    // OAuth platforms
-    if (['linkedin', 'twitter', 'reddit', 'tumblr'].includes(platform)) {
+    if (workingPlatforms.includes(platform)) {
       handleOAuthConnect(platform);
     }
-    // Token/Webhook platforms
-    else if (platform === 'telegram') setShowTelegramModal(true);
-    else if (platform === 'slack') setShowSlackModal(true);
-    else if (platform === 'discord') setShowDiscordModal(true);
-    else if (platform === 'devto') setShowDevtoModal(true);
-    else if (platform === 'mastodon') setShowMastodonModal(true);
-    else if (platform === 'bluesky') setShowBlueskyModal(true);
   };
 
   const isPlatformConnected = (platform) => {
@@ -145,12 +91,12 @@ export default function ConnectAccountsStep() {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-[#a1a1aa] font-semibold">STEP 1 of 3</span>
-            <span className="text-sm text-[#a1a1aa]">{connectedAccounts.length} / 10 platforms</span>
+            <span className="text-sm text-[#a1a1aa]">{connectedAccounts.length} / 2 platforms</span>
           </div>
           <div className="h-2 bg-[#18181b] rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${(connectedAccounts.length / 10) * 100}%` }}
+              animate={{ width: `${(connectedAccounts.length / 2) * 100}%` }}
               className="h-full bg-[#22d3ee]"
             />
           </div>
@@ -161,9 +107,9 @@ export default function ConnectAccountsStep() {
           Connect Your Accounts
         </h2>
         <p className="text-[#a1a1aa] mb-8">
-          {connectedAccounts.length === 0 
-            ? 'Choose at least one platform to continue. You can add more later!'
-            : `Great! ${connectedAccounts.length} connected. Add more or continue to the next step.`}
+          {connectedAccounts.length === 0
+            ? 'Connect LinkedIn or X to continue.'
+            : `Great! ${connectedAccounts.length} connected. Continue when you are ready.`}
         </p>
 
         {/* Platform Grid */}
@@ -215,231 +161,7 @@ export default function ConnectAccountsStep() {
             {canContinue && <span>→</span>}
           </button>
         </div>
-
-        {/* Token Input Modals */}
-        {showTelegramModal && (
-          <TokenInputModal
-            title="Connect Telegram"
-            description="Enter your Telegram Bot Token"
-            placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-            value={telegramToken}
-            onChange={setTelegramToken}
-            onSubmit={() => handleTokenConnect('telegram', { token: telegramToken })}
-            onClose={() => setShowTelegramModal(false)}
-          />
-        )}
-
-        {showSlackModal && (
-          <TokenInputModal
-            title="Connect Slack"
-            description="Enter your Slack Webhook URL"
-            placeholder="https://hooks.slack.com/services/..."
-            value={slackWebhook}
-            onChange={setSlackWebhook}
-            onSubmit={() => handleTokenConnect('slack', { webhookUrl: slackWebhook })}
-            onClose={() => setShowSlackModal(false)}
-          />
-        )}
-
-        {showDiscordModal && (
-          <TokenInputModal
-            title="Connect Discord"
-            description="Enter your Discord Webhook URL"
-            placeholder="https://discord.com/api/webhooks/..."
-            value={discordWebhook}
-            onChange={setDiscordWebhook}
-            onSubmit={() => handleTokenConnect('discord', { webhookUrl: discordWebhook })}
-            onClose={() => setShowDiscordModal(false)}
-          />
-        )}
-
-        {showDevtoModal && (
-          <TokenInputModal
-            title="Connect Dev.to"
-            description="Enter your Dev.to API Token"
-            placeholder="your-dev-to-api-token"
-            value={devtoToken}
-            onChange={setDevtoToken}
-            onSubmit={() => handleTokenConnect('devto', { token: devtoToken })}
-            onClose={() => setShowDevtoModal(false)}
-          />
-        )}
-
-        {showMastodonModal && (
-          <MastodonModal
-            instance={mastodonInstance}
-            token={mastodonToken}
-            onInstanceChange={setMastodonInstance}
-            onTokenChange={setMastodonToken}
-            onSubmit={() => handleTokenConnect('mastodon', { instance: mastodonInstance, accessToken: mastodonToken })}
-            onClose={() => setShowMastodonModal(false)}
-          />
-        )}
-
-        {showBlueskyModal && (
-          <BlueskyModal
-            handle={blueskyHandle}
-            password={blueskyPassword}
-            onHandleChange={setBlueskyHandle}
-            onPasswordChange={setBlueskyPassword}
-            onSubmit={() => handleTokenConnect('bluesky', { handle: blueskyHandle, appPassword: blueskyPassword })}
-            onClose={() => setShowBlueskyModal(false)}
-          />
-        )}
       </motion.div>
     </motion.div>
   );
 }
-
-// Helper Component: Token Input Modal
-function TokenInputModal({ title, description, placeholder, value, onChange, onSubmit, onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-[#111113] border border-white/[0.08] rounded-2xl p-6 max-w-md w-full mx-4"
-      >
-        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-[#a1a1aa] mb-4">{description}</p>
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-4 focus:border-[#22d3ee] focus:outline-none"
-        />
-        <div className="flex gap-3">
-          <button
-            onClick={onSubmit}
-            disabled={!value.trim()}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              value.trim()
-                ? 'bg-[#22d3ee] text-white hover:opacity-90'
-                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
-            }`}
-          >
-            Connect
-          </button>
-          <button
-            onClick={onClose}
-            className="glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-lg font-medium hover:bg-[#111113]"
-          >
-            Cancel
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// Helper Component: Mastodon Modal
-function MastodonModal({ instance, token, onInstanceChange, onTokenChange, onSubmit, onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-[#111113] border border-white/[0.08] rounded-2xl p-6 max-w-md w-full mx-4"
-      >
-        <h3 className="text-2xl font-bold text-white mb-2">Connect Mastodon</h3>
-        <p className="text-[#a1a1aa] mb-4">Enter your Mastodon instance and access token</p>
-        <input
-          type="text"
-          value={instance}
-          onChange={(e) => onInstanceChange(e.target.value)}
-          placeholder="mastodon.social"
-          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-3 focus:border-[#22d3ee] focus:outline-none"
-        />
-        <input
-          type="text"
-          value={token}
-          onChange={(e) => onTokenChange(e.target.value)}
-          placeholder="Access Token"
-          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-4 focus:border-[#22d3ee] focus:outline-none"
-        />
-        <div className="flex gap-3">
-          <button
-            onClick={onSubmit}
-            disabled={!instance.trim() || !token.trim()}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              instance.trim() && token.trim()
-                ? 'bg-[#22d3ee] text-white hover:opacity-90'
-                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
-            }`}
-          >
-            Connect
-          </button>
-          <button
-            onClick={onClose}
-            className="glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-lg font-medium hover:bg-[#111113]"
-          >
-            Cancel
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
-// Helper Component: Bluesky Modal
-function BlueskyModal({ handle, password, onHandleChange, onPasswordChange, onSubmit, onClose }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-3xl"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="bg-[#111113] border border-white/[0.08] rounded-2xl p-6 max-w-md w-full mx-4"
-      >
-        <h3 className="text-2xl font-bold text-white mb-2">Connect Bluesky</h3>
-        <p className="text-[#a1a1aa] mb-4">Enter your Bluesky handle and app password</p>
-        <input
-          type="text"
-          value={handle}
-          onChange={(e) => onHandleChange(e.target.value)}
-          placeholder="username.bsky.social"
-          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-3 focus:border-[#22d3ee] focus:outline-none"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => onPasswordChange(e.target.value)}
-          placeholder="App Password"
-          className="w-full bg-[#18181b] border border-white/[0.06] rounded-lg px-4 py-3 text-white placeholder-[#52525b] mb-4 focus:border-[#22d3ee] focus:outline-none"
-        />
-        <div className="flex gap-3">
-          <button
-            onClick={onSubmit}
-            disabled={!handle.trim() || !password.trim()}
-            className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-all ${
-              handle.trim() && password.trim()
-                ? 'bg-[#22d3ee] text-white hover:opacity-90'
-                : 'bg-[#18181b] text-[#a1a1aa] cursor-not-allowed'
-            }`}
-          >
-            Connect
-          </button>
-          <button
-            onClick={onClose}
-            className="glass border border-white/[0.08] text-[#a1a1aa] px-6 py-3 rounded-lg font-medium hover:bg-[#111113]"
-          >
-            Cancel
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-

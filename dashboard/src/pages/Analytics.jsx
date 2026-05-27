@@ -8,15 +8,6 @@ import { AnalyticsSkeleton } from '../components/ui/LoadingStates';
 import {
   FaLinkedin,
   FaTwitter,
-  FaTiktok,
-  FaYoutube,
-  FaReddit,
-  FaDiscord,
-  FaSlack,
-  FaTelegram,
-  FaTumblr,
-  FaMedium,
-  FaPinterest,
   FaChartLine,
   FaLightbulb,
   FaBrain,
@@ -28,14 +19,10 @@ import {
   FaSync,
   FaTimes
 } from 'react-icons/fa';
-import { SiMastodon, SiBluesky } from 'react-icons/si';
 
 const PLATFORM_META = {
-  youtube:   { label: 'YouTube',    color: '#FF0033', icon: '▶' },
   twitter:   { label: 'Twitter/X',  color: '#1DA1F2', icon: '𝕏' },
   linkedin:  { label: 'LinkedIn',   color: '#0A66C2', icon: 'in' },
-  instagram: { label: 'Instagram',  color: '#E4405F', icon: '📷' },
-  substack:  { label: 'Substack',   color: '#FF6719', icon: '✉' },
 };
 
 function formatNum(n) {
@@ -773,18 +760,6 @@ export default function Analytics() {
                     const platformIcons = {
                       linkedin: { Icon: FaLinkedin, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/20', name: 'LinkedIn' },
                       twitter: { Icon: FaTwitter, color: 'bg-sky-500/20 text-sky-400 border-sky-400/30', name: 'Twitter' },
-                      telegram: { Icon: FaTelegram, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-cyan-400/30', name: 'Telegram' },
-                      youtube: { Icon: FaYoutube, color: 'bg-red-500/20 text-red-400 border-red-400/30', name: 'YouTube' },
-                      reddit: { Icon: FaReddit, color: 'bg-orange-500/20 text-orange-400 border-orange-400/30', name: 'Reddit' },
-                      discord: { Icon: FaDiscord, color: 'bg-indigo-500/20 text-indigo-400 border-indigo-400/30', name: 'Discord' },
-                      slack: { Icon: FaSlack, color: 'bg-[#22d3ee]/10 text-[#a1a1aa] border-[#22d3ee]/20', name: 'Slack' },
-                      tiktok: { Icon: FaTiktok, color: 'bg-white/[0.04] text-[#a1a1aa] border-white/[0.06]', name: 'TikTok' },
-                      tumblr: { Icon: FaTumblr, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/20', name: 'Tumblr' },
-                      devto: { Icon: FaMedium, color: 'bg-[#111113] text-[#a1a1aa] border-white/[0.06]', name: 'Dev.to' },
-                      mastodon: { Icon: SiMastodon, color: 'bg-[#22d3ee]/10 text-[#a1a1aa] border-[#22d3ee]/20', name: 'Mastodon' },
-                      bluesky: { Icon: SiBluesky, color: 'bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/20', name: 'Bluesky' },
-                      medium: { Icon: FaMedium, color: 'bg-[#18181b]/20 text-[#a1a1aa] border-white/[0.06]', name: 'Medium' },
-                      pinterest: { Icon: FaPinterest, color: 'bg-red-600/20 text-red-400 border-red-400/30', name: 'Pinterest' }
                     };
 
                     // Helper function to get post URL from results
@@ -835,29 +810,6 @@ export default function Analytics() {
                             return `https://www.linkedin.com/feed/update/urn:li:ugcPost:${successfulResult.postId}`;
                           } else if (platformLower === 'twitter' || platformLower === 'x') {
                             return `https://twitter.com/i/web/status/${successfulResult.postId}`;
-                          } else if (platformLower === 'telegram') {
-                            if (successfulResult.chatId && successfulResult.messageId) {
-                              const chatIdForUrl = successfulResult.chatId.toString().replace(/^-/, '');
-                              return `https://t.me/c/${chatIdForUrl}/${successfulResult.messageId}`;
-                            }
-                          } else if (platformLower === 'youtube') {
-                            return `https://www.youtube.com/shorts/${successfulResult.postId}`;
-                          } else if (platformLower === 'devto') {
-                            // Dev.to URLs are in format: https://dev.to/username/title-slug
-                            // If we have postId, we can't construct URL without username, so return null
-                            // But if URL was returned, it should be in successfulResult.url above
-                            return null;
-                          } else if (platformLower === 'bluesky') {
-                            // Bluesky URLs need handle and postId
-                            if (successfulResult.account && successfulResult.postId) {
-                              return `https://bsky.app/profile/${successfulResult.account}/post/${successfulResult.postId}`;
-                            } else if (successfulResult.uri) {
-                              // Extract handle and postId from URI
-                              const uriParts = successfulResult.uri.split('/');
-                              const handle = uriParts[uriParts.length - 3];
-                              const postId = uriParts[uriParts.length - 1];
-                              return `https://bsky.app/profile/${handle}/post/${postId}`;
-                            }
                           }
                         }
 
@@ -1231,4 +1183,3 @@ export default function Analytics() {
     </motion.div>
   );
 }
-

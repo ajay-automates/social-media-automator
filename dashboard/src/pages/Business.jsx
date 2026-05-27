@@ -58,8 +58,6 @@ export default function Business() {
     // Social Links
     linkedin_url: '',
     twitter_handle: '',
-    youtube_url: '',
-    tiktok_handle: '',
     
     // Business Details
     tagline: '',
@@ -111,8 +109,6 @@ export default function Business() {
           phone: profile.phone || '',
           linkedin_url: profile.linkedin_url || '',
           twitter_handle: profile.twitter_handle || '',
-          youtube_url: profile.youtube_url || '',
-          tiktok_handle: profile.tiktok_handle || '',
           tagline: profile.tagline || '',
           value_proposition: profile.value_proposition || '',
           target_audience: profile.target_audience || '',
@@ -199,8 +195,6 @@ export default function Business() {
           phone: mergeField(formData.phone, extractedData.phone),
           linkedin_url: mergeField(formData.linkedin_url, extractedData.linkedin_url),
           twitter_handle: mergeField(formData.twitter_handle, extractedData.twitter_handle),
-          youtube_url: mergeField(formData.youtube_url, extractedData.youtube_url),
-          tiktok_handle: mergeField(formData.tiktok_handle, extractedData.tiktok_handle),
           tagline: mergeField(formData.tagline, extractedData.tagline),
           value_proposition: mergeField(formData.value_proposition, extractedData.value_proposition),
           target_audience: mergeField(formData.target_audience, extractedData.target_audience),
@@ -560,27 +554,6 @@ export default function Business() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">YouTube URL</label>
-                  <input
-                    type="url"
-                    value={formData.youtube_url}
-                    onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
-                    placeholder="https://youtube.com/@yourchannel"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-[#a1a1aa] mb-2">TikTok Handle</label>
-                  <input
-                    type="text"
-                    value={formData.tiktok_handle}
-                    onChange={(e) => setFormData({ ...formData, tiktok_handle: e.target.value.replace('@', '') })}
-                    className="w-full bg-[#18181b] border border-white/[0.06] text-white rounded-xl px-4 py-3 placeholder:text-[#a1a1aa] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20 transition-colors "
-                    placeholder="@yourhandle"
-                  />
-                </div>
               </div>
             </div>
           </div>
@@ -924,4 +897,3 @@ export default function Business() {
     </div>
   );
 }
-
