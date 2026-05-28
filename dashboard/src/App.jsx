@@ -15,7 +15,6 @@ import Dashboard from './pages/Dashboard';
 // Lazy load
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Calendar = lazy(() => import('./pages/Calendar'));
-const Templates = lazy(() => import('./pages/Templates'));
 const Settings = lazy(() => import('./pages/Settings'));
 const ConnectAccounts = lazy(() => import('./pages/ConnectAccounts'));
 const Pricing = lazy(() => import('./pages/Pricing'));
@@ -84,7 +83,6 @@ function Navigation() {
   ];
 
   const secondaryNav = [
-    { path: '/templates', label: 'Templates' },
     { path: '/business', label: 'Business Profile' },
     { path: '/settings', label: 'Settings' },
     { path: '/pricing', label: 'Pricing' },
@@ -267,7 +265,6 @@ function App() {
                 <Route path="/create" element={<Navigate to="/content-agent" replace />} />
                 <Route path="/content-agent" element={<ProtectedRoute><ContentAgent /></ProtectedRoute>} />
                 <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-                <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
                 <Route path="/connect-accounts" element={<ProtectedRoute><ConnectAccounts /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
