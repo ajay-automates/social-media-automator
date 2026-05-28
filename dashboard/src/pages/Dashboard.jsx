@@ -8,8 +8,6 @@ import { showError } from '../components/ui/Toast';
 import UpgradeModal from '../components/UpgradeModal';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import ContentIdeasModal from '../components/ContentIdeasModal';
-import { OnboardingProvider, useOnboarding } from '../contexts/OnboardingContext';
-import OnboardingFlow from '../components/onboarding/OnboardingFlow';
 import AINewsFeedSection from '../components/dashboard/AINewsFeedSection';
 
 const statCards = [
@@ -70,9 +68,6 @@ function DashboardContent() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showContentIdeas, setShowContentIdeas] = useState(false);
   const [draftsCount, setDraftsCount] = useState(0);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingCheckComplete, setOnboardingCheckComplete] = useState(false);
-  const { restartOnboarding, goToStep, isNewUser } = useOnboarding();
 
   useEffect(() => {
     Promise.all([loadDashboardData(), loadBillingInfo(), loadDraftsData()])
@@ -80,59 +75,11 @@ function DashboardContent() {
   }, []);
 
   useEffect(() => {
-    if (loading || onboardingCheckComplete) return;
-    const checkAndOpenOnboarding = async () => {
-      try {
-        if (isNewUser) { setShowOnboarding(true); setOnboardingCheckComplete(true); return; }
-        try {
-          const response = await api.get('/accounts');
-          const accounts = response.data?.accounts || response.data || [];
-          if (Array.isArray(accounts) && accounts.length === 0) {
-            restartOnboarding();
-            setShowOnboarding(true);
-          }
-        } catch { /* silent */ }
-      } finally {
-        setOnboardingCheckComplete(true);
-      }
-    };
-    checkAndOpenOnboarding();
-  }, [isNewUser, loading, onboardingCheckComplete, restartOnboarding]);
-
-  useEffect(() => {
     if (location.state?.openContentIdeas) {
       setShowContentIdeas(true);
       window.history.replaceState({}, '');
     }
   }, [location]);
-
-  useEffect(() => {
-    const resumeStep = localStorage.getItem('sma_resume_onboarding_step');
-    if (resumeStep) {
-      const stepNumber = parseInt(resumeStep);
-      localStorage.removeItem('sma_resume_onboarding_step');
-      const storageKey = 'sma_onboarding_state';
-      try {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-          const state = JSON.parse(saved);
-          state.currentStep = stepNumber;
-          state.onboardingComplete = false;
-          state.hasConnectedAccount = true;
-          localStorage.setItem(storageKey, JSON.stringify(state));
-        } else {
-          localStorage.setItem(storageKey, JSON.stringify({
-            isNewUser: false, currentStep: stepNumber, hasConnectedAccount: true,
-            hasCreatedFirstPost: false, onboardingComplete: false, skipped: false, skipCount: 0,
-          }));
-        }
-      } catch { /* silent */ }
-      goToStep(stepNumber);
-      setTimeout(() => loadDashboardData(), 100);
-      setTimeout(() => setShowOnboarding(true), 600);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [goToStep]);
 
   const loadBillingInfo = async () => {
     try {
@@ -185,8 +132,6 @@ function DashboardContent() {
     }
   };
 
-  const handleRestartOnboarding = () => { restartOnboarding(); setShowOnboarding(true); };
-
   if (loading) {
     return <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"><DashboardSkeleton /></div>;
   }
@@ -218,8 +163,6 @@ function DashboardContent() {
 
   return (
     <>
-      {showOnboarding && <OnboardingFlow onComplete={() => setShowOnboarding(false)} />}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
         {/* Stats row */}
@@ -293,12 +236,6 @@ function DashboardContent() {
               >
                 Connect accounts
               </button>
-              <button
-                onClick={handleRestartOnboarding}
-                className="bg-white/[0.06] border border-white/[0.08] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors"
-              >
-                Start tutorial
-              </button>
             </div>
           </motion.div>
         )}
@@ -333,12 +270,6 @@ function DashboardContent() {
                 </button>
               </Link>
             )}
-            <button
-              onClick={handleRestartOnboarding}
-              className="bg-white/[0.06] border border-white/[0.08] text-[#a1a1aa] text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/[0.1] hover:text-white transition-colors"
-            >
-              Tutorial
-            </button>
           </div>
         </div>
 
@@ -372,9 +303,5 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
-  return (
-    <OnboardingProvider>
-      <DashboardContent />
-    </OnboardingProvider>
-  );
+  return <DashboardContent />;
 }

@@ -7,7 +7,8 @@ import {
   FaPlay,
   FaEnvelope,
   FaFileAlt,
-  FaCheck
+  FaCheck,
+  FaWordpress
 } from 'react-icons/fa';
 
 // Platform configuration

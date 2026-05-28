@@ -21,7 +21,8 @@ import {
   FaChevronRight,
   FaChevronDown,
   FaPlus,
-  FaCheckSquare
+  FaCheckSquare,
+  FaMagic
 } from 'react-icons/fa';
 import '../styles/calendar-blaze.css';
 
@@ -340,6 +341,9 @@ export default function Calendar() {
   // State for generating posts
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasBusinessProfile, setHasBusinessProfile] = useState(false);
+  const [calendarDays, setCalendarDays] = useState(7);
+  const [calendarPlatforms, setCalendarPlatforms] = useState(['linkedin', 'twitter']);
+  const [calendarNiches, setCalendarNiches] = useState('SaaS, AI, productivity');
   
   const [connectedPlatforms, setConnectedPlatforms] = useState([]);
   
@@ -522,6 +526,55 @@ export default function Calendar() {
     } catch (err) {
       console.error('Error scheduling posts:', err);
       showError(err.response?.data?.error || 'Failed to schedule posts');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const toggleCalendarPlatform = (platform) => {
+    setCalendarPlatforms(prev =>
+      prev.includes(platform)
+        ? prev.filter(p => p !== platform)
+        : [...prev, platform]
+    );
+  };
+
+  const handleGenerateContentCalendar = async () => {
+    if (calendarPlatforms.length === 0) {
+      showError('Please select at least one platform');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await api.post('/content-agent/generate', {
+        days: calendarDays,
+        platforms: calendarPlatforms,
+        niches: calendarNiches.split(',').map(niche => niche.trim()).filter(Boolean)
+      });
+
+      if (!response.data.success) {
+        showError(response.data.error || 'Failed to generate content calendar');
+        return;
+      }
+
+      const posts = response.data.posts || [];
+      let scheduled = 0;
+
+      for (const post of posts) {
+        try {
+          await api.post(`/content-agent/approve/${post.id}`);
+          scheduled++;
+        } catch (error) {
+          console.error(`Failed to schedule generated post ${post.id}:`, error);
+        }
+      }
+
+      showSuccess(`Generated and scheduled ${scheduled}/${posts.length} posts`);
+      await loadScheduledPosts();
+    } catch (err) {
+      console.error('Content calendar generation failed:', err);
+      showError(err.response?.data?.error || 'Failed to generate content calendar');
     } finally {
       setIsGenerating(false);
     }
@@ -770,6 +823,151 @@ export default function Calendar() {
           >
             <FaPlus style={{ fontSize: '12px' }} />
             Create New
+          </button>
+        </div>
+      </div>
+
+      {/* Content Calendar Generator */}
+      <div style={{ padding: '0 24px 20px 24px' }}>
+        <div style={{
+          background: '#ffffff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '12px',
+          padding: '20px',
+          display: 'grid',
+          gridTemplateColumns: 'minmax(0, 1.2fr) minmax(280px, 0.8fr)',
+          gap: '20px',
+          alignItems: 'end'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+              <div style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '10px',
+                background: '#ecfeff',
+                color: '#0891b2',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <FaMagic />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>
+                  Generate Content Calendar
+                </h2>
+                <p style={{ fontSize: '13px', color: '#6b7280', margin: '2px 0 0 0' }}>
+                  Create and schedule a batch of LinkedIn/X posts.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '6px' }}>
+                  Days
+                </label>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {[7, 14, 30].map(days => (
+                    <button
+                      key={days}
+                      onClick={() => setCalendarDays(days)}
+                      style={{
+                        flex: 1,
+                        padding: '8px 10px',
+                        borderRadius: '8px',
+                        border: calendarDays === days ? '1px solid #0891b2' : '1px solid #e5e7eb',
+                        background: calendarDays === days ? '#ecfeff' : '#fff',
+                        color: calendarDays === days ? '#0891b2' : '#374151',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {days}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '6px' }}>
+                  Platforms
+                </label>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {SUPPORTED_PLATFORMS.map(platform => {
+                    const config = PLATFORM_CONFIG[platform];
+                    const Icon = config.Icon;
+                    const selected = calendarPlatforms.includes(platform);
+
+                    return (
+                      <button
+                        key={platform}
+                        onClick={() => toggleCalendarPlatform(platform)}
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          border: selected ? `1px solid ${config.color}` : '1px solid #e5e7eb',
+                          background: selected ? '#f8fafc' : '#fff',
+                          color: selected ? config.color : '#6b7280',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Icon style={{ fontSize: '13px' }} />
+                        {config.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '6px' }}>
+                  Niches
+                </label>
+                <input
+                  type="text"
+                  value={calendarNiches}
+                  onChange={(e) => setCalendarNiches(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '9px 10px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleGenerateContentCalendar}
+            disabled={isGenerating}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              borderRadius: '10px',
+              border: 'none',
+              background: isGenerating ? '#94a3b8' : '#06b6d4',
+              color: '#08111f',
+              fontWeight: 800,
+              cursor: isGenerating ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <FaMagic />
+            {isGenerating ? 'Generating calendar...' : `Generate ${calendarDays}-Day Calendar`}
           </button>
         </div>
       </div>

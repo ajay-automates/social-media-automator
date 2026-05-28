@@ -80,7 +80,7 @@ function Navigation() {
     { path: '/', label: 'Dashboard', icon: icons.dashboard },
     { path: '/create', label: 'Create', icon: icons.create },
     { path: '/calendar', label: 'Calendar', icon: icons.calendar },
-    { path: '/content-agent', label: 'AI Agent', icon: icons.agent },
+    { path: '/content-agent', label: 'Post Studio', icon: icons.agent },
     { path: '/analytics', label: 'Analytics', icon: icons.analytics },
     { path: '/connect-accounts', label: 'Accounts', icon: icons.accounts },
   ];

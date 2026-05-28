@@ -232,9 +232,11 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
 
     const handleGeneratePost = (article) => {
         console.log('Generate post from:', article);
-        setSelectedArticle(article);
-        setGeneratedContent(generateContentFromArticle(article));
-        setIsPreviewOpen(true);
+        navigate('/content-agent', {
+            state: {
+                studioArticle: article
+            }
+        });
     };
 
     const handleRegenerate = async () => {
