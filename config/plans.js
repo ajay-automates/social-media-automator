@@ -16,11 +16,11 @@ const PLANS = {
       videos: 0,
       voice: 0,
       team: 0,
-      platforms: ['linkedin', 'twitter', 'youtube']
+      platforms: ['linkedin', 'twitter']
     },
     features: [
       '10 posts per month',
-      '5 specific accounts',
+      '5 LinkedIn/X accounts',
       '5 AI post generations',
       '5 Images per month',
       'Community support'
@@ -28,7 +28,6 @@ const PLANS = {
     features_excluded: [
       'Videos',
       'Voice generation',
-      'Team members',
       'API access',
       'White-label'
     ]
@@ -45,17 +44,16 @@ const PLANS = {
       images: 50,
       videos: 20,
       voice: 10,
-      team: 1,
-      platforms: ['linkedin', 'twitter', 'youtube']
+      team: 0,
+      platforms: ['linkedin', 'twitter']
     },
     features: [
       '100 posts per month',
-      'All 20+ accounts',
+      '20 LinkedIn/X accounts',
       'Unlimited AI post gen',
       '50 Images/month',
       '20 Videos',
       '10 Voice generations',
-      '1 Team member',
       'Email support'
     ],
     razorpay_monthly_plan_id: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID,
@@ -73,16 +71,15 @@ const PLANS = {
       images: Infinity,
       videos: Infinity,
       voice: Infinity,
-      team: 5,
-      platforms: ['linkedin', 'twitter', 'youtube']
+      team: 0,
+      platforms: ['linkedin', 'twitter']
     },
     features: [
       'Unlimited posts',
-      'All 20+ accounts',
+      '50 LinkedIn/X accounts',
       'Unlimited AI & Images',
       'Unlimited Videos',
       'Unlimited Voice gen',
-      '5 Team members',
       'API Access',
       'White-label options',
       'Priority support'
@@ -234,7 +231,7 @@ function calculateAnnualSavings(planName) {
 /**
  * Check if a feature is available for a plan
  * @param {string} planName - Plan name
- * @param {string} feature - Feature to check (e.g., 'ai_captions', 'bulk_upload')
+ * @param {string} feature - Feature to check (e.g., 'ai_captions')
  * @returns {boolean} Whether the feature is available
  */
 function hasFeature(planName, feature) {
@@ -242,8 +239,8 @@ function hasFeature(planName, feature) {
 
   const featureMap = {
     'ai_captions': plan.limits.ai > 0,
-    'bulk_upload': planName !== 'free',
-    'all_platforms': plan.limits.platforms.includes('youtube'),
+    'bulk_upload': false,
+    'all_platforms': plan.limits.platforms.includes('linkedin') && plan.limits.platforms.includes('twitter'),
     'api_access': planName === 'business',
     'priority_support': planName === 'business',
     'white_label': planName === 'business',
@@ -300,4 +297,3 @@ module.exports = {
   calculateAnnualSavings,
   hasFeature
 };
-

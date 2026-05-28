@@ -1004,14 +1004,6 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
           error: 'Twitter account not connected. Please connect your Twitter account first.'
         });
       }
-      if (platform === 'telegram') {
-        if (credentials.telegram.length === 0) {
-          return res.status(400).json({
-            success: false,
-            error: 'Telegram bot not connected. Please connect your Telegram bot first.'
-          });
-        }
-      }
     }
 
     const finalImageUrl = imageUrl;
@@ -1151,17 +1143,6 @@ app.post('/api/post/schedule', verifyAuth, async (req, res) => {
           success: false,
           error: 'Twitter account not connected. Please connect your Twitter account first.'
         });
-      }
-      if (platform === 'telegram') {
-        console.log('🔍 Checking Telegram credentials for schedule:');
-        console.log('  - credentials.telegram:', credentials.telegram);
-        console.log('  - accounts count:', credentials.telegram.length);
-        if (credentials.telegram.length === 0) {
-          return res.status(400).json({
-            success: false,
-            error: 'Telegram bot not connected. Please connect your Telegram bot first.'
-          });
-        }
       }
     }
 
@@ -5379,10 +5360,9 @@ app.post('/api/milestones/welcome-email', verifyAuth, async (req, res) => {
 
 // Serve React Dashboard for all non-API routes
 app.get('*', (req, res, next) => {
-  // Skip API routes, auth routes, template CSV, assets, and vite.svg (already served above)
+  // Skip API routes, auth routes, assets, and vite.svg (already served above)
   if (req.path.startsWith('/api/') ||
     req.path.startsWith('/auth') ||
-    req.path.startsWith('/template.csv') ||
     req.path.startsWith('/assets/') ||
     req.path === '/vite.svg') {
     console.log('⏭️  Skipping catch-all for:', req.path);
@@ -5497,7 +5477,6 @@ app.listen(PORT, async () => {
   console.log(`   GET  /api/accounts - List all accounts`);
   console.log(`   POST /api/post/now - Post immediately`);
   console.log(`   POST /api/post/schedule - Schedule a post`);
-  console.log(`   GET  /template.csv - Download CSV template`);
   console.log(`   GET  /api/queue - View queue`);
   console.log(`   DELETE /api/queue/:id - Remove from queue`);
   console.log(`   GET  /api/history - View post history`);
