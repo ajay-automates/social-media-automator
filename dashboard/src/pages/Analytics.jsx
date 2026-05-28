@@ -728,7 +728,7 @@ export default function Analytics() {
           <h2 className="text-2xl font-bold text-white mb-4">Recent Posts</h2>
           {history.length === 0 ? (
             <div className="py-8">
-              <NoHistoryEmpty onCreate={() => window.location.href = '/create'} />
+              <NoHistoryEmpty onCreate={() => window.location.href = '/content-agent'} />
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -925,13 +925,15 @@ export default function Analytics() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => {
-                                // Navigate to create post with prefilled data
-                                const state = {
-                                  clonedCaption: post.text || post.caption,
-                                  clonedPlatforms: platforms,
-                                  clonedImageUrl: post.image_url
-                                };
-                                window.location.href = `/create?clone=${JSON.stringify(state)}`;
+                                window.history.pushState({
+                                  studioDraft: post.text || post.caption,
+                                  studioArticle: {
+                                    title: 'Cloned post',
+                                    description: post.text || post.caption,
+                                    source: 'Analytics'
+                                  }
+                                }, '', '/content-agent');
+                                window.dispatchEvent(new PopStateEvent('popstate'));
                               }}
                               className="px-3 py-1 bg-[#22d3ee]/10 text-[#a1a1aa] border border-white/[0.08] rounded hover:bg-[#22d3ee]/10 transition-all text-xs font-semibold"
                               title="Clone this post"

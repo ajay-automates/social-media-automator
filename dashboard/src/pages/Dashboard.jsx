@@ -242,17 +242,17 @@ function DashboardContent() {
 
         {/* No activity empty state */}
         {hasNoActivity && displayStats.activePlatforms > 0 && (
-          <NoPostsEmpty onCreate={() => navigate('/create')} />
+          <NoPostsEmpty onCreate={() => navigate('/content-agent')} />
         )}
 
         {/* Quick actions */}
         <div className="bg-[#111113] border border-white/[0.06] rounded-xl p-5">
           <h2 className="text-sm font-semibold text-[#52525b] uppercase tracking-wider mb-4">Quick actions</h2>
           <div className="flex flex-wrap gap-3">
-            <Link to="/create">
+            <Link to="/content-agent">
               <button className="bg-[#22d3ee] text-[#0a0a0b] text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#06b6d4] transition-colors flex items-center gap-2">
                 <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Create post
+                Open Post Studio
               </button>
             </Link>
             <button
@@ -263,7 +263,7 @@ function DashboardContent() {
               Content ideas
             </button>
             {draftsCount > 0 && (
-              <Link to="/create">
+              <Link to="/content-agent">
                 <button className="bg-white/[0.06] border border-white/[0.08] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2">
                   Drafts
                   <span className="bg-[#22d3ee]/20 text-[#22d3ee] text-[10px] font-bold px-1.5 py-0.5 rounded-full">{draftsCount}</span>

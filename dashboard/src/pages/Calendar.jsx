@@ -216,12 +216,15 @@ export default function Calendar() {
   };
 
   const handleClonePost = (event) => {
-    const state = {
-      clonedCaption: event.text,
-      clonedPlatforms: event.platforms || [],
-      clonedImageUrl: event.image_url
-    };
-    window.location.href = `/create?clone=${JSON.stringify(state)}`;
+    window.history.pushState({
+      studioDraft: event.text,
+      studioArticle: {
+        title: 'Cloned scheduled post',
+        description: event.text,
+        source: 'Calendar'
+      }
+    }, '', '/content-agent');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   // Multi-select handlers
@@ -816,13 +819,13 @@ export default function Calendar() {
             {selectionMode ? `${selectedPostIds.size} Selected` : 'Select Posts'}
           </button>
 
-          {/* Create New */}
+          {/* Post Studio */}
           <button 
             className="blaze-create-btn"
-            onClick={() => window.location.href = '/create'}
+            onClick={() => window.location.href = '/content-agent'}
           >
             <FaPlus style={{ fontSize: '12px' }} />
-            Create New
+            Post Studio
           </button>
         </div>
       </div>
@@ -1022,7 +1025,7 @@ export default function Calendar() {
           </div>
         ) : events.length === 0 ? (
           <div style={{ padding: '48px' }}>
-            <NoScheduledEmpty onSchedule={() => window.location.href = '/create'} />
+            <NoScheduledEmpty onSchedule={() => window.location.href = '/content-agent'} />
           </div>
         ) : viewType === 'list' ? (
           <div style={{ padding: '24px' }}>
@@ -1070,7 +1073,7 @@ export default function Calendar() {
 
       {/* Bottom Action Bar */}
       <BottomActionBar
-        onCreateClick={() => window.location.href = '/create'}
+        onCreateClick={() => window.location.href = '/content-agent'}
         onGenerateClick={handleGeneratePosts}
         onImproveClick={() => showSuccess('Improve feature coming soon!')}
         isGenerating={isGenerating}

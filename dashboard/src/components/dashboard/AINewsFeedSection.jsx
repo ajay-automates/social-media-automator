@@ -304,13 +304,9 @@ export default function AINewsFeedSection({ news: initialNews, loading: initialL
     };
 
     const handleSchedule = (platforms) => {
-        navigate('/create', {
+        navigate('/content-agent', {
             state: {
-                initialContent: generatedContent,
-                sourceUrl: selectedArticle?.url,
-                type: 'news',
-                schedule: true, // signal to create post page to open schedule
-                platforms: platforms || []
+                studioArticle: selectedArticle
             }
         });
     };

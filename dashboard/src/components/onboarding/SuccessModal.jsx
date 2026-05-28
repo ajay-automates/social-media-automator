@@ -92,7 +92,7 @@ export default function SuccessModal({ results = [], platformCount = 0 }) {
 
   const handlePostAnother = () => {
     finishOnboarding();
-    window.location.href = '/create-post';
+    window.location.href = '/content-agent';
   };
 
   // Calculate success stats

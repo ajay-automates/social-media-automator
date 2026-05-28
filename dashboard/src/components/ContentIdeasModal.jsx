@@ -84,12 +84,13 @@ export default function ContentIdeasModal({ isOpen, onClose }) {
   };
 
   const useIdea = (idea) => {
-    // Navigate to Create Post with pre-filled caption
-    navigate('/create', {
+    navigate('/content-agent', {
       state: {
-        ideaText: idea.title,
-        ideaTopic: topic,
-        platforms: [platform]
+        studioArticle: {
+          title: idea.title,
+          description: topic,
+          source: 'Content Ideas'
+        }
       }
     });
     onClose();

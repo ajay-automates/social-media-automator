@@ -11,7 +11,6 @@ import api from './lib/api';
 
 // Core routes
 import Dashboard from './pages/Dashboard';
-import CreatePost from './pages/CreatePost';
 
 // Lazy load
 const Analytics = lazy(() => import('./pages/Analytics'));
@@ -78,9 +77,8 @@ function Navigation() {
 
   const primaryNav = [
     { path: '/', label: 'Dashboard', icon: icons.dashboard },
-    { path: '/create', label: 'Create', icon: icons.create },
-    { path: '/calendar', label: 'Calendar', icon: icons.calendar },
     { path: '/content-agent', label: 'Post Studio', icon: icons.agent },
+    { path: '/calendar', label: 'Calendar', icon: icons.calendar },
     { path: '/analytics', label: 'Analytics', icon: icons.analytics },
     { path: '/connect-accounts', label: 'Accounts', icon: icons.accounts },
   ];
@@ -266,7 +264,7 @@ function App() {
             <Suspense fallback={<RouteLoadingFallback />}>
               <Routes>
                 <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/create" element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
+                <Route path="/create" element={<Navigate to="/content-agent" replace />} />
                 <Route path="/content-agent" element={<ProtectedRoute><ContentAgent /></ProtectedRoute>} />
                 <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
                 <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
