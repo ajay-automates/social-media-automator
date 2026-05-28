@@ -5,7 +5,6 @@ import {
   FaCommentDots,
   FaHeart,
   FaImage,
-  FaLink,
   FaMagic,
   FaPaperPlane,
   FaRegComment,
@@ -13,11 +12,9 @@ import {
   FaRetweet,
   FaShare,
   FaThumbsUp,
-  FaTimes,
   FaUpload
 } from 'react-icons/fa';
 import api from '../lib/api';
-import PlatformChip from '../components/ui/PlatformChip';
 import { showError, showSuccess } from '../components/ui/Toast';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -259,7 +256,7 @@ export default function ContentAgent() {
   const location = useLocation();
   const { user } = useAuth();
 
-  const [selectedPlatforms, setSelectedPlatforms] = useState(['linkedin', 'twitter']);
+  const selectedPlatforms = ['linkedin', 'twitter'];
   const [studioArticle, setStudioArticle] = useState(() => normalizeArticleForStudio(location.state?.studioArticle));
   const [studioHook, setStudioHook] = useState(hookOptions[0]);
   const [studioCta, setStudioCta] = useState(ctaOptions[0]);
@@ -272,9 +269,6 @@ export default function ContentAgent() {
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
-  const [sourceUrl, setSourceUrl] = useState('');
-  const [urlInstructions, setUrlInstructions] = useState('');
-  const [generatingFromUrl, setGeneratingFromUrl] = useState(false);
   const [aiImagePrompt, setAiImagePrompt] = useState('');
   const [generatingImage, setGeneratingImage] = useState(false);
   const [scheduledDate, setScheduledDate] = useState('');
@@ -297,14 +291,6 @@ export default function ContentAgent() {
       .filter(Boolean)
       .join('\n\n')
     : '';
-
-  const togglePlatform = (platform) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(platform)
-        ? prev.filter(p => p !== platform)
-        : [...prev, platform]
-    );
-  };
 
   const handleGenerateStudioPost = async () => {
     if (!studioArticle) {
@@ -456,41 +442,6 @@ export default function ContentAgent() {
     }
   };
 
-  const generateFromUrl = async () => {
-    if (!sourceUrl.trim()) {
-      showError('Enter a URL first');
-      return;
-    }
-
-    setGeneratingFromUrl(true);
-    try {
-      const response = await api.post('/ai/youtube-caption', {
-        videoUrl: sourceUrl,
-        instructions: urlInstructions,
-        platform: selectedPlatforms[0] || 'linkedin'
-      });
-
-      const variation = response.data.variations?.[0];
-      if (!variation) {
-        showError('No post generated from URL');
-        return;
-      }
-
-      setStudioStory(cleanArticleText(variation));
-      setStudioArticle(normalizeArticleForStudio({
-        title: sourceUrl,
-        description: urlInstructions || variation,
-        url: sourceUrl,
-        source: getDomain(sourceUrl) || 'URL'
-      }));
-      showSuccess('Generated post from URL');
-    } catch (error) {
-      showError(error.response?.data?.error || 'Failed to generate from URL');
-    } finally {
-      setGeneratingFromUrl(false);
-    }
-  };
-
   const generateImage = async () => {
     if (!aiImagePrompt.trim()) {
       showError('Enter an image prompt first');
@@ -552,25 +503,14 @@ export default function ContentAgent() {
                 <p className="text-sm text-[#71717a] mt-1">{studioArticle.source}</p>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {['linkedin', 'twitter'].map(platform => (
-                <PlatformChip
-                  key={platform}
-                  platform={platform}
-                  selected={selectedPlatforms.includes(platform)}
-                  onClick={() => togglePlatform(platform)}
-                  size="sm"
-                />
-              ))}
-              <button
-                onClick={handleGenerateStudioPost}
-                disabled={!studioArticle || studioGenerating}
-                className="px-4 py-2 bg-[#22d3ee] text-[#0a0a0b] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm flex items-center gap-2"
-              >
-                <FaMagic size={13} />
-                {studioGenerating ? 'Generating...' : 'Generate'}
-              </button>
-            </div>
+            <button
+              onClick={handleGenerateStudioPost}
+              disabled={!studioArticle || studioGenerating}
+              className="px-4 py-2 bg-[#22d3ee] text-[#0a0a0b] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm flex items-center gap-2"
+            >
+              <FaMagic size={13} />
+              {studioGenerating ? 'Generating...' : 'Generate'}
+            </button>
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-[280px_minmax(0,1fr)_280px] min-h-[620px]">
@@ -611,60 +551,42 @@ export default function ContentAgent() {
                 </div>
               )}
 
-              <div className="flex-1 flex flex-col">
+              <div className="bg-[#0d0d0f] border border-white/[0.06] rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-white">Post Draft</h3>
                   <span className="text-xs text-[#52525b]">{studioPost.length} characters</span>
                 </div>
+
                 <textarea
                   value={studioStory}
                   onChange={(e) => setStudioStory(e.target.value)}
                   placeholder="Select a topic and generate a post draft..."
-                  className="flex-1 min-h-[330px] w-full resize-none bg-[#0d0d0f] border border-white/[0.08] rounded-lg p-4 text-white text-sm leading-relaxed placeholder-[#52525b] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20"
+                  className="min-h-[390px] w-full resize-none bg-[#0d0d0f] border border-white/[0.08] rounded-lg p-4 text-white text-sm leading-relaxed placeholder-[#52525b] focus:outline-none focus:border-[#22d3ee]/40 focus:ring-1 focus:ring-[#22d3ee]/20"
                 />
-              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <div className="bg-[#0d0d0f] border border-white/[0.06] rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-white">Media</p>
-                      <p className="text-xs text-[#71717a] mt-1">Upload media or generate an image.</p>
-                    </div>
-                    {mediaUrl && (
-                      <button
-                        onClick={() => { setMediaUrl(''); setMediaType(null); }}
-                        className="p-2 rounded-lg text-[#a1a1aa] hover:text-white hover:bg-white/[0.06]"
-                        title="Remove media"
-                      >
-                        <FaTimes size={12} />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
+                <div className="mt-4 pt-4 border-t border-white/[0.06] space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
                     <label className="inline-flex items-center gap-2 px-3 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg hover:bg-white/[0.1] cursor-pointer text-sm font-medium">
                       <FaUpload size={12} />
                       {uploadingMedia ? 'Uploading...' : 'Upload'}
                       <input type="file" accept="image/*,video/*" onChange={handleMediaUpload} className="hidden" disabled={uploadingMedia} />
                     </label>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      value={aiImagePrompt}
-                      onChange={(e) => setAiImagePrompt(e.target.value)}
-                      placeholder="Image prompt..."
-                      className="flex-1 min-w-0 px-3 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-sm text-white placeholder-[#52525b] focus:outline-none focus:border-[#22d3ee]/40"
-                    />
-                    <button
-                      onClick={generateImage}
-                      disabled={generatingImage || !aiImagePrompt.trim()}
-                      className="px-3 py-2 bg-[#22d3ee] text-[#0a0a0b] rounded-lg disabled:opacity-50 text-sm font-semibold flex items-center gap-2"
-                    >
-                      <FaImage size={12} />
-                      {generatingImage ? 'Generating...' : 'AI Image'}
-                    </button>
+                    <div className="flex items-center gap-2 flex-1 min-w-[220px]">
+                      <input
+                        value={aiImagePrompt}
+                        onChange={(e) => setAiImagePrompt(e.target.value)}
+                        placeholder="Image prompt..."
+                        className="flex-1 min-w-0 px-3 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-sm text-white placeholder-[#52525b] focus:outline-none focus:border-[#22d3ee]/40"
+                      />
+                      <button
+                        onClick={generateImage}
+                        disabled={generatingImage || !aiImagePrompt.trim()}
+                        className="px-3 py-2 bg-[#22d3ee] text-[#0a0a0b] rounded-lg disabled:opacity-50 text-sm font-semibold flex items-center gap-2"
+                      >
+                        <FaImage size={12} />
+                        {generatingImage ? 'Generating...' : 'AI Image'}
+                      </button>
+                    </div>
                   </div>
 
                   {mediaUrl && (
@@ -674,34 +596,6 @@ export default function ContentAgent() {
                         : <img src={mediaUrl} alt="Attached media" className="w-full max-h-52 object-cover" />}
                     </div>
                   )}
-                </div>
-
-                <div className="bg-[#0d0d0f] border border-white/[0.06] rounded-lg p-4 space-y-3">
-                  <div>
-                    <p className="text-sm font-semibold text-white">Generate from URL</p>
-                    <p className="text-xs text-[#71717a] mt-1">Paste an article, launch page, or video URL.</p>
-                  </div>
-                  <input
-                    value={sourceUrl}
-                    onChange={(e) => setSourceUrl(e.target.value)}
-                    placeholder="https://example.com/article"
-                    className="w-full px-3 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-sm text-white placeholder-[#52525b] focus:outline-none focus:border-[#22d3ee]/40"
-                  />
-                  <textarea
-                    value={urlInstructions}
-                    onChange={(e) => setUrlInstructions(e.target.value)}
-                    placeholder="Optional instructions..."
-                    rows={3}
-                    className="w-full px-3 py-2 bg-[#18181b] border border-white/[0.06] rounded-lg text-sm text-white placeholder-[#52525b] resize-none focus:outline-none focus:border-[#22d3ee]/40"
-                  />
-                  <button
-                    onClick={generateFromUrl}
-                    disabled={generatingFromUrl || !sourceUrl.trim()}
-                    className="w-full px-3 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg hover:bg-white/[0.1] disabled:opacity-50 text-sm font-medium flex items-center justify-center gap-2"
-                  >
-                    <FaLink size={12} />
-                    {generatingFromUrl ? 'Generating...' : 'Generate from URL'}
-                  </button>
                 </div>
               </div>
 

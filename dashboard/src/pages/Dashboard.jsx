@@ -8,6 +8,7 @@ import { showError } from '../components/ui/Toast';
 import UpgradeModal from '../components/UpgradeModal';
 import AnimatedNumber from '../components/ui/AnimatedNumber';
 import ContentIdeasModal from '../components/ContentIdeasModal';
+import UrlPostModal from '../components/UrlPostModal';
 import AINewsFeedSection from '../components/dashboard/AINewsFeedSection';
 
 const statCards = [
@@ -67,6 +68,7 @@ function DashboardContent() {
   const [billingInfo, setBillingInfo] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showContentIdeas, setShowContentIdeas] = useState(false);
+  const [showUrlPost, setShowUrlPost] = useState(false);
   const [draftsCount, setDraftsCount] = useState(0);
 
   useEffect(() => {
@@ -262,6 +264,13 @@ function DashboardContent() {
               <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               Content ideas
             </button>
+            <button
+              onClick={() => setShowUrlPost(true)}
+              className="bg-white/[0.06] border border-white/[0.08] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2"
+            >
+              <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+              Generate from URL
+            </button>
             {draftsCount > 0 && (
               <Link to="/content-agent">
                 <button className="bg-white/[0.06] border border-white/[0.08] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-white/[0.1] transition-colors flex items-center gap-2">
@@ -297,6 +306,7 @@ function DashboardContent() {
           currentPlan={billingInfo?.plan?.name || 'free'}
         />
         <ContentIdeasModal isOpen={showContentIdeas} onClose={() => setShowContentIdeas(false)} />
+        <UrlPostModal isOpen={showUrlPost} onClose={() => setShowUrlPost(false)} />
       </div>
     </>
   );
