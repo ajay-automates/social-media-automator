@@ -3574,7 +3574,7 @@ app.post('/api/auth/twitter/url', verifyAuth, async (req, res) => {
     console.log('  - Redirect URI:', redirectUri);
     console.log('  - State:', state.substring(0, 20) + '...');
 
-    const authUrl = new URL('https://twitter.com/i/oauth2/authorize');
+    const authUrl = new URL('https://x.com/i/oauth2/authorize');
     authUrl.searchParams.append('response_type', 'code');
     authUrl.searchParams.append('client_id', clientId);
     authUrl.searchParams.append('redirect_uri', redirectUri);
