@@ -69,7 +69,7 @@ async function refreshTwitterToken(userId, platformUserId) {
     console.log('  🔑 Refresh token found, exchanging...');
     
     const response = await axios.post(
-      'https://api.twitter.com/2/oauth2/token',
+      'https://api.x.com/2/oauth2/token',
       new URLSearchParams({
         refresh_token: oauth2RefreshToken,
         grant_type: 'refresh_token',

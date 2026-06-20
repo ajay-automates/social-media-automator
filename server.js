@@ -3382,6 +3382,26 @@ app.post('/api/auth/linkedin/url', verifyAuth, async (req, res) => {
   }
 });
 
+function getOAuthErrorMessage(error, fallback = 'OAuth request failed') {
+  const data = error.response?.data;
+  if (!data) return error.message || fallback;
+  if (typeof data === 'string') return data.replace(/\s+/g, ' ').trim().slice(0, 240) || fallback;
+  return data.error_description || data.message || data.error || fallback;
+}
+
+function logOAuthProviderError(label, error) {
+  const data = error.response?.data;
+  const body = typeof data === 'string'
+    ? data.replace(/\s+/g, ' ').trim().slice(0, 500)
+    : JSON.stringify(data);
+
+  console.error(`${label}:`, {
+    status: error.response?.status,
+    contentType: error.response?.headers?.['content-type'],
+    body: body || error.message
+  });
+}
+
 /**
  * GET /auth/linkedin/callback
  * Handle LinkedIn OAuth callback
@@ -3399,12 +3419,13 @@ app.get('/auth/linkedin/callback', async (req, res) => {
 
     if (error) {
       console.error('LinkedIn OAuth error:', error);
-      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_denied`);
+      const message = req.query.error_description || req.query.error || 'LinkedIn authorization was cancelled or rejected';
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=linkedin_denied&message=${encodeURIComponent(message)}`);
     }
 
     if (!code || !state) {
       console.error('Missing code or state parameter');
-      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_missing_params`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=linkedin_missing_params&message=Missing+LinkedIn+authorization+parameters`);
     }
 
     // Decrypt state to get userId
@@ -3414,7 +3435,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
       console.log('  - Decrypted user ID:', userId);
     } catch (stateError) {
       console.error('State decryption error:', stateError.message);
-      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_invalid_state`);
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=linkedin_invalid_state&message=LinkedIn+authorization+session+expired,+please+try+again`);
     }
 
     // Exchange code for access token
@@ -3423,21 +3444,25 @@ app.get('/auth/linkedin/callback', async (req, res) => {
 
     let tokenResponse;
     try {
-      tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', null, {
-        params: {
+      tokenResponse = await axios.post(
+        'https://www.linkedin.com/oauth/v2/accessToken',
+        new URLSearchParams({
           grant_type: 'authorization_code',
           code,
           client_id: process.env.LINKEDIN_CLIENT_ID,
           client_secret: process.env.LINKEDIN_CLIENT_SECRET,
           redirect_uri: redirectUri
-        },
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         }
-      });
+      );
     } catch (tokenError) {
-      console.error('Token exchange error:', tokenError.response?.data || tokenError.message);
-      return res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_token_exchange_failed`);
+      logOAuthProviderError('LinkedIn token exchange error', tokenError);
+      const msg = getOAuthErrorMessage(tokenError, 'LinkedIn token exchange failed');
+      return res.redirect(`${getFrontendUrl()}/connect-accounts?error=linkedin_token_exchange_failed&message=${encodeURIComponent(msg)}`);
     }
 
     const { access_token, expires_in } = tokenResponse.data;
@@ -3476,7 +3501,7 @@ app.get('/auth/linkedin/callback', async (req, res) => {
     res.redirect(`${getFrontendUrl()}/connect-accounts?connected=linkedin&success=true`);
   } catch (error) {
     console.error('Error in LinkedIn callback:', error.message);
-    res.redirect(`${getFrontendUrl()}/dashboard?error=linkedin_failed`);
+    res.redirect(`${getFrontendUrl()}/connect-accounts?error=linkedin_failed&message=${encodeURIComponent(error.message)}`);
   }
 });
 
@@ -3680,7 +3705,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
         code_verifier: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'missing',
         client_id_in_basic_auth: process.env.TWITTER_CLIENT_ID ? 'yes' : 'missing'
       });
-      tokenResponse = await axios.post('https://api.twitter.com/2/oauth2/token', tokenParams, {
+      tokenResponse = await axios.post('https://api.x.com/2/oauth2/token', tokenParams, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
@@ -3688,12 +3713,12 @@ app.get('/auth/twitter/callback', async (req, res) => {
       });
       console.log('  - Token exchange successful');
     } catch (tokenError) {
+      logOAuthProviderError('Twitter token exchange error', tokenError);
       const twitterError = tokenError.response?.data;
-      console.error('Token exchange error:', twitterError || tokenError.message);
       console.error('  - redirect_uri used:', redirectUri);
       console.error('  - Twitter error code:', twitterError?.error);
       console.error('  - Twitter error description:', twitterError?.error_description);
-      const msg = twitterError?.error_description || twitterError?.error || 'Token exchange failed';
+      const msg = getOAuthErrorMessage(tokenError, 'Twitter token exchange failed');
       return res.redirect(`${callbackFrontendUrl}/connect-accounts?error=twitter_token_exchange_failed&message=${encodeURIComponent(msg)}`);
     }
 
@@ -3702,7 +3727,7 @@ app.get('/auth/twitter/callback', async (req, res) => {
     // Get user profile
     let profile = { id: null, username: 'unknown' };
     try {
-      const profileResponse = await axios.get('https://api.twitter.com/2/users/me', {
+      const profileResponse = await axios.get('https://api.x.com/2/users/me', {
         params: { 'user.fields': 'id,name,username' },
         headers: { 'Authorization': `Bearer ${access_token}` }
       });
