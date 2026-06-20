@@ -3409,23 +3409,6 @@ function logOAuthProviderError(label, error) {
   });
 }
 
-async function exchangeTwitterTokenWithRetry(tokenParams, headers) {
-  const url = 'https://api.x.com/2/oauth2/token';
-  try {
-    return await axios.post(url, tokenParams, { headers });
-  } catch (error) {
-    const isTemporaryHtmlError = error.response?.status >= 500
-      && typeof error.response?.data === 'string'
-      && error.response.data.includes('<html');
-
-    if (!isTemporaryHtmlError) throw error;
-
-    console.warn('Twitter token exchange returned temporary HTML error; retrying once...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return await axios.post(url, tokenParams, { headers });
-  }
-}
-
 /**
  * GET /auth/linkedin/callback
  * Handle LinkedIn OAuth callback
@@ -3729,9 +3712,11 @@ app.get('/auth/twitter/callback', async (req, res) => {
         code_verifier: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'missing',
         client_id_in_basic_auth: process.env.TWITTER_CLIENT_ID ? 'yes' : 'missing'
       });
-      tokenResponse = await exchangeTwitterTokenWithRetry(tokenParams, {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
+      tokenResponse = await axios.post('https://api.x.com/2/oauth2/token', tokenParams, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
+        }
       });
       console.log('  - Token exchange successful');
     } catch (tokenError) {
