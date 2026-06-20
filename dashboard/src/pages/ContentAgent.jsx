@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -21,21 +21,172 @@ import api from '../lib/api';
 import { showError, showSuccess } from '../components/ui/Toast';
 import { useAuth } from '../contexts/AuthContext';
 
-const hookOptions = [
-  'This is the AI shift most people are missing.',
-  'I think this is bigger than it looks.',
-  'Everyone is talking about AI, but this part matters most.',
-  'This is a useful signal for builders and creators.',
-  'The next wave of AI products will not look like the last one.'
+const HOOK_LIBRARY = [
+  {
+    id: 'ai',
+    label: 'AI',
+    items: [
+      'This is the AI shift most people are missing.',
+      'Everyone is talking about AI, but this part matters most.',
+      'The next wave of AI products will not look like the last one.',
+      'This AI trend looks small on the surface, but it changes the game underneath.',
+      'If you are building with AI right now, this is worth paying attention to.',
+      'Most people are reacting to the AI headline. Builders should study the behavior behind it.'
+    ]
+  },
+  {
+    id: 'viral',
+    label: 'Viral',
+    items: [
+      'I think this is bigger than it looks.',
+      'This is going to spread faster than people expect.',
+      'There is a reason this topic is taking over timelines right now.',
+      'This feels like one of those moments people reference six months from now.',
+      'You can tell this one hit a nerve for a reason.',
+      'This is the kind of post people share because it signals where things are heading.'
+    ]
+  },
+  {
+    id: 'contrarian',
+    label: 'Contrarian',
+    items: [
+      'Unpopular opinion: the obvious takeaway is not the important one.',
+      'I think most people are reading this the wrong way.',
+      'Hot take: this matters less for consumers and more for operators.',
+      'The loudest angle is not the most useful angle here.',
+      'The real opportunity is hiding behind the popular narrative.',
+      'I would bet against the common reaction to this story.'
+    ]
+  },
+  {
+    id: 'builder',
+    label: 'Builder',
+    items: [
+      'Builders should be paying close attention to this.',
+      'If you are shipping product right now, there is a lesson in this.',
+      'This is a useful signal for founders, creators, and operators.',
+      'Here is what I would steal from this if I were building today.',
+      'This tells me where smart teams are going to focus next.',
+      'There is a practical product lesson buried in this update.'
+    ]
+  },
+  {
+    id: 'story',
+    label: 'Story',
+    items: [
+      'A year ago this would have sounded unrealistic. Now it is normal.',
+      'This is one of those updates that quietly resets expectations.',
+      'Small headline, big implication.',
+      'This says a lot about where the market is moving next.',
+      'I keep coming back to one thing about this story.',
+      'This is the kind of shift that looks obvious only in hindsight.'
+    ]
+  }
 ];
 
-const ctaOptions = [
-  'Would you use this in your workflow?',
-  'What is your take on this?',
-  'Follow for more AI and startup breakdowns.',
-  'Save this if you are tracking where AI is heading.',
-  'What would you build with this?'
+const CTA_LIBRARY = [
+  {
+    id: 'engagement',
+    label: 'Engage',
+    items: [
+      'What is your take on this?',
+      'Would you use this in your workflow?',
+      'Do you think this changes how people build?',
+      'Curious how you see this playing out.',
+      'What part of this stands out most to you?',
+      'Agree or disagree?'
+    ]
+  },
+  {
+    id: 'creator',
+    label: 'Creator',
+    items: [
+      'What would you build with this?',
+      'How would you turn this into content or product?',
+      'If you had to ship around this trend, where would you start?',
+      'What kind of creator wins if this keeps growing?',
+      'How would you package this insight into a useful offer?',
+      'What would your first experiment be here?'
+    ]
+  },
+  {
+    id: 'viral',
+    label: 'Viral',
+    items: [
+      'Save this if you are tracking where AI is heading.',
+      'Send this to someone building in AI right now.',
+      'Bookmark this one because it will age interestingly.',
+      'Worth sharing with anyone watching the AI market closely.',
+      'Keep this on your radar for the next few weeks.',
+      'This is one to revisit when the next update drops.'
+    ]
+  },
+  {
+    id: 'follow',
+    label: 'Follow',
+    items: [
+      'Follow for more AI and startup breakdowns.',
+      'I share practical AI and growth observations like this every week.',
+      'Follow along if you want signal over noise on AI and startups.',
+      'More founder and creator breakdowns coming soon.',
+      'I am tracking more shifts like this in public.',
+      'Follow if you want sharper takes on what is actually working.'
+    ]
+  },
+  {
+    id: 'community',
+    label: 'Community',
+    items: [
+      'Drop your perspective below.',
+      'Tell me where you think I am wrong.',
+      'I would love to hear how your team is handling this.',
+      'Would you want more breakdowns in this format?',
+      'What should I analyze next?',
+      'Reply with the use case you are most excited about.'
+    ]
+  }
 ];
+
+const SUGGESTION_BATCH_SIZE = 12;
+
+const flattenSuggestionLibrary = (library) => library.flatMap((group) => (
+  group.items.map((item, index) => ({
+    id: `${group.id}-${index}`,
+    categoryId: group.id,
+    categoryLabel: group.label,
+    text: item
+  }))
+));
+
+const shuffleArray = (items) => {
+  const shuffled = [...items];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+
+  return shuffled;
+};
+
+const buildSuggestionFeed = (library, cycles = 6) => {
+  const flattened = flattenSuggestionLibrary(library);
+  const batches = [];
+
+  for (let cycle = 0; cycle < cycles; cycle += 1) {
+    batches.push(
+      ...shuffleArray(flattened).map((item) => ({
+        ...item,
+        feedId: `${item.id}-${cycle}`
+      }))
+    );
+  }
+
+  return batches;
+};
+
+const defaultHook = HOOK_LIBRARY[0].items[0];
+const defaultCta = CTA_LIBRARY[0].items[0];
 
 const studioPlatformOptions = [
   {
@@ -300,13 +451,19 @@ export default function ContentAgent() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const hookFeed = useMemo(() => buildSuggestionFeed(HOOK_LIBRARY), []);
+  const ctaFeed = useMemo(() => buildSuggestionFeed(CTA_LIBRARY), []);
+  const hookCategories = useMemo(() => HOOK_LIBRARY.map((group) => group.label), []);
+  const ctaCategories = useMemo(() => CTA_LIBRARY.map((group) => group.label), []);
 
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
   const [connectedPlatforms, setConnectedPlatforms] = useState([]);
   const [platformsLoading, setPlatformsLoading] = useState(true);
   const [studioArticle, setStudioArticle] = useState(() => normalizeArticleForStudio(location.state?.studioArticle));
-  const [studioHook, setStudioHook] = useState(hookOptions[0]);
-  const [studioCta, setStudioCta] = useState(ctaOptions[0]);
+  const [studioHook, setStudioHook] = useState(defaultHook);
+  const [studioCta, setStudioCta] = useState(defaultCta);
+  const [visibleHookCount, setVisibleHookCount] = useState(18);
+  const [visibleCtaCount, setVisibleCtaCount] = useState(18);
   const [studioStory, setStudioStory] = useState(() => {
     const article = normalizeArticleForStudio(location.state?.studioArticle);
     return location.state?.studioDraft || article?.description || '';
@@ -327,8 +484,10 @@ export default function ContentAgent() {
 
     setStudioArticle(articleFromRoute);
     setStudioStory(location.state?.studioDraft || articleFromRoute.description || '');
-    setStudioHook(hookOptions[0]);
-    setStudioCta(ctaOptions[0]);
+    setStudioHook(defaultHook);
+    setStudioCta(defaultCta);
+    setVisibleHookCount(18);
+    setVisibleCtaCount(18);
     window.history.replaceState({}, '');
   }, [location.state]);
 
@@ -367,6 +526,23 @@ export default function ContentAgent() {
       .filter(Boolean)
       .join('\n\n')
     : '';
+
+  const visibleHookSuggestions = hookFeed.slice(0, visibleHookCount);
+  const visibleCtaSuggestions = ctaFeed.slice(0, visibleCtaCount);
+
+  const handleSuggestionScroll = (event, type) => {
+    const element = event.currentTarget;
+    const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 120;
+
+    if (!nearBottom) return;
+
+    if (type === 'hooks') {
+      setVisibleHookCount((current) => Math.min(current + SUGGESTION_BATCH_SIZE, hookFeed.length));
+      return;
+    }
+
+    setVisibleCtaCount((current) => Math.min(current + SUGGESTION_BATCH_SIZE, ctaFeed.length));
+  };
 
   const toggleStudioPlatform = (platformId) => {
     if (!connectedPlatforms.includes(platformId)) return;
@@ -622,21 +798,56 @@ export default function ContentAgent() {
 
           <div className="grid grid-cols-1 xl:grid-cols-[280px_minmax(0,1fr)_280px] min-h-[620px]">
             <div className="border-b xl:border-b-0 xl:border-r border-white/[0.06] p-4">
-              <h3 className="text-sm font-semibold text-white mb-3">Hooks</h3>
-              <div className="space-y-2">
-                {hookOptions.map((hook) => (
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Hooks</h3>
+                  <p className="text-xs text-[#71717a] mt-1">AI, viral, contrarian, builder, and story-led openers.</p>
+                </div>
+                <span className="text-[11px] uppercase tracking-wide text-[#52525b]">
+                  {visibleHookSuggestions.length} shown
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-3">
+                {hookCategories.map((category) => (
+                  <span
+                    key={category}
+                    className="px-2 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-[11px] font-medium text-[#a1a1aa]"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+
+              <div
+                className="space-y-2 max-h-[680px] overflow-y-auto pr-1"
+                onScroll={(event) => handleSuggestionScroll(event, 'hooks')}
+              >
+                {visibleHookSuggestions.map((hook) => (
                   <button
-                    key={hook}
-                    onClick={() => setStudioHook(hook)}
+                    key={hook.feedId}
+                    onClick={() => setStudioHook(hook.text)}
                     className={`w-full text-left p-3 rounded-lg border text-sm leading-relaxed transition-colors ${
-                      studioHook === hook
+                      studioHook === hook.text
                         ? 'bg-[#22d3ee]/10 border-[#22d3ee]/30 text-[#22d3ee]'
                         : 'bg-[#18181b] border-white/[0.06] text-[#a1a1aa] hover:text-white hover:border-white/[0.14]'
                     }`}
                   >
-                    {hook}
+                    <span className="block text-[11px] uppercase tracking-wide text-[#71717a] mb-1">
+                      {hook.categoryLabel}
+                    </span>
+                    <span>{hook.text}</span>
                   </button>
                 ))}
+
+                {visibleHookCount < hookFeed.length && (
+                  <button
+                    onClick={() => setVisibleHookCount((current) => Math.min(current + SUGGESTION_BATCH_SIZE, hookFeed.length))}
+                    className="w-full rounded-lg border border-dashed border-white/[0.12] px-3 py-3 text-sm text-[#a1a1aa] hover:text-white hover:border-white/[0.24] transition-colors"
+                  >
+                    Load more hooks
+                  </button>
+                )}
               </div>
             </div>
 
@@ -837,21 +1048,56 @@ export default function ContentAgent() {
             </div>
 
             <div className="border-t xl:border-t-0 xl:border-l border-white/[0.06] p-4">
-              <h3 className="text-sm font-semibold text-white mb-3">CTAs</h3>
-              <div className="space-y-2">
-                {ctaOptions.map((cta) => (
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-white">CTAs</h3>
+                  <p className="text-xs text-[#71717a] mt-1">Mix in engagement, follow, creator, and community prompts.</p>
+                </div>
+                <span className="text-[11px] uppercase tracking-wide text-[#52525b]">
+                  {visibleCtaSuggestions.length} shown
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-3">
+                {ctaCategories.map((category) => (
+                  <span
+                    key={category}
+                    className="px-2 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-[11px] font-medium text-[#a1a1aa]"
+                  >
+                    {category}
+                  </span>
+                ))}
+              </div>
+
+              <div
+                className="space-y-2 max-h-[680px] overflow-y-auto pr-1"
+                onScroll={(event) => handleSuggestionScroll(event, 'ctas')}
+              >
+                {visibleCtaSuggestions.map((cta) => (
                   <button
-                    key={cta}
-                    onClick={() => setStudioCta(cta)}
+                    key={cta.feedId}
+                    onClick={() => setStudioCta(cta.text)}
                     className={`w-full text-left p-3 rounded-lg border text-sm leading-relaxed transition-colors ${
-                      studioCta === cta
+                      studioCta === cta.text
                         ? 'bg-[#22d3ee]/10 border-[#22d3ee]/30 text-[#22d3ee]'
                         : 'bg-[#18181b] border-white/[0.06] text-[#a1a1aa] hover:text-white hover:border-white/[0.14]'
                     }`}
                   >
-                    {cta}
+                    <span className="block text-[11px] uppercase tracking-wide text-[#71717a] mb-1">
+                      {cta.categoryLabel}
+                    </span>
+                    <span>{cta.text}</span>
                   </button>
                 ))}
+
+                {visibleCtaCount < ctaFeed.length && (
+                  <button
+                    onClick={() => setVisibleCtaCount((current) => Math.min(current + SUGGESTION_BATCH_SIZE, ctaFeed.length))}
+                    className="w-full rounded-lg border border-dashed border-white/[0.12] px-3 py-3 text-sm text-[#a1a1aa] hover:text-white hover:border-white/[0.24] transition-colors"
+                  >
+                    Load more CTAs
+                  </button>
+                )}
               </div>
             </div>
           </div>
