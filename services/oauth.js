@@ -554,7 +554,15 @@ async function getUserCredentialsForPosting(userId) {
         }
 
         if (!twitterCreds.accessTokenOAuth1) {
-          console.log('   ⚠️  OAuth 2.0 only - media uploads will fail (missing OAuth 1.0a access token)');
+          const envAccessToken = process.env.TWITTER_ACCESS_TOKEN;
+          const envAccessSecret = process.env.TWITTER_ACCESS_SECRET;
+          if (envAccessToken && envAccessSecret) {
+            twitterCreds.accessTokenOAuth1 = envAccessToken;
+            twitterCreds.accessSecret = envAccessSecret;
+            console.log('   ✅ OAuth 1.0a access token found from environment - media uploads enabled');
+          } else {
+            console.log('   ⚠️  OAuth 2.0 only - media uploads will fail (missing OAuth 1.0a access token)');
+          }
         }
 
         credentials.twitter.push(twitterCreds);
@@ -583,4 +591,3 @@ module.exports = {
   getUserConnectedAccounts,
   getUserCredentialsForPosting
 };
-
