@@ -1,5 +1,7 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
+const POST_GENERATION_MODEL = 'claude-sonnet-4-6';
+
 /**
  * Platform-specific prompt templates
  */
@@ -63,7 +65,7 @@ async function generateCaption(topic, niche, platform = 'linkedin') {
     
     for (let i = 0; i < 3; i++) {
       const message = await makeAICall({
-        model: 'claude-3-5-haiku-20241022', // Use cheapest model
+        model: POST_GENERATION_MODEL,
         max_tokens: 1024,
         temperature: 0.9, // Higher temperature for more creative variations
         messages: [
@@ -180,7 +182,7 @@ ${platform === 'linkedin' ? '- Use professional, industry-related hashtags' : ''
 ${platform === 'twitter' ? '- Keep them concise and trending' : ''}`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 512,
       temperature: 0.7,
       messages: [
@@ -257,7 +259,7 @@ Return ONLY a JSON array with this exact format (no markdown, no code blocks, ju
 Make recommendations practical and actionable for the upcoming week.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 512,
       temperature: 0.5,
       messages: [
@@ -411,7 +413,7 @@ IMPORTANT RULES:
 7. Return ONLY valid JSON, nothing else`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2048,
       temperature: 0.7,
       messages: [
@@ -553,7 +555,7 @@ IMPORTANT:
 - Return ONLY valid JSON array with ${count} ideas`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 3000,
       temperature: 0.8, // Higher creativity for diverse ideas
       messages: [
@@ -635,7 +637,7 @@ Return ONLY valid JSON format:
 }`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1500,
       temperature: 0.7,
       messages: [{ role: 'user', content: prompt }]
@@ -726,7 +728,7 @@ Return ONLY valid JSON format:
     }
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       temperature: 0.8,
       messages: [{
@@ -839,7 +841,7 @@ Return ONLY valid JSON format:
     });
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2500,
       temperature: 0.7,
       messages: [{

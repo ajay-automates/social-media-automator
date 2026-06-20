@@ -61,6 +61,12 @@ const normalizeArticleForStudio = (article) => {
   };
 };
 
+const buildFallbackStory = (article) => cleanArticleText([
+  article?.title,
+  article?.description && `Why it matters: ${article.description}`,
+  article?.url && `Source: ${article.url}`
+].filter(Boolean).join('\n\n'));
+
 const getDomain = (url = '') => {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
@@ -300,23 +306,44 @@ export default function ContentAgent() {
 
     setStudioGenerating(true);
     try {
-      const response = await api.post('/news/generate-posts', {
-        article: studioArticle,
-        count: 1,
-        multipleAngles: false,
-        platforms: selectedPlatforms
+      const response = await api.post('/ai/generate', {
+        topic: [
+          studioArticle.title,
+          studioArticle.description,
+          studioArticle.url && `Source: ${studioArticle.url}`
+        ].filter(Boolean).join('\n\n'),
+        niche: 'AI, startups, and creator growth',
+        platform: 'linkedin'
       });
 
-      const post = response.data?.posts?.[0];
-      if (!response.data?.success || !post?.caption) {
-        showError(response.data?.error || 'Failed to generate post');
+      const generatedPost = response.data?.variations?.[0];
+      if (!response.data?.success || !generatedPost) {
+        console.error('Post generation returned no draft:', response.data);
+        const fallbackStory = buildFallbackStory(studioArticle);
+        if (fallbackStory) {
+          setStudioStory(fallbackStory);
+          showError(response.data?.error || 'AI generation failed, so a source-based draft was created');
+        } else {
+          showError(response.data?.error || 'Failed to generate post');
+        }
         return;
       }
 
-      setStudioStory(cleanArticleText(post.caption));
+      setStudioStory(cleanArticleText(generatedPost));
       showSuccess('Post draft generated');
     } catch (error) {
-      showError(error.response?.data?.error || 'Failed to generate post');
+      console.error('Post generation request failed:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      const fallbackStory = buildFallbackStory(studioArticle);
+      if (fallbackStory) {
+        setStudioStory(fallbackStory);
+        showError(error.response?.data?.error || 'AI generation failed, so a source-based draft was created');
+      } else {
+        showError(error.response?.data?.error || 'Failed to generate post');
+      }
     } finally {
       setStudioGenerating(false);
     }

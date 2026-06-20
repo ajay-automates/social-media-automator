@@ -2,7 +2,7 @@ import axios from 'axios';
 import { supabase } from './supabase';
 
 const api = axios.create({
-  baseURL: '/api', // Use relative URL for production compatibility
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 });
 
 // Add auth token to all requests
@@ -55,4 +55,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

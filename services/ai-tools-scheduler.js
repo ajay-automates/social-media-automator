@@ -534,7 +534,7 @@ async function generateDailyAIToolsList(count = 10) {
     const maxTokens = Math.max(1000, count * 150); // At least 150 tokens per topic
     
     const message = await makeAICall({
-        model: 'claude-3-5-haiku-20241022', // Use Haiku for topic selection (80% cheaper, still accurate)
+        model: 'claude-haiku-4-5-20251001', // Use Haiku for topic selection (80% cheaper, still accurate)
         max_tokens: Math.min(maxTokens, 4000), // Cap at 4000, but scale with count
         temperature: 0.3, // Lower temperature for more factual selection
         messages: [{ role: 'user', content: prompt }],
@@ -649,7 +649,7 @@ async function generateToolPostContent(tool) {
   }`;
 
     const message = await makeAICall({
-        model: 'claude-3-5-haiku-20241022', // Use cheapest model
+        model: 'claude-haiku-4-5-20251001', // Use cheapest model
         max_tokens: 1000,
         temperature: 0.7,
         messages: [{ role: 'user', content: prompt }],
@@ -867,7 +867,7 @@ Return ONLY a JSON array with ${count} items in this format:
         const maxTokens = Math.max(1500, count * 200);
         
         const message = await makeAICall({
-            model: 'claude-3-5-haiku-20241022', // Use Haiku for topic extraction (80% cheaper)
+            model: 'claude-haiku-4-5-20251001', // Use Haiku for topic extraction (80% cheaper)
             max_tokens: Math.min(maxTokens, 4000), // Scale with count, cap at 4000
             temperature: 0.7,
             messages: [{ role: 'user', content: prompt }],
@@ -935,7 +935,7 @@ Return ONLY valid JSON:
 }`;
 
     const message = await makeAICall({
-        model: 'claude-3-5-haiku-20241022', // Use cheapest model
+        model: 'claude-haiku-4-5-20251001', // Use cheapest model
         max_tokens: 1000,
         temperature: 0.7,
         messages: [{ role: 'user', content: prompt }],
@@ -1001,7 +1001,7 @@ Generate exactly ${count} topics. Make them diverse and engaging.`;
         const maxTokens = Math.max(2000, count * 200);
         
         const message = await makeAICall({
-            model: 'claude-3-5-haiku-20241022', // Use Haiku for topic generation (80% cheaper)
+            model: 'claude-haiku-4-5-20251001', // Use Haiku for topic generation (80% cheaper)
             max_tokens: Math.min(maxTokens, 4000), // Scale with count, cap at 4000
             temperature: 0.7, // Slightly lower for more consistent topics
             messages: [{ role: 'user', content: prompt }],
@@ -1165,7 +1165,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
 
     try {
         const message = await makeAICall({
-            model: 'claude-3-5-haiku-20241022', // Use cheapest model
+            model: 'claude-haiku-4-5-20251001', // Use cheapest model
             max_tokens: 2000,
             temperature: 0.8,
             messages: [{ role: 'user', content: prompt }],

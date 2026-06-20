@@ -16,6 +16,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+const POST_GENERATION_MODEL = 'claude-sonnet-4-6';
+
 /**
  * Content types distribution for balanced calendar
  */
@@ -204,7 +206,7 @@ Return ONLY a valid JSON array of exactly ${count} topic strings.\n["Topic 1", "
     }
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2048,
       temperature: 0.9,
       messages: [{ role: 'user', content: prompt }]
@@ -616,7 +618,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
 
       try {
         const message = await anthropic.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: POST_GENERATION_MODEL,
           max_tokens: 800,
           temperature: 0.85,
           messages: [{ role: 'user', content: prompt }]

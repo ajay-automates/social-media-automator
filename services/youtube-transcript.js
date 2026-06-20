@@ -158,7 +158,7 @@ CAPTION 3:
 [your third caption here]`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2048,
       temperature: 0.9, // Higher temperature for more creative variations
       messages: [

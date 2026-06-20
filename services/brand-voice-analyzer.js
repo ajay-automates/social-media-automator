@@ -348,7 +348,7 @@ Return ONLY a JSON object with these exact fields:
 Return ONLY valid JSON, no additional text.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1500,
       temperature: 0.3,
       messages: [{
@@ -656,7 +656,7 @@ CRITICAL INSTRUCTIONS:
 Caption:`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 1024,
       temperature: 0.8,
       messages: [{

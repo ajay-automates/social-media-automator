@@ -291,7 +291,7 @@ For each topic, score 0-100 how relevant it is to the user's niches:
 Return ONLY a JSON array of numbers [score1, score2, ...], no additional text.`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 512,
       temperature: 0.3,
       messages: [{
@@ -460,7 +460,7 @@ async function fetchKeywordTrendingData(keyword, days = 7) {
         });
 
         const message = await anthropic.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-6',
           max_tokens: 500,
           temperature: 0.5,
           messages: [{

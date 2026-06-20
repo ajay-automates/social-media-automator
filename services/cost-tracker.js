@@ -16,26 +16,18 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Claude API Pricing (per 1M tokens)
 const PRICING = {
-  'claude-3-5-haiku-20241022': {
-    input: 0.25,   // $0.25 per 1M input tokens
-    output: 1.25  // $1.25 per 1M output tokens
+  'claude-haiku-4-5-20251001': {
+    input: 1.00,   // $1.00 per 1M input tokens
+    output: 5.00   // $5.00 per 1M output tokens
   },
-  'claude-3-haiku-20240307': {
-    input: 0.25,
-    output: 1.25
-  },
-  'claude-sonnet-4-20250514': {
+  'claude-sonnet-4-6': {
     input: 3.00,   // $3.00 per 1M input tokens
     output: 15.00  // $15.00 per 1M output tokens
-  },
-  'claude-sonnet-4-5-20250929': {
-    input: 3.00,
-    output: 15.00
   }
 };
 
 // Default to cheapest model
-const DEFAULT_MODEL = 'claude-3-5-haiku-20241022';
+const DEFAULT_MODEL = 'claude-haiku-4-5-20251001';
 
 // Global spending limits (can be overridden via environment variables)
 // Increased defaults to allow more usage - user can still override via env vars
@@ -73,12 +65,12 @@ function estimateCost(model, inputTokens, maxOutputTokens) {
 function getCheapestModel(taskType = 'simple') {
   // For most tasks, Haiku is sufficient and cheapest
   if (taskType === 'simple' || taskType === 'topic_selection' || taskType === 'summarization') {
-    return 'claude-3-5-haiku-20241022';
+    return DEFAULT_MODEL;
   }
   
   // For complex tasks, still use Haiku (it's good enough)
   // Only use Sonnet if absolutely necessary (not recommended for cost savings)
-  return 'claude-3-5-haiku-20241022';
+  return DEFAULT_MODEL;
 }
 
 /**
@@ -248,4 +240,3 @@ module.exports = {
   DAILY_SPEND_LIMIT,
   MONTHLY_SPEND_LIMIT
 };
-

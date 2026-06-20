@@ -610,7 +610,7 @@ Make recommendations specific, actionable, and data-driven. Be honest about both
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       temperature: 0.3,
       messages: [{
@@ -793,7 +793,7 @@ Format as JSON:
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       temperature: 0.2,
       messages: [{
@@ -842,7 +842,7 @@ async function saveDraftScore(userId, postId, caption, platforms, hasImage, hasV
       suggestions: score.suggestions,
       compared_to_best: score.comparedToBest,
       compared_to_avg: score.comparedToAvg,
-      model_version: 'claude-sonnet-4-20250514',
+      model_version: 'claude-sonnet-4-6',
     });
 
   if (error) {

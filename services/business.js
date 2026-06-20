@@ -273,7 +273,7 @@ IMPORTANT RULES:
 Content: ${scrapedContent.substring(0, 8000)}`;
 
         const summaryMessage = await makeAICall({
-          model: 'claude-3-5-haiku-20241022', // Use Haiku for summarization (cheaper)
+          model: 'claude-haiku-4-5-20251001', // Use Haiku for summarization (cheaper)
           max_tokens: 1000,
           temperature: 0.2,
           messages: [{ role: 'user', content: summaryPrompt }],
@@ -293,7 +293,7 @@ Content: ${scrapedContent.substring(0, 8000)}`;
     const optimizedPrompt = prompt.replace(scrapedContent, summarizedContent);
 
     const message = await makeAICall({
-      model: 'claude-3-5-haiku-20241022', // Use cheapest model (Haiku is good enough for extraction)
+      model: 'claude-haiku-4-5-20251001', // Use cheapest model (Haiku is good enough for extraction)
       max_tokens: 3000, // Reduced from 4000 - structured data is concise
       temperature: 0.3, // Lower temperature for more accurate extraction
       messages: [{ role: 'user', content: optimizedPrompt }],
