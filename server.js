@@ -3385,7 +3385,14 @@ app.post('/api/auth/linkedin/url', verifyAuth, async (req, res) => {
 function getOAuthErrorMessage(error, fallback = 'OAuth request failed') {
   const data = error.response?.data;
   if (!data) return error.message || fallback;
-  if (typeof data === 'string') return data.replace(/\s+/g, ' ').trim().slice(0, 240) || fallback;
+  if (typeof data === 'string') {
+    if (data.trim().startsWith('<!DOCTYPE html') || data.trim().startsWith('<html')) {
+      return error.response?.status >= 500
+        ? `${fallback}. The provider returned a temporary server error. Please try again in a few minutes.`
+        : fallback;
+    }
+    return data.replace(/\s+/g, ' ').trim().slice(0, 240) || fallback;
+  }
   return data.error_description || data.message || data.error || fallback;
 }
 
@@ -3400,6 +3407,23 @@ function logOAuthProviderError(label, error) {
     contentType: error.response?.headers?.['content-type'],
     body: body || error.message
   });
+}
+
+async function exchangeTwitterTokenWithRetry(tokenParams, headers) {
+  const url = 'https://api.x.com/2/oauth2/token';
+  try {
+    return await axios.post(url, tokenParams, { headers });
+  } catch (error) {
+    const isTemporaryHtmlError = error.response?.status >= 500
+      && typeof error.response?.data === 'string'
+      && error.response.data.includes('<html');
+
+    if (!isTemporaryHtmlError) throw error;
+
+    console.warn('Twitter token exchange returned temporary HTML error; retrying once...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return await axios.post(url, tokenParams, { headers });
+  }
 }
 
 /**
@@ -3705,11 +3729,9 @@ app.get('/auth/twitter/callback', async (req, res) => {
         code_verifier: codeVerifier ? codeVerifier.substring(0, 10) + '...' : 'missing',
         client_id_in_basic_auth: process.env.TWITTER_CLIENT_ID ? 'yes' : 'missing'
       });
-      tokenResponse = await axios.post('https://api.x.com/2/oauth2/token', tokenParams, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
-        }
+      tokenResponse = await exchangeTwitterTokenWithRetry(tokenParams, {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${Buffer.from(`${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`).toString('base64')}`
       });
       console.log('  - Token exchange successful');
     } catch (tokenError) {
