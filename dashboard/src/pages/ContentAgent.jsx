@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   FaCommentDots,
+  FaCheck,
   FaHeart,
   FaImage,
+  FaLinkedin,
   FaMagic,
   FaPaperPlane,
   FaRegComment,
@@ -12,6 +14,7 @@ import {
   FaRetweet,
   FaShare,
   FaThumbsUp,
+  FaTwitter,
   FaUpload
 } from 'react-icons/fa';
 import api from '../lib/api';
@@ -32,6 +35,25 @@ const ctaOptions = [
   'Follow for more AI and startup breakdowns.',
   'Save this if you are tracking where AI is heading.',
   'What would you build with this?'
+];
+
+const studioPlatformOptions = [
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    shortLabel: 'LinkedIn',
+    Icon: FaLinkedin,
+    accentClass: 'text-[#0a66c2]',
+    activeClass: 'border-[#0a66c2]/50 bg-[#0a66c2]/10'
+  },
+  {
+    id: 'twitter',
+    label: 'X / Twitter',
+    shortLabel: 'X',
+    Icon: FaTwitter,
+    accentClass: 'text-sky-400',
+    activeClass: 'border-sky-400/50 bg-sky-400/10'
+  }
 ];
 
 const cleanArticleText = (value = '') => String(value)
@@ -262,7 +284,9 @@ export default function ContentAgent() {
   const location = useLocation();
   const { user } = useAuth();
 
-  const selectedPlatforms = ['linkedin', 'twitter'];
+  const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+  const [connectedPlatforms, setConnectedPlatforms] = useState([]);
+  const [platformsLoading, setPlatformsLoading] = useState(true);
   const [studioArticle, setStudioArticle] = useState(() => normalizeArticleForStudio(location.state?.studioArticle));
   const [studioHook, setStudioHook] = useState(hookOptions[0]);
   const [studioCta, setStudioCta] = useState(ctaOptions[0]);
@@ -291,12 +315,51 @@ export default function ContentAgent() {
     window.history.replaceState({}, '');
   }, [location.state]);
 
+  useEffect(() => {
+    const fetchConnectedPlatforms = async () => {
+      setPlatformsLoading(true);
+      try {
+        const response = await api.get('/accounts');
+        const accounts = response.data?.accounts || response.data || [];
+        const supportedPlatformIds = studioPlatformOptions.map(platform => platform.id);
+        const platforms = [...new Set(accounts
+          .map(account => account.platform)
+          .filter(platform => supportedPlatformIds.includes(platform)))];
+
+        setConnectedPlatforms(platforms);
+        setSelectedPlatforms(previous => {
+          const stillConnected = previous.filter(platform => platforms.includes(platform));
+          return stillConnected.length > 0 ? stillConnected : platforms;
+        });
+      } catch (error) {
+        console.error('Failed to fetch connected platforms:', error);
+        setConnectedPlatforms([]);
+        setSelectedPlatforms([]);
+        showError('Could not load connected platforms');
+      } finally {
+        setPlatformsLoading(false);
+      }
+    };
+
+    fetchConnectedPlatforms();
+  }, []);
+
   const studioPost = studioStory.trim()
     ? [studioHook, studioStory, studioCta]
       .map(part => part?.trim())
       .filter(Boolean)
       .join('\n\n')
     : '';
+
+  const toggleStudioPlatform = (platformId) => {
+    if (!connectedPlatforms.includes(platformId)) return;
+
+    setSelectedPlatforms(previous => (
+      previous.includes(platformId)
+        ? previous.filter(platform => platform !== platformId)
+        : [...previous, platformId]
+    ));
+  };
 
   const handleGenerateStudioPost = async () => {
     if (!studioArticle) {
@@ -627,6 +690,61 @@ export default function ContentAgent() {
               </div>
 
               <div className="bg-[#0d0d0f] border border-white/[0.06] rounded-lg p-4">
+                <div className="flex flex-col gap-1 mb-4">
+                  <h3 className="text-sm font-semibold text-white">Where should this post go?</h3>
+                  <p className="text-xs text-[#71717a]">Select one or both destinations before posting or scheduling.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {studioPlatformOptions.map(({ id, label, Icon, accentClass, activeClass }) => {
+                    const isConnected = connectedPlatforms.includes(id);
+                    const isSelected = selectedPlatforms.includes(id);
+
+                    return (
+                      <label
+                        key={id}
+                        className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
+                          isSelected
+                            ? activeClass
+                            : 'border-white/[0.06] bg-[#18181b] hover:border-white/[0.14]'
+                        } ${isConnected ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled={!isConnected}
+                          onChange={() => toggleStudioPlatform(id)}
+                          className="sr-only"
+                        />
+                        <span className={`w-9 h-9 rounded-lg bg-white/[0.06] flex items-center justify-center ${accentClass}`}>
+                          <Icon size={17} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-semibold text-white">{label}</span>
+                          <span className="block text-xs text-[#71717a]">
+                            {platformsLoading ? 'Checking connection...' : isConnected ? 'Connected' : 'Not connected'}
+                          </span>
+                        </span>
+                        <span className={`w-5 h-5 rounded border flex items-center justify-center ${
+                          isSelected
+                            ? 'border-[#22d3ee] bg-[#22d3ee] text-[#0a0a0b]'
+                            : 'border-white/[0.18] text-transparent'
+                        }`}>
+                          <FaCheck size={11} />
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+
+                {!platformsLoading && connectedPlatforms.length === 0 && (
+                  <p className="mt-3 text-xs text-amber-300">
+                    No connected platforms found. Connect X or LinkedIn from Accounts first.
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-[#0d0d0f] border border-white/[0.06] rounded-lg p-4">
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <div>
                     <p className="text-xs uppercase tracking-wider text-[#52525b] font-semibold">Preview</p>
@@ -635,7 +753,7 @@ export default function ContentAgent() {
                   <div className="flex gap-1.5">
                     {selectedPlatforms.map(platform => (
                       <span key={platform} className="px-2 py-1 rounded-md bg-white/[0.06] text-[11px] text-[#d4d4d8] capitalize">
-                        {platform === 'twitter' ? 'X' : platform}
+                        {studioPlatformOptions.find(option => option.id === platform)?.shortLabel || platform}
                       </span>
                     ))}
                   </div>
@@ -680,7 +798,7 @@ export default function ContentAgent() {
                 </button>
                 <button
                   onClick={handleScheduleStudioPost}
-                  disabled={!studioPost.trim() || schedulingPost}
+                  disabled={!studioPost.trim() || selectedPlatforms.length === 0 || schedulingPost}
                   className="px-4 py-2 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg hover:bg-white/[0.1] transition-colors disabled:opacity-50 text-sm font-medium"
                 >
                   {schedulingPost ? 'Scheduling...' : 'Schedule'}
@@ -693,7 +811,7 @@ export default function ContentAgent() {
                 />
                 <button
                   onClick={handlePostStudioNow}
-                  disabled={!studioPost.trim() || studioPosting}
+                  disabled={!studioPost.trim() || selectedPlatforms.length === 0 || studioPosting}
                   className="px-4 py-2 bg-[#22d3ee] text-[#0a0a0b] rounded-lg transition-colors disabled:opacity-50 text-sm font-semibold"
                 >
                   {studioPosting ? 'Posting...' : 'Post Now'}
