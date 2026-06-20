@@ -1245,6 +1245,141 @@ app.delete('/api/queue/:id', verifyAuth, async (req, res) => {
   }
 });
 
+function parsePostResults(results) {
+  if (!results) return {};
+  if (typeof results === 'string') {
+    try {
+      return JSON.parse(results);
+    } catch (error) {
+      return {};
+    }
+  }
+  return results;
+}
+
+function resultEntries(platformResults) {
+  if (!platformResults) return [];
+  return Array.isArray(platformResults) ? platformResults : [platformResults];
+}
+
+function parsePlatformList(platforms) {
+  if (Array.isArray(platforms)) return platforms;
+  if (!platforms) return [];
+  if (typeof platforms === 'string') {
+    try {
+      const parsed = JSON.parse(platforms);
+      return Array.isArray(parsed) ? parsed : [platforms];
+    } catch (error) {
+      return [platforms];
+    }
+  }
+  return [];
+}
+
+function getFailedPlatforms(results, platforms = []) {
+  const parsedResults = parsePostResults(results);
+  const knownPlatforms = new Set([
+    ...Object.keys(parsedResults),
+    ...parsePlatformList(platforms)
+  ]);
+
+  return Array.from(knownPlatforms).filter((platform) => {
+    const entries = resultEntries(parsedResults[platform]);
+    if (entries.length === 0) return true;
+    return entries.some((entry) => entry && (entry.success === false || entry.error));
+  });
+}
+
+function calculatePostStatus(results) {
+  const entries = Object.values(parsePostResults(results)).flatMap(resultEntries);
+  const meaningfulEntries = entries.filter((entry) => entry && typeof entry === 'object');
+
+  if (meaningfulEntries.length === 0) return 'failed';
+
+  const successCount = meaningfulEntries.filter((entry) => entry.success === true).length;
+  const failureCount = meaningfulEntries.filter((entry) => entry.success === false || entry.error).length;
+
+  if (successCount > 0 && failureCount === 0) return 'posted';
+  if (successCount > 0 && failureCount > 0) return 'partial';
+  return 'failed';
+}
+
+/**
+ * POST /api/posts/:id/retry
+ * Manually retry failed platforms for a failed or partial historical post.
+ */
+app.post('/api/posts/:id/retry', verifyAuth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const postId = req.params.id;
+
+    const { data: post, error } = await supabaseAdmin
+      .from('posts')
+      .select('*')
+      .eq('id', postId)
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found or you do not have permission to retry it'
+      });
+    }
+
+    if (!['failed', 'partial'].includes(post.status)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Only failed or partial posts can be retried'
+      });
+    }
+
+    const originalResults = parsePostResults(post.results);
+    const failedPlatforms = getFailedPlatforms(originalResults, post.platforms);
+    const retryablePlatforms = failedPlatforms.filter((platform) => ['linkedin', 'twitter'].includes(platform));
+
+    if (retryablePlatforms.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No retryable failed platforms found for this post',
+        failedPlatforms
+      });
+    }
+
+    console.log(`🔁 Manual retry requested for post ${postId} by user ${userId}: ${retryablePlatforms.join(', ')}`);
+
+    const retryResults = await postNow({
+      user_id: userId,
+      text: post.text,
+      image_url: post.image_url,
+      platforms: retryablePlatforms
+    });
+
+    const mergedResults = {
+      ...originalResults,
+      ...retryResults
+    };
+    const status = calculatePostStatus(mergedResults);
+    const updatedPost = await updatePostStatus(post.id, status, mergedResults);
+
+    res.json({
+      success: status === 'posted',
+      partial: status === 'partial',
+      status,
+      retriedPlatforms: retryablePlatforms,
+      skippedPlatforms: failedPlatforms.filter((platform) => !retryablePlatforms.includes(platform)),
+      results: mergedResults,
+      post: updatedPost
+    });
+  } catch (error) {
+    console.error('❌ Error in /api/posts/:id/retry:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to retry post'
+    });
+  }
+});
+
 /**
  * POST /api/ai-tools/schedule-now
  * Manually trigger scheduling of 10 AI posts (protected)

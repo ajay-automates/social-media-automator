@@ -52,11 +52,12 @@ function startScheduler() {
 
 async function processDueQueue() {
   try {
-    // Get all posts that are due (including partial failures for retry)
+    // Only process posts that are explicitly queued.
+    // Partial and failed posts are history until a user manually retries them.
     const { data: duePostsData, error: dueError } = await supabase
       .from('posts')
       .select('*')
-      .in('status', ['queued', 'partial']) // Also retry partial failures
+      .eq('status', 'queued')
       .lte('schedule_time', new Date().toISOString())
       .limit(10);
 
@@ -77,36 +78,9 @@ async function processDueQueue() {
       // 1. Mark as processing to prevent double-pickup
       await supabase.from('posts').update({ status: 'processing' }).eq('id', post.id);
 
-      // Filter out platforms that already succeeded (for partial retries)
       let platformsToPost = post.platforms;
       if (typeof platformsToPost === 'string') {
         platformsToPost = JSON.parse(platformsToPost);
-      }
-
-      if (post.status === 'partial' && post.results) {
-        let previousResults = post.results;
-        if (typeof previousResults === 'string') {
-          try { previousResults = JSON.parse(previousResults); } catch (e) { }
-        }
-
-        if (previousResults) {
-          // Identify successful platforms
-          const successfulPlatforms = new Set();
-          Object.entries(previousResults).forEach(([platform, result]) => {
-            const resultsArray = Array.isArray(result) ? result : [result];
-            // If ANY account for this platform succeeded, assume success for platform (simplification)
-            // Or better: check if ALL accounts for this platform succeeded. 
-            // For now, if any success is recorded for the platform, exclude it to avoid spam.
-            if (resultsArray.some(r => r.success)) {
-              successfulPlatforms.add(platform);
-            }
-          });
-
-          if (successfulPlatforms.size > 0) {
-            console.log(`⏭️  Skipping already successful platforms for post ${post.id}: ${Array.from(successfulPlatforms).join(', ')}`);
-            platformsToPost = platformsToPost.filter(p => !successfulPlatforms.has(p));
-          }
-        }
       }
 
       if (platformsToPost.length === 0) {
@@ -122,16 +96,7 @@ async function processDueQueue() {
       const results = await postNow(postToRun);
 
       // 3. Determine final status
-      // We need to merge new results with old results if this was a partial retry
-      let finalResults = results;
-      if (post.status === 'partial' && post.results) {
-        // Merge logic could go here, but `updatePostStatus` might handle overwrite. 
-        // For simplistic robustness, we will just send the new results.
-        // Actually, to preserve history, we should merge.
-        let oldResults = post.results;
-        if (typeof oldResults === 'string') try { oldResults = JSON.parse(oldResults); } catch (e) { }
-        finalResults = { ...oldResults, ...results };
-      }
+      const finalResults = results;
 
       let finalStatus = 'posted';
       let failureCount = 0;

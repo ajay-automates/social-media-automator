@@ -41,6 +41,51 @@ function Delta({ value }) {
   );
 }
 
+function asResultArray(result) {
+  if (!result) return [];
+  return Array.isArray(result) ? result : [result];
+}
+
+function parsePlatformList(platforms) {
+  if (Array.isArray(platforms)) return platforms;
+  if (!platforms) return [];
+  if (typeof platforms === 'string') {
+    try {
+      const parsed = JSON.parse(platforms);
+      return Array.isArray(parsed) ? parsed : [platforms];
+    } catch (error) {
+      return [platforms];
+    }
+  }
+  return [];
+}
+
+function getFailedPlatforms(post) {
+  const results = post.results || {};
+  const platformSet = new Set([
+    ...Object.keys(results),
+    ...parsePlatformList(post.platforms)
+  ]);
+
+  return Array.from(platformSet).filter((platform) => {
+    const entries = asResultArray(results[platform]);
+    if (entries.length === 0) return true;
+    return entries.some((entry) => entry && (entry.success === false || entry.error));
+  });
+}
+
+function getSuccessCount(results = {}) {
+  return Object.values(results)
+    .flatMap(asResultArray)
+    .filter((entry) => entry && entry.success === true).length;
+}
+
+function getResultCount(results = {}) {
+  return Object.values(results)
+    .flatMap(asResultArray)
+    .filter((entry) => entry && typeof entry === 'object').length;
+}
+
 export default function Analytics() {
   const [analytics, setAnalytics] = useState(null);
   const [history, setHistory] = useState([]);
@@ -55,6 +100,7 @@ export default function Analytics() {
   const [reachHistory, setReachHistory] = useState([]);
   const [reachPosts, setReachPosts] = useState([]);
   const [reachSyncing, setReachSyncing] = useState(false);
+  const [retryingPostIds, setRetryingPostIds] = useState(new Set());
 
   useEffect(() => {
     loadAnalytics();
@@ -177,6 +223,44 @@ export default function Analytics() {
     } catch (err) {
       console.error('Error loading history:', err);
       setHistory([]);
+    }
+  };
+
+  const retryPost = async (post) => {
+    const failedPlatforms = getFailedPlatforms(post);
+    const retryablePlatforms = failedPlatforms.filter((platform) => ['linkedin', 'twitter'].includes(platform));
+
+    if (retryablePlatforms.length === 0) {
+      showError('No retryable platforms found for this post');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Retry this post now on ${retryablePlatforms.join(', ')}? It will post immediately, not at the original scheduled time.`
+    );
+    if (!confirmed) return;
+
+    setRetryingPostIds((current) => new Set([...current, post.id]));
+
+    try {
+      const response = await api.post(`/posts/${post.id}/retry`);
+      if (response.data?.success) {
+        showSuccess('Post retry succeeded');
+      } else if (response.data?.partial) {
+        showSuccess('Retry completed with some platforms still failing');
+      } else {
+        showError(response.data?.error || 'Retry failed');
+      }
+      await Promise.all([loadHistory(), loadAnalytics()]);
+    } catch (err) {
+      console.error('Error retrying post:', err);
+      showError(err.response?.data?.error || 'Failed to retry post');
+    } finally {
+      setRetryingPostIds((current) => {
+        const next = new Set(current);
+        next.delete(post.id);
+        return next;
+      });
     }
   };
 
@@ -831,6 +915,8 @@ export default function Analytics() {
                       }
                     };
 
+                    const retryablePlatforms = getFailedPlatforms(post).filter((platform) => ['linkedin', 'twitter'].includes(platform));
+
                     return (
                       <tr key={idx} className="hover:bg-[#18181b] transition-colors">
                         <td className="px-6 py-4">
@@ -853,11 +939,12 @@ export default function Analytics() {
                                         e.preventDefault();
 
                                         // Check if post failed
-                                        const platformResult = post.results && post.results[platform];
-                                        const isFailed = post.status === 'failed' || (platformResult && platformResult.success === false);
+                                        const platformResults = asResultArray(post.results && post.results[platform]);
+                                        const failedResult = platformResults.find((result) => result && (result.success === false || result.error));
+                                        const isFailed = post.status === 'failed' || !!failedResult;
 
                                         if (isFailed) {
-                                          const errorMsg = platformResult && platformResult.error ? platformResult.error : 'Post failed';
+                                          const errorMsg = failedResult?.error || 'Post failed';
                                           showError(`Post failed: ${errorMsg}`);
                                         } else {
                                           // Show toast notification with helpful message for successful but missing link
@@ -906,7 +993,7 @@ export default function Analytics() {
                             </span>
                             {post.results && Object.keys(post.results).length > 0 && (
                               <span className="text-xs text-[#52525b]">
-                                {Object.values(post.results).filter(r => r.success).length}/{Object.keys(post.results).length} succeeded
+                                {getSuccessCount(post.results)}/{getResultCount(post.results)} succeeded
                               </span>
                             )}
                           </div>
@@ -921,6 +1008,19 @@ export default function Analytics() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex gap-2">
+                            {(post.status === 'partial' || post.status === 'failed') && retryablePlatforms.length > 0 && (
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => retryPost(post)}
+                                disabled={retryingPostIds.has(post.id)}
+                                className="px-3 py-1 bg-amber-500/15 text-amber-200 border border-amber-400/30 rounded hover:bg-amber-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-xs font-semibold inline-flex items-center gap-1"
+                                title="Retry failed platforms now"
+                              >
+                                <FaSync className={retryingPostIds.has(post.id) ? 'animate-spin' : ''} />
+                                {retryingPostIds.has(post.id) ? 'Retrying' : 'Retry'}
+                              </motion.button>
+                            )}
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
@@ -948,11 +1048,7 @@ export default function Analytics() {
                                   try {
                                     await api.delete(`/queue/${post.id}`);
                                     showSuccess('Post deleted');
-                                    // Refresh history
-                                    const response = await api.get('/posts/history');
-                                    if (response.data.success) {
-                                      setHistory(response.data.history);
-                                    }
+                                    await loadHistory();
                                   } catch (err) {
                                     console.error('Error deleting post:', err);
                                     showError('Failed to delete post');
