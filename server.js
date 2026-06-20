@@ -402,6 +402,21 @@ app.use('/api', apiLimiter);             // General API - moderate (100/15min)
 app.use(publicLimiter);                  // Public routes - lenient (200/15min)
 
 const supportedCreatorPlatforms = new Set(['linkedin', 'twitter']);
+function getPrimaryPostingError(platformResults) {
+  const flattenResults = Object.values(platformResults || {})
+    .flat()
+    .filter(result => result && typeof result === 'object');
+  const failedResult = flattenResults.find(result => result.error);
+
+  if (!failedResult?.error) return 'Failed to post';
+
+  if (/credits? to fulfill this request|creditsdepleted|out of ppu credits/i.test(failedResult.error)) {
+    return 'X API credits are depleted for this developer account. Add or purchase API credits in the X Developer Portal, then try posting again.';
+  }
+
+  return failedResult.error;
+}
+
 const removedFeaturePrefixes = [
   '/api/ab-tests',
   '/api/bulk',
@@ -1079,6 +1094,7 @@ app.post('/api/post/now', verifyAuth, async (req, res) => {
     res.json({
       success: allSuccess,
       partial: anySuccess && !allSuccess,
+      error: allSuccess ? null : getPrimaryPostingError(platformResults),
       results: platformResults
     });
   } catch (error) {

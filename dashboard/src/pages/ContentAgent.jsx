@@ -109,6 +109,23 @@ const getInitials = (name = 'Creator') => name
   .map(part => part[0]?.toUpperCase())
   .join('') || 'C';
 
+const getPostingErrorMessage = (responseData) => {
+  if (responseData?.error) return responseData.error;
+
+  const platformResults = responseData?.results || {};
+  const failedResult = Object.values(platformResults)
+    .flat()
+    .find(result => result?.error);
+
+  if (!failedResult?.error) return 'Failed to post';
+
+  if (/credits? to fulfill this request|creditsdepleted|out of ppu credits/i.test(failedResult.error)) {
+    return 'X API credits are depleted for this developer account. Add or purchase API credits in the X Developer Portal, then try posting again.';
+  }
+
+  return failedResult.error;
+};
+
 function ProfileAvatar({ user, size = 'md' }) {
   const name = getDisplayName(user);
   const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
@@ -456,10 +473,10 @@ export default function ContentAgent() {
       if (response.data.success) {
         showSuccess('Posted successfully');
       } else {
-        showError(response.data.error || 'Failed to post');
+        showError(getPostingErrorMessage(response.data));
       }
     } catch (error) {
-      showError(error.response?.data?.error || 'Failed to post');
+      showError(getPostingErrorMessage(error.response?.data));
     } finally {
       setStudioPosting(false);
     }
