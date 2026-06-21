@@ -176,7 +176,9 @@ function Navigation() {
                     ? 'text-zinc-500 border-zinc-700/50 bg-zinc-800/30'
                     : billingInfo.plan.name === 'pro'
                       ? 'text-accent border-accent/20 bg-accent/[0.06]'
-                      : 'text-violet-400 border-violet-500/20 bg-violet-500/[0.06]'
+                      : billingInfo.plan.name === 'admin'
+                        ? 'text-amber-300 border-amber-400/20 bg-amber-400/[0.08]'
+                        : 'text-violet-400 border-violet-500/20 bg-violet-500/[0.06]'
                 }`}>
                   {billingInfo.plan.name}
                 </span>

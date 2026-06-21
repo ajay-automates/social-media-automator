@@ -7,6 +7,7 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const { supabase, supabaseAdmin } = require('./database');
 const { getPlan, checkLimitWithGrace, getRecommendedUpgrade } = require('../config/plans');
+const { isAdmin } = require('./admin');
 
 let razorpay;
 if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
@@ -20,6 +21,38 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
   }
 } else {
   console.warn('⚠️ Razorpay keys missing. Billing features disabled.');
+}
+
+const ADMIN_BILLING_PLAN = {
+  name: 'admin',
+  displayName: 'Admin Access',
+  price: 0,
+  limits: {
+    posts: Infinity,
+    ai: Infinity,
+    accounts: Infinity,
+    images: Infinity,
+    videos: Infinity,
+    voice: Infinity,
+    team: Infinity,
+    platforms: ['linkedin', 'twitter']
+  }
+};
+
+async function getUserEmail(userId) {
+  try {
+    const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
+    if (error) throw error;
+    return data?.user?.email || null;
+  } catch (error) {
+    console.error('❌ Error fetching user email for billing:', error.message);
+    return null;
+  }
+}
+
+async function isAdminUser(userId) {
+  const email = await getUserEmail(userId);
+  return isAdmin(email);
 }
 
 // ============================================
@@ -359,6 +392,23 @@ async function incrementUsage(userId, resource, amount = 1) {
 
 async function checkUsage(userId, resource) {
   try {
+    if (await isAdminUser(userId)) {
+      return {
+        allowed: true,
+        message: null,
+        limit: {
+          allowed: true,
+          hardBlock: false,
+          inGracePeriod: false,
+          limit: 'Unlimited',
+          remaining: 'Unlimited',
+          usage: 0,
+          message: null
+        },
+        isAdmin: true
+      };
+    }
+
     const { data: sub } = await supabaseAdmin
       .from('subscriptions')
       .select('plan')
@@ -395,6 +445,44 @@ async function checkUsage(userId, resource) {
 
 async function getUserBillingInfo(userId) {
   try {
+    const usage = await getUsage(userId);
+
+    if (await isAdminUser(userId)) {
+      const { data: accounts } = await supabaseAdmin
+        .from('user_accounts')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('status', 'active');
+
+      const accountsCount = accounts?.length || 0;
+
+      return {
+        plan: ADMIN_BILLING_PLAN,
+        subscription: {
+          status: 'active',
+          currentPeriodEnd: null,
+          trialEndsAt: null
+        },
+        usage: {
+          posts: {
+            used: usage.posts_count,
+            limit: Infinity,
+            remaining: 'Unlimited'
+          },
+          ai: {
+            used: usage.ai_count,
+            limit: Infinity,
+            remaining: 'Unlimited'
+          },
+          accounts: {
+            used: accountsCount,
+            limit: Infinity
+          }
+        },
+        isAdmin: true
+      };
+    }
+
     const { data: sub } = await supabaseAdmin
       .from('subscriptions')
       .select('*')
@@ -403,7 +491,6 @@ async function getUserBillingInfo(userId) {
 
     const plan = sub?.plan || 'free';
     const planDetails = getPlan(plan);
-    const usage = await getUsage(userId);
 
     const { data: accounts } = await supabaseAdmin
       .from('user_accounts')

@@ -61,6 +61,7 @@ export default function BillingSettings() {
 
   const { plan, subscription, usage } = billingData;
   const isFree = plan && plan.name === 'free';
+  const isAdminPlan = plan && plan.name === 'admin';
   
   // Safety checks
   if (!plan || !usage) {
@@ -109,13 +110,15 @@ export default function BillingSettings() {
         <div className="relative flex justify-between items-start mb-4">
           <div>
             <h3 className="text-2xl font-bold mb-1">{plan.displayName} Plan</h3>
-            <p className="text-[#22d3ee]">${plan.price}/{isFree ? 'free' : 'month'}</p>
+            <p className="text-[#22d3ee]">
+              {isAdminPlan ? 'Unlimited internal access' : `$${plan.price}/${isFree ? 'free' : 'month'}`}
+            </p>
           </div>
           <span className="bg-[#18181b] px-4 py-1.5 rounded-full text-sm font-semibold border border-white/30">
-            {subscription.status === 'trialing' ? 'Trial' : 'Active'}
+            {isAdminPlan ? 'Admin' : subscription.status === 'trialing' ? 'Trial' : 'Active'}
           </span>
         </div>
-        {!isFree && (
+        {!isFree && !isAdminPlan && (
           <div className="relative border-t border-white/[0.08] pt-4">
             <p className="text-sm text-blue-100">
               {subscription.trialEndsAt
@@ -220,7 +223,7 @@ export default function BillingSettings() {
       </div>
 
       {/* Upgrade CTA for Free Users */}
-      {isFree && (
+      {isFree && !isAdminPlan && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
