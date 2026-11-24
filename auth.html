@@ -542,8 +542,8 @@
     };
 
     // Supabase
-    const SUPABASE_URL = 'https://gzchblilbthkfuxqhoyo.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6Y2hibGlsYnRoa2Z1eHFob3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMDgzOTcsImV4cCI6MjA3Njg4NDM5N30.h85XUXsVvxYAdMA9odgO4W5RN1148MDOO86XhwgOnb8';
+    const SUPABASE_URL = (window.__SUPABASE_CONFIG__ && window.__SUPABASE_CONFIG__.url) || '';
+    const SUPABASE_ANON_KEY = (window.__SUPABASE_CONFIG__ && window.__SUPABASE_CONFIG__.key) || '';
     let supabaseClient;
 
     function showSystemError(msg) {
