@@ -8,6 +8,8 @@ pnpm-lock.yaml
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
 
 # OS files
 .DS_Store
@@ -82,7 +84,11 @@ dashboard/dist/
 dashboard/.next/
 dashboard/.nuxt/
 dashboard/build/
+dashboard/.env
 dashboard/.env.local
+dashboard/.env.production
+dashboard/.env.staging
+dashboard/.env.*.local
 
 # Database
 *.db
@@ -109,6 +115,4 @@ desktop.ini
 $RECYCLE.BIN/
 
 # Project specific
-.env.production
-.env.staging
 config/local.json
