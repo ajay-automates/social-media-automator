@@ -601,61 +601,22 @@ app.get('/auth', async (req, res) => {
 
     let content = await fs.readFile(authPath, 'utf8');
 
-    // Inject environment variables safely with multiple regex patterns
-    if (process.env.SUPABASE_URL) {
-      // Try multiple patterns to match different quote styles
-      const patterns = [
-        /const SUPABASE_URL = ['"].*?['"];/,
-        /const SUPABASE_URL = '.*';/,
-        /const SUPABASE_URL = ".*";/
-      ];
-
-      let replaced = false;
-      for (const pattern of patterns) {
-        if (pattern.test(content)) {
-          content = content.replace(
-            pattern,
-            `const SUPABASE_URL = ${JSON.stringify(process.env.SUPABASE_URL)};`
-          );
-          replaced = true;
-          console.log('✅ Injected SUPABASE_URL from environment');
-          break;
-        }
-      }
-
-      if (!replaced) {
-        console.warn('⚠️  Could not find SUPABASE_URL pattern to replace');
+    // Inject Supabase config for auth.html, which reads window.__SUPABASE_CONFIG__.
+    // Only the project URL and the publishable (anon) key are exposed to the browser;
+    // the secret / service-role keys are never sent to the client.
+    if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+      const configScript = `<script>window.__SUPABASE_CONFIG__ = ${JSON.stringify({
+        url: process.env.SUPABASE_URL,
+        key: process.env.SUPABASE_ANON_KEY
+      })};</script>`;
+      if (content.includes('</head>')) {
+        content = content.replace('</head>', `${configScript}\n</head>`);
+        console.log('✅ Injected window.__SUPABASE_CONFIG__ from environment');
+      } else {
+        console.warn('⚠️  Could not find </head> in auth.html to inject Supabase config');
       }
     } else {
-      console.warn('⚠️  SUPABASE_URL environment variable not set');
-    }
-
-    if (process.env.SUPABASE_ANON_KEY) {
-      // Try multiple patterns to match different quote styles
-      const patterns = [
-        /const SUPABASE_ANON_KEY = ['"].*?['"];/,
-        /const SUPABASE_ANON_KEY = '.*';/,
-        /const SUPABASE_ANON_KEY = ".*";/
-      ];
-
-      let replaced = false;
-      for (const pattern of patterns) {
-        if (pattern.test(content)) {
-          content = content.replace(
-            pattern,
-            `const SUPABASE_ANON_KEY = ${JSON.stringify(process.env.SUPABASE_ANON_KEY)};`
-          );
-          replaced = true;
-          console.log('✅ Injected SUPABASE_ANON_KEY from environment');
-          break;
-        }
-      }
-
-      if (!replaced) {
-        console.warn('⚠️  Could not find SUPABASE_ANON_KEY pattern to replace');
-      }
-    } else {
-      console.warn('⚠️  SUPABASE_ANON_KEY environment variable not set');
+      console.warn('⚠️  SUPABASE_URL / SUPABASE_ANON_KEY environment variables not set — auth page will have no Supabase config');
     }
 
     // Set proper content type
